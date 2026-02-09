@@ -17,6 +17,13 @@ abstract class ProfileRepository {
     String? language,
   });
 
+  /// Complete onboarding: set username, gender, language and onboarding_completed_at.
+  Future<ProfileResult> completeOnboarding({
+    required String username,
+    required String gender,
+    required String language,
+  });
+
   /// Update FCM token for push notifications.
   Future<ProfileResult> updateFcmToken(String? token);
 }

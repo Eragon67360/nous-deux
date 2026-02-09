@@ -1,28 +1,75 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:nous_deux/presentation/providers/profile_provider.dart';
 import 'package:nous_deux/presentation/screens/calendar/calendar_screen.dart';
 
-class MainShellScreen extends StatefulWidget {
+class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.child});
   final Widget child;
 
   @override
-  State<MainShellScreen> createState() => _MainShellScreenState();
+  ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
 }
 
-class _MainShellScreenState extends State<MainShellScreen> {
+class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   int _index = 0;
 
   @override
   Widget build(BuildContext context) {
+    final profileAsync = ref.watch(myProfileProvider);
+    final showNoPartnerBubble =
+        profileAsync.valueOrNull != null &&
+        (profileAsync.valueOrNull!.hasPartner == false);
+
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: const [
-          CalendarScreen(),
-          _PlaceholderTab(title: 'Règles'),
-          _PlaceholderTab(title: 'Position'),
-          _PlaceholderTab(title: 'Paramètres'),
+      body: Column(
+        children: [
+          if (showNoPartnerBubble)
+            Material(
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              child: InkWell(
+                onTap: () => context.push('/pairing'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_add_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Pas encore de partenaire ? Invitez-le ou invitez-la.',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          Expanded(
+            child: IndexedStack(
+              index: _index,
+              children: const [
+                CalendarScreen(),
+                _PlaceholderTab(title: 'Règles'),
+                _PlaceholderTab(title: 'Position'),
+                _PlaceholderTab(title: 'Paramètres'),
+              ],
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: NavigationBar(

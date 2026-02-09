@@ -30,6 +30,7 @@ class MainApp extends ConsumerWidget {
     if (!AppConfig.isSupabaseConfigured) {
       return MaterialApp(
         title: 'Nous Deux',
+        debugShowCheckedModeBanner: false,
         theme: theme,
         home: Scaffold(
           body: Center(
@@ -47,6 +48,7 @@ class MainApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     return MaterialApp.router(
       title: 'Nous Deux',
+      debugShowCheckedModeBanner: false,
       theme: theme,
       routerConfig: router,
     );

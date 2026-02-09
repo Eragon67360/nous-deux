@@ -7,6 +7,7 @@ class ProfileEntity extends Equatable {
     required this.gender,
     this.partnerId,
     this.language = 'fr',
+    this.onboardingCompletedAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -16,11 +17,23 @@ class ProfileEntity extends Equatable {
   final String gender;
   final String? partnerId;
   final String language;
+  final DateTime? onboardingCompletedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
   bool get hasPartner => partnerId != null && partnerId!.isNotEmpty;
 
+  bool get hasCompletedOnboarding => onboardingCompletedAt != null;
+
   @override
-  List<Object?> get props => [id, username, gender, partnerId, language, createdAt, updatedAt];
+  List<Object?> get props => [
+    id,
+    username,
+    gender,
+    partnerId,
+    language,
+    onboardingCompletedAt,
+    createdAt,
+    updatedAt,
+  ];
 }

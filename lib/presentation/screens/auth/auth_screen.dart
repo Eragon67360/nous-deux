@@ -33,14 +33,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _loading = true;
     });
     final repo = ref.read(authRepositoryProvider);
-    final result = await repo.signInWithOtp(phone: phone.startsWith('+') ? phone : '+33$phone');
+    final result = await repo.signInWithOtp(
+      phone: phone.startsWith('+') ? phone : '+33$phone',
+    );
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
       setState(() => _error = result.failure!.message ?? 'Erreur');
       return;
     }
-    context.push('/auth/verify', extra: {'phone': phone.startsWith('+') ? phone : '+33$phone'});
+    context.push(
+      '/auth/verify',
+      extra: {'phone': phone.startsWith('+') ? phone : '+33$phone'},
+    );
   }
 
   Future<void> _signInWithGoogle() async {
@@ -75,7 +80,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -90,8 +95,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               Text(
                 'Connectez-vous pour continuer',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -106,12 +111,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: 8),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ],
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: _loading ? null : _sendOtp,
-                child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Envoyer le code'),
+                child: _loading
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Envoyer le code'),
               ),
               const SizedBox(height: 24),
               const Divider(),
@@ -127,6 +141,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 icon: const Icon(Icons.apple, size: 24),
                 label: const Text('Continuer avec Apple'),
               ),
+              const SizedBox(height: 24),
             ],
           ),
         ),

@@ -24,8 +24,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final authLoading = authAsync.isLoading;
   final isSignedIn = authAsync.valueOrNull != null;
   final profile = profileAsync.valueOrNull;
-  final hasProfile = profile != null;
-  final hasPartner = profile?.hasPartner ?? false;
+  final hasCompletedOnboarding = profile?.hasCompletedOnboarding ?? false;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
@@ -40,20 +39,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return '/auth';
       }
 
-      if (!hasProfile && !profileAsync.isLoading) {
-        if (loc.startsWith('/onboarding')) return null;
+      // First-time user: send to onboarding once profile is loaded and not completed
+      if (!profileAsync.isLoading &&
+          profile != null &&
+          !hasCompletedOnboarding &&
+          !loc.startsWith('/onboarding')) {
         return '/onboarding';
       }
 
-      if (hasProfile && !hasPartner) {
-        if (loc.startsWith('/pairing')) return null;
-        return '/pairing';
-      }
-
-      if (loc == '/' ||
-          loc.startsWith('/auth') ||
-          loc.startsWith('/onboarding') ||
-          loc.startsWith('/pairing')) {
+      // Onboarding done: go to main (never auto-redirect to pairing)
+      if (hasCompletedOnboarding &&
+          (loc == '/' ||
+              loc.startsWith('/auth') ||
+              loc.startsWith('/onboarding'))) {
         return '/main';
       }
       return null;

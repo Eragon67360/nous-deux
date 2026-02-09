@@ -1,6 +1,6 @@
 name: nous_deux
 description: "Nous Deux - A privacy-focused couple's app."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
@@ -57,7 +57,18 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   riverpod_generator: ^2.6.3
   build_runner: ^2.4.14
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/icon/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/app_icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#FFF9F9"
+  adaptive_icon_foreground: assets/icon/app_icon.png
