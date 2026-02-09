@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:nous_deux/presentation/providers/pairing_provider.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/pairing_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 class PairingJoinScreen extends ConsumerStatefulWidget {
   const PairingJoinScreen({super.key});
@@ -58,13 +59,16 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 24),
-              const Text('Entrez le code à 6 caractères partagé par votre partenaire.'),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Entrez le code à 6 caractères partagé par votre partenaire.',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: _codeController,
                 textCapitalization: TextCapitalization.characters,
@@ -72,18 +76,27 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Code',
                   hintText: 'ABC123',
-                  border: OutlineInputBorder(),
                 ),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  _error!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
               FilledButton(
                 onPressed: _loading ? null : _join,
                 child: _loading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ),
+                      )
                     : const Text('Rejoindre'),
               ),
             ],

@@ -1,28 +1,25 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/data/datasources/auth_remote_datasource.dart';
-import 'package:nous_deux/domain/entities/user_entity.dart';
-import 'package:nous_deux/domain/repositories/auth_repository.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/datasources/auth_remote_datasource.dart';
+import 'package:nousdeux/domain/entities/user_entity.dart';
+import 'package:nousdeux/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({AuthRemoteDatasource? datasource})
-      : _datasource = datasource ?? AuthRemoteDatasource();
+    : _datasource = datasource ?? AuthRemoteDatasource();
 
   final AuthRemoteDatasource _datasource;
 
   static UserEntity? _userFromSupabase(User? user) {
     if (user == null) return null;
-    return UserEntity(
-      id: user.id,
-      phone: user.phone,
-      email: user.email,
-    );
+    return UserEntity(id: user.id, phone: user.phone, email: user.email);
   }
 
   @override
-  Stream<UserEntity?> get authStateChanges =>
-      _datasource.authStateChanges.map((state) => _userFromSupabase(state.session?.user));
+  Stream<UserEntity?> get authStateChanges => _datasource.authStateChanges.map(
+    (state) => _userFromSupabase(state.session?.user),
+  );
 
   @override
   UserEntity? get currentUser => _userFromSupabase(_datasource.currentUser);

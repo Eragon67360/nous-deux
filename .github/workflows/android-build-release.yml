@@ -1,0 +1,133 @@
+name: Android Build and Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "lib/**"
+      - "android/**"
+      - "pubspec.yaml"
+      - "pubspec.lock"
+      - ".github/workflows/android-build-release.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    name: Android Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | tr -d '\r')
+          BUILD="${GITHUB_RUN_NUMBER:-0}"
+          if echo "$VERSION" | grep -q '+'; then
+            FULL="${VERSION}"
+          else
+            FULL="${VERSION}+${BUILD}"
+          fi
+          echo "version=$FULL" >> $GITHUB_OUTPUT
+          echo "Version: $FULL"
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Gradle Cache
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+        working-directory: android
+
+      - name: Create Keystore
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > upload-keystore.jks
+          echo "storePassword=$ANDROID_KEYSTORE_PASSWORD" > key.properties
+          echo "keyPassword=$ANDROID_KEY_PASSWORD" >> key.properties
+          echo "keyAlias=$ANDROID_KEY_ALIAS" >> key.properties
+          echo "storeFile=upload-keystore.jks" >> key.properties
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build App Bundle
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          flutter build appbundle --release \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+
+      - name: Upload to Google Play
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
+          packageName: com.nousdeux.app
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          mappingFile: android/app/build/outputs/mapping/release/mapping.txt
+          track: internal
+          status: draft
+
+      - name: Generate APK from AAB
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          wget https://github.com/google/bundletool/releases/download/1.15.6/bundletool-all-1.15.6.jar -O bundletool.jar
+          mkdir -p build/app/outputs/flutter-apk
+          java -jar bundletool.jar build-apks \
+            --bundle=build/app/outputs/bundle/release/app-release.aab \
+            --output=app.apks \
+            --mode=universal \
+            --ks=android/upload-keystore.jks \
+            --ks-pass=pass:"$ANDROID_KEYSTORE_PASSWORD" \
+            --ks-key-alias="$ANDROID_KEY_ALIAS" \
+            --key-pass=pass:"$ANDROID_KEY_PASSWORD"
+          unzip -p app.apks universal.apk > build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Rename Artifacts
+        id: rename
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          AAB_OLD="build/app/outputs/bundle/release/app-release.aab"
+          AAB_NEW="build/app/outputs/bundle/release/NousDeux-App-v${VERSION}.aab"
+          APK_OLD="build/app/outputs/flutter-apk/app-release.apk"
+          APK_NEW="build/app/outputs/flutter-apk/NousDeux-App-v${VERSION}.apk"
+          mv $AAB_OLD $AAB_NEW
+          mv $APK_OLD $APK_NEW
+          echo "aab_path=$AAB_NEW" >> $GITHUB_OUTPUT
+          echo "apk_path=$APK_NEW" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "android/v${{ steps.version.outputs.version }}"
+          name: "Android v${{ steps.version.outputs.version }}"
+          files: |
+            ${{ steps.rename.outputs.aab_path }}
+            ${{ steps.rename.outputs.apk_path }}
+          generate_release_notes: true

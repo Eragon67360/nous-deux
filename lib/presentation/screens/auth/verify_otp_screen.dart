@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:nous_deux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
 class VerifyOtpScreen extends ConsumerStatefulWidget {
   const VerifyOtpScreen({super.key, required this.phone});
@@ -44,20 +45,21 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Vérification')),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
               Text(
                 'Entrez le code envoyé au $_phone',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: _codeController,
                 keyboardType: TextInputType.number,
@@ -65,18 +67,24 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
                 decoration: const InputDecoration(
                   labelText: 'Code',
                   hintText: '123456',
-                  border: OutlineInputBorder(),
                 ),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
-                Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+                const SizedBox(height: AppSpacing.xs),
+                Text(_error!, style: TextStyle(color: colorScheme.error)),
               ],
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
               FilledButton(
                 onPressed: _loading ? null : _verify,
                 child: _loading
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
+                      )
                     : const Text('Vérifier'),
               ),
             ],

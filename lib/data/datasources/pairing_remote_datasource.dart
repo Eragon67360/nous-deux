@@ -2,12 +2,12 @@ import 'dart:math';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/constants/app_constants.dart';
-import 'package:nous_deux/data/models/couple_model.dart';
+import 'package:nousdeux/core/constants/app_constants.dart';
+import 'package:nousdeux/data/models/couple_model.dart';
 
 class PairingRemoteDatasource {
   PairingRemoteDatasource([SupabaseClient? client])
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
   final Random _random = Random();
@@ -42,14 +42,20 @@ class PairingRemoteDatasource {
     int attempts = 0;
     while (true) {
       code = _generateCode();
-      final existing = await _client.from(_table).select('id').eq('pairing_code', code).maybeSingle();
+      final existing = await _client
+          .from(_table)
+          .select('id')
+          .eq('pairing_code', code)
+          .maybeSingle();
       if (existing == null) break;
-      if (++attempts > 10) throw AuthException('Could not generate unique code');
+      if (++attempts > 10)
+        throw AuthException('Could not generate unique code');
     }
-    final res = await _client.from(_table).insert({
-      'user1_id': uid,
-      'pairing_code': code,
-    }).select().single();
+    final res = await _client
+        .from(_table)
+        .insert({'user1_id': uid, 'pairing_code': code})
+        .select()
+        .single();
     return CoupleModel.fromJson(Map<String, dynamic>.from(res));
   }
 
@@ -58,9 +64,14 @@ class PairingRemoteDatasource {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw AuthException('Not signed in');
     final normalizedCode = code.trim().toUpperCase();
-    if (normalizedCode.isEmpty) throw PostgrestException(message: 'Code requis');
+    if (normalizedCode.isEmpty)
+      throw PostgrestException(message: 'Code requis');
 
-    final existing = await _client.from(_table).select().eq('pairing_code', normalizedCode).maybeSingle();
+    final existing = await _client
+        .from(_table)
+        .select()
+        .eq('pairing_code', normalizedCode)
+        .maybeSingle();
     if (existing == null) {
       throw PostgrestException(message: 'Code invalide');
     }
@@ -71,7 +82,9 @@ class PairingRemoteDatasource {
     }
     final user1Id = existing['user1_id'] as String;
     if (user1Id == uid) {
-      throw PostgrestException(message: 'Vous ne pouvez pas rejoindre votre propre lien');
+      throw PostgrestException(
+        message: 'Vous ne pouvez pas rejoindre votre propre lien',
+      );
     }
 
     await _client.from(_table).update({'user2_id': uid}).eq('id', coupleId);

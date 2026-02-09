@@ -1,5 +1,5 @@
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/domain/entities/user_entity.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/domain/entities/user_entity.dart';
 
 /// Result type for auth operations.
 typedef AuthResult = ({UserEntity? user, Failure? failure});
@@ -15,10 +15,7 @@ abstract class AuthRepository {
   Future<AuthResult> signInWithOtp({required String phone});
 
   /// Verify OTP and sign in.
-  Future<AuthResult> verifyOtp({
-    required String phone,
-    required String token,
-  });
+  Future<AuthResult> verifyOtp({required String phone, required String token});
 
   /// Sign in with Google (getIdToken then Supabase signInWithIdToken).
   Future<AuthResult> signInWithGoogle();

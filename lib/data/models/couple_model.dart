@@ -1,4 +1,4 @@
-import 'package:nous_deux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/domain/entities/couple_entity.dart';
 
 class CoupleModel {
   CoupleModel({

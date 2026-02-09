@@ -1,17 +1,17 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/data/datasources/calendar_remote_datasource.dart';
-import 'package:nous_deux/data/datasources/pairing_remote_datasource.dart';
-import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
-import 'package:nous_deux/domain/repositories/calendar_repository.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/datasources/calendar_remote_datasource.dart';
+import 'package:nousdeux/data/datasources/pairing_remote_datasource.dart';
+import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
+import 'package:nousdeux/domain/repositories/calendar_repository.dart';
 
 class CalendarRepositoryImpl implements CalendarRepository {
   CalendarRepositoryImpl({
     CalendarRemoteDatasource? calendarDs,
     PairingRemoteDatasource? pairingDs,
-  })  : _calendar = calendarDs ?? CalendarRemoteDatasource(),
-        _pairing = pairingDs ?? PairingRemoteDatasource();
+  }) : _calendar = calendarDs ?? CalendarRemoteDatasource(),
+       _pairing = pairingDs ?? PairingRemoteDatasource();
 
   final CalendarRemoteDatasource _calendar;
   final PairingRemoteDatasource _pairing;
@@ -28,7 +28,9 @@ class CalendarRepositoryImpl implements CalendarRepository {
       yield [];
       return;
     }
-    yield* _calendar.watchEvents(coupleId).map((list) => list.map((e) => e.toEntity()).toList());
+    yield* _calendar
+        .watchEvents(coupleId)
+        .map((list) => list.map((e) => e.toEntity()).toList());
   }
 
   @override
@@ -41,12 +43,22 @@ class CalendarRepositoryImpl implements CalendarRepository {
       if (coupleId == null) {
         return (events: <CalendarEventEntity>[], failure: null);
       }
-      final list = await _calendar.getEvents(coupleId: coupleId, start: start, end: end);
+      final list = await _calendar.getEvents(
+        coupleId: coupleId,
+        start: start,
+        end: end,
+      );
       return (events: list.map((e) => e.toEntity()).toList(), failure: null);
     } on PostgrestException catch (e) {
-      return (events: <CalendarEventEntity>[], failure: ServerFailure(e.message));
+      return (
+        events: <CalendarEventEntity>[],
+        failure: ServerFailure(e.message),
+      );
     } catch (e) {
-      return (events: <CalendarEventEntity>[], failure: UnknownFailure(e.toString()));
+      return (
+        events: <CalendarEventEntity>[],
+        failure: UnknownFailure(e.toString()),
+      );
     }
   }
 
@@ -59,7 +71,8 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }) async {
     try {
       final coupleId = await _getCoupleId();
-      if (coupleId == null) return (event: null, failure: const AuthFailure('No couple'));
+      if (coupleId == null)
+        return (event: null, failure: const AuthFailure('No couple'));
       final model = await _calendar.create(
         coupleId: coupleId,
         title: title,

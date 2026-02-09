@@ -31,15 +31,12 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
@@ -60,5 +57,7 @@
 	<string>Nous Deux utilise la caméra pour scanner le QR code d'invitation de votre partenaire.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel).</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Nous Deux utilise la photo pour définir votre photo de profil.</string>
 </dict>
 </plist>
