@@ -22,7 +22,9 @@ The Flutter app only needs **URL** and **anon key**. The service_role key bypass
 
 ### Option 2: Dart define (CI / production)
 
-Build or run with:
+In CI/production, the workflow creates `supabase_keys.dart` from the committed stub and passes `SUPABASE_URL` and `SUPABASE_ANON_KEY` via `--dart-define` (from secrets). The app uses those values; the stub file is only so the build can resolve the import.
+
+To build or run locally with env only:
 
 ```bash
 flutter run --dart-define=SUPABASE_URL=https://YOUR_REF.supabase.co --dart-define=SUPABASE_ANON_KEY=your_anon_key
