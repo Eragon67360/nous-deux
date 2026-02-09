@@ -1,8 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/data/datasources/profile_remote_datasource.dart';
-import 'package:nous_deux/domain/repositories/profile_repository.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/datasources/profile_remote_datasource.dart';
+import 'package:nousdeux/domain/repositories/profile_repository.dart';
 
 class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl({ProfileRemoteDatasource? datasource})

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
 
 /// Empty or error state with icon, message and optional secondary text.
 class EmptyState extends StatelessWidget {

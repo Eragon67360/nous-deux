@@ -1,10 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/data/models/profile_model.dart';
+import 'package:nousdeux/data/models/profile_model.dart';
 
 class ProfileRemoteDatasource {
   ProfileRemoteDatasource([SupabaseClient? client])
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
 
@@ -17,10 +17,11 @@ class ProfileRemoteDatasource {
   }
 
   Future<ProfileModel> upsert(Map<String, dynamic> data) async {
-    final res = await _client.from(_table).upsert(
-          data,
-          onConflict: 'id',
-        ).select().single();
+    final res = await _client
+        .from(_table)
+        .upsert(data, onConflict: 'id')
+        .select()
+        .single();
     return ProfileModel.fromJson(Map<String, dynamic>.from(res));
   }
 

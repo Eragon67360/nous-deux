@@ -1,11 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/config/app_config.dart';
-import 'package:nous_deux/core/utils/app_router.dart';
-import 'package:nous_deux/presentation/theme/app_theme.dart';
+import 'package:nousdeux/core/config/app_config.dart';
+import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/core/utils/app_router.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,6 +21,12 @@ void main() async {
       url: AppConfig.supabaseUrl,
       anonKey: AppConfig.supabaseAnonKey,
     );
+  }
+
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {
+    // Firebase not configured (e.g. missing google-services.json); app works without push.
   }
 
   runApp(const ProviderScope(child: MainApp()));
@@ -55,6 +64,34 @@ class MainApp extends ConsumerWidget {
       theme: theme,
       darkTheme: theme,
       routerConfig: router,
+      builder: (context, child) => _FcmRegistration(child: child),
     );
+  }
+}
+
+/// Registers FCM token with profile when user is signed in (once per session).
+class _FcmRegistration extends ConsumerStatefulWidget {
+  const _FcmRegistration({this.child});
+  final Widget? child;
+
+  @override
+  ConsumerState<_FcmRegistration> createState() => _FcmRegistrationState();
+}
+
+class _FcmRegistrationState extends ConsumerState<_FcmRegistration> {
+  bool _registered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider).valueOrNull;
+    if (user == null) {
+      _registered = false;
+    } else if (!_registered) {
+      _registered = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        registerFcmToken(ref);
+      });
+    }
+    return widget.child ?? const SizedBox.shrink();
   }
 }

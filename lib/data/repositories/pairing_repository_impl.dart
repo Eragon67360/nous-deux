@@ -1,12 +1,12 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/data/datasources/pairing_remote_datasource.dart';
-import 'package:nous_deux/domain/repositories/pairing_repository.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/datasources/pairing_remote_datasource.dart';
+import 'package:nousdeux/domain/repositories/pairing_repository.dart';
 
 class PairingRepositoryImpl implements PairingRepository {
   PairingRepositoryImpl({PairingRemoteDatasource? datasource})
-      : _datasource = datasource ?? PairingRemoteDatasource();
+    : _datasource = datasource ?? PairingRemoteDatasource();
 
   final PairingRemoteDatasource _datasource;
 

@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/data/models/calendar_event_model.dart';
+import 'package:nousdeux/data/models/calendar_event_model.dart';
 
 class CalendarRemoteDatasource {
   CalendarRemoteDatasource([SupabaseClient? client])
@@ -11,14 +11,22 @@ class CalendarRemoteDatasource {
 
   String? get _userId => _client.auth.currentUser?.id;
 
-  /// Stream of calendar events for couple. Emits initial fetch; use repo invalidation for refetch after mutations.
-  Stream<List<CalendarEventModel>> watchEvents(String coupleId) async* {
-    final list = await getEvents(
-      coupleId: coupleId,
-      start: DateTime(2000),
-      end: DateTime(2100),
-    );
-    yield list;
+  /// Stream of calendar events for couple (realtime). Emits initial fetch then updates on INSERT/UPDATE/DELETE.
+  Stream<List<CalendarEventModel>> watchEvents(String coupleId) {
+    return _client
+        .from(_table)
+        .stream(primaryKey: ['id'])
+        .eq('couple_id', coupleId)
+        .order('start_time')
+        .map(
+          (event) => (event as List)
+              .map(
+                (e) => CalendarEventModel.fromJson(
+                  Map<String, dynamic>.from(e as Map),
+                ),
+              )
+              .toList(),
+        );
   }
 
   Future<List<CalendarEventModel>> getEvents({

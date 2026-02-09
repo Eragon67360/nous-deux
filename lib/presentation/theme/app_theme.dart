@@ -54,13 +54,16 @@ abstract final class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       appBarTheme: AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: _surface,
         foregroundColor: _onSurface,
-        titleTextStyle: textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.w600,
+        toolbarHeight: 72,
+        titleSpacing: 24,
+        titleTextStyle: textTheme.headlineMedium?.copyWith(
+          fontWeight: FontWeight.w800,
+          fontSize: 22,
           color: _onSurface,
         ),
       ),

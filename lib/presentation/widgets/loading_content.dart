@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
 
 /// Centered loading content that fades in. Use for data-loading states.
 class LoadingContent extends StatefulWidget {
@@ -25,14 +25,8 @@ class _LoadingContentState extends State<LoadingContent>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: widget.duration,
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOut,
-    );
+    _controller = AnimationController(duration: widget.duration, vsync: this);
+    _animation = CurvedAnimation(parent: _controller, curve: Curves.easeOut);
     _controller.forward();
   }
 

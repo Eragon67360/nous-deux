@@ -1,4 +1,4 @@
-import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
+import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 
 class CalendarEventModel {
   CalendarEventModel({

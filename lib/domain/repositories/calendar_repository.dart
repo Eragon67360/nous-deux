@@ -1,5 +1,5 @@
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 
 typedef CalendarEventResult = ({CalendarEventEntity? event, Failure? failure});
 typedef CalendarEventsResult = ({

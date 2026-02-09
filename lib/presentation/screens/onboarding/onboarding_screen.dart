@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -78,10 +78,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                'Genre',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
+              Text('Genre', style: Theme.of(context).textTheme.titleSmall),
               RadioListTile<String>(
                 title: const Text('Femme'),
                 value: 'woman',
@@ -95,10 +92,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onChanged: (v) => setState(() => _gender = v!),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                'Langue',
-                style: Theme.of(context).textTheme.titleSmall,
-              ),
+              Text('Langue', style: Theme.of(context).textTheme.titleSmall),
               RadioListTile<String>(
                 title: const Text('Français'),
                 value: 'fr',
@@ -113,10 +107,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               ),
               if (_error != null) ...[
                 const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _error!,
-                  style: TextStyle(color: colorScheme.error),
-                ),
+                Text(_error!, style: TextStyle(color: colorScheme.error)),
               ],
               const SizedBox(height: AppSpacing.lg),
               FilledButton(

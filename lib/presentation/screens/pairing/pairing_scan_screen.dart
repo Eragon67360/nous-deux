@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/presentation/providers/pairing_provider.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/pairing_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 class PairingScanScreen extends ConsumerStatefulWidget {
   const PairingScanScreen({super.key});
