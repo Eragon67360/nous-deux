@@ -27,6 +27,11 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen> {
   Widget build(BuildContext context) {
     final logsAsync = ref.watch(periodLogsProvider);
     final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
+    final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
+    final partnerDisplayName =
+        partnerProfile?.username?.trim().isNotEmpty == true
+        ? partnerProfile!.username!
+        : 'Partenaire';
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
@@ -85,7 +90,7 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
-                              isMine ? 'Moi' : 'Partenaire',
+                              isMine ? 'Moi' : partnerDisplayName,
                               style: Theme.of(context).textTheme.labelSmall
                                   ?.copyWith(
                                     color: isMine

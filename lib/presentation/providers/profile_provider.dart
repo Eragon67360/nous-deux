@@ -17,3 +17,13 @@ final myProfileProvider = FutureProvider<ProfileEntity?>((ref) async {
   final result = await repo.getOrCreateMyProfile();
   return result.failure != null ? null : result.profile;
 });
+
+/// Partner's profile (when current user has a partner). Used for display name in calendar/period.
+final partnerProfileProvider = FutureProvider<ProfileEntity?>((ref) async {
+  final my = await ref.watch(myProfileProvider.future);
+  final partnerId = my?.partnerId;
+  if (partnerId == null || partnerId.isEmpty) return null;
+  final repo = ref.watch(profileRepositoryProvider);
+  final result = await repo.getProfile(partnerId);
+  return result.failure != null ? null : result.profile;
+});

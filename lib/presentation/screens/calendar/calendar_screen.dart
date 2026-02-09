@@ -5,7 +5,9 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
@@ -17,6 +19,10 @@ class CalendarScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
 }
+
+/// Marker colors from app SVG (text #722F37, accent #FF8FA3).
+const Color _markerMine = Color(0xFF722F37);
+const Color _markerPartner = Color(0xFFFF8FA3);
 
 class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   DateTime _focusedDay = DateTime.now();
@@ -32,6 +38,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(calendarEventsProvider);
+    final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
+    final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
+    final partnerDisplayName =
+        partnerProfile?.username?.trim().isNotEmpty == true
+        ? partnerProfile!.username!
+        : 'Partenaire';
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
@@ -74,11 +86,56 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                     selectedDayPredicate: (d) => isSameDay(_selectedDay, d),
                     calendarFormat: _format,
                     onFormatChanged: (f) => setState(() => _format = f),
+                    availableCalendarFormats: const {
+                      CalendarFormat.month: 'Mois',
+                      CalendarFormat.twoWeeks: '2 sem.',
+                      CalendarFormat.week: 'Semaine',
+                    },
                     onDaySelected: (selected, focused) => setState(() {
                       _selectedDay = selected;
                       _focusedDay = focused;
                     }),
                     eventLoader: (day) => _eventsOnDay(allEvents, day),
+                    calendarBuilders: CalendarBuilders<CalendarEventEntity>(
+                      markerBuilder: (context, day, events) {
+                        if (events.isEmpty) return null;
+                        final hasMine =
+                            currentUserId != null &&
+                            events.any((e) => e.createdBy == currentUserId);
+                        final hasPartner =
+                            currentUserId != null &&
+                            events.any((e) => e.createdBy != currentUserId);
+                        if (!hasMine && !hasPartner) return null;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (hasMine)
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  margin: const EdgeInsets.only(right: 2),
+                                  decoration: const BoxDecoration(
+                                    color: _markerMine,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                              if (hasPartner)
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: const BoxDecoration(
+                                    color: _markerPartner,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                     calendarStyle: CalendarStyle(
                       defaultTextStyle: TextStyle(color: colorScheme.onSurface),
                       weekendTextStyle: TextStyle(
@@ -97,10 +154,6 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                       ),
                       todayDecoration: BoxDecoration(
                         color: colorScheme.primary.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                      ),
-                      markerDecoration: BoxDecoration(
-                        color: colorScheme.primary,
                         shape: BoxShape.circle,
                       ),
                       outsideTextStyle: TextStyle(
@@ -143,6 +196,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                             itemCount: eventsOnSelected.length,
                             itemBuilder: (_, i) {
                               final e = eventsOnSelected[i];
+                              final isMine =
+                                  currentUserId != null &&
+                                  e.createdBy == currentUserId;
+                              final creatorLabel = isMine
+                                  ? 'Moi'
+                                  : partnerDisplayName;
+                              final timeStr = DateFormat.Hm().format(
+                                e.startTime,
+                              );
                               return Card(
                                 margin: const EdgeInsets.only(
                                   bottom: AppSpacing.sm,
@@ -152,14 +214,48 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                                     horizontal: AppSpacing.sm,
                                     vertical: AppSpacing.xs,
                                   ),
+                                  leading: Icon(
+                                    isMine
+                                        ? Icons.person
+                                        : Icons.person_outline,
+                                    color: isMine
+                                        ? colorScheme.primary
+                                        : colorScheme.outline,
+                                    size: 28,
+                                  ),
                                   title: Text(e.title),
-                                  subtitle:
-                                      e.description != null &&
-                                          e.description!.isNotEmpty
-                                      ? Text(e.description!)
-                                      : null,
+                                  subtitle: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (e.description != null &&
+                                          e.description!.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 2,
+                                          ),
+                                          child: Text(
+                                            e.description!,
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
+                                          ),
+                                        ),
+                                      Text(
+                                        '$creatorLabel · $timeStr',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(
+                                              color:
+                                                  colorScheme.onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
                                   trailing: Text(
-                                    DateFormat.Hm().format(e.startTime),
+                                    timeStr,
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,
