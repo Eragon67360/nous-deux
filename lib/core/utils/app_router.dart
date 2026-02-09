@@ -17,6 +17,27 @@ import 'package:nous_deux/presentation/screens/splash/splash_screen.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
+const _transitionDuration = Duration(milliseconds: 250);
+
+/// Fade transition for route changes.
+CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration: _transitionDuration,
+    reverseTransitionDuration: _transitionDuration,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeTransition(
+        opacity: CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOut,
+        ),
+        child: child,
+      );
+    },
+  );
+}
+
 final appRouterProvider = Provider<GoRouter>((ref) {
   final isSupabaseConfigured = AppConfig.isSupabaseConfigured;
   final authAsync = ref.watch(currentUserProvider);
@@ -57,30 +78,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
-      GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
-      GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
+      GoRoute(
+        path: '/',
+        pageBuilder: (_, state) => _fadePage(state, const SplashScreen()),
+      ),
+      GoRoute(
+        path: '/auth',
+        pageBuilder: (_, state) => _fadePage(state, const AuthScreen()),
+      ),
       GoRoute(
         path: '/auth/verify',
-        builder: (context, state) => VerifyOtpScreen(
-          phone:
-              (state.extra as Map<String, dynamic>?)?['phone'] as String? ?? '',
+        pageBuilder: (_, state) => _fadePage(
+          state,
+          VerifyOtpScreen(
+            phone: (state.extra as Map<String, dynamic>?)?['phone'] as String? ?? '',
+          ),
         ),
       ),
       GoRoute(
         path: '/onboarding',
-        builder: (context, state) => const OnboardingScreen(),
+        pageBuilder: (_, state) => _fadePage(state, const OnboardingScreen()),
       ),
       GoRoute(
         path: '/pairing',
-        builder: (context, state) => const PairingScreen(),
+        pageBuilder: (_, state) => _fadePage(state, const PairingScreen()),
       ),
       GoRoute(
         path: '/pairing/join',
-        builder: (context, state) => const PairingJoinScreen(),
+        pageBuilder: (_, state) => _fadePage(state, const PairingJoinScreen()),
       ),
       GoRoute(
         path: '/pairing/scan',
-        builder: (context, state) => const PairingScanScreen(),
+        pageBuilder: (_, state) => _fadePage(state, const PairingScanScreen()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, child) => MainShellScreen(child: child),
@@ -91,7 +120,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/main',
                 pageBuilder: (_, state) =>
-                    const NoTransitionPage(child: _MainPlaceholder()),
+                    _fadePage(state, const _MainPlaceholder()),
               ),
             ],
           ),

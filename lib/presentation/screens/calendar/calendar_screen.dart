@@ -4,9 +4,12 @@ import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/calendar_provider.dart';
 import 'package:nous_deux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nous_deux/presentation/screens/calendar/calendar_import_screen.dart';
+import 'package:nous_deux/presentation/widgets/empty_state.dart';
+import 'package:nous_deux/presentation/widgets/loading_content.dart';
 
 class CalendarScreen extends ConsumerStatefulWidget {
   const CalendarScreen({super.key});
@@ -29,6 +32,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final eventsAsync = ref.watch(calendarEventsProvider);
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Calendrier'),
@@ -45,7 +49,12 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           ),
         ],
       ),
-      body: eventsAsync.when(
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        child: KeyedSubtree(
+          key: ValueKey('${eventsAsync.isLoading}_${eventsAsync.hasValue}'),
+          child: eventsAsync.when(
         data: (allEvents) {
           final eventsOnSelected = _eventsOnDay(allEvents, _selectedDay ?? _focusedDay);
           return Column(
@@ -63,35 +72,59 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                 }),
                 eventLoader: (day) => _eventsOnDay(allEvents, day),
                 calendarStyle: CalendarStyle(
-                  markerDecoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
+                  defaultTextStyle: TextStyle(color: colorScheme.onSurface),
+                  weekendTextStyle: TextStyle(color: colorScheme.onSurfaceVariant),
+                  selectedTextStyle: TextStyle(color: colorScheme.onPrimary),
+                  todayTextStyle: TextStyle(
+                    color: colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  selectedDecoration: BoxDecoration(
+                    color: colorScheme.primary,
                     shape: BoxShape.circle,
                   ),
+                  todayDecoration: BoxDecoration(
+                    color: colorScheme.primary.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  markerDecoration: BoxDecoration(
+                    color: colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  outsideTextStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
                 ),
                 headerStyle: HeaderStyle(
                   formatButtonVisible: true,
                   titleCentered: true,
+                  titleTextStyle: Theme.of(context).textTheme.titleMedium!.copyWith(
+                        color: colorScheme.onSurface,
+                        fontWeight: FontWeight.w600,
+                      ),
+                  formatButtonTextStyle: TextStyle(color: colorScheme.primary),
+                  leftChevronIcon: Icon(Icons.chevron_left, color: colorScheme.onSurface),
+                  rightChevronIcon: Icon(Icons.chevron_right, color: colorScheme.onSurface),
                 ),
               ),
               const Divider(height: 1),
               Expanded(
                 child: eventsOnSelected.isEmpty
-                    ? Center(
-                        child: Text(
-                          'Aucun événement ce jour',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
+                    ? const EmptyState(
+                        icon: Icons.event_available,
+                        message: 'Aucun événement ce jour',
+                        secondary: 'Appuyez sur + pour en ajouter un',
                       )
                     : ListView.builder(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.sm),
                         itemCount: eventsOnSelected.length,
                         itemBuilder: (_, i) {
                           final e = eventsOnSelected[i];
                           return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
+                            margin: const EdgeInsets.only(bottom: AppSpacing.sm),
                             child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                                vertical: AppSpacing.xs,
+                              ),
                               title: Text(e.title),
                               subtitle: e.description != null && e.description!.isNotEmpty
                                   ? Text(e.description!)
@@ -110,8 +143,15 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Erreur: $err')),
+        loading: () => const LoadingContent(),
+        error: (err, _) => EmptyState(
+          icon: Icons.error_outline,
+          message: 'Erreur de chargement',
+          secondary: err.toString(),
+          iconColor: colorScheme.error,
+        ),
+          ),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openEventForm(context, selectedDate: _selectedDay ?? _focusedDay),

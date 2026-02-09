@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/profile_provider.dart';
 import 'package:nous_deux/presentation/screens/calendar/calendar_screen.dart';
 
@@ -24,53 +25,69 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         (profileAsync.valueOrNull!.hasPartner == false);
 
     return Scaffold(
-      body: Column(
-        children: [
-          if (showNoPartnerBubble)
-            Material(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              child: InkWell(
-                onTap: () => context.push('/pairing'),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.person_add_outlined,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.primary,
+      body: SafeArea(
+        top: true,
+        bottom: false,
+        child: Column(
+          children: [
+            if (showNoPartnerBubble)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.sm,
+                  AppSpacing.xs,
+                  AppSpacing.sm,
+                  AppSpacing.sm,
+                ),
+                child: Material(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: () => context.push('/pairing'),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.sm,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Pas encore de partenaire ? Invitez-le ou invitez-la.',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.person_add_outlined,
+                            size: 22,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Text(
+                              'Pas encore de partenaire ? Invitez-le ou invitez-la.',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                          ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
+                          ),
+                        ],
                       ),
-                      Icon(
-                        Icons.chevron_right,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
+            Expanded(
+              child: IndexedStack(
+                index: _index,
+                children: const [
+                  CalendarScreen(),
+                  _PlaceholderTab(title: 'Règles'),
+                  _PlaceholderTab(title: 'Position'),
+                  _PlaceholderTab(title: 'Paramètres'),
+                ],
+              ),
             ),
-          Expanded(
-            child: IndexedStack(
-              index: _index,
-              children: const [
-                CalendarScreen(),
-                _PlaceholderTab(title: 'Règles'),
-                _PlaceholderTab(title: 'Position'),
-                _PlaceholderTab(title: 'Paramètres'),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,

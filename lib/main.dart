@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nous_deux/core/config/app_config.dart';
 import 'package:nous_deux/core/utils/app_router.dart';
+import 'package:nous_deux/presentation/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,15 +24,13 @@ class MainApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = ThemeData(
-      colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF722F37)),
-      useMaterial3: true,
-    );
+    final theme = AppTheme.dark;
     if (!AppConfig.isSupabaseConfigured) {
       return MaterialApp(
         title: 'Nous Deux',
         debugShowCheckedModeBanner: false,
         theme: theme,
+        darkTheme: theme,
         home: Scaffold(
           body: Center(
             child: Padding(
@@ -50,6 +49,7 @@ class MainApp extends ConsumerWidget {
       title: 'Nous Deux',
       debugShowCheckedModeBanner: false,
       theme: theme,
+      darkTheme: theme,
       routerConfig: router,
     );
   }

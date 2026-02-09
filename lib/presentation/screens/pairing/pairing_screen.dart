@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/pairing_provider.dart';
+import 'package:nous_deux/presentation/widgets/loading_content.dart';
 
 class PairingScreen extends ConsumerStatefulWidget {
   const PairingScreen({super.key});
@@ -35,80 +37,113 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   @override
   Widget build(BuildContext context) {
     final coupleAsync = ref.watch(myCoupleProvider);
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Inviter votre partenaire')),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: coupleAsync.when(
-            data: (couple) {
-              if (couple == null || !couple.isPaired) {
-                final code = couple?.pairingCode;
-                if (code == null || code.isEmpty) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 24),
-                      const Text(
-                        'Créez un lien pour inviter votre partenaire. Il pourra scanner le QR code ou saisir le code manuellement.',
-                      ),
-                      if (_error != null) ...[
-                        const SizedBox(height: 16),
-                        Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-                      ],
-                      const Spacer(),
-                      FilledButton(
-                        onPressed: _creating ? null : _createAndShowCode,
-                        child: _creating
-                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Text('Générer le code'),
-                      ),
-                    ],
-                  );
-                }
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const Text('Votre partenaire peut scanner ce QR code :'),
-                      const SizedBox(height: 16),
-                      QrImageView(
-                        data: code,
-                        version: QrVersions.auto,
-                        size: 200,
-                      ),
-                      const SizedBox(height: 24),
-                      Text('Ou saisir ce code :', style: Theme.of(context).textTheme.titleSmall),
-                      const SizedBox(height: 8),
-                      SelectableText(
-                        code,
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              letterSpacing: 4,
-                              fontWeight: FontWeight.bold,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOut,
+            child: KeyedSubtree(
+              key: ValueKey('${coupleAsync.isLoading}_${coupleAsync.hasValue}'),
+              child: coupleAsync.when(
+                data: (couple) {
+                  if (couple == null || !couple.isPaired) {
+                    final code = couple?.pairingCode;
+                    if (code == null || code.isEmpty) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            'Créez un lien pour inviter votre partenaire. Il pourra scanner le QR code ou saisir le code manuellement.',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          if (_error != null) ...[
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              _error!,
+                              style: TextStyle(color: colorScheme.error),
                             ),
+                          ],
+                          const Spacer(),
+                          FilledButton(
+                            onPressed: _creating ? null : _createAndShowCode,
+                            child: _creating
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: colorScheme.onPrimary,
+                                    ),
+                                  )
+                                : const Text('Générer le code'),
+                          ),
+                        ],
+                      );
+                    }
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            'Votre partenaire peut scanner ce QR code :',
+                            style: Theme.of(context).textTheme.bodyLarge,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Center(
+                            child: QrImageView(
+                              data: code,
+                              version: QrVersions.auto,
+                              size: 200,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          Text(
+                            'Ou saisir ce code :',
+                            style: Theme.of(context).textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          SelectableText(
+                            code,
+                            style: Theme.of(context).textTheme.headlineSmall
+                                ?.copyWith(
+                                  letterSpacing: 4,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          OutlinedButton.icon(
+                            onPressed: () => context.push('/pairing/join'),
+                            icon: const Icon(Icons.person_add),
+                            label: const Text('Rejoindre avec un code'),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          OutlinedButton.icon(
+                            onPressed: () => context.push('/pairing/scan'),
+                            icon: const Icon(Icons.qr_code_scanner),
+                            label: const Text('Scanner un QR code'),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
                       ),
-                      const SizedBox(height: 32),
-                      OutlinedButton.icon(
-                        onPressed: () => context.push('/pairing/join'),
-                        icon: const Icon(Icons.person_add),
-                        label: const Text('Rejoindre avec un code'),
-                      ),
-                      const SizedBox(height: 12),
-                      OutlinedButton.icon(
-                        onPressed: () => context.push('/pairing/scan'),
-                        icon: const Icon(Icons.qr_code_scanner),
-                        label: const Text('Scanner un QR code'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              return const Center(child: Text('Vous êtes déjà en couple. Redirection...'));
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text('Erreur: $e')),
+                    );
+                  }
+                  return const Center(
+                    child: Text('Vous êtes déjà en couple. Redirection...'),
+                  );
+                },
+                loading: () => const LoadingContent(),
+                error: (e, _) => Center(child: Text('Erreur: $e')),
+              ),
+            ),
           ),
         ),
-      ),
+      ), // SafeArea
     );
   }
 }

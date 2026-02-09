@@ -2,7 +2,9 @@ import 'package:device_calendar/device_calendar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/calendar_provider.dart';
+import 'package:nous_deux/presentation/widgets/loading_content.dart';
 
 class CalendarImportScreen extends ConsumerStatefulWidget {
   const CalendarImportScreen({super.key});
@@ -80,20 +82,18 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Importer depuis l\'agenda')),
       body: _loading && _calendars.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingContent(message: 'Chargement des agendas...')
           : ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(AppSpacing.sm),
               children: [
-                const Text(
-                  'Choisissez un agenda et une période, puis importez les événements dans Notre Deux.',
+                Text(
+                  'Choisissez un agenda et une période, puis importez les événements dans Nous Deux.',
+                  style: Theme.of(context).textTheme.bodyLarge,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.sm),
                 DropdownButtonFormField<Calendar>(
                   value: _selectedCalendar,
-                  decoration: const InputDecoration(
-                    labelText: 'Agenda',
-                    border: OutlineInputBorder(),
-                  ),
+                  decoration: const InputDecoration(labelText: 'Agenda'),
                   items: _calendars
                       .map(
                         (c) => DropdownMenuItem(
@@ -104,7 +104,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen> {
                       .toList(),
                   onChanged: (c) => setState(() => _selectedCalendar = c),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.sm),
                 ListTile(
                   title: const Text('Du'),
                   subtitle: Text('${_start.toLocal()}'),
@@ -131,22 +131,33 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen> {
                     if (d != null && mounted) setState(() => _end = d);
                   },
                 ),
-                if (_error != null)
+                if (_error != null) ...[
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
                     _error!,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                     ),
                   ),
-                if (_imported > 0) Text('$_imported événement(s) importé(s).'),
-                const SizedBox(height: 24),
+                ],
+                if (_imported > 0) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    '$_imported événement(s) importé(s).',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.md),
                 FilledButton(
                   onPressed: _loading ? null : _import,
                   child: _loading
-                      ? const SizedBox(
+                      ? SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                          ),
                         )
                       : const Text('Importer'),
                 ),

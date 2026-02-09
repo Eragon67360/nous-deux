@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/profile_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -50,31 +51,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       appBar: AppBar(title: const Text('Configurez votre compte')),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.lg,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.sm),
               Text(
                 'Une dernière étape pour personnaliser votre compte.',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: _displayNameController,
                 decoration: const InputDecoration(
                   labelText: 'Nom d\'affichage',
                   hintText: 'Prénom ou pseudo',
-                  border: OutlineInputBorder(),
                 ),
                 textCapitalization: TextCapitalization.words,
               ),
-              const SizedBox(height: 24),
-              Text('Genre', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Genre',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               RadioListTile<String>(
                 title: const Text('Femme'),
                 value: 'woman',
@@ -87,8 +94,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 groupValue: _gender,
                 onChanged: (v) => setState(() => _gender = v!),
               ),
-              const SizedBox(height: 24),
-              Text('Langue', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Langue',
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
               RadioListTile<String>(
                 title: const Text('Français'),
                 value: 'fr',
@@ -102,24 +112,27 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 onChanged: (v) => setState(() => _language = v!),
               ),
               if (_error != null) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.xs),
                 Text(
                   _error!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  style: TextStyle(color: colorScheme.error),
                 ),
               ],
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: _loading ? null : _save,
                 child: _loading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colorScheme.onPrimary,
+                        ),
                       )
                     : const Text('Continuer'),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.md),
             ],
           ),
         ),

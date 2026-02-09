@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/presentation/providers/pairing_provider.dart';
 import 'package:nous_deux/presentation/providers/profile_provider.dart';
 
@@ -72,16 +73,26 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
             },
           ),
           if (_loading)
-            const Center(
+            Center(
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(AppSpacing.md),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text('Connexion en cours...'),
+                      SizedBox(
+                        width: 32,
+                        height: 32,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        'Connexion en cours...',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ],
                   ),
                 ),

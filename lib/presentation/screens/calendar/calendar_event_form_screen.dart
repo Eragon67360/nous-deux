@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nous_deux/core/constants/app_constants.dart';
+import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
 import 'package:nous_deux/presentation/providers/calendar_provider.dart';
 
@@ -104,29 +105,25 @@ class _CalendarEventFormScreenState
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.sm),
           children: [
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Titre',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Titre'),
               maxLength: AppConstants.eventTitleMaxLength,
               validator: (v) =>
                   v?.trim().isEmpty ?? true ? 'Titre requis' : null,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _descController,
               decoration: const InputDecoration(
                 labelText: 'Description (optionnel)',
-                border: OutlineInputBorder(),
               ),
               maxLines: 3,
               maxLength: AppConstants.eventDescriptionMaxLength,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.sm),
             ListTile(
               title: const Text('Début'),
               subtitle: Text('${_startTime.toLocal()}'),
@@ -182,20 +179,23 @@ class _CalendarEventFormScreenState
               },
             ),
             if (_error != null) ...[
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.xs),
               Text(
                 _error!,
                 style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ],
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.md),
             FilledButton(
               onPressed: _loading ? null : _save,
               child: _loading
-                  ? const SizedBox(
+                  ? SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     )
                   : const Text('Enregistrer'),
             ),
