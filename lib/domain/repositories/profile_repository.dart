@@ -10,11 +10,12 @@ abstract class ProfileRepository {
   /// Get profile by id (own or partner only, by RLS).
   Future<ProfileResult> getProfile(String profileId);
 
-  /// Update my profile (username, gender, language).
+  /// Update my profile (username, gender, language, avatarUrl).
   Future<ProfileResult> updateProfile({
     String? username,
     String? gender,
     String? language,
+    String? avatarUrl,
   });
 
   /// Complete onboarding: set username, gender, language and onboarding_completed_at.

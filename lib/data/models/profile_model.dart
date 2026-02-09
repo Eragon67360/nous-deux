@@ -7,6 +7,7 @@ class ProfileModel {
     required this.gender,
     this.partnerId,
     this.language = 'fr',
+    this.avatarUrl,
     this.fcmToken,
     this.onboardingCompletedAt,
     this.createdAt,
@@ -18,6 +19,7 @@ class ProfileModel {
   final String gender;
   final String? partnerId;
   final String language;
+  final String? avatarUrl;
   final String? fcmToken;
   final DateTime? onboardingCompletedAt;
   final DateTime? createdAt;
@@ -30,6 +32,7 @@ class ProfileModel {
       gender: json['gender'] as String? ?? 'woman',
       partnerId: json['partner_id'] as String?,
       language: json['language'] as String? ?? 'fr',
+      avatarUrl: json['avatar_url'] as String?,
       fcmToken: json['fcm_token'] as String?,
       onboardingCompletedAt: json['onboarding_completed_at'] != null
           ? DateTime.parse(json['onboarding_completed_at'] as String)
@@ -50,6 +53,7 @@ class ProfileModel {
       'gender': gender,
       'partner_id': partnerId,
       'language': language,
+      'avatar_url': avatarUrl,
       'fcm_token': fcmToken,
       'onboarding_completed_at': onboardingCompletedAt?.toIso8601String(),
       'created_at': createdAt?.toIso8601String(),
@@ -64,6 +68,7 @@ class ProfileModel {
       gender: gender,
       partnerId: partnerId,
       language: language,
+      avatarUrl: avatarUrl,
       onboardingCompletedAt: onboardingCompletedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -77,6 +82,7 @@ class ProfileModel {
       gender: e.gender,
       partnerId: e.partnerId,
       language: e.language,
+      avatarUrl: e.avatarUrl,
       onboardingCompletedAt: e.onboardingCompletedAt,
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,

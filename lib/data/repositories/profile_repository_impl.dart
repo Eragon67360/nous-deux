@@ -51,6 +51,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
     String? username,
     String? gender,
     String? language,
+    String? avatarUrl,
   }) async {
     final uid = _userId;
     if (uid == null) {
@@ -61,6 +62,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       if (username != null) data['username'] = username;
       if (gender != null) data['gender'] = gender;
       if (language != null) data['language'] = language;
+      if (avatarUrl != null) data['avatar_url'] = avatarUrl;
       if (data.isEmpty) {
         final existing = await _datasource.getById(uid);
         return (profile: existing?.toEntity(), failure: null);

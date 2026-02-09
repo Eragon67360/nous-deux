@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_options.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
@@ -105,12 +106,13 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.log != null
-              ? 'Modifier l\'enregistrement'
-              : 'Nouvel enregistrement',
+              ? periodLogEdit(lang)
+              : periodLogNew(lang),
         ),
       ),
       body: Form(
@@ -119,7 +121,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
           padding: const EdgeInsets.all(AppSpacing.sm),
           children: [
             ListTile(
-              title: const Text('Date de début'),
+              title: Text(periodStartDate(lang)),
               subtitle: Text(_formatDate(context, _startDate)),
               onTap: () async {
                 final d = await showDatePicker(
@@ -139,7 +141,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
               },
             ),
             ListTile(
-              title: const Text('Date de fin (optionnel)'),
+              title: Text(periodEndDate(lang)),
               subtitle: Text(
                 _endDate == null ? '—' : _formatDate(context, _endDate!),
               ),
@@ -158,18 +160,21 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
             const SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<String>(
               value: _mood,
-              decoration: const InputDecoration(labelText: 'Humeur'),
+              decoration: InputDecoration(labelText: periodMoodLabelForm(lang)),
               items: [
                 const DropdownMenuItem<String>(value: null, child: Text('—')),
                 ...periodMoodOptions.map(
-                  (o) => DropdownMenuItem(value: o.value, child: Text(o.label)),
+                  (o) => DropdownMenuItem(
+                    value: o.value,
+                    child: Text(periodMoodOptionLabel(o.value, lang)),
+                  ),
                 ),
               ],
               onChanged: (v) => setState(() => _mood = v),
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Symptômes (optionnel)',
+              periodSymptomsLabel(lang),
               style: Theme.of(context).textTheme.labelLarge,
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -179,7 +184,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
               children: periodSymptomOptions.map((o) {
                 final selected = _symptoms.contains(o.value);
                 return FilterChip(
-                  label: Text(o.label),
+                  label: Text(periodSymptomOptionLabel(o.value, lang)),
                   selected: selected,
                   onSelected: (v) {
                     setState(() {
@@ -196,8 +201,8 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (optionnel)',
+              decoration: InputDecoration(
+                labelText: periodNotesLabel(lang),
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
@@ -221,7 +226,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     )
-                  : const Text('Enregistrer'),
+                  : Text(periodSave(lang)),
             ),
           ],
         ),

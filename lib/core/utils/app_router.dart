@@ -15,6 +15,8 @@ import 'package:nousdeux/presentation/screens/period/period_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_join_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_scan_screen.dart';
+import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
+import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
 import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -220,10 +222,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/main/settings',
-                pageBuilder: (_, state) => _fadePage(
-                  state,
-                  const _PlaceholderTab(title: 'Paramètres'),
-                ),
+                pageBuilder: (_, state) =>
+                    _fadePage(state, const SettingsScreen()),
+                routes: [
+                  GoRoute(
+                    path: 'info',
+                    pageBuilder: (_, state) =>
+                        _fadePage(state, const AppInfoScreen()),
+                  ),
+                ],
               ),
             ],
           ),

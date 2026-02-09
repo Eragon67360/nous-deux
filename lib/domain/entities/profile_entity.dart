@@ -7,6 +7,7 @@ class ProfileEntity extends Equatable {
     required this.gender,
     this.partnerId,
     this.language = 'fr',
+    this.avatarUrl,
     this.onboardingCompletedAt,
     this.createdAt,
     this.updatedAt,
@@ -17,6 +18,7 @@ class ProfileEntity extends Equatable {
   final String gender;
   final String? partnerId;
   final String language;
+  final String? avatarUrl;
   final DateTime? onboardingCompletedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -32,6 +34,7 @@ class ProfileEntity extends Equatable {
     gender,
     partnerId,
     language,
+    avatarUrl,
     onboardingCompletedAt,
     createdAt,
     updatedAt,
