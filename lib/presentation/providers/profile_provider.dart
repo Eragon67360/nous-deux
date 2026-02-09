@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:nous_deux/data/repositories/profile_repository_impl.dart';
-import 'package:nous_deux/domain/entities/profile_entity.dart';
-import 'package:nous_deux/domain/repositories/profile_repository.dart';
-import 'package:nous_deux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/data/repositories/profile_repository_impl.dart';
+import 'package:nousdeux/domain/entities/profile_entity.dart';
+import 'package:nousdeux/domain/repositories/profile_repository.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   return ProfileRepositoryImpl();

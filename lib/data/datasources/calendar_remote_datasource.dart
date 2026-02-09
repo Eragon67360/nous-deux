@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nous_deux/data/models/calendar_event_model.dart';
+import 'package:nousdeux/data/models/calendar_event_model.dart';
 
 class CalendarRemoteDatasource {
   CalendarRemoteDatasource([SupabaseClient? client])

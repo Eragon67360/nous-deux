@@ -1,5 +1,5 @@
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/domain/entities/couple_entity.dart';
 
 typedef PairingResult = ({CoupleEntity? couple, Failure? failure});
 

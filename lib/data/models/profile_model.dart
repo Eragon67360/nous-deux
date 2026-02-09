@@ -1,4 +1,4 @@
-import 'package:nous_deux/domain/entities/profile_entity.dart';
+import 'package:nousdeux/domain/entities/profile_entity.dart';
 
 class ProfileModel {
   ProfileModel({

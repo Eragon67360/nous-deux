@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "836600962251",
+    "project_id": "nous-deux-7bf2f",
+    "storage_bucket": "nous-deux-7bf2f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836600962251:android:da22bb235854470d0f4f4e",
+        "android_client_info": {
+          "package_name": "com.nous_deux.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp7S8U_BTGQGFsfGBvpXfX0wRQP8PAmZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:836600962251:android:49b73cba77c927830f4f4e",
+        "android_client_info": {
+          "package_name": "com.nousdeux.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBp7S8U_BTGQGFsfGBvpXfX0wRQP8PAmZU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

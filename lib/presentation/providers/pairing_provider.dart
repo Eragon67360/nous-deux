@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:nous_deux/data/repositories/pairing_repository_impl.dart';
-import 'package:nous_deux/domain/entities/couple_entity.dart';
-import 'package:nous_deux/domain/repositories/pairing_repository.dart';
-import 'package:nous_deux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/data/repositories/pairing_repository_impl.dart';
+import 'package:nousdeux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/domain/repositories/pairing_repository.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
 final pairingRepositoryProvider = Provider<PairingRepository>((ref) {
   return PairingRepositoryImpl();

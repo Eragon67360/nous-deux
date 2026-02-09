@@ -1,4 +1,4 @@
-package com.nous_deux.app
+package com.nousdeux.app
 
 import android.content.Intent
 import android.net.Uri
@@ -11,7 +11,7 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.nous_deux.app/settings").setMethodCallHandler { call, result ->
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.nousdeux.app/settings").setMethodCallHandler { call, result ->
             if (call.method == "openAppSettings") {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", packageName, null)

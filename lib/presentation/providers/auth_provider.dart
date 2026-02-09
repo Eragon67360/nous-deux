@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:nous_deux/data/repositories/auth_repository_impl.dart';
-import 'package:nous_deux/domain/entities/user_entity.dart';
-import 'package:nous_deux/domain/repositories/auth_repository.dart';
+import 'package:nousdeux/data/repositories/auth_repository_impl.dart';
+import 'package:nousdeux/domain/entities/user_entity.dart';
+import 'package:nousdeux/domain/repositories/auth_repository.dart';
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl();

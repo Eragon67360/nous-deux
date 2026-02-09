@@ -1,5 +1,5 @@
-import 'package:nous_deux/core/constants/app_constants.dart';
-import 'package:nous_deux/core/config/supabase_keys.dart' as keys;
+import 'package:nousdeux/core/constants/app_constants.dart';
+import 'package:nousdeux/core/config/supabase_keys.dart' as keys;
 
 /// Runtime Supabase configuration.
 ///

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/core/utils/app_log.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/utils/app_log.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

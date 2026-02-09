@@ -1,5 +1,5 @@
-import 'package:nous_deux/core/errors/failures.dart';
-import 'package:nous_deux/domain/entities/profile_entity.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/domain/entities/profile_entity.dart';
 
 typedef ProfileResult = ({ProfileEntity? profile, Failure? failure});
 

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});

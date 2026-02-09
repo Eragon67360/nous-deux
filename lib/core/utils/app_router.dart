@@ -2,18 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:nous_deux/core/config/app_config.dart';
-import 'package:nous_deux/core/utils/app_log.dart';
-import 'package:nous_deux/presentation/providers/auth_provider.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
-import 'package:nous_deux/presentation/screens/auth/auth_screen.dart';
-import 'package:nous_deux/presentation/screens/auth/verify_otp_screen.dart';
-import 'package:nous_deux/presentation/screens/main/main_shell_screen.dart';
-import 'package:nous_deux/presentation/screens/onboarding/onboarding_screen.dart';
-import 'package:nous_deux/presentation/screens/pairing/pairing_join_screen.dart';
-import 'package:nous_deux/presentation/screens/pairing/pairing_screen.dart';
-import 'package:nous_deux/presentation/screens/pairing/pairing_scan_screen.dart';
-import 'package:nous_deux/presentation/screens/splash/splash_screen.dart';
+import 'package:nousdeux/core/config/app_config.dart';
+import 'package:nousdeux/core/utils/app_log.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
+import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
+import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
+import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
+import 'package:nousdeux/presentation/screens/onboarding/onboarding_screen.dart';
+import 'package:nousdeux/presentation/screens/period/period_screen.dart';
+import 'package:nousdeux/presentation/screens/pairing/pairing_join_screen.dart';
+import 'package:nousdeux/presentation/screens/pairing/pairing_screen.dart';
+import 'package:nousdeux/presentation/screens/pairing/pairing_scan_screen.dart';
+import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -183,7 +185,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (_, state) => _fadePage(state, const PairingScanScreen()),
       ),
       StatefulShellRoute.indexedStack(
-        builder: (context, state, child) => MainShellScreen(child: child),
+        builder: (context, state, navigationShell) =>
+            MainShellScreen(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             navigatorKey: _shellNavigatorKey,
@@ -191,7 +194,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/main',
                 pageBuilder: (_, state) =>
-                    _fadePage(state, const _MainPlaceholder()),
+                    _fadePage(state, const CalendarScreen()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/main/period',
+                pageBuilder: (_, state) =>
+                    _fadePage(state, const PeriodScreen()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/main/position',
+                pageBuilder: (_, state) =>
+                    _fadePage(state, const _PlaceholderTab(title: 'Position')),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/main/settings',
+                pageBuilder: (_, state) => _fadePage(
+                  state,
+                  const _PlaceholderTab(title: 'Paramètres'),
+                ),
               ),
             ],
           ),
@@ -201,15 +233,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-class _MainPlaceholder extends StatelessWidget {
-  const _MainPlaceholder();
+class _PlaceholderTab extends StatelessWidget {
+  const _PlaceholderTab({required this.title});
+  final String title;
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text('Calendrier, Règles, Position, Paramètres — à venir'),
-      ),
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: Center(child: Text('$title — à venir')),
     );
   }
 }

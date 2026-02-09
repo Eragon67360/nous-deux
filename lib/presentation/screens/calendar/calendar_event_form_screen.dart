@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import 'package:nous_deux/core/constants/app_constants.dart';
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
-import 'package:nous_deux/presentation/providers/calendar_provider.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/core/constants/app_constants.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
+import 'package:nousdeux/presentation/providers/calendar_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 class CalendarEventFormScreen extends ConsumerStatefulWidget {
   const CalendarEventFormScreen({

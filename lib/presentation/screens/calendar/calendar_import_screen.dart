@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:nous_deux/core/constants/app_spacing.dart';
-import 'package:nous_deux/presentation/providers/calendar_provider.dart';
-import 'package:nous_deux/presentation/providers/profile_provider.dart';
-import 'package:nous_deux/presentation/widgets/loading_content.dart';
+import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/calendar_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
 class CalendarImportScreen extends ConsumerStatefulWidget {
   const CalendarImportScreen({super.key});
@@ -62,7 +62,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
     _loadCalendars();
   }
 
-  static const _settingsChannel = MethodChannel('com.nous_deux.app/settings');
+  static const _settingsChannel = MethodChannel('com.nousdeux.app/settings');
 
   Future<void> _openAppSettings() async {
     try {
