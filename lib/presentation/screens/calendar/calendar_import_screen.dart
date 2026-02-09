@@ -62,7 +62,9 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
     _loadCalendars();
   }
 
-  static const _settingsChannel = MethodChannel('com.nousdeux.app/settings');
+  static const _settingsChannel = MethodChannel(
+    'com.nousdeux.android/settings',
+  );
 
   Future<void> _openAppSettings() async {
     try {
