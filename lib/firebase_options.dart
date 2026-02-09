@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '836600962251',
     projectId: 'nous-deux-7bf2f',
     storageBucket: 'nous-deux-7bf2f.firebasestorage.app',
-    iosBundleId: 'com.nousdeux.app',
+    iosBundleId: 'com.nousdeux.android',
   );
 }

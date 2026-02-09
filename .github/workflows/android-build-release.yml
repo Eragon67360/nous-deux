@@ -135,7 +135,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.ANDROID_SERVICE_ACCOUNT_JSON }}
-          packageName: com.nousdeux.app
+          packageName: com.nousdeux.android
           # Note: We use the renamed path from the previous step
           releaseFiles: ${{ steps.rename.outputs.aab_path }}
           mappingFile: android/app/build/outputs/mapping/release/mapping.txt

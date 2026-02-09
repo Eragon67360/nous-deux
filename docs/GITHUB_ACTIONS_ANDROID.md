@@ -71,7 +71,7 @@ If you only want builds and GitHub Releases (no Play upload), remove or comment 
 
 - [ ] All secrets above are set in the repo (including keystore base64 and Play service account JSON if you use Play upload).
 - [ ] Upload keystore alias and passwords match what you use locally and in the secrets.
-- [ ] Package name in Google Play matches `com.nousdeux.app` (see `android/app/build.gradle.kts`).
+- [ ] Package name in Google Play matches `com.nousdeux.android` (see `android/app/build.gradle.kts`).
 - [ ] Commit message for the push does not contain `[skip ci]` if you want the workflow to run.
 
 After that, a push to `main` that touches the paths defined in the workflow will trigger the job. Check the **Actions** tab for logs and the **Releases** page for the created build artifacts.
