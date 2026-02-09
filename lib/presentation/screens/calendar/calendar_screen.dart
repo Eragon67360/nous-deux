@@ -13,21 +13,18 @@ import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.da
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
-class CalendarScreen extends ConsumerStatefulWidget {
-  const CalendarScreen({super.key});
+class CalendarHomeScreen extends ConsumerStatefulWidget {
+  const CalendarHomeScreen({super.key});
 
   @override
-  ConsumerState<CalendarScreen> createState() => _CalendarScreenState();
+  ConsumerState<CalendarHomeScreen> createState() => _CalendarHomeScreenState();
 }
 
-/// Marker colors from app SVG (text #722F37, accent #FF8FA3).
-const Color _markerMine = Color(0xFF722F37);
-const Color _markerPartner = Color(0xFFFF8FA3);
-
-class _CalendarScreenState extends ConsumerState<CalendarScreen> {
+class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
-  CalendarFormat _format = CalendarFormat.month;
+  CalendarFormat _calendarFormat =
+      CalendarFormat.twoWeeks; // Format par défaut pour l'accueil
 
   @override
   void initState() {
@@ -35,307 +32,551 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     _selectedDay = _focusedDay;
   }
 
+  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    if (!isSameDay(_selectedDay, selectedDay)) {
+      setState(() {
+        _selectedDay = selectedDay;
+        _focusedDay = focusedDay;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final eventsAsync = ref.watch(calendarEventsProvider);
-    final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
+    final currentUser = ref.watch(currentUserProvider).valueOrNull;
     final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
-    final partnerDisplayName =
-        partnerProfile?.username?.trim().isNotEmpty == true
+
+    // Préparation des données
+    final partnerName = partnerProfile?.username?.trim().isNotEmpty == true
         ? partnerProfile!.username!
         : 'Partenaire';
-    final colorScheme = Theme.of(context).colorScheme;
+
+    final currentUserId = currentUser?.id;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Calendrier'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.upload),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => const CalendarImportScreen(),
+      backgroundColor: theme.colorScheme.surface,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // 1. En-tête (Date & Actions)
+            _HomeHeader(
+              onTodayTap: () {
+                setState(() {
+                  _focusedDay = DateTime.now();
+                  _selectedDay = DateTime.now();
+                });
+              },
+              onImportTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CalendarImportScreen()),
               ),
             ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () => _openEventForm(
-              context,
-              selectedDate: _selectedDay ?? _focusedDay,
+
+            // 2. Widget Calendrier
+            eventsAsync.when(
+              data: (allEvents) {
+                return _CalendarSection(
+                  focusedDay: _focusedDay,
+                  selectedDay: _selectedDay,
+                  calendarFormat: _calendarFormat,
+                  events: allEvents,
+                  currentUserId: currentUserId,
+                  onDaySelected: _onDaySelected,
+                  onFormatChanged: (format) =>
+                      setState(() => _calendarFormat = format),
+                  onPageChanged: (focused) => _focusedDay = focused,
+                );
+              },
+              loading: () =>
+                  const SizedBox(height: 140, child: LoadingContent()),
+              error: (_, __) => const SizedBox.shrink(),
             ),
-          ),
-        ],
-      ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 220),
-        switchInCurve: Curves.easeOut,
-        child: KeyedSubtree(
-          key: ValueKey('${eventsAsync.isLoading}_${eventsAsync.hasValue}'),
-          child: eventsAsync.when(
-            data: (allEvents) {
-              final eventsOnSelected = _eventsOnDay(
-                allEvents,
-                _selectedDay ?? _focusedDay,
-              );
-              return Column(
-                children: [
-                  TableCalendar<CalendarEventEntity>(
-                    firstDay: DateTime(2000),
-                    lastDay: DateTime(2100),
-                    focusedDay: _focusedDay,
-                    selectedDayPredicate: (d) => isSameDay(_selectedDay, d),
-                    calendarFormat: _format,
-                    onFormatChanged: (f) => setState(() => _format = f),
-                    availableCalendarFormats: const {
-                      CalendarFormat.month: 'Mois',
-                      CalendarFormat.twoWeeks: '2 sem.',
-                      CalendarFormat.week: 'Semaine',
+
+            const Divider(height: 1, thickness: 1),
+
+            // 3. Liste des événements
+            Expanded(
+              child: eventsAsync.when(
+                data: (allEvents) {
+                  final dayEvents = _getEventsForDay(
+                    allEvents,
+                    _selectedDay ?? _focusedDay,
+                  );
+
+                  if (dayEvents.isEmpty) {
+                    return _EmptyDayState(
+                      date: _selectedDay ?? _focusedDay,
+                      onAddPressed: () => _openEventForm(context),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.md,
+                      horizontal: AppSpacing.md,
+                    ),
+                    itemCount: dayEvents.length,
+                    itemBuilder: (context, index) {
+                      final event = dayEvents[index];
+                      return _EventCard(
+                        event: event,
+                        currentUserId: currentUserId,
+                        partnerName: partnerName,
+                        onTap: () => _openEventForm(context, event: event),
+                        onLongPress: () => _confirmDelete(context, event),
+                      );
                     },
-                    onDaySelected: (selected, focused) => setState(() {
-                      _selectedDay = selected;
-                      _focusedDay = focused;
-                    }),
-                    eventLoader: (day) => _eventsOnDay(allEvents, day),
-                    calendarBuilders: CalendarBuilders<CalendarEventEntity>(
-                      markerBuilder: (context, day, events) {
-                        if (events.isEmpty) return null;
-                        final hasMine =
-                            currentUserId != null &&
-                            events.any((e) => e.createdBy == currentUserId);
-                        final hasPartner =
-                            currentUserId != null &&
-                            events.any((e) => e.createdBy != currentUserId);
-                        if (!hasMine && !hasPartner) return null;
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (hasMine)
-                                Container(
-                                  width: 5,
-                                  height: 5,
-                                  margin: const EdgeInsets.only(right: 2),
-                                  decoration: const BoxDecoration(
-                                    color: _markerMine,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                              if (hasPartner)
-                                Container(
-                                  width: 5,
-                                  height: 5,
-                                  decoration: const BoxDecoration(
-                                    color: _markerPartner,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                    calendarStyle: CalendarStyle(
-                      defaultTextStyle: TextStyle(color: colorScheme.onSurface),
-                      weekendTextStyle: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      selectedTextStyle: TextStyle(
-                        color: colorScheme.onPrimary,
-                      ),
-                      todayTextStyle: TextStyle(
-                        color: colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      selectedDecoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      todayDecoration: BoxDecoration(
-                        color: colorScheme.primary.withValues(alpha: 0.3),
-                        shape: BoxShape.circle,
-                      ),
-                      outsideTextStyle: TextStyle(
-                        color: colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.5,
-                        ),
-                      ),
-                    ),
-                    headerStyle: HeaderStyle(
-                      formatButtonVisible: true,
-                      titleCentered: true,
-                      titleTextStyle: Theme.of(context).textTheme.titleMedium!
-                          .copyWith(
-                            color: colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                      formatButtonTextStyle: TextStyle(
-                        color: colorScheme.primary,
-                      ),
-                      leftChevronIcon: Icon(
-                        Icons.chevron_left,
-                        color: colorScheme.onSurface,
-                      ),
-                      rightChevronIcon: Icon(
-                        Icons.chevron_right,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  Expanded(
-                    child: eventsOnSelected.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.event_available,
-                            message: 'Aucun événement ce jour',
-                            secondary: 'Appuyez sur + pour en ajouter un',
-                          )
-                        : ListView.builder(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            itemCount: eventsOnSelected.length,
-                            itemBuilder: (_, i) {
-                              final e = eventsOnSelected[i];
-                              final isMine =
-                                  currentUserId != null &&
-                                  e.createdBy == currentUserId;
-                              final creatorLabel = isMine
-                                  ? 'Moi'
-                                  : partnerDisplayName;
-                              final timeStr = DateFormat.Hm().format(
-                                e.startTime,
-                              );
-                              return Card(
-                                margin: const EdgeInsets.only(
-                                  bottom: AppSpacing.sm,
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.sm,
-                                    vertical: AppSpacing.xs,
-                                  ),
-                                  leading: Icon(
-                                    isMine
-                                        ? Icons.person
-                                        : Icons.person_outline,
-                                    color: isMine
-                                        ? colorScheme.primary
-                                        : colorScheme.outline,
-                                    size: 28,
-                                  ),
-                                  title: Text(e.title),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      if (e.description != null &&
-                                          e.description!.isNotEmpty)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            bottom: 2,
-                                          ),
-                                          child: Text(
-                                            e.description!,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
-                                          ),
-                                        ),
-                                      Text(
-                                        '$creatorLabel · $timeStr',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall
-                                            ?.copyWith(
-                                              color:
-                                                  colorScheme.onSurfaceVariant,
-                                            ),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: Text(
-                                    timeStr,
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
-                                  ),
-                                  onTap: () =>
-                                      _openEventForm(context, event: e),
-                                  onLongPress: () => _confirmDelete(context, e),
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                ],
-              );
-            },
-            loading: () => const LoadingContent(),
-            error: (err, _) => EmptyState(
-              icon: Icons.error_outline,
-              message: 'Erreur de chargement',
-              secondary: err.toString(),
-              iconColor: colorScheme.error,
+                  );
+                },
+                loading: () => const LoadingContent(),
+                error: (e, _) =>
+                    Center(child: Text(e.toString(), softWrap: true)),
+              ),
             ),
-          ),
+          ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            _openEventForm(context, selectedDate: _selectedDay ?? _focusedDay),
-        child: const Icon(Icons.add),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openEventForm(context),
+        icon: const Icon(Icons.add),
+        label: const Text('Ajouter'),
+        elevation: 2,
       ),
     );
   }
 
-  List<CalendarEventEntity> _eventsOnDay(
+  // --- Helpers Logiques ---
+
+  List<CalendarEventEntity> _getEventsForDay(
     List<CalendarEventEntity> events,
     DateTime day,
   ) {
-    return events.where((e) {
-      final d = e.startTime;
-      return d.year == day.year && d.month == day.month && d.day == day.day;
+    return events.where((event) {
+      return isSameDay(event.startTime, day);
     }).toList();
   }
 
-  void _openEventForm(
-    BuildContext context, {
-    CalendarEventEntity? event,
-    DateTime? selectedDate,
-  }) {
+  void _openEventForm(BuildContext context, {CalendarEventEntity? event}) {
     Navigator.of(context)
         .push(
-          MaterialPageRoute<void>(
+          MaterialPageRoute(
             builder: (_) => CalendarEventFormScreen(
               event: event,
-              initialDate: selectedDate ?? event?.startTime ?? DateTime.now(),
+              initialDate: _selectedDay ?? _focusedDay,
             ),
           ),
         )
         .then((_) => ref.invalidate(calendarEventsProvider));
   }
 
-  void _confirmDelete(BuildContext context, CalendarEventEntity e) {
-    showDialog<void>(
+  void _confirmDelete(BuildContext context, CalendarEventEntity event) {
+    showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Supprimer l\'événement ?'),
-        content: Text('« ${e.title}» sera supprimé.'),
+        content: Text(
+          'Voulez-vous vraiment supprimer « ${event.title} » ?',
+          softWrap: true,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Annuler'),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
             onPressed: () async {
               Navigator.pop(ctx);
-              await ref.read(calendarRepositoryProvider).deleteEvent(e.id);
+              await ref.read(calendarRepositoryProvider).deleteEvent(event.id);
               if (context.mounted) ref.invalidate(calendarEventsProvider);
             },
             child: const Text('Supprimer'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// SOUS-WIDGETS (UI)
+// -----------------------------------------------------------------------------
+
+class _HomeHeader extends StatelessWidget {
+  final VoidCallback onTodayTap;
+  final VoidCallback onImportTap;
+
+  const _HomeHeader({required this.onTodayTap, required this.onImportTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final today = DateTime.now();
+    // Utilisation explicite du français pour la date
+    final dateString = DateFormat.yMMMMd('fr_FR').format(today);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.sm,
+        AppSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Calendrier',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  softWrap: true,
+                ),
+                Text(
+                  dateString,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  softWrap: true,
+                ),
+              ],
+            ),
+          ),
+          IconButton.filledTonal(
+            onPressed: onTodayTap,
+            icon: const Icon(Icons.today),
+            tooltip: "Aujourd'hui",
+          ),
+          const SizedBox(width: 8),
+          IconButton.outlined(
+            onPressed: onImportTap,
+            icon: const Icon(Icons.upload_file),
+            tooltip: "Importer",
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CalendarSection extends StatelessWidget {
+  final DateTime focusedDay;
+  final DateTime? selectedDay;
+  final CalendarFormat calendarFormat;
+  final List<CalendarEventEntity> events;
+  final String? currentUserId;
+  final void Function(DateTime, DateTime) onDaySelected;
+  final void Function(CalendarFormat) onFormatChanged;
+  final void Function(DateTime) onPageChanged;
+
+  // Couleurs définies dans les spécifications
+  static const Color _markerMine = Color(0xFF722F37);
+  static const Color _markerPartner = Color(0xFFFF8FA3);
+
+  const _CalendarSection({
+    required this.focusedDay,
+    required this.selectedDay,
+    required this.calendarFormat,
+    required this.events,
+    required this.currentUserId,
+    required this.onDaySelected,
+    required this.onFormatChanged,
+    required this.onPageChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return TableCalendar<CalendarEventEntity>(
+      firstDay: DateTime(2020),
+      lastDay: DateTime(2030),
+      focusedDay: focusedDay,
+      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
+      calendarFormat: calendarFormat,
+      startingDayOfWeek: StartingDayOfWeek.monday,
+      locale: 'fr_FR', // Localisation française du calendrier
+      // Styles visuels
+      calendarStyle: CalendarStyle(
+        markersMaxCount: 1,
+        outsideDaysVisible: true,
+        defaultTextStyle: theme.textTheme.bodyMedium!,
+        weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+        selectedDecoration: BoxDecoration(
+          color: theme.colorScheme.primary,
+          shape: BoxShape.circle,
+        ),
+        todayDecoration: BoxDecoration(
+          color: theme.colorScheme.primaryContainer,
+          shape: BoxShape.circle,
+        ),
+        todayTextStyle: TextStyle(
+          color: theme.colorScheme.onPrimaryContainer,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+
+      headerStyle: HeaderStyle(
+        formatButtonVisible: true,
+        titleCentered: true,
+        formatButtonShowsNext: false,
+        decoration: const BoxDecoration(),
+        titleTextStyle: theme.textTheme.titleMedium!.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+        formatButtonDecoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        formatButtonTextStyle: theme.textTheme.labelSmall!,
+      ),
+
+      availableCalendarFormats: const {
+        CalendarFormat.month: 'Mois',
+        CalendarFormat.twoWeeks: '2 sem.',
+        CalendarFormat.week: 'Semaine',
+      },
+
+      // Logique
+      onDaySelected: onDaySelected,
+      onFormatChanged: onFormatChanged,
+      onPageChanged: onPageChanged,
+      eventLoader: (day) =>
+          events.where((e) => isSameDay(e.startTime, day)).toList(),
+
+      // Marqueurs personnalisés (Points sous les dates)
+      calendarBuilders: CalendarBuilders(
+        markerBuilder: (context, day, dayEvents) {
+          if (dayEvents.isEmpty) return null;
+
+          final hasMine =
+              currentUserId != null &&
+              dayEvents.any((e) => e.createdBy == currentUserId);
+          final hasPartner =
+              currentUserId != null &&
+              dayEvents.any((e) => e.createdBy != currentUserId);
+
+          // Si l'utilisateur n'est pas connecté, on met une couleur générique
+          if (currentUserId == null) {
+            return _buildDot(theme.colorScheme.primary);
+          }
+
+          return Positioned(
+            bottom: 5,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (hasMine) _buildDot(_markerMine),
+                if (hasMine && hasPartner) const SizedBox(width: 2),
+                if (hasPartner) _buildDot(_markerPartner),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildDot(Color color) {
+    return Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+    );
+  }
+}
+
+class _EventCard extends StatelessWidget {
+  final CalendarEventEntity event;
+  final String? currentUserId;
+  final String partnerName;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
+  // Couleurs
+  static const Color _colorMine = Color(0xFF722F37);
+  static const Color _colorPartner = Color(0xFFFF8FA3);
+
+  const _EventCard({
+    required this.event,
+    required this.currentUserId,
+    required this.partnerName,
+    required this.onTap,
+    required this.onLongPress,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isMine = currentUserId != null && event.createdBy == currentUserId;
+
+    final accentColor = isMine ? _colorMine : _colorPartner;
+    final creatorLabel = isMine ? 'Moi' : partnerName;
+
+    final startTime = DateFormat.Hm('fr_FR').format(event.startTime);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          onLongPress: onLongPress,
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // 1. Bande latérale de couleur
+                Container(width: 6, color: accentColor),
+
+                // 2. Contenu
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Titre
+                        Text(
+                          event.title,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          softWrap: true, // JAMAIS d'ellipse
+                        ),
+
+                        // Description (si existante)
+                        if (event.description?.isNotEmpty == true) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            event.description!,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            softWrap: true, // JAMAIS d'ellipse
+                          ),
+                        ],
+
+                        const SizedBox(height: 8),
+
+                        // Métadonnées (Heure & Propriétaire)
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time_rounded,
+                              size: 14,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              startTime,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              softWrap: true,
+                            ),
+                            const SizedBox(width: 12),
+
+                            // Badge Propriétaire
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: accentColor.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                creatorLabel,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: accentColor,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                softWrap: true,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmptyDayState extends StatelessWidget {
+  final DateTime date;
+  final VoidCallback onAddPressed;
+
+  const _EmptyDayState({required this.date, required this.onAddPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    final isToday = isSameDay(date, DateTime.now());
+    final dateStr = DateFormat.MMMMd('fr_FR').format(date);
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.event_note,
+                size: 64,
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                isToday
+                    ? 'Rien de prévu aujourd\'hui'
+                    : 'Aucun événement le $dateStr',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                softWrap: true,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              TextButton.icon(
+                onPressed: onAddPressed,
+                icon: const Icon(Icons.add),
+                label: const Text('Créer un événement'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
