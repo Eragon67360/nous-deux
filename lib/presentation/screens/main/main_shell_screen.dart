@@ -1,16 +1,80 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
-class MainShellScreen extends ConsumerWidget {
+class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.navigationShell});
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
+}
+
+class _MainShellScreenState extends ConsumerState<MainShellScreen> {
+  RealtimeChannel? _profileChannel;
+  String? _subscribedUserId;
+
+  void _subscribeToPartnerJoined(String userId) {
+    if (userId == _subscribedUserId) return;
+    _profileChannel?.unsubscribe();
+    _subscribedUserId = userId;
+    final client = Supabase.instance.client;
+    _profileChannel = client
+        .channel('profile-partner-$userId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.update,
+          schema: 'public',
+          table: 'profiles',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'id',
+            value: userId,
+          ),
+          callback: (payload) {
+            final newRecord = payload.newRecord;
+            final partnerId = newRecord['partner_id'];
+            if (partnerId != null && partnerId.toString().isNotEmpty) {
+              ref.invalidate(myProfileProvider);
+              ref.invalidate(myCoupleProvider);
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'Votre partenaire a rejoint ! Bienvenue à deux.',
+                    ),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            }
+          },
+        )
+        .subscribe();
+  }
+
+  @override
+  void dispose() {
+    _profileChannel?.unsubscribe();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final userId = ref.watch(currentUserProvider).valueOrNull?.id;
+    if (userId != null) {
+      _subscribeToPartnerJoined(userId);
+    } else {
+      _profileChannel?.unsubscribe();
+      _profileChannel = null;
+      _subscribedUserId = null;
+    }
+
     final profileAsync = ref.watch(myProfileProvider);
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
@@ -67,7 +131,7 @@ class MainShellScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-            Expanded(child: navigationShell),
+            Expanded(child: widget.navigationShell),
           ],
         ),
       ),
@@ -83,7 +147,7 @@ class MainShellScreen extends ConsumerWidget {
             ),
           ),
           child: NavigationBar(
-            selectedIndex: navigationShell.currentIndex,
+            selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: (i) {
               const paths = [
                 '/main',
@@ -92,7 +156,7 @@ class MainShellScreen extends ConsumerWidget {
                 '/main/settings',
               ];
               context.go(paths[i]);
-              navigationShell.goBranch(i);
+              widget.navigationShell.goBranch(i);
             },
             destinations: const [
               NavigationDestination(
