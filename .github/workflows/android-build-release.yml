@@ -72,6 +72,9 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Provide Supabase keys file for release build
+        run: cp lib/core/config/supabase_keys_stub.dart lib/core/config/supabase_keys.dart
+
       - name: Build App Bundle
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
