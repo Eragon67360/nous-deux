@@ -100,6 +100,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                               data: code,
                               version: QrVersions.auto,
                               size: 200,
+                              backgroundColor: Colors.white,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.md),

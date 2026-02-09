@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:nous_deux/core/constants/app_spacing.dart';
+import 'package:nous_deux/core/utils/app_log.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,6 +18,7 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    appLog('SPLASH', message: 'initState (splash mounted)', color: '\x1B[35m');
     _controller = AnimationController(
       duration: const Duration(milliseconds: 400),
       vsync: this,
@@ -36,6 +38,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    appLog('SPLASH', message: 'build', color: '\x1B[35m');
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: Center(

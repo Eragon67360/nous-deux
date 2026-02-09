@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import 'package:nous_deux/core/constants/app_constants.dart';
 import 'package:nous_deux/core/constants/app_spacing.dart';
 import 'package:nous_deux/domain/entities/calendar_event_entity.dart';
 import 'package:nous_deux/presentation/providers/calendar_provider.dart';
+import 'package:nous_deux/presentation/providers/profile_provider.dart';
 
 class CalendarEventFormScreen extends ConsumerStatefulWidget {
   const CalendarEventFormScreen({
@@ -37,9 +39,19 @@ class _CalendarEventFormScreenState
     _descController = TextEditingController(
       text: widget.event?.description ?? '',
     );
-    _startTime = widget.event?.startTime ?? widget.initialDate;
+    final initial = widget.initialDate;
+    _startTime = widget.event?.startTime ?? _roundToNextHour(initial);
     _endTime =
         widget.event?.endTime ?? _startTime.add(const Duration(hours: 1));
+  }
+
+  /// Rounds to the next full hour (e.g. 15:28 → 16:00).
+  static DateTime _roundToNextHour(DateTime d) {
+    final atHour = DateTime(d.year, d.month, d.day, d.hour, 0, 0, 0);
+    if (d.minute == 0 && d.second == 0 && d.millisecond == 0) {
+      return atHour;
+    }
+    return atHour.add(const Duration(hours: 1));
   }
 
   @override
@@ -94,6 +106,15 @@ class _CalendarEventFormScreenState
     Navigator.of(context).pop();
   }
 
+  String _formatDateTime(BuildContext context, DateTime dt) {
+    final language = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
+    final dateFormat = language == 'fr'
+        ? DateFormat('d MMM y HH:mm', locale)
+        : DateFormat('MMM d, y h:mm a', locale);
+    return dateFormat.format(dt.toLocal());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,7 +147,7 @@ class _CalendarEventFormScreenState
             const SizedBox(height: AppSpacing.sm),
             ListTile(
               title: const Text('Début'),
-              subtitle: Text('${_startTime.toLocal()}'),
+              subtitle: Text(_formatDateTime(context, _startTime)),
               onTap: () async {
                 final date = await showDatePicker(
                   context: context,
@@ -153,7 +174,7 @@ class _CalendarEventFormScreenState
             ),
             ListTile(
               title: const Text('Fin'),
-              subtitle: Text('${_endTime.toLocal()}'),
+              subtitle: Text(_formatDateTime(context, _endTime)),
               onTap: () async {
                 final date = await showDatePicker(
                   context: context,

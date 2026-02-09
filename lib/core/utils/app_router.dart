@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:nous_deux/core/config/app_config.dart';
+import 'package:nous_deux/core/utils/app_log.dart';
 import 'package:nous_deux/presentation/providers/auth_provider.dart';
 import 'package:nous_deux/presentation/providers/profile_provider.dart';
 import 'package:nous_deux/presentation/screens/auth/auth_screen.dart';
@@ -28,10 +29,7 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
     reverseTransitionDuration: _transitionDuration,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       return FadeTransition(
-        opacity: CurvedAnimation(
-          parent: animation,
-          curve: Curves.easeOut,
-        ),
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
         child: child,
       );
     },
@@ -46,17 +44,77 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final isSignedIn = authAsync.valueOrNull != null;
   final profile = profileAsync.valueOrNull;
   final hasCompletedOnboarding = profile?.hasCompletedOnboarding ?? false;
+  final authHasError = authAsync.hasError;
+  final profileHasError = profileAsync.hasError;
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     redirect: (context, state) {
-      if (!isSupabaseConfigured) return null;
       final loc = state.uri.path;
-      if (authLoading) return null;
+      appLog(
+        'ROUTER',
+        message: 'redirect called → path=$loc',
+        color: '\x1B[36m',
+      );
+      appLog(
+        'ROUTER',
+        message:
+            '  supabase=$isSupabaseConfigured authLoading=$authLoading isSignedIn=$isSignedIn authError=$authHasError${authHasError ? " (${authAsync.error})" : ""}',
+        color: '\x1B[36m',
+      );
+      appLog(
+        'ROUTER',
+        message:
+            '  profileLoading=${profileAsync.isLoading} profile=${profile != null} hasOnboarding=$hasCompletedOnboarding profileError=$profileHasError${profileHasError ? " (${profileAsync.error})" : ""}',
+        color: '\x1B[36m',
+      );
+
+      if (!isSupabaseConfigured) {
+        appLog(
+          'ROUTER',
+          message: '  → null (Supabase not configured)',
+          color: '\x1B[33m',
+        );
+        return null;
+      }
+      if (authLoading) {
+        appLog(
+          'ROUTER',
+          message: '  → null (auth still loading, staying on $loc)',
+          color: '\x1B[33m',
+        );
+        return null;
+      }
+
+      // Signed in but profile missing or failed (e.g. user deleted from DB) → sign out and go to auth
+      if (isSignedIn && !profileAsync.isLoading && profile == null) {
+        appLog(
+          'ROUTER',
+          message:
+              '  → /auth (signed in but no profile${profileHasError ? " or profile error" : ""}, signing out)',
+          color: '\x1B[32m',
+        );
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(authRepositoryProvider).signOut();
+        });
+        return '/auth';
+      }
 
       if (!isSignedIn) {
-        if (loc.startsWith('/auth')) return null;
+        if (loc.startsWith('/auth')) {
+          appLog(
+            'ROUTER',
+            message: '  → null (not signed in, already on auth)',
+            color: '\x1B[32m',
+          );
+          return null;
+        }
+        appLog(
+          'ROUTER',
+          message: '  → /auth (not signed in)',
+          color: '\x1B[32m',
+        );
         return '/auth';
       }
 
@@ -65,6 +123,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           profile != null &&
           !hasCompletedOnboarding &&
           !loc.startsWith('/onboarding')) {
+        appLog(
+          'ROUTER',
+          message: '  → /onboarding (profile loaded, onboarding not done)',
+          color: '\x1B[32m',
+        );
         return '/onboarding';
       }
 
@@ -73,8 +136,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           (loc == '/' ||
               loc.startsWith('/auth') ||
               loc.startsWith('/onboarding'))) {
+        appLog(
+          'ROUTER',
+          message: '  → /main (onboarding done)',
+          color: '\x1B[32m',
+        );
         return '/main';
       }
+      appLog('ROUTER', message: '  → null (no redirect)', color: '\x1B[33m');
       return null;
     },
     routes: [
@@ -91,7 +160,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (_, state) => _fadePage(
           state,
           VerifyOtpScreen(
-            phone: (state.extra as Map<String, dynamic>?)?['phone'] as String? ?? '',
+            phone:
+                (state.extra as Map<String, dynamic>?)?['phone'] as String? ??
+                '',
           ),
         ),
       ),

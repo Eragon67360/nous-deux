@@ -40,17 +40,13 @@ abstract final class AppTheme {
 
     final textTheme = GoogleFonts.dmSansTextTheme(
       ThemeData.dark().textTheme.copyWith(
-            headlineLarge: const TextStyle(
-              fontWeight: FontWeight.w300,
-              letterSpacing: -0.5,
-            ),
-            headlineMedium: const TextStyle(
-              fontWeight: FontWeight.w600,
-            ),
-            bodyLarge: TextStyle(
-              color: _onSurfaceVariant,
-            ),
-          ),
+        headlineLarge: const TextStyle(
+          fontWeight: FontWeight.w300,
+          letterSpacing: -0.5,
+        ),
+        headlineMedium: const TextStyle(fontWeight: FontWeight.w600),
+        bodyLarge: TextStyle(color: _onSurfaceVariant),
+      ),
     );
 
     return ThemeData(
@@ -84,7 +80,10 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: _error),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         labelStyle: TextStyle(color: _onSurfaceVariant),
         hintStyle: TextStyle(color: _onSurfaceVariant.withValues(alpha: 0.7)),
       ),
@@ -98,36 +97,57 @@ abstract final class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          textStyle: textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          textStyle: textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           side: const BorderSide(color: _outline),
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        height: 80,
+        height: 66,
         elevation: 0,
         backgroundColor: _surfaceContainer,
-        indicatorColor: _surfaceContainerHigh,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: _primary.withValues(alpha: 0.2),
+        indicatorShape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const IconThemeData(color: _primary, size: 24);
+          }
+          return const IconThemeData(color: _onSurfaceVariant, size: 24);
+        }),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return textTheme.labelSmall?.copyWith(color: _primary);
+            return textTheme.labelMedium?.copyWith(color: _primary);
           }
-          return textTheme.labelSmall?.copyWith(color: _onSurfaceVariant);
+          return textTheme.labelMedium?.copyWith(color: _onSurfaceVariant);
         }),
       ),
-      dividerTheme: const DividerThemeData(color: _outlineVariant, thickness: 1),
+      dividerTheme: const DividerThemeData(
+        color: _outlineVariant,
+        thickness: 1,
+      ),
       scaffoldBackgroundColor: _surface,
       dialogTheme: DialogThemeData(
         backgroundColor: _surfaceContainer,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         titleTextStyle: textTheme.titleLarge?.copyWith(color: _onSurface),
-        contentTextStyle: textTheme.bodyMedium?.copyWith(color: _onSurfaceVariant),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: _onSurfaceVariant,
+        ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: _surfaceContainer,
