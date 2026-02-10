@@ -60,6 +60,8 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   // Assets & Caching
   Uint8List? _myCachedAvatarBytes;
   Uint8List? _partnerCachedAvatarBytes;
+  Uint8List? _heartMarkerBytes; // Cache for the merged heart marker
+
   String? _lastMyAvatarUrl;
   String? _lastMyName;
   String? _lastPartnerAvatarUrl;
@@ -152,6 +154,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
         // Refresh markers as style reload might clear canvas cache
         _myCachedAvatarBytes = null;
         _partnerCachedAvatarBytes = null;
+        _heartMarkerBytes = null;
       } catch (e) {
         debugPrint('Error switching map style: $e');
       }
@@ -214,8 +217,10 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     ref.invalidate(myLocationSharingProvider);
     ref.invalidate(partnerLocationSharingProvider);
 
+    // Clear caches to force redraw
     _myCachedAvatarBytes = null;
     _partnerCachedAvatarBytes = null;
+    _heartMarkerBytes = null;
     _lastMyAvatarUrl = null;
     _lastMyName = null;
     _lastPartnerAvatarUrl = null;
@@ -306,6 +311,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     }
 
     final distanceM = _distanceMeters(myPos, partnerPos);
+    // Determine if we are merged based on distance
     final isMerged =
         distanceM != null && distanceM < positionMergeThresholdMeters;
 
@@ -385,6 +391,11 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
                 partnerProfile: partnerProfile,
                 myPos: myPos,
                 partnerPos: partnerPos,
+                isMerged: isMerged,
+                // If merged, center on myPos (which is effectively the shared group pos)
+                onCenterMerged: (_useMapbox && myPos != null)
+                    ? () => _centerCameraOn(myPos)
+                    : null,
                 onCenterMy: (_useMapbox && myPos != null)
                     ? () => _centerCameraOn(myPos)
                     : null,
@@ -539,6 +550,33 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     final manager = _pointAnnotationManager;
     if (manager == null) return;
 
+    // 1. If Merged: Show ONLY the Heart marker
+    if (isMerged && myPos != null) {
+      // Ensure heart marker is generated
+      if (_heartMarkerBytes == null) {
+        _heartMarkerBytes = await _createHeartMarker(context);
+      }
+
+      final heartIcon = _heartMarkerBytes;
+      if (heartIcon == null) return;
+
+      await manager.deleteAll();
+
+      await manager.create(
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(
+            coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
+          ),
+          image: heartIcon,
+          iconSize: 1.5,
+          iconOffset: [0, -10],
+          symbolSortKey: 10,
+        ),
+      );
+      return; // Exit early so we don't add individual avatars
+    }
+
+    // 2. If Separate: Show individual avatars
     final myUrl = myProfile?.avatarUrl;
     final myName = myProfile?.username;
 
@@ -580,51 +618,88 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
 
     final options = <mapbox.PointAnnotationOptions>[];
 
-    if (isMerged && myPos != null) {
+    if (myPos != null) {
       options.add(
         mapbox.PointAnnotationOptions(
           geometry: mapbox.Point(
             coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
           ),
           image: myIcon,
-          iconSize: 1.5,
-          iconOffset: [0, -10],
-          symbolSortKey: 10,
+          iconSize: 1.2,
+          iconOffset: [0, -5],
+          symbolSortKey: 2,
         ),
       );
-    } else {
-      if (myPos != null) {
-        options.add(
-          mapbox.PointAnnotationOptions(
-            geometry: mapbox.Point(
-              coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
+    }
+    if (partnerPos != null) {
+      options.add(
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(
+            coordinates: mapbox.Position(
+              partnerPos.longitude,
+              partnerPos.latitude,
             ),
-            image: myIcon,
-            iconSize: 1.2,
-            iconOffset: [0, -5],
-            symbolSortKey: 2,
           ),
-        );
-      }
-      if (partnerPos != null) {
-        options.add(
-          mapbox.PointAnnotationOptions(
-            geometry: mapbox.Point(
-              coordinates: mapbox.Position(
-                partnerPos.longitude,
-                partnerPos.latitude,
-              ),
-            ),
-            image: partnerIcon,
-            iconSize: 1.2,
-            iconOffset: [0, -5],
-            symbolSortKey: 1,
-          ),
-        );
-      }
+          image: partnerIcon,
+          iconSize: 1.2,
+          iconOffset: [0, -5],
+          symbolSortKey: 1,
+        ),
+      );
     }
 
     await manager.createMulti(options);
+  }
+
+  /// Generates a "Heart" marker icon (White circle with Red Heart)
+  Future<Uint8List> _createHeartMarker(BuildContext context) async {
+    const double size = 140; // Same base size as avatars
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final double center = size / 2;
+    final double radius = size / 2;
+
+    // 1. Draw Shadow/Blur
+    canvas.drawCircle(
+      Offset(center, center + 4),
+      radius,
+      Paint()
+        ..color = Colors.black26
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
+
+    // 2. Draw White Background Circle
+    final paintCircle = Paint()..color = Colors.white;
+    canvas.drawCircle(Offset(center, center), radius, paintCircle);
+
+    // 3. Draw Heart Icon
+    // We use TextPainter to draw the icon cleanly
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      text: TextSpan(
+        text: String.fromCharCode(Icons.favorite.codePoint),
+        style: TextStyle(
+          fontSize: size * 0.6, // 60% of circle size
+          fontFamily: Icons.favorite.fontFamily,
+          color: Colors.redAccent,
+        ),
+      ),
+    );
+    textPainter.layout();
+    textPainter.paint(
+      canvas,
+      Offset(
+        center - (textPainter.width / 2),
+        center -
+            (textPainter.height / 2) +
+            2, // Slight offset for visual center
+      ),
+    );
+
+    final picture = pictureRecorder.endRecording();
+    final img = await picture.toImage(size.toInt(), size.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 
   Future<Uint8List> _generateAvatar(
@@ -848,12 +923,16 @@ class _CompactDistanceChip extends StatelessWidget {
   }
 }
 
+/// Modified Bottom Bar:
+/// Shows individual avatars when apart, but a single "Heart" button when merged.
 class _FloatingNamesBar extends StatelessWidget {
   const _FloatingNamesBar({
     required this.myProfile,
     required this.partnerProfile,
     required this.myPos,
     required this.partnerPos,
+    required this.isMerged,
+    this.onCenterMerged,
     this.onCenterMy,
     this.onCenterPartner,
     this.onFitBoth,
@@ -864,6 +943,8 @@ class _FloatingNamesBar extends StatelessWidget {
   final ProfileEntity? partnerProfile;
   final LatLng? myPos;
   final LatLng? partnerPos;
+  final bool isMerged;
+  final VoidCallback? onCenterMerged;
   final VoidCallback? onCenterMy;
   final VoidCallback? onCenterPartner;
   final VoidCallback? onFitBoth;
@@ -886,38 +967,78 @@ class _FloatingNamesBar extends StatelessWidget {
         ],
       ),
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          _AvatarChip(
-            label: lang == 'fr' ? 'Moi' : 'Me',
-            url: myProfile?.avatarUrl,
-            isActive: myPos != null,
-            onTap: onCenterMy,
-          ),
-          if (myPos != null && partnerPos != null)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: IconButton(
-                icon: const Icon(Icons.fit_screen_outlined, size: 20),
-                onPressed: onFitBoth,
-                tooltip: lang == 'fr' ? 'Voir tout' : 'See all',
-                visualDensity: VisualDensity.compact,
-              ),
-            )
-          else
-            const SizedBox(width: 12),
-          _AvatarChip(
-            label:
-                partnerProfile?.username ??
-                (lang == 'fr' ? 'Partenaire' : 'Partner'),
-            url: partnerProfile?.avatarUrl,
-            isActive: partnerPos != null,
-            onTap: onCenterPartner,
-          ),
-        ],
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        child: isMerged
+            ? _buildMergedState(context, theme)
+            : _buildSplitState(context, theme),
       ),
+    );
+  }
+
+  Widget _buildMergedState(BuildContext context, ThemeData theme) {
+    // When merged, show a single Heart chip
+    return InkWell(
+      key: const ValueKey('merged-heart-chip'),
+      onTap: onCenterMerged,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.favorite, color: Colors.redAccent, size: 24),
+            const SizedBox(width: 8),
+            Text(
+              lang == 'fr' ? 'Nous Deux' : 'Together',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSplitState(BuildContext context, ThemeData theme) {
+    // Standard state: Two avatars + Fit button
+    return Row(
+      key: const ValueKey('split-avatar-chips'),
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _AvatarChip(
+          label: lang == 'fr' ? 'Moi' : 'Me',
+          url: myProfile?.avatarUrl,
+          isActive: myPos != null,
+          onTap: onCenterMy,
+        ),
+        if (myPos != null && partnerPos != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: IconButton(
+              icon: const Icon(Icons.fit_screen_outlined, size: 20),
+              onPressed: onFitBoth,
+              tooltip: lang == 'fr' ? 'Voir tout' : 'See all',
+              visualDensity: VisualDensity.compact,
+            ),
+          )
+        else
+          const SizedBox(width: 12),
+        _AvatarChip(
+          label:
+              partnerProfile?.username ??
+              (lang == 'fr' ? 'Partenaire' : 'Partner'),
+          url: partnerProfile?.avatarUrl,
+          isActive: partnerPos != null,
+          onTap: onCenterPartner,
+        ),
+      ],
     );
   }
 }
