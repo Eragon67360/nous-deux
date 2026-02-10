@@ -529,7 +529,7 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
               ),
               value: isSharing,
               activeColor: theme.colorScheme.primary,
-              onChanged: hasCouple ? (v) => _onLocationSharingChanged(ref, couple.id, v, lang) : null,
+              onChanged: hasCouple ? (v) => _onLocationSharingChanged(context, ref, couple.id, v, lang) : null,
             );
           },
           loading: () => const Padding(
@@ -548,11 +548,36 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
   }
 
   Future<void> _onLocationSharingChanged(
+    BuildContext context,
     WidgetRef ref,
     String coupleId,
     bool enable,
     String lang,
   ) async {
+    if (enable) {
+      final status = await Permission.location.request();
+      final allowed = status.isGranted ||
+          status == PermissionStatus.limited ||
+          status == PermissionStatus.provisional;
+      if (!allowed) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(settingsLocationRequiredForSharing(lang)),
+              behavior: SnackBarBehavior.floating,
+              action: status.isPermanentlyDenied
+                  ? SnackBarAction(
+                      label: settingsOpenAppSettings(lang),
+                      onPressed: openAppSettings,
+                    )
+                  : null,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
     final repo = ref.read(locationRepositoryProvider);
     final result = await repo.setMyLocationSharing(
       isSharing: enable,

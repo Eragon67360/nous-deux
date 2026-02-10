@@ -1,10 +1,20 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui' as ui;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+// ignore: depend_on_referenced_packages
+import 'package:light/light.dart';
+import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/utils/geo_utils.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
@@ -14,7 +24,7 @@ import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 
-/// Position tab: map with both partners' locations, distance, tap-to-center names.
+/// Position tab: Mapbox (Sensor-based Dark Mode), circular avatars, compact UI.
 class PositionScreen extends ConsumerStatefulWidget {
   const PositionScreen({super.key});
 
@@ -23,14 +33,140 @@ class PositionScreen extends ConsumerStatefulWidget {
 }
 
 class _PositionScreenState extends ConsumerState<PositionScreen> {
-  final MapController _mapController = MapController();
+  // Realtime
   RealtimeChannel? _locationChannel;
   String? _subscribedCoupleId;
+
+  // Mapbox
+  static bool get _useMapbox =>
+      AppConfig.isMapboxConfigured &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  mapbox.MapboxMap? _mapboxMap;
+  mapbox.PointAnnotationManager? _pointAnnotationManager;
+
+  // --- Ambient Light & Style Logic ---
+  static const int _luxBufferSize = 10;
+  final List<int> _luxBuffer = [];
+
+  Light? _lightSensor;
+  StreamSubscription<int>? _lightSubscription;
+
+  // Start with a safe default (will be updated immediately in initState)
+  String _currentMapStyle = mapbox.MapboxStyles.STANDARD;
+  bool _isMapDark = false;
+
+  // Assets & Caching
+  Uint8List? _myCachedAvatarBytes;
+  Uint8List? _partnerCachedAvatarBytes;
+  String? _lastMyAvatarUrl;
+  String? _lastMyName;
+  String? _lastPartnerAvatarUrl;
+  String? _lastPartnerName;
 
   @override
   void initState() {
     super.initState();
+    _initAmbientMode();
   }
+
+  // --- 1. Ambient Mode Logic (Sensor + Time fallback) ---
+
+  void _initAmbientMode() {
+    // A. Initial Check: Use Time of Day as a baseline
+    _updateStyleBasedOnTime();
+
+    // B. Try connecting to Light Sensor (for "Tunnel Mode")
+    try {
+      _lightSensor = Light();
+      _lightSubscription = _lightSensor?.lightSensorStream.listen(_onLightData);
+    } catch (e) {
+      debugPrint('Light sensor not available: $e');
+    }
+  }
+
+  /// Called whenever the lux value changes. Running average (no debounce).
+  void _onLightData(int lux) {
+    _luxBuffer.add(lux);
+    if (_luxBuffer.length > _luxBufferSize) {
+      _luxBuffer.removeAt(0);
+    }
+    if (_luxBuffer.isEmpty) return;
+    final sum = _luxBuffer.reduce((a, b) => a + b);
+    final avgLux = (sum / _luxBuffer.length).round();
+    if (!mounted) return;
+    _applyLuxLogic(avgLux);
+  }
+
+  void _applyLuxLogic(int lux) {
+    String? targetStyle;
+
+    if (lux < 30 && !_isMapDark) {
+      targetStyle = mapbox.MapboxStyles.DARK;
+    } else if (lux > 50 && _isMapDark) {
+      targetStyle = mapbox.MapboxStyles.STANDARD;
+    }
+
+    if (targetStyle != null) {
+      _switchMapStyle(targetStyle);
+    }
+  }
+
+  void _updateStyleBasedOnTime() {
+    // Fallback logic if sensor isn't ready or available
+    final hour = DateTime.now().hour;
+    final isNight = hour < 6 || hour > 20; // Simplified night logic
+
+    final targetStyle = isNight
+        ? mapbox.MapboxStyles.DARK
+        : mapbox.MapboxStyles.STANDARD;
+
+    if (targetStyle != _currentMapStyle) {
+      // Direct update for initial load
+      setState(() {
+        _currentMapStyle = targetStyle;
+        _isMapDark = isNight;
+      });
+    }
+  }
+
+  /// Switches style dynamically and updates UI brightness
+  Future<void> _switchMapStyle(String nextStyle) async {
+    if (_currentMapStyle == nextStyle) return;
+    if (!mounted) return;
+
+    setState(() {
+      _currentMapStyle = nextStyle;
+      _isMapDark = (nextStyle == mapbox.MapboxStyles.DARK);
+    });
+
+    if (_mapboxMap != null) {
+      try {
+        await _mapboxMap!.loadStyleURI(nextStyle);
+        if (!mounted) return;
+        // Style reload often resets UI settings, re-apply them:
+        await _applyMapSettings(_mapboxMap!);
+        if (!mounted) return;
+
+        // Refresh markers as style reload might clear canvas cache
+        _myCachedAvatarBytes = null;
+        _partnerCachedAvatarBytes = null;
+      } catch (e) {
+        debugPrint('Error switching map style: $e');
+      }
+    }
+  }
+
+  Future<void> _applyMapSettings(mapbox.MapboxMap map) async {
+    try {
+      await map.scaleBar.updateSettings(
+        mapbox.ScaleBarSettings(enabled: false),
+      );
+    } catch (_) {}
+  }
+
+  // --- Realtime Logic ---
 
   void _subscribeToLocationRealtime(String? coupleId) {
     if (coupleId == null || coupleId == _subscribedCoupleId) return;
@@ -49,8 +185,10 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
             value: coupleId,
           ),
           callback: (_) {
-            ref.invalidate(myLocationSharingProvider);
-            ref.invalidate(partnerLocationSharingProvider);
+            if (mounted) {
+              ref.invalidate(myLocationSharingProvider);
+              ref.invalidate(partnerLocationSharingProvider);
+            }
           },
         )
         .subscribe();
@@ -58,21 +196,31 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
 
   @override
   void dispose() {
+    _lightSubscription?.cancel();
     _locationChannel?.unsubscribe();
     ref.read(locationUpdateNotifierProvider.notifier).stop();
     super.dispose();
   }
 
-  String _lang() =>
-      ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
+  String _lang() => ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
 
   Future<void> _reload() async {
     final myLocation = await ref.read(myLocationSharingProvider.future);
     if (myLocation?.isSharing == true) {
-      await ref.read(locationUpdateNotifierProvider.notifier).pushCurrentPosition();
+      await ref
+          .read(locationUpdateNotifierProvider.notifier)
+          .pushCurrentPosition();
     }
     ref.invalidate(myLocationSharingProvider);
     ref.invalidate(partnerLocationSharingProvider);
+
+    _myCachedAvatarBytes = null;
+    _partnerCachedAvatarBytes = null;
+    _lastMyAvatarUrl = null;
+    _lastMyName = null;
+    _lastPartnerAvatarUrl = null;
+    _lastPartnerName = null;
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -92,7 +240,6 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     final myLocationAsync = ref.watch(myLocationSharingProvider);
     final partnerLocationAsync = ref.watch(partnerLocationSharingProvider);
 
-    // Subscribe to location realtime when we have a couple
     coupleAsync.whenData((c) {
       if (c != null && mounted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -101,10 +248,13 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       }
     });
 
-    // Start/stop location update timer when sharing (only on value change to avoid restarting every build)
-    ref.listen<AsyncValue<LocationSharingEntity?>>(myLocationSharingProvider, (prev, next) {
+    ref.listen<AsyncValue<LocationSharingEntity?>>(myLocationSharingProvider, (
+      prev,
+      next,
+    ) {
+      if (!mounted) return;
       final isSharing = next.valueOrNull?.isSharing ?? false;
-      if (isSharing && mounted) {
+      if (isSharing) {
         ref.read(locationUpdateNotifierProvider.notifier).start();
       } else {
         ref.read(locationUpdateNotifierProvider.notifier).stop();
@@ -117,34 +267,17 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     final myProfile = profileAsync.valueOrNull;
     final partnerProfile = partnerAsync.valueOrNull;
 
-    // No partner
     if (!hasPartner) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(_positionTitle(_lang())),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () => _reload(),
-              tooltip: _positionReloadTooltip(_lang()),
-            ),
-          ],
-        ),
+      return _buildScaffold(
         body: EmptyState(
           icon: Icons.location_off_outlined,
           message: _positionNoPartnerMessage(_lang()),
           secondary: _positionNoPartnerSecondary(_lang()),
         ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: FilledButton.icon(
-              onPressed: () => context.push('/pairing'),
-              icon: const Icon(Icons.person_add_outlined),
-              label: Text(_positionInvitePartner(_lang())),
-            ),
-          ),
+        bottomWidget: FilledButton.icon(
+          onPressed: () => context.push('/pairing'),
+          icon: const Icon(Icons.person_add_outlined),
+          label: Text(_positionInvitePartner(_lang())),
         ),
       );
     }
@@ -157,44 +290,120 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
         : null;
     final hasAnyPosition = myPos != null || partnerPos != null;
 
-    // Partner but no positions to show
     if (!hasAnyPosition) {
-      return Scaffold(
-        appBar: AppBar(
-          title: Text(_positionTitle(_lang())),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () => _reload(),
-              tooltip: _positionReloadTooltip(_lang()),
-            ),
-          ],
-        ),
+      return _buildScaffold(
         body: EmptyState(
           icon: Icons.location_on_outlined,
           message: _positionEnableSharingMessage(_lang()),
           secondary: _positionEnableSharingSecondary(_lang()),
         ),
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: OutlinedButton.icon(
-              onPressed: () => context.go('/main/settings'),
-              icon: const Icon(Icons.settings_outlined),
-              label: Text(_positionOpenSettings(_lang())),
-            ),
-          ),
+        bottomWidget: OutlinedButton.icon(
+          onPressed: () => context.go('/main/settings'),
+          icon: const Icon(Icons.settings_outlined),
+          label: Text(_positionOpenSettings(_lang())),
         ),
       );
     }
 
-    // Map with at least one position
     final distanceM = _distanceMeters(myPos, partnerPos);
-    final isMerged = distanceM != null && distanceM < positionMergeThresholdMeters;
-    final center = _centerPoint(myPos, partnerPos);
-    final zoom = _suggestedZoom(myPos, partnerPos);
+    final isMerged =
+        distanceM != null && distanceM < positionMergeThresholdMeters;
 
+    if (_useMapbox && _mapboxMap != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _updateMapboxMarkers(
+            myPos: myPos,
+            partnerPos: partnerPos,
+            isMerged: isMerged,
+            myProfile: myProfile,
+            partnerProfile: partnerProfile,
+            context: context,
+          );
+        }
+      });
+    }
+
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        // Dynamic status bar: White text (Light) when map is Dark, and vice versa.
+        systemOverlayStyle: _isMapDark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        actions: [
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.7),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => _reload(),
+              tooltip: _positionReloadTooltip(_lang()),
+            ),
+          ),
+        ],
+      ),
+      body: Stack(
+        children: [
+          if (_useMapbox)
+            Positioned.fill(
+              child: _buildMapboxMap(myPos: myPos, partnerPos: partnerPos),
+            )
+          else
+            _MapboxOnlyPlaceholder(lang: _lang()),
+
+          if (distanceM != null)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.sm),
+                  child: _CompactDistanceChip(
+                    distanceM: distanceM,
+                    isMerged: isMerged,
+                    lang: _lang(),
+                  ),
+                ),
+              ),
+            ),
+
+          Positioned(
+            left: AppSpacing.md,
+            right: AppSpacing.md,
+            bottom: AppSpacing.md,
+            child: SafeArea(
+              top: false,
+              child: _FloatingNamesBar(
+                myProfile: myProfile,
+                partnerProfile: partnerProfile,
+                myPos: myPos,
+                partnerPos: partnerPos,
+                onCenterMy: (_useMapbox && myPos != null)
+                    ? () => _centerCameraOn(myPos)
+                    : null,
+                onCenterPartner: (_useMapbox && partnerPos != null)
+                    ? () => _centerCameraOn(partnerPos)
+                    : null,
+                onFitBoth: (_useMapbox && myPos != null && partnerPos != null)
+                    ? () => _fitBoth(myPos, partnerPos)
+                    : null,
+                lang: _lang(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Scaffold _buildScaffold({required Widget body, Widget? bottomWidget}) {
     return Scaffold(
       appBar: AppBar(
         title: Text(_positionTitle(_lang())),
@@ -207,184 +416,447 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
           ),
         ],
       ),
-      body: Stack(
-        children: [
-          FlutterMap(
-            mapController: _mapController,
-            options: MapOptions(
-              initialCenter: center,
-              initialZoom: zoom,
-              interactionOptions: const InteractionOptions(
-                flags: InteractiveFlag.all,
-              ),
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.nousdeux.app',
-              ),
-              MarkerLayer(
-                markers: _buildMarkers(
-                  myPos: myPos,
-                  partnerPos: partnerPos,
-                  isMerged: isMerged,
-                  myProfile: myProfile,
-                  partnerProfile: partnerProfile,
-                ),
-              ),
-            ],
-          ),
-          // Distance card (warm styling)
-          Positioned(
-            top: AppSpacing.sm,
-            left: AppSpacing.sm,
-            right: AppSpacing.sm,
-            child: Material(
-              elevation: 2,
-              borderRadius: BorderRadius.circular(12),
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.95),
+      body: body,
+      bottomNavigationBar: bottomWidget != null
+          ? SafeArea(
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      isMerged ? Icons.favorite : Icons.straighten,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 22,
-                    ),
-                    const SizedBox(width: AppSpacing.xs),
-                    Text(
-                      _formatDistance(distanceM, isMerged, _lang()),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface,
-                            fontWeight: FontWeight.w600,
-                          ),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.all(AppSpacing.md),
+                child: bottomWidget,
               ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: _NamesBar(
-          myProfile: myProfile,
-          partnerProfile: partnerProfile,
-          myPos: myPos,
-          partnerPos: partnerPos,
-          mapController: _mapController,
-          lang: _lang(),
-        ),
-      ),
+            )
+          : null,
     );
   }
 
-  List<Marker> _buildMarkers({
+  Widget _buildMapboxMap({
+    required LatLng? myPos,
+    required LatLng? partnerPos,
+  }) {
+    final startPos = myPos ?? partnerPos ?? const LatLng(48.8566, 2.3522);
+
+    return mapbox.MapWidget(
+      key: const ValueKey('mapbox-map-view'),
+      styleUri: _currentMapStyle, // Controlled by Lux/Time logic
+      cameraOptions: mapbox.CameraOptions(
+        center: mapbox.Point(
+          coordinates: mapbox.Position(startPos.longitude, startPos.latitude),
+        ),
+        zoom: 13.0,
+      ),
+      onMapCreated: (mapbox.MapboxMap map) async {
+        _mapboxMap = map;
+        await _applyMapSettings(map);
+
+        _pointAnnotationManager = await map.annotations
+            .createPointAnnotationManager();
+
+        if (myPos != null && partnerPos != null) {
+          _fitBoth(myPos, partnerPos, animated: false);
+        } else if (myPos != null) {
+          _centerCameraOn(myPos, zoom: 16.0, animated: false);
+        }
+      },
+    );
+  }
+
+  void _centerCameraOn(LatLng pos, {double zoom = 16.5, bool animated = true}) {
+    final camera = mapbox.CameraOptions(
+      center: mapbox.Point(
+        coordinates: mapbox.Position(pos.longitude, pos.latitude),
+      ),
+      zoom: zoom,
+      pitch: 45,
+      bearing: 0,
+    );
+
+    if (animated) {
+      _mapboxMap?.flyTo(camera, mapbox.MapAnimationOptions(duration: 1200));
+    } else {
+      _mapboxMap?.setCamera(camera);
+    }
+  }
+
+  Future<void> _fitBoth(LatLng a, LatLng b, {bool animated = true}) async {
+    final dist = distanceMeters(
+      a.latitude,
+      a.longitude,
+      b.latitude,
+      b.longitude,
+    );
+    if (dist < 50) {
+      _centerCameraOn(a, zoom: 17.0, animated: animated);
+      return;
+    }
+
+    final points = [
+      mapbox.Point(coordinates: mapbox.Position(a.longitude, a.latitude)),
+      mapbox.Point(coordinates: mapbox.Position(b.longitude, b.latitude)),
+    ];
+
+    final padding = mapbox.MbxEdgeInsets(
+      top: 120.0,
+      left: 50.0,
+      bottom: 180.0,
+      right: 50.0,
+    );
+
+    final baseCamera = mapbox.CameraOptions(pitch: 40.0, bearing: 0.0);
+
+    try {
+      final camera = await _mapboxMap?.cameraForCoordinatesPadding(
+        points,
+        baseCamera,
+        padding,
+        null,
+        null,
+      );
+
+      if (camera != null) {
+        if (animated) {
+          await _mapboxMap?.flyTo(
+            camera,
+            mapbox.MapAnimationOptions(duration: 1500),
+          );
+        } else {
+          await _mapboxMap?.setCamera(camera);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error calculating camera: $e');
+    }
+  }
+
+  // --- Marker Management & Image Generation ---
+
+  Future<void> _updateMapboxMarkers({
     required LatLng? myPos,
     required LatLng? partnerPos,
     required bool isMerged,
     required ProfileEntity? myProfile,
     required ProfileEntity? partnerProfile,
-  }) {
-    const markerSize = 44.0;
-    const mergedSize = 56.0;
-    final theme = Theme.of(context);
+    required BuildContext context,
+  }) async {
+    final manager = _pointAnnotationManager;
+    if (manager == null) return;
+
+    final myUrl = myProfile?.avatarUrl;
+    final myName = myProfile?.username;
+
+    if (_myCachedAvatarBytes == null ||
+        _lastMyAvatarUrl != myUrl ||
+        _lastMyName != myName) {
+      _myCachedAvatarBytes = await _generateAvatar(
+        myUrl,
+        myName,
+        context,
+        true,
+      );
+      _lastMyAvatarUrl = myUrl;
+      _lastMyName = myName;
+    }
+
+    final partnerUrl = partnerProfile?.avatarUrl;
+    final partnerName = partnerProfile?.username;
+
+    if (_partnerCachedAvatarBytes == null ||
+        _lastPartnerAvatarUrl != partnerUrl ||
+        _lastPartnerName != partnerName) {
+      _partnerCachedAvatarBytes = await _generateAvatar(
+        partnerUrl,
+        partnerName,
+        context,
+        false,
+      );
+      _lastPartnerAvatarUrl = partnerUrl;
+      _lastPartnerName = partnerName;
+    }
+
+    final myIcon = _myCachedAvatarBytes;
+    final partnerIcon = _partnerCachedAvatarBytes;
+
+    if (myIcon == null || partnerIcon == null) return;
+
+    await manager.deleteAll();
+
+    final options = <mapbox.PointAnnotationOptions>[];
 
     if (isMerged && myPos != null) {
-      return [
-        Marker(
-          point: myPos,
-          width: mergedSize,
-          height: mergedSize,
-          child: _MergedAvatarMarker(
-            myAvatarUrl: myProfile?.avatarUrl,
-            partnerAvatarUrl: partnerProfile?.avatarUrl,
-            theme: theme,
+      options.add(
+        mapbox.PointAnnotationOptions(
+          geometry: mapbox.Point(
+            coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
           ),
+          image: myIcon,
+          iconSize: 1.5,
+          iconOffset: [0, -10],
+          symbolSortKey: 10,
         ),
-      ];
+      );
+    } else {
+      if (myPos != null) {
+        options.add(
+          mapbox.PointAnnotationOptions(
+            geometry: mapbox.Point(
+              coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
+            ),
+            image: myIcon,
+            iconSize: 1.2,
+            iconOffset: [0, -5],
+            symbolSortKey: 2,
+          ),
+        );
+      }
+      if (partnerPos != null) {
+        options.add(
+          mapbox.PointAnnotationOptions(
+            geometry: mapbox.Point(
+              coordinates: mapbox.Position(
+                partnerPos.longitude,
+                partnerPos.latitude,
+              ),
+            ),
+            image: partnerIcon,
+            iconSize: 1.2,
+            iconOffset: [0, -5],
+            symbolSortKey: 1,
+          ),
+        );
+      }
     }
 
-    final markers = <Marker>[];
-    if (myPos != null) {
-      markers.add(
-        Marker(
-          point: myPos,
-          width: markerSize,
-          height: markerSize,
-          child: _AvatarMarker(
-            avatarUrl: myProfile?.avatarUrl,
-            theme: theme,
+    await manager.createMulti(options);
+  }
+
+  Future<Uint8List> _generateAvatar(
+    String? url,
+    String? name,
+    BuildContext context,
+    bool isMe,
+  ) async {
+    if (url != null && url.isNotEmpty) {
+      try {
+        final response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          return await _createCircularImageFromBytes(response.bodyBytes);
+        }
+      } catch (_) {}
+    }
+    return await _createPlaceholderAvatar(name, context, isMe);
+  }
+
+  Future<Uint8List> _createCircularImageFromBytes(
+    Uint8List sourceBytes, {
+    double size = 140,
+  }) async {
+    final codec = await ui.instantiateImageCodec(
+      sourceBytes,
+      targetHeight: size.toInt(),
+      targetWidth: size.toInt(),
+    );
+    final frameInfo = await codec.getNextFrame();
+    final image = frameInfo.image;
+
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final paint = Paint()..isAntiAlias = true;
+    final double center = size / 2;
+    final double radius = size / 2;
+
+    canvas.drawCircle(
+      Offset(center, center + 2),
+      radius,
+      Paint()
+        ..color = Colors.black26
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+
+    canvas.drawCircle(
+      Offset(center, center),
+      radius,
+      Paint()..color = Colors.white,
+    );
+
+    final double imageRadius = radius - 6;
+    final ui.Path clipPath = ui.Path()
+      ..addOval(
+        Rect.fromCircle(center: Offset(center, center), radius: imageRadius),
+      );
+    canvas.clipPath(clipPath);
+
+    final double srcSize = math.min(
+      image.width.toDouble(),
+      image.height.toDouble(),
+    );
+    final double srcX = (image.width - srcSize) / 2;
+    final double srcY = (image.height - srcSize) / 2;
+
+    canvas.drawImageRect(
+      image,
+      Rect.fromLTWH(srcX, srcY, srcSize, srcSize),
+      Rect.fromLTWH(
+        center - imageRadius,
+        center - imageRadius,
+        imageRadius * 2,
+        imageRadius * 2,
+      ),
+      paint,
+    );
+
+    final picture = pictureRecorder.endRecording();
+    final img = await picture.toImage(size.toInt(), size.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
+  }
+
+  Future<Uint8List> _createPlaceholderAvatar(
+    String? name,
+    BuildContext context,
+    bool isMe,
+  ) async {
+    const double size = 140;
+    final pictureRecorder = ui.PictureRecorder();
+    final canvas = Canvas(pictureRecorder);
+    final double center = size / 2;
+    final double radius = size / 2;
+
+    final theme = Theme.of(context);
+    final bgColor = isMe
+        ? theme.colorScheme.primary
+        : theme.colorScheme.secondary;
+
+    canvas.drawCircle(
+      Offset(center, center + 2),
+      radius,
+      Paint()
+        ..color = Colors.black26
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4),
+    );
+
+    canvas.drawCircle(
+      Offset(center, center),
+      radius,
+      Paint()..color = Colors.white,
+    );
+
+    canvas.drawCircle(
+      Offset(center, center),
+      radius - 6,
+      Paint()..color = bgColor,
+    );
+
+    if (name != null && name.trim().isNotEmpty) {
+      final initial = name.trim().substring(0, 1).toUpperCase();
+      final textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(
+          text: initial,
+          style: TextStyle(
+            fontSize: size * 0.5,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
       );
-    }
-    if (partnerPos != null) {
-      markers.add(
-        Marker(
-          point: partnerPos,
-          width: markerSize,
-          height: markerSize,
-          child: _AvatarMarker(
-            avatarUrl: partnerProfile?.avatarUrl,
-            theme: theme,
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          center - (textPainter.width / 2),
+          center - (textPainter.height / 2),
+        ),
+      );
+    } else {
+      final icon = Icons.person;
+      final textPainter = TextPainter(
+        textDirection: TextDirection.ltr,
+        text: TextSpan(
+          text: String.fromCharCode(icon.codePoint),
+          style: TextStyle(
+            fontSize: size * 0.6,
+            fontFamily: icon.fontFamily,
+            color: Colors.white,
           ),
         ),
       );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          center - (textPainter.width / 2),
+          center - (textPainter.height / 2),
+        ),
+      );
     }
-    return markers;
+
+    final picture = pictureRecorder.endRecording();
+    final img = await picture.toImage(size.toInt(), size.toInt());
+    final byteData = await img.toByteData(format: ui.ImageByteFormat.png);
+    return byteData!.buffer.asUint8List();
   }
 
   double? _distanceMeters(LatLng? a, LatLng? b) {
     if (a == null || b == null) return null;
     return distanceMeters(a.latitude, a.longitude, b.latitude, b.longitude);
   }
+}
 
-  LatLng _centerPoint(LatLng? myPos, LatLng? partnerPos) {
-    if (myPos != null && partnerPos != null) {
-      return LatLng(
-        (myPos.latitude + partnerPos.latitude) / 2,
-        (myPos.longitude + partnerPos.longitude) / 2,
-      );
-    }
-    if (myPos != null) return myPos;
-    if (partnerPos != null) return partnerPos;
-    return const LatLng(46.0, 2.0); // France fallback
+class _CompactDistanceChip extends StatelessWidget {
+  const _CompactDistanceChip({
+    required this.distanceM,
+    required this.isMerged,
+    required this.lang,
+  });
+
+  final double distanceM;
+  final bool isMerged;
+  final String lang;
+
+  String _text() {
+    if (isMerged) return lang == 'fr' ? 'Ensemble ❤️' : 'Together ❤️';
+    if (distanceM < 1000) return '${distanceM.round()} m';
+    return '${(distanceM / 1000).toStringAsFixed(1)} km';
   }
 
-  double _suggestedZoom(LatLng? myPos, LatLng? partnerPos) {
-    if (myPos == null && partnerPos == null) return 5.0;
-    if (myPos == null || partnerPos == null) return 14.0;
-    final d = _distanceMeters(myPos, partnerPos)!;
-    if (d < 100) return 16.0;
-    if (d < 1000) return 14.0;
-    if (d < 10000) return 12.0;
-    if (d < 100000) return 10.0;
-    return 7.0;
-  }
-
-  String _formatDistance(double? meters, bool isMerged, String lang) {
-    if (isMerged) return lang == 'fr' ? 'Ensemble' : 'Together';
-    if (meters == null) return '—';
-    if (meters < 1000) return '${meters.round()} m';
-    return '${(meters / 1000).toStringAsFixed(1)} km';
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      elevation: 4,
+      borderRadius: BorderRadius.circular(20),
+      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.place,
+              size: 16,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              _text(),
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
-// --- Name bar: tap to center map ---
-class _NamesBar extends StatelessWidget {
-  const _NamesBar({
+class _FloatingNamesBar extends StatelessWidget {
+  const _FloatingNamesBar({
     required this.myProfile,
     required this.partnerProfile,
     required this.myPos,
     required this.partnerPos,
-    required this.mapController,
+    this.onCenterMy,
+    this.onCenterPartner,
+    this.onFitBoth,
     required this.lang,
   });
 
@@ -392,59 +864,57 @@ class _NamesBar extends StatelessWidget {
   final ProfileEntity? partnerProfile;
   final LatLng? myPos;
   final LatLng? partnerPos;
-  final MapController mapController;
+  final VoidCallback? onCenterMy;
+  final VoidCallback? onCenterPartner;
+  final VoidCallback? onFitBoth;
   final String lang;
-
-  String _myLabel() => lang == 'fr' ? 'Moi' : 'Me';
-  String _partnerLabel() {
-    final name = partnerProfile?.username?.trim();
-    return (name != null && name.isNotEmpty) ? name : (lang == 'fr' ? 'Partenaire' : 'Partner');
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final canTapMy = myPos != null;
-    final canTapPartner = partnerPos != null;
 
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: theme.colorScheme.outlineVariant),
-        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _NameChip(
-            label: _myLabel(),
-            onTap: canTapMy
-                ? () {
-                    mapController.move(myPos!, 15.0);
-                  }
-                : null,
+          _AvatarChip(
+            label: lang == 'fr' ? 'Moi' : 'Me',
+            url: myProfile?.avatarUrl,
+            isActive: myPos != null,
+            onTap: onCenterMy,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-            child: Text(
-              '–',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+          if (myPos != null && partnerPos != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: IconButton(
+                icon: const Icon(Icons.fit_screen_outlined, size: 20),
+                onPressed: onFitBoth,
+                tooltip: lang == 'fr' ? 'Voir tout' : 'See all',
+                visualDensity: VisualDensity.compact,
               ),
-            ),
-          ),
-          _NameChip(
-            label: _partnerLabel(),
-            onTap: canTapPartner
-                ? () {
-                    mapController.move(partnerPos!, 15.0);
-                  }
-                : null,
+            )
+          else
+            const SizedBox(width: 12),
+          _AvatarChip(
+            label:
+                partnerProfile?.username ??
+                (lang == 'fr' ? 'Partenaire' : 'Partner'),
+            url: partnerProfile?.avatarUrl,
+            isActive: partnerPos != null,
+            onTap: onCenterPartner,
           ),
         ],
       ),
@@ -452,170 +922,81 @@ class _NamesBar extends StatelessWidget {
   }
 }
 
-class _NameChip extends StatelessWidget {
-  const _NameChip({required this.label, this.onTap});
+class _AvatarChip extends StatelessWidget {
+  const _AvatarChip({
+    required this.label,
+    this.url,
+    required this.isActive,
+    this.onTap,
+  });
 
   final String label;
+  final String? url;
+  final bool isActive;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final enabled = onTap != null;
-    return Material(
-      color: enabled
-          ? theme.colorScheme.primaryContainer.withValues(alpha: 0.6)
-          : theme.colorScheme.surfaceContainerHighest,
+    final color = isActive
+        ? theme.colorScheme.primary
+        : theme.colorScheme.outline;
+
+    return InkWell(
+      onTap: isActive ? onTap : null,
       borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-          child: Text(
-            label,
-            style: theme.textTheme.titleSmall?.copyWith(
-              color: enabled
-                  ? theme.colorScheme.onPrimaryContainer
-                  : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              backgroundColor: color.withValues(alpha: 0.1),
+              backgroundImage: url != null ? NetworkImage(url!) : null,
+              child: url == null
+                  ? Icon(Icons.person, size: 16, color: color)
+                  : null,
             ),
-          ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isActive
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _AvatarMarker extends StatelessWidget {
-  const _AvatarMarker({this.avatarUrl, required this.theme});
-
-  final String? avatarUrl;
-  final ThemeData theme;
-
+class _MapboxOnlyPlaceholder extends StatelessWidget {
+  const _MapboxOnlyPlaceholder({required this.lang});
+  final String lang;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: theme.colorScheme.primary, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: CircleAvatar(
-        radius: 20,
-        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-        backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl!) : null,
-        child: avatarUrl == null
-            ? Icon(Icons.person, color: theme.colorScheme.onSurfaceVariant)
-            : null,
-      ),
-    );
-  }
-}
-
-class _MergedAvatarMarker extends StatelessWidget {
-  const _MergedAvatarMarker({
-    this.myAvatarUrl,
-    this.partnerAvatarUrl,
-    required this.theme,
-  });
-
-  final String? myAvatarUrl;
-  final String? partnerAvatarUrl;
-  final ThemeData theme;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      alignment: Alignment.center,
-      clipBehavior: Clip.none,
-      children: [
-        Positioned(
-          left: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: theme.colorScheme.primary, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              backgroundImage: myAvatarUrl != null ? NetworkImage(myAvatarUrl!) : null,
-              child: myAvatarUrl == null
-                  ? Icon(Icons.person, size: 20, color: theme.colorScheme.onSurfaceVariant)
-                  : null,
-            ),
-          ),
-        ),
-        Positioned(
-          right: 0,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: theme.colorScheme.primary, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.3),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              backgroundImage: partnerAvatarUrl != null ? NetworkImage(partnerAvatarUrl!) : null,
-              child: partnerAvatarUrl == null
-                  ? Icon(Icons.person, size: 20, color: theme.colorScheme.onSurfaceVariant)
-                  : null,
-            ),
-          ),
-        ),
-        Icon(
-          Icons.favorite,
-          color: theme.colorScheme.primary,
-          size: 22,
-        ),
-      ],
-    );
+    return Center(child: Text(_positionMapboxOnlyMessage(lang)));
   }
 }
 
 String _positionTitle(String lang) => lang == 'fr' ? 'Position' : 'Location';
 String _positionNoPartnerMessage(String lang) =>
-    lang == 'fr'
-        ? 'Invitez votre partenaire pour voir vos positions.'
-        : 'Invite your partner to see your positions.';
+    lang == 'fr' ? 'Invitez votre partenaire' : 'Invite your partner';
 String _positionNoPartnerSecondary(String lang) =>
-    lang == 'fr'
-        ? 'Une fois reliés, vous pourrez partager votre position sur la carte.'
-        : 'Once connected, you can share your position on the map.';
+    lang == 'fr' ? 'Pour partager votre position' : 'To share your location';
 String _positionInvitePartner(String lang) =>
-    lang == 'fr' ? 'Inviter mon partenaire' : 'Invite my partner';
+    lang == 'fr' ? 'Inviter' : 'Invite';
 String _positionEnableSharingMessage(String lang) =>
-    lang == 'fr'
-        ? 'Activez le partage de position pour voir la carte.'
-        : 'Enable location sharing to see the map.';
+    lang == 'fr' ? 'Activez la localisation' : 'Enable location';
 String _positionEnableSharingSecondary(String lang) =>
-    lang == 'fr'
-        ? 'Dans Paramètres, activez « Partager ma position ».'
-        : 'In Settings, turn on « Share my location ».';
+    lang == 'fr' ? 'Dans les paramètres' : 'In settings';
 String _positionOpenSettings(String lang) =>
-    lang == 'fr' ? 'Ouvrir les paramètres' : 'Open settings';
+    lang == 'fr' ? 'Paramètres' : 'Settings';
 String _positionReloadTooltip(String lang) =>
-    lang == 'fr' ? 'Actualiser la position' : 'Refresh position';
-String _positionReloadDone(String lang) =>
-    lang == 'fr' ? 'Position actualisée' : 'Position updated';
+    lang == 'fr' ? 'Actualiser' : 'Refresh';
+String _positionReloadDone(String lang) => lang == 'fr' ? 'À jour' : 'Updated';
+String _positionMapboxOnlyMessage(String lang) => 'Mapbox Setup Required';

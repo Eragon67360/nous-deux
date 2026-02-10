@@ -29,6 +29,10 @@ String settingsShareMyLocationSubtitle(String lang) =>
     lang == 'fr'
         ? 'Votre partenaire peut voir votre position sur la carte.'
         : 'Your partner can see your position on the map.';
+String settingsLocationRequiredForSharing(String lang) =>
+    lang == 'fr'
+        ? 'La position est requise pour partager votre localisation.'
+        : 'Location is required to share your position.';
 String settingsCamera(String lang) => lang == 'fr' ? 'Appareil photo' : 'Camera';
 
 // App info

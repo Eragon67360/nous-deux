@@ -1,6 +1,6 @@
 # Mapbox token (optional)
 
-The Position screen currently uses **flutter_map** with OpenStreetMap tiles. If you later switch to **Mapbox Maps SDK for Flutter** (e.g. for 3D globe view), you will need a Mapbox public access token.
+The Position screen uses **Mapbox Maps SDK for Flutter** (3D map with pitch, Mapbox Standard style) when a token is configured on **Android and iOS**. On web and desktop it falls back to **flutter_map** with OpenStreetMap. To get the 3D Mapbox map, you need a Mapbox public access token.
 
 ## Getting a token
 
