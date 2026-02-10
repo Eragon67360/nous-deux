@@ -3,12 +3,25 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Nous Deux palette (warm dark) */
+  --surface: #1c1917;
+  --surface-container: #292524;
+  --primary: #c4a77d;
+  --on-surface: #f5f0eb;
+  --on-surface-variant: #d6d3d1;
+  --outline: #78716c;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+  --color-primary: var(--primary);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --font-sans: var(--font-dm-sans);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -22,5 +35,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
 }
