@@ -1,0 +1,16 @@
+# Mapbox token (optional)
+
+The Position screen currently uses **flutter_map** with OpenStreetMap tiles. If you later switch to **Mapbox Maps SDK for Flutter** (e.g. for 3D globe view), you will need a Mapbox public access token.
+
+## Getting a token
+
+1. Sign up at [account.mapbox.com](https://account.mapbox.com/auth/signup).
+2. Open [Tokens](https://account.mapbox.com/access-tokens/) and create a token or use the default public token.
+3. Use a token with scope **public** only; do not use secret tokens in the app.
+
+## Configuring the project
+
+- **Local dev:** set `mapboxAccessTokenLocal` in `lib/core/config/mapbox_keys.dart`, or pass the token via `--dart-define=MAPBOX_ACCESS_TOKEN=your_token`.
+- **CI/production:** pass `MAPBOX_ACCESS_TOKEN` via `--dart-define` (from secrets). Do not commit the token.
+
+The app does not use Mapbox by default; this file is for when you integrate `mapbox_maps_flutter` and need to set `MapboxOptions.setAccessToken(...)` at startup.

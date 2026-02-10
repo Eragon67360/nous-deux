@@ -19,6 +19,16 @@ String settingsPermissionPermanentDenied(String lang) => lang == 'fr' ? 'Refusé
 String settingsCalendars(String lang) => lang == 'fr' ? 'Calendrier' : 'Calendar';
 String settingsNotificationsPerm(String lang) => lang == 'fr' ? 'Notifications' : 'Notifications';
 String settingsLocation(String lang) => lang == 'fr' ? 'Position' : 'Location';
+String settingsPermissionsReloadTooltip(String lang) =>
+    lang == 'fr' ? 'Actualiser les autorisations' : 'Refresh permissions';
+String settingsPermissionsReloadDone(String lang) =>
+    lang == 'fr' ? 'Autorisations actualisées' : 'Permissions updated';
+String settingsShareMyLocation(String lang) =>
+    lang == 'fr' ? 'Partager ma position' : 'Share my location';
+String settingsShareMyLocationSubtitle(String lang) =>
+    lang == 'fr'
+        ? 'Votre partenaire peut voir votre position sur la carte.'
+        : 'Your partner can see your position on the map.';
 String settingsCamera(String lang) => lang == 'fr' ? 'Appareil photo' : 'Camera';
 
 // App info
