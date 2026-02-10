@@ -207,8 +207,19 @@ export default function PolitiqueDeConfidentialitePage() {
               <li>Droit à la portabilité de vos données</li>
             </ul>
             <p className="mt-4">
-              Pour exercer ces droits, contactez-nous via le lien GitHub indiqué
-              en début de document. Vous pouvez également introduire une
+              Pour demander la suppression de votre compte et de vos données,
+              consultez la page dédiée :{" "}
+              <Link
+                href="/suppression-compte"
+                className="text-primary underline hover:no-underline focus:outline-none focus:ring-2 focus:ring-primary rounded"
+              >
+                Suppression du compte
+              </Link>
+              .
+            </p>
+            <p className="mt-4">
+              Pour exercer vos autres droits, contactez-nous via le lien GitHub
+              indiqué en début de document. Vous pouvez également introduire une
               réclamation auprès de la CNIL (
               <a
                 href="https://www.cnil.fr"
