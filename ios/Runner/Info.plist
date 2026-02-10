@@ -53,11 +53,27 @@
 			</array>
 		</dict>
 	</array>
+	
+	<!-- Permissions -->
+	
+	<!-- Corresponds to android.permission.CAMERA -->
 	<key>NSCameraUsageDescription</key>
 	<string>Nous Deux utilise la caméra pour scanner le QR code d'invitation de votre partenaire.</string>
+	
+	<!-- Corresponds to android.permission.ACCESS_FINE_LOCATION -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel).</string>
+	
+	<!-- Required for iOS gallery access (Android uses intents, but iOS needs this key) -->
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Nous Deux utilise la photo pour définir votre photo de profil.</string>
+
+	<!-- Corresponds to android.permission.READ_CALENDAR & WRITE_CALENDAR -->
+	<!-- Added to match Android capabilities -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
+	<!-- Required for iOS 17+ if full access is needed -->
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
 </dict>
 </plist>

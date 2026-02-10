@@ -14,6 +14,7 @@ import 'package:nousdeux/presentation/screens/pairing/pairing_join_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_scan_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_screen.dart';
 import 'package:nousdeux/presentation/screens/period/period_screen.dart';
+import 'package:nousdeux/presentation/screens/position/position_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
 import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
@@ -213,7 +214,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: '/main/position',
                 pageBuilder: (_, state) =>
-                    _fadePage(state, const _PlaceholderTab(title: 'Position')),
+                    _fadePage(state, const PositionScreen()),
               ),
             ],
           ),
@@ -238,16 +239,3 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-class _PlaceholderTab extends StatelessWidget {
-  const _PlaceholderTab({required this.title});
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: Center(child: Text('$title — à venir')),
-    );
-  }
-}
