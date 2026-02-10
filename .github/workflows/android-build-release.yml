@@ -76,15 +76,20 @@ jobs:
       - name: Provide Supabase keys file for release build
         run: cp lib/core/config/supabase_keys_stub.dart lib/core/config/supabase_keys.dart
 
+      - name: Provide Mapbox keys file for release build
+        run: cp lib/core/config/mapbox_keys_stub.dart lib/core/config/mapbox_keys.dart
+
       # 1. BUILD AAB
       - name: Build App Bundle
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          MAPBOX_ACCESS_TOKEN: ${{ secrets.MAPBOX_ACCESS_TOKEN }}
         run: |
           flutter build appbundle --release \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
-            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=MAPBOX_ACCESS_TOKEN="$MAPBOX_ACCESS_TOKEN"
 
       # 2. GENERATE APK (from the AAB created above)
       - name: Generate APK from AAB
