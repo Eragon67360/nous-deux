@@ -1,4 +1,5 @@
 import 'package:nousdeux/core/constants/app_constants.dart';
+import 'package:nousdeux/core/config/mapbox_keys.dart' as mapbox_keys;
 import 'package:nousdeux/core/config/supabase_keys.dart' as keys;
 
 /// Runtime Supabase configuration.
@@ -26,4 +27,13 @@ class AppConfig {
 
   static bool get isSupabaseConfigured =>
       supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
+
+  /// Mapbox access token for 3D map (Position screen). Required on Android/iOS to show the map.
+  static String get mapboxAccessToken {
+    const fromEnv = AppConstants.mapboxAccessToken;
+    if (fromEnv.isNotEmpty) return fromEnv;
+    return mapbox_keys.mapboxAccessTokenLocal;
+  }
+
+  static bool get isMapboxConfigured => mapboxAccessToken.isNotEmpty;
 }

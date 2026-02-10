@@ -25,10 +25,13 @@ dependencies:
   table_calendar: ^3.1.2
   device_calendar: ^4.3.3
 
+  # Ambient brightness (Android; iOS uses time-of-day fallback)
+  light: ^4.1.0
+
   # Location
   geolocator: ^13.0.2
-  flutter_map: ^7.0.2
   latlong2: ^0.9.1
+  mapbox_maps_flutter: ^2.0.0
 
   # Notifications
   firebase_core: ^3.8.1
@@ -45,6 +48,7 @@ dependencies:
   mobile_scanner: ^6.0.2
 
   # Utilities
+  http: ^1.2.2
   intl: ^0.20.2
   timezone: ^0.9.4
   permission_handler: ^11.3.1

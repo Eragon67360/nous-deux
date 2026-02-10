@@ -19,6 +19,12 @@ abstract class AppConstants {
   // Location
   static const int locationUpdateIntervalSeconds = 30;
 
+  // Mapbox (optional; used only if integrating mapbox_maps_flutter)
+  static const String mapboxAccessToken = String.fromEnvironment(
+    'MAPBOX_ACCESS_TOKEN',
+    defaultValue: '',
+  );
+
   // Validation
   static const int eventTitleMaxLength = 200;
   static const int eventDescriptionMaxLength = 2000;

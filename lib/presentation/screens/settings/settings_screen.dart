@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/presentation/providers/location_provider.dart';
+import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
@@ -18,7 +20,26 @@ class SettingsScreen extends ConsumerWidget {
     final avatarState = ref.watch(avatarControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(settingsTitle(lang)), centerTitle: true),
+      appBar: AppBar(
+        title: Text(settingsTitle(lang)),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              ref.invalidate(permissionsProvider);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(settingsPermissionsReloadDone(lang)),
+                  behavior: SnackBarBehavior.floating,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+            tooltip: settingsPermissionsReloadTooltip(lang),
+          ),
+        ],
+      ),
       body: profileAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text(e.toString())),
@@ -72,7 +93,14 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
 
-              // 4. Notifications Group
+              // 4. Position / Share location Group
+              _SettingsGroup(
+                title: settingsLocation(lang),
+                children: const [_LocationSharingSwitchBody()],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // 6. Notifications Group
               _SettingsGroup(
                 title: settingsNotifications(lang),
                 children: const [_NotificationSwitchesBody()],
@@ -473,6 +501,97 @@ class _PermissionsListBody extends ConsumerWidget {
       ),
       error: (_, __) => const SizedBox.shrink(),
     );
+  }
+}
+
+class _LocationSharingSwitchBody extends ConsumerWidget {
+  const _LocationSharingSwitchBody();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final theme = Theme.of(context);
+    final coupleAsync = ref.watch(myCoupleProvider);
+    final locationAsync = ref.watch(myLocationSharingProvider);
+
+    return coupleAsync.when(
+      data: (couple) {
+        final hasCouple = couple != null;
+        return locationAsync.when(
+          data: (myLocation) {
+            final isSharing = myLocation?.isSharing ?? false;
+            return SwitchListTile.adaptive(
+              title: Text(settingsShareMyLocation(lang), softWrap: true),
+              subtitle: Text(
+                settingsShareMyLocationSubtitle(lang),
+                softWrap: true,
+                style: theme.textTheme.bodySmall,
+              ),
+              value: isSharing,
+              activeColor: theme.colorScheme.primary,
+              onChanged: hasCouple ? (v) => _onLocationSharingChanged(context, ref, couple.id, v, lang) : null,
+            );
+          },
+          loading: () => const Padding(
+            padding: EdgeInsets.all(16),
+            child: LinearProgressIndicator(),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.all(16),
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+
+  Future<void> _onLocationSharingChanged(
+    BuildContext context,
+    WidgetRef ref,
+    String coupleId,
+    bool enable,
+    String lang,
+  ) async {
+    if (enable) {
+      final status = await Permission.location.request();
+      final allowed = status.isGranted ||
+          status == PermissionStatus.limited ||
+          status == PermissionStatus.provisional;
+      if (!allowed) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(settingsLocationRequiredForSharing(lang)),
+              behavior: SnackBarBehavior.floating,
+              action: status.isPermanentlyDenied
+                  ? SnackBarAction(
+                      label: settingsOpenAppSettings(lang),
+                      onPressed: openAppSettings,
+                    )
+                  : null,
+            ),
+          );
+        }
+        return;
+      }
+    }
+
+    final repo = ref.read(locationRepositoryProvider);
+    final result = await repo.setMyLocationSharing(
+      isSharing: enable,
+      coupleId: coupleId,
+      lat: null,
+      lng: null,
+    );
+    ref.invalidate(myLocationSharingProvider);
+    if (result.failure != null && result.failure!.message != null) {
+      return;
+    }
+    if (enable) {
+      await ref.read(locationUpdateNotifierProvider.notifier).pushCurrentPosition();
+    }
   }
 }
 
