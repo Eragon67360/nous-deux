@@ -11,9 +11,7 @@ export default function Home() {
           Application couple centrée sur la confidentialité : calendrier
           partagé, suivi des règles, position optionnelle.
         </p>
-        <p className="mt-2 text-on-surface-variant">
-          Gratuit, sans publicité.
-        </p>
+        <p className="mt-2 text-on-surface-variant">Gratuit, sans publicité.</p>
         <nav className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center sm:gap-6">
           <Link
             href="/politique-de-confidentialite"
