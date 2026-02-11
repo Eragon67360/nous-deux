@@ -135,6 +135,10 @@ jobs:
             ${{ steps.rename.outputs.apk_path }}
           generate_release_notes: true
 
+      - name: Find Mapping File
+        run: find . -name "mapping.txt"
+        id: mapping
+
       # 5. UPLOAD TO PLAY STORE (Happens Last)
       - name: Upload to Google Play
         uses: r0adkll/upload-google-play@v1
@@ -143,6 +147,6 @@ jobs:
           packageName: com.nousdeux.android
           # Note: We use the renamed path from the previous step
           releaseFiles: ${{ steps.rename.outputs.aab_path }}
-          mappingFile: android/app/build/outputs/mapping/release/mapping.txt
+          # mappingFile: android/app/build/outputs/mapping/release/mapping.txt
           track: internal
           status: draft
