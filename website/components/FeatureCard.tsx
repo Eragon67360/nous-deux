@@ -21,13 +21,14 @@ export default function FeatureCard({
 
   return (
     <article className="flex flex-col rounded-2xl bg-surface-container/50 p-6 sm:p-8">
-      <div className="mb-4 aspect-[9/16] max-h-[320px] w-full overflow-hidden rounded-xl bg-surface-container">
+      <div className="mb-4 aspect-9/16 max-h-[320px] w-full overflow-hidden rounded-xl bg-surface-container">
         {showImage ? (
           <Image
             src={imageSrc}
             alt={imageAlt}
             width={360}
             height={640}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="h-full w-full object-cover object-top"
             unoptimized
             onError={() => setImageError(true)}

@@ -1,19 +1,79 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { SITE_URL } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Suppression du compte – Nous Deux",
+  title: "Suppression du compte",
   description:
     "Comment demander la suppression de votre compte et de vos données dans l'application Nous Deux.",
+  alternates: { canonical: "/suppression-compte" },
 };
 
 const CONTACT_EMAIL = "thomas-moser@orange.fr";
 
+const suppressionPageStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "HowTo",
+      name: "Comment demander la suppression de son compte Nous Deux",
+      description:
+        "Procédure pour demander la suppression de votre compte et de vos données personnelles dans l'application Nous Deux.",
+      step: [
+        {
+          "@type": "HowToStep",
+          position: 1,
+          name: "Envoyer un e-mail",
+          text: "Envoyez un e-mail à l'adresse indiquée sur cette page avec l'objet « Demande de suppression de compte - Nous Deux ».",
+        },
+        {
+          "@type": "HowToStep",
+          position: 2,
+          name: "Indiquer votre numéro de téléphone",
+          text: "Indiquez dans le message votre numéro de téléphone associé au compte pour permettre l'identification et le traitement de la demande.",
+        },
+        {
+          "@type": "HowToStep",
+          position: 3,
+          name: "Attendre le traitement",
+          text: "Votre demande sera traitée dans les meilleurs délais. Les données sont ensuite effacées conformément à la politique de confidentialité.",
+        },
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Comment supprimer mon compte Nous Deux ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Envoyez un e-mail à l'adresse indiquée sur cette page en précisant votre numéro de téléphone associé au compte. La suppression du compte directement depuis l'application n'est pas encore disponible ; cette procédure sera proposée dans une prochaine version.",
+          },
+        },
+      ],
+    },
+  ],
+};
+
 export default function SuppressionComptePage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(suppressionPageStructuredData),
+        }}
+      />
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
         <header className="mb-10">
+          <Breadcrumbs
+            items={[
+              { label: "Accueil", href: "/" },
+              { label: "Suppression du compte", href: "/suppression-compte" },
+            ]}
+          />
           <Link
             href="/"
             className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded"

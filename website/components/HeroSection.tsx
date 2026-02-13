@@ -10,6 +10,12 @@ export default function HeroSection() {
           partagé, suivi des règles, position optionnelle.
         </p>
         <p className="mt-2 text-on-surface-variant">Gratuit, sans publicité.</p>
+        <p className="mt-4 text-base text-on-surface-variant/90 max-w-xl mx-auto">
+          Nous Deux est une application pour couples qui permet de partager un
+          calendrier, de suivre les règles et, en option, de partager sa
+          position en temps réel — sans publicité et avec des données partagées
+          uniquement au sein du couple.
+        </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
             href="https://play.google.com/apps/testing/com.nousdeux.android"
