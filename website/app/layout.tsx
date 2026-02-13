@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nous Deux – Application couple",
+  title: "Nous Deux – Application pour couples",
   description:
-    "Nous Deux est une application couple centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.",
+    "Nous Deux est une application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.",
 };
 
 export default function RootLayout({

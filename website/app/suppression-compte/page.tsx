@@ -54,9 +54,9 @@ export default function SuppressionComptePage() {
               <strong className="text-on-surface">
                 Merci d’indiquer votre numéro de téléphone
               </strong>{" "}
-              (celui associé à votre compte ou utilisé pour vous connecter)
-              dans votre message. Cela nous permet d’identifier votre compte et
-              de traiter votre demande correctement.
+              (celui associé à votre compte ou utilisé pour vous connecter) dans
+              votre message. Cela nous permet d’identifier votre compte et de
+              traiter votre demande correctement.
             </p>
             <p>
               Nous nous engageons à traiter votre demande dans les meilleurs
