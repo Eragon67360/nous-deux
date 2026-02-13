@@ -1,4 +1,12 @@
 import { Analytics } from "@vercel/analytics/next";
+import {
+  DEFAULT_OG,
+  DEFAULT_TWITTER,
+  getBaseStructuredData,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_URL,
+} from "@/lib/seo";
 import type { Metadata } from "next";
 import { DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -14,10 +22,29 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const defaultTitle = `${SITE_NAME} – Application pour couples`;
+
 export const metadata: Metadata = {
-  title: "Nous Deux – Application pour couples",
-  description:
-    "Nous Deux est une application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: defaultTitle,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "application couple",
+    "calendrier partagé",
+    "suivi des règles",
+    "confidentialité",
+    "Nous Deux",
+  ],
+  robots: "index, follow",
+  openGraph: {
+    ...DEFAULT_OG,
+    url: SITE_URL,
+    title: defaultTitle,
+  },
+  twitter: DEFAULT_TWITTER,
 };
 
 export default function RootLayout({
@@ -25,11 +52,18 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const baseStructuredData = getBaseStructuredData();
   return (
     <html lang="fr">
       <body
         className={`${dmSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(baseStructuredData),
+          }}
+        />
         {children}
         <Analytics />
       </body>

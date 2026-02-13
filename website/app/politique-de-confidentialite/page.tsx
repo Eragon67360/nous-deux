@@ -1,19 +1,83 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { SITE_URL } from "@/lib/seo";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Politique de Confidentialité – Nous Deux",
+  title: "Politique de Confidentialité",
   description: "Politique de confidentialité de l'application Nous Deux.",
+  alternates: { canonical: "/politique-de-confidentialite" },
 };
 
 const POLICY_LAST_UPDATED = "11 février 2026";
 const POLICY_EFFECTIVE_DATE = "11 février 2026";
+const POLICY_LAST_UPDATED_ISO = "2026-02-11";
+const POLICY_EFFECTIVE_DATE_ISO = "2026-02-11";
+
+const policyPageStructuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/politique-de-confidentialite#webpage`,
+      url: `${SITE_URL}/politique-de-confidentialite`,
+      name: "Politique de Confidentialité – Nous Deux",
+      datePublished: POLICY_EFFECTIVE_DATE_ISO,
+      dateModified: POLICY_LAST_UPDATED_ISO,
+      description: "Politique de confidentialité de l'application Nous Deux.",
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "Quelles données sont collectées par Nous Deux ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Nous collectons les données nécessaires au fonctionnement de l'application : compte et authentification (Google/Apple), profil (nom, genre, photo), calendrier partagé (événements du couple), suivi des règles (cycle, humeur, symptômes), position optionnelle en temps réel sans historique, tokens de notification (FCM), et données techniques (permissions, appareil).",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Comment supprimer mon compte Nous Deux ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte en précisant votre numéro de téléphone associé au compte. La demande est traitée dans les meilleurs délais ; les données sont ensuite effacées conformément à notre politique de confidentialité.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Quels sont mes droits sur mes données ?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Conformément au RGPD et à la loi informatique et libertés : droit d'accès, de rectification, d'effacement, à la limitation du traitement, d'opposition, et à la portabilité. Pour la suppression du compte, consultez la page dédiée ; pour les autres droits, contactez-nous via le dépôt GitHub du projet. Vous pouvez aussi introduire une réclamation auprès de la CNIL.",
+          },
+        },
+      ],
+    },
+  ],
+};
 
 export default function PolitiqueDeConfidentialitePage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(policyPageStructuredData),
+        }}
+      />
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
         <header className="mb-10">
+          <Breadcrumbs
+            items={[
+              { label: "Accueil", href: "/" },
+              {
+                label: "Politique de confidentialité",
+                href: "/politique-de-confidentialite",
+              },
+            ]}
+          />
           <Link
             href="/"
             className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded"
