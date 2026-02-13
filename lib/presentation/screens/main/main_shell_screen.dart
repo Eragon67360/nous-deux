@@ -4,9 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
-import 'package:nousdeux/presentation/providers/auth_provider.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.navigationShell});
@@ -76,6 +77,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     }
 
     final profileAsync = ref.watch(myProfileProvider);
+    final lang = profileAsync.valueOrNull?.language ?? 'fr';
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
         (profileAsync.valueOrNull!.hasPartner == false);
@@ -158,26 +160,26 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               context.go(paths[i]);
               widget.navigationShell.goBranch(i);
             },
-            destinations: const [
+            destinations: [
               NavigationDestination(
-                icon: Icon(Icons.calendar_today_outlined),
-                selectedIcon: Icon(Icons.calendar_today),
-                label: 'Calendrier',
+                icon: const Icon(Icons.calendar_today_outlined),
+                selectedIcon: const Icon(Icons.calendar_today),
+                label: mainNavCalendar(lang),
               ),
               NavigationDestination(
-                icon: Icon(Icons.favorite_border),
-                selectedIcon: Icon(Icons.favorite),
-                label: 'Règles',
+                icon: const Icon(Icons.favorite_border),
+                selectedIcon: const Icon(Icons.favorite),
+                label: mainNavPeriod(lang),
               ),
               NavigationDestination(
-                icon: Icon(Icons.location_on_outlined),
-                selectedIcon: Icon(Icons.location_on),
-                label: 'Position',
+                icon: const Icon(Icons.location_on_outlined),
+                selectedIcon: const Icon(Icons.location_on),
+                label: mainNavPosition(lang),
               ),
               NavigationDestination(
-                icon: Icon(Icons.settings_outlined),
-                selectedIcon: Icon(Icons.settings),
-                label: 'Paramètres',
+                icon: const Icon(Icons.settings_outlined),
+                selectedIcon: const Icon(Icons.settings),
+                label: mainNavSettings(lang),
               ),
             ],
           ),

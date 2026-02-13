@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
@@ -13,8 +14,13 @@ import 'package:nousdeux/presentation/screens/period/period_log_form_screen.dart
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
+const String _kPeriodGuideVisitedKey = 'period_guide_visited';
+
 class PeriodScreen extends ConsumerStatefulWidget {
-  const PeriodScreen({super.key});
+  const PeriodScreen({super.key, this.initialTab});
+
+  /// When non-null, switch to this tab after first frame (e.g. from deep link ?tab=guide).
+  final int? initialTab;
 
   @override
   ConsumerState<PeriodScreen> createState() => _PeriodScreenState();
@@ -24,12 +30,21 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   bool _partnerMode = false;
+  bool _partnerPathOnly = false;
+  bool _partnerDefaultApplied = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() => setState(() {}));
+    if (widget.initialTab != null &&
+        widget.initialTab! >= 0 &&
+        widget.initialTab! < 2) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _tabController.animateTo(widget.initialTab!);
+      });
+    }
   }
 
   @override
@@ -69,18 +84,49 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
     final phase = ref.watch(currentCyclePhaseProvider);
     final hasPartner = partnerProfile != null;
 
+    if (hasPartner &&
+        !_partnerDefaultApplied &&
+        _tabController.index == 0 &&
+        (_partnerMode ||
+            (logsAsync.valueOrNull != null &&
+                currentUserId != null &&
+                _isPartnerByLogs(logsAsync.valueOrNull!, currentUserId)))) {
+      _partnerDefaultApplied = true;
+      SharedPreferences.getInstance().then((prefs) {
+        if (!(prefs.getBool(_kPeriodGuideVisitedKey) ?? false)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              _tabController.animateTo(1);
+              prefs.setBool(_kPeriodGuideVisitedKey, true);
+            }
+          });
+        }
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(periodScreenTitle(lang)),
         actions: [
-          if (hasPartner) ...[
-            FilterChip(
-              label: Text(periodPartnerModeLabel(lang)),
-              selected: _partnerMode,
-              onSelected: (v) => setState(() => _partnerMode = v),
+          if (hasPartner)
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                FilterChip(
+                  label: Text(periodPartnerModeLabel(lang)),
+                  selected: _partnerMode,
+                  onSelected: (v) => setState(() => _partnerMode = v),
+                ),
+                if (_tabController.index == 1 && _partnerMode)
+                  FilterChip(
+                    label: Text(periodPartnerPathChipLabel(lang)),
+                    selected: _partnerPathOnly,
+                    onSelected: (v) => setState(() => _partnerPathOnly = v),
+                  ),
+              ],
             ),
-            const SizedBox(width: AppSpacing.sm),
-          ],
         ],
         bottom: TabBar(
           controller: _tabController,
@@ -248,6 +294,7 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
                     logsAsync.valueOrNull != null &&
                     currentUserId != null &&
                     _isPartnerByLogs(logsAsync.valueOrNull!, currentUserId)),
+            partnerPathOnly: _partnerPathOnly,
           ),
         ],
       ),
