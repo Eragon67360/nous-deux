@@ -204,8 +204,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/main/period',
-                pageBuilder: (_, state) =>
-                    _fadePage(state, const PeriodScreen()),
+                pageBuilder: (_, state) => _fadePage(
+                  state,
+                  PeriodScreen(
+                    initialTab:
+                        state.uri.queryParameters['tab'] == 'guide' ? 1 : null,
+                  ),
+                ),
               ),
             ],
           ),

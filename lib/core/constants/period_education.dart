@@ -11,6 +11,9 @@ String periodTabGuide(String lang) => lang == 'fr' ? 'Guide' : 'Guide';
 String periodPartnerModeLabel(String lang) =>
     lang == 'fr' ? 'Vue partenaire' : 'Partner view';
 
+String periodPartnerPathChipLabel(String lang) =>
+    lang == 'fr' ? 'Parcours partenaire' : 'Partner path';
+
 // --- Section: Understanding the Menstrual Cycle ---
 
 String sectionCycleTitle(String lang) => lang == 'fr'
