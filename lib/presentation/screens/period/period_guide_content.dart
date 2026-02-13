@@ -31,8 +31,10 @@ class PeriodGuideContent extends ConsumerStatefulWidget {
   final String language;
   final CyclePhase? phase;
   final bool isPartnerMode;
+
   /// When true, show only sections in [partnerPathSections].
   final bool partnerPathOnly;
+
   /// When non-null, show only these sections (e.g. from search filter).
   final Set<PeriodGuideSection>? visibleSectionIds;
 
@@ -51,9 +53,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
   @override
   void initState() {
     super.initState();
-    _sectionKeys = {
-      for (final s in PeriodGuideSection.values) s: GlobalKey(),
-    };
+    _sectionKeys = {for (final s in PeriodGuideSection.values) s: GlobalKey()};
     _searchController.addListener(() {
       if (_searchQuery != _searchController.text) {
         setState(() => _searchQuery = _searchController.text);
@@ -141,23 +141,12 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
     void doScroll() {
       final key = _sectionKeys[section];
       final ctx = key?.currentContext;
-      appLog(
-        'PERIOD_GUIDE',
-        message:
-            'doScroll: section=${section.name} hasContext=${ctx != null} mounted=$mounted',
-        color: '\x1B[35m',
-      );
       if (ctx != null && mounted) {
         try {
           Scrollable.ensureVisible(
             ctx,
             alignment: 0.2,
             duration: const Duration(milliseconds: 300),
-          );
-          appLog(
-            'PERIOD_GUIDE',
-            message: 'ensureVisible called for ${section.name}',
-            color: '\x1B[32m',
           );
           _markSectionRead(section);
           PeriodGuideAnalytics.recordSectionView(section);
@@ -168,30 +157,13 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             color: '\x1B[31m',
           );
         }
-      } else {
-        appLog(
-          'PERIOD_GUIDE',
-          message:
-              'skip scroll: ctx=${ctx != null} mounted=$mounted (key exists: ${key != null})',
-          color: '\x1B[33m',
-        );
       }
     }
 
     final hasContextNow = _sectionKeys[section]?.currentContext != null;
-    appLog(
-      'PERIOD_GUIDE',
-      message: 'context available immediately: $hasContextNow',
-      color: '\x1B[35m',
-    );
     if (hasContextNow) {
       doScroll();
     } else {
-      appLog(
-        'PERIOD_GUIDE',
-        message: 'scheduling post-frame callback for ${section.name}',
-        color: '\x1B[33m',
-      );
       WidgetsBinding.instance.addPostFrameCallback((_) => doScroll());
     }
   }
@@ -233,6 +205,21 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
         const SizedBox(height: AppSpacing.sm),
         ...cyclePhasesData.map(
           (p) => _PhaseExpandable(phase: p, language: language),
+        ),
+        // Added: Section for Cycle Basics external sources
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          language == 'fr' ? 'En savoir plus' : 'Learn more',
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        ...sourcesForTopic(VerifiedSourceTopic.cycleBasics).map(
+          (s) => Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: PeriodExternalSourceCard(source: s, language: language),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
       ]),
@@ -284,7 +271,8 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  ...sourcesWhenToSeekHelp.take(2).map(
+                  // Removed .take(2) to show all relevant sources
+                  ...sourcesWhenToSeekHelp.map(
                     (s) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                       child: PeriodExternalSourceCard(
@@ -338,7 +326,10 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(comfortKitBody(language), style: theme.textTheme.bodyMedium),
+                Text(
+                  comfortKitBody(language),
+                  style: theme.textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   language == 'fr' ? 'En savoir plus' : 'Learn more',
@@ -347,7 +338,8 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                ...sourcesPartnerSupport.take(2).map(
+                // Removed .take(2) to show all relevant sources (Partner + General)
+                ...sourcesPartnerSupport.map(
                   (s) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: PeriodExternalSourceCard(
@@ -419,7 +411,10 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(boundariesBody(language), style: theme.textTheme.bodyMedium),
+                Text(
+                  boundariesBody(language),
+                  style: theme.textTheme.bodyMedium,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
                   planningTogetherTitle(language),
@@ -490,21 +485,24 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             fontWeight: FontWeight.w600,
           ),
         ),
-      const SizedBox(height: AppSpacing.sm),
-      ...faqList.map(
-        (f) => ExpansionTile(
-          title: Text(f.question(language), style: theme.textTheme.titleSmall),
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Text(
-                f.answer(language),
-                style: theme.textTheme.bodyMedium,
-              ),
+        const SizedBox(height: AppSpacing.sm),
+        ...faqList.map(
+          (f) => ExpansionTile(
+            title: Text(
+              f.question(language),
+              style: theme.textTheme.titleSmall,
             ),
-          ],
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                child: Text(
+                  f.answer(language),
+                  style: theme.textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
         const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.disclaimer, [
@@ -580,143 +578,145 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-        if (periodGuideSectionOrder.isNotEmpty) ...[
-          Row(
-            children: [
-              Expanded(
-                child: LinearProgressIndicator(
-                  value: progressValue,
-                  minHeight: 6,
-                  borderRadius: BorderRadius.circular(3),
+          if (periodGuideSectionOrder.isNotEmpty) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: LinearProgressIndicator(
+                    value: progressValue,
+                    minHeight: 6,
+                    borderRadius: BorderRadius.circular(3),
+                  ),
                 ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                '${_readSections.length}/${periodGuideSectionOrder.length}',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  '${_readSections.length}/${periodGuideSectionOrder.length}',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          PeriodGuideToc(
+            language: language,
+            visibleSections: visible,
+            onSectionTap: _scrollToSection,
+            bookmarkedSections: _bookmarkedSections,
+            onBookmarkToggle: _toggleBookmark,
+            readSections: _readSections,
           ),
           const SizedBox(height: AppSpacing.sm),
-        ],
-        PeriodGuideToc(
-          language: language,
-          visibleSections: visible,
-          onSectionTap: _scrollToSection,
-          bookmarkedSections: _bookmarkedSections,
-          onBookmarkToggle: _toggleBookmark,
-          readSections: _readSections,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: language == 'fr' ? 'Rechercher dans le guide…' : 'Search in guide…',
-            prefixIcon: const Icon(Icons.search),
-            suffixIcon: _searchQuery.isNotEmpty
-                ? IconButton(
-                    icon: const Icon(Icons.clear),
-                    onPressed: () {
-                      _searchController.clear();
-                      setState(() => _searchQuery = '');
-                    },
-                  )
-                : null,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+          TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: language == 'fr'
+                  ? 'Rechercher dans le guide…'
+                  : 'Search in guide…',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() => _searchQuery = '');
+                      },
+                    )
+                  : null,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              isDense: true,
             ),
-            isDense: true,
+            onChanged: (value) => setState(() => _searchQuery = value),
           ),
-          onChanged: (value) => setState(() => _searchQuery = value),
-        ),
-        if (_searchQuery.trim().isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            language == 'fr'
-                ? 'Sections correspondant à votre recherche'
-                : 'Sections matching your search',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          if (_searchQuery.trim().isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              language == 'fr'
+                  ? 'Sections correspondant à votre recherche'
+                  : 'Sections matching your search',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-        ],
-        if (_bookmarkedSections.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.sm),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.bookmark,
-                        size: 20,
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        language == 'fr' ? 'Enregistrés' : 'Saved',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+          ],
+          if (_bookmarkedSections.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.bookmark,
+                          size: 20,
+                          color: theme.colorScheme.primary,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  ..._bookmarkedSections.map(
-                    (section) => ListTile(
-                      title: Text(
-                        periodGuideSectionTitle(section, language),
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      trailing: const Icon(Icons.chevron_right, size: 20),
-                      onTap: () => _scrollToSection(section),
-                      contentPadding: EdgeInsets.zero,
-                      visualDensity: VisualDensity.compact,
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          language == 'fr' ? 'Enregistrés' : 'Saved',
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    ..._bookmarkedSections.map(
+                      (section) => ListTile(
+                        title: Text(
+                          periodGuideSectionTitle(section, language),
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        trailing: const Icon(Icons.chevron_right, size: 20),
+                        onTap: () => _scrollToSection(section),
+                        contentPadding: EdgeInsets.zero,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
-        const SizedBox(height: AppSpacing.md),
-        if (isPartnerMode)
-          Card(
-            color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.sm),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.favorite,
-                    color: theme.colorScheme.primary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      language == 'fr'
-                          ? 'Contenu adapté au partenaire : soutien et communication en premier.'
-                          : 'Content tailored for partners: support and communication first.',
-                      style: theme.textTheme.bodySmall,
+          ],
+          const SizedBox(height: AppSpacing.md),
+          if (isPartnerMode)
+            Card(
+              color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.sm),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.favorite,
+                      color: theme.colorScheme.primary,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        language == 'fr'
+                            ? 'Contenu adapté au partenaire : soutien et communication en premier.'
+                            : 'Content tailored for partners: support and communication first.',
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        if (isPartnerMode) const SizedBox(height: AppSpacing.sm),
-        if (reminderCard != null) ...[
-          reminderCard,
-          const SizedBox(height: AppSpacing.sm),
-        ],
-        ...sections,
+          if (isPartnerMode) const SizedBox(height: AppSpacing.sm),
+          if (reminderCard != null) ...[
+            reminderCard,
+            const SizedBox(height: AppSpacing.sm),
+          ],
+          ...sections,
         ],
       ),
     );
