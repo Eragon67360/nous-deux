@@ -215,7 +215,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        ...sourcesForTopic(VerifiedSourceTopic.cycleBasics).map(
+        ...sourcesForTopic(VerifiedSourceTopic.cycleBasics, widget.language).map(
           (s) => Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
             child: PeriodExternalSourceCard(source: s, language: language),
@@ -272,7 +272,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   // Removed .take(2) to show all relevant sources
-                  ...sourcesWhenToSeekHelp.map(
+                  ...sourcesWhenToSeekHelp(widget.language).map(
                     (s) => Padding(
                       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                       child: PeriodExternalSourceCard(
@@ -339,7 +339,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 // Removed .take(2) to show all relevant sources (Partner + General)
-                ...sourcesPartnerSupport.map(
+                ...sourcesPartnerSupport(widget.language).map(
                   (s) => Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: PeriodExternalSourceCard(
