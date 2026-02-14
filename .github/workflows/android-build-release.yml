@@ -24,6 +24,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Dart (for link check)
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+      - name: Check links
+        run: dart run scripts/check_period_links.dart
+
       - name: Get version
         id: version
         run: |

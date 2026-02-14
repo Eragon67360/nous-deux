@@ -1,0 +1,37 @@
+name: Link Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/core/constants/period_verified_sources.dart'
+      - 'lib/presentation/screens/settings/app_info_screen.dart'
+      - 'scripts/check_period_links.dart'
+      - 'scripts/linkcheck-allowlist.txt'
+      - '.github/workflows/link-check.yml'
+  pull_request:
+    paths:
+      - 'lib/core/constants/period_verified_sources.dart'
+      - 'lib/presentation/screens/settings/app_info_screen.dart'
+      - 'scripts/check_period_links.dart'
+      - 'scripts/linkcheck-allowlist.txt'
+      - '.github/workflows/link-check.yml'
+  schedule:
+    # Weekly on Monday 06:00 UTC
+    - cron: '0 6 * * 1'
+
+jobs:
+  check-links:
+    name: Check period and app info links
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Check links
+        run: dart run scripts/check_period_links.dart
