@@ -178,21 +178,38 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
     final nextPmsDate = ref.watch(nextPartnerPmsDateProvider);
     final visible = _visibleSections;
 
-    Widget wrapSection(PeriodGuideSection id, List<Widget> children) {
+    Widget wrapSection(
+      PeriodGuideSection id,
+      List<Widget> children, {
+      bool isFirstInList = false,
+    }) {
       if (!visible.contains(id)) return const SizedBox.shrink();
       return Column(
         key: _sectionKeys[id],
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
+        children: [
+          if (!isFirstInList) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Divider(
+              height: 1,
+              thickness: 1,
+              indent: 10,
+              endIndent: 10,
+              color: theme.dividerColor,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+          ],
+          ...children,
+          const SizedBox(height: AppSpacing.lg),
+        ],
       );
     }
 
     final sections = <Widget>[
       wrapSection(PeriodGuideSection.tip, [
         PeriodTipOfTheDay(language: language, phase: phase),
-        const SizedBox(height: AppSpacing.md),
-      ]),
+      ], isFirstInList: true),
       wrapSection(PeriodGuideSection.cycle, [
         _SectionHeader(
           title: sectionCycleTitle(language),
@@ -215,13 +232,15 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        ...sourcesForTopic(VerifiedSourceTopic.cycleBasics, widget.language).map(
+        ...sourcesForTopic(
+          VerifiedSourceTopic.cycleBasics,
+          widget.language,
+        ).map(
           (s) => Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
             child: PeriodExternalSourceCard(source: s, language: language),
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.bodyMind, [
         _SectionHeader(
@@ -286,7 +305,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.partnerSupport, [
         _SectionHeader(
@@ -352,7 +370,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.communication, [
         _SectionHeader(
@@ -431,7 +448,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.mythBusters, [
         _SectionHeader(
@@ -461,7 +477,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.quickRef, [
         _SectionHeader(
@@ -476,7 +491,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             initiallyExpanded: e.key == 0,
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.faq, [
         Text(
@@ -503,7 +517,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
       ]),
       wrapSection(PeriodGuideSection.disclaimer, [
         Semantics(
@@ -531,7 +544,6 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
             ),
           ),
         ),
-        const SizedBox(height: AppSpacing.xl),
       ]),
       _GuideFeedbackRow(language: language),
     ];
