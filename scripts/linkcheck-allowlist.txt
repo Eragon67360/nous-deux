@@ -6,5 +6,8 @@
 # for example:
 
 instagram.com
+nhsinform.scot
+unicef.org
+plannedparenthood.org
 
 # ameli.fr
