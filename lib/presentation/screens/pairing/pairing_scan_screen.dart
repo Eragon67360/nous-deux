@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/pairing_strings.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
@@ -49,9 +51,14 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang =
+        ref.watch(myProfileProvider).valueOrNull?.language ??
+        ref.watch(deviceLanguageProvider) ??
+        'fr';
+    ;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Scanner le QR code'),
+        title: Text(pairingScanTitle(lang)),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => context.pop(),
@@ -90,7 +97,7 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        'Connexion en cours...',
+                        pairingScanConnecting(lang),
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ],

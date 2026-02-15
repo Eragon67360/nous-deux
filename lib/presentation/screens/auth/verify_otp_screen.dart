@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 
 class VerifyOtpScreen extends ConsumerStatefulWidget {
   const VerifyOtpScreen({super.key, required this.phone});
@@ -24,10 +26,10 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
     super.dispose();
   }
 
-  Future<void> _verify() async {
+  Future<void> _verify(String lang) async {
     final token = _codeController.text.trim();
     if (token.isEmpty || _phone.isEmpty) {
-      setState(() => _error = 'Entrez le code reçu');
+      setState(() => _error = authVerifyErrorEnterCode(lang));
       return;
     }
     setState(() {
@@ -39,15 +41,18 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Code invalide');
+      setState(
+        () => _error = result.failure!.message ?? authVerifyErrorInvalid(lang),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final lang = ref.watch(deviceLanguageProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Vérification')),
+      appBar: AppBar(title: Text(authVerifyTitle(lang))),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -56,7 +61,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
             children: [
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Entrez le code envoyé au $_phone',
+                authVerifyInstructions(lang, _phone),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -64,9 +69,9 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
                 controller: _codeController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Code',
-                  hintText: '123456',
+                decoration: InputDecoration(
+                  labelText: authVerifyCodeLabel(lang),
+                  hintText: authVerifyCodeHint(lang),
                 ),
               ),
               if (_error != null) ...[
@@ -75,7 +80,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
               ],
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: _loading ? null : _verify,
+                onPressed: _loading ? null : () => _verify(lang),
                 child: _loading
                     ? SizedBox(
                         height: 20,
@@ -85,7 +90,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
                           color: colorScheme.onPrimary,
                         ),
                       )
-                    : const Text('Vérifier'),
+                    : Text(authVerifyButton(lang)),
               ),
             ],
           ),

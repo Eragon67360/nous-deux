@@ -5,6 +5,7 @@ import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/providers/splash_provider.dart';
 import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
 import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
@@ -44,6 +45,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   final isSupabaseConfigured = AppConfig.isSupabaseConfigured;
   final authAsync = ref.watch(currentUserProvider);
   final profileAsync = ref.watch(myProfileProvider);
+  ref.watch(splashAnimationCompleteProvider); // Re-run redirect when splash animation completes
   final authLoading = authAsync.isLoading;
   final isSignedIn = authAsync.valueOrNull != null;
   final profile = profileAsync.valueOrNull;
@@ -86,6 +88,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         appLog(
           'ROUTER',
           message: '  → null (auth still loading, staying on $loc)',
+          color: '\x1B[33m',
+        );
+        return null;
+      }
+
+      if (loc == '/' &&
+          !ref.read(splashAnimationCompleteProvider)) {
+        appLog(
+          'ROUTER',
+          message: '  → null (splash animation not yet complete)',
           color: '\x1B[33m',
         );
         return null;
