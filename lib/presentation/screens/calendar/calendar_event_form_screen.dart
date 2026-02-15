@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -117,10 +118,13 @@ class _CalendarEventFormScreenState
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.event != null ? 'Modifier l\'événement' : 'Nouvel événement',
+          widget.event != null
+              ? calendarEventEdit(lang)
+              : calendarEventNew(lang),
         ),
       ),
       body: Form(
@@ -130,23 +134,27 @@ class _CalendarEventFormScreenState
           children: [
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(labelText: 'Titre'),
+              decoration: InputDecoration(
+                labelText: calendarEventTitleLabel(lang),
+              ),
               maxLength: AppConstants.eventTitleMaxLength,
               validator: (v) =>
-                  v?.trim().isEmpty ?? true ? 'Titre requis' : null,
+                  v?.trim().isEmpty ?? true
+                      ? calendarEventTitleRequired(lang)
+                      : null,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(
               controller: _descController,
-              decoration: const InputDecoration(
-                labelText: 'Description (optionnel)',
+              decoration: InputDecoration(
+                labelText: calendarEventDescriptionLabel(lang),
               ),
               maxLines: 3,
               maxLength: AppConstants.eventDescriptionMaxLength,
             ),
             const SizedBox(height: AppSpacing.sm),
             ListTile(
-              title: const Text('Début'),
+              title: Text(calendarEventStart(lang)),
               subtitle: Text(_formatDateTime(context, _startTime)),
               onTap: () async {
                 final date = await showDatePicker(
@@ -173,7 +181,7 @@ class _CalendarEventFormScreenState
               },
             ),
             ListTile(
-              title: const Text('Fin'),
+              title: Text(calendarEventEnd(lang)),
               subtitle: Text(_formatDateTime(context, _endTime)),
               onTap: () async {
                 final date = await showDatePicker(
@@ -218,7 +226,7 @@ class _CalendarEventFormScreenState
                         color: Theme.of(context).colorScheme.onPrimary,
                       ),
                     )
-                  : const Text('Enregistrer'),
+                  : Text(calendarEventSave(lang)),
             ),
           ],
         ),

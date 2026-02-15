@@ -7,6 +7,7 @@ import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_guide_sections.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
+import 'package:nousdeux/core/constants/period_ui_strings.dart';
 import 'package:nousdeux/core/constants/period_verified_sources.dart';
 import 'package:nousdeux/core/services/period_guide_analytics.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
@@ -226,7 +227,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
         // Added: Section for Cycle Basics external sources
         const SizedBox(height: AppSpacing.md),
         Text(
-          language == 'fr' ? 'En savoir plus' : 'Learn more',
+          periodLearnMore(language),
           style: theme.textTheme.titleSmall?.copyWith(
             fontWeight: FontWeight.w600,
           ),
@@ -284,7 +285,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    language == 'fr' ? 'En savoir plus' : 'Learn more',
+                    periodLearnMore(language),
                     style: theme.textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -350,7 +351,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  language == 'fr' ? 'En savoir plus' : 'Learn more',
+                  periodLearnMore(language),
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -623,9 +624,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: language == 'fr'
-                  ? 'Rechercher dans le guide…'
-                  : 'Search in guide…',
+              hintText: periodSearchHint(language),
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -646,9 +645,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
           if (_searchQuery.trim().isNotEmpty) ...[
             const SizedBox(height: AppSpacing.xs),
             Text(
-              language == 'fr'
-                  ? 'Sections correspondant à votre recherche'
-                  : 'Sections matching your search',
+              periodSearchResultsTitle(language),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -672,7 +669,7 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          language == 'fr' ? 'Enregistrés' : 'Saved',
+                          periodSaved(language),
                           style: theme.textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -804,7 +801,7 @@ class _PhaseExpandable extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                language == 'fr' ? 'Physique' : 'Physical',
+                periodPhysical(language),
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -827,7 +824,7 @@ class _PhaseExpandable extends StatelessWidget {
                   ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                language == 'fr' ? 'Émotionnel' : 'Emotional',
+                periodEmotional(language),
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),

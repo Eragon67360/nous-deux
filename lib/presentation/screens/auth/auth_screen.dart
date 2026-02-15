@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -23,10 +25,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
-  Future<void> _sendOtp() async {
+  Future<void> _sendOtp(String lang) async {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
-      setState(() => _error = 'Entrez votre numéro');
+      setState(() => _error = authErrorEnterPhone(lang));
       return;
     }
     setState(() {
@@ -40,7 +42,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Erreur');
+      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
       return;
     }
     context.push(
@@ -49,7 +51,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     );
   }
 
-  Future<void> _signInWithGoogle() async {
+  Future<void> _signInWithGoogle(String lang) async {
     setState(() {
       _error = null;
       _loading = true;
@@ -59,11 +61,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Erreur');
+      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
     }
   }
 
-  Future<void> _signInWithApple() async {
+  Future<void> _signInWithApple(String lang) async {
     setState(() {
       _error = null;
       _loading = true;
@@ -73,13 +75,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Erreur');
+      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final lang = ref.watch(deviceLanguageProvider);
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -92,13 +95,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             children: [
               const SizedBox(height: AppSpacing.xl),
               Text(
-                'Nous Deux',
+                authTitle(lang),
                 style: Theme.of(context).textTheme.headlineMedium,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Connectez-vous pour continuer',
+                authSubtitle(lang),
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onSurfaceVariant,
                 ),
@@ -108,9 +111,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  labelText: 'Numéro de téléphone',
-                  hintText: '+33 6 12 34 56 78',
+                decoration: InputDecoration(
+                  labelText: authPhoneLabel(lang),
+                  hintText: authPhoneHint(lang),
                 ),
               ),
               if (_error != null) ...[
@@ -119,7 +122,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ],
               const SizedBox(height: AppSpacing.sm),
               FilledButton(
-                onPressed: _loading ? null : _sendOtp,
+                onPressed: _loading ? null : () => _sendOtp(lang),
                 child: _loading
                     ? SizedBox(
                         height: 20,
@@ -129,21 +132,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                           color: colorScheme.onPrimary,
                         ),
                       )
-                    : const Text('Envoyer le code'),
+                    : Text(authSendCode(lang)),
               ),
               const SizedBox(height: AppSpacing.md),
               const Divider(),
               const SizedBox(height: AppSpacing.sm),
               OutlinedButton.icon(
-                onPressed: _loading ? null : _signInWithGoogle,
+                onPressed: _loading ? null : () => _signInWithGoogle(lang),
                 icon: const Icon(Icons.g_mobiledata, size: 24),
-                label: const Text('Continuer avec Google'),
+                label: Text(authContinueWithGoogle(lang)),
               ),
               const SizedBox(height: AppSpacing.sm),
               OutlinedButton.icon(
-                onPressed: _loading ? null : _signInWithApple,
+                onPressed: _loading ? null : () => _signInWithApple(lang),
                 icon: const Icon(Icons.apple, size: 24),
-                label: const Text('Continuer avec Apple'),
+                label: Text(authContinueWithApple(lang)),
               ),
               const SizedBox(height: AppSpacing.md),
             ],

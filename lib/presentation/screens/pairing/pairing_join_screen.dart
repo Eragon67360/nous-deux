@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/pairing_strings.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
@@ -24,10 +26,10 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
     super.dispose();
   }
 
-  Future<void> _join() async {
+  Future<void> _join(String lang) async {
     final code = _codeController.text.trim().toUpperCase();
     if (code.isEmpty) {
-      setState(() => _error = 'Entrez le code');
+      setState(() => _error = pairingJoinErrorCode(lang));
       return;
     }
     setState(() {
@@ -39,7 +41,9 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Code invalide');
+      setState(
+        () => _error = result.failure!.message ?? pairingJoinErrorInvalid(lang),
+      );
       return;
     }
     ref.invalidate(myCoupleProvider);
@@ -49,9 +53,12 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ??
+        ref.watch(deviceLanguageProvider) ??
+        'fr';
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Rejoindre'),
+        title: Text(pairingJoinTitle(lang)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
@@ -65,7 +72,7 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
             children: [
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Entrez le code à 6 caractères partagé par votre partenaire.',
+                pairingJoinInstructions(lang),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -73,9 +80,9 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
                 controller: _codeController,
                 textCapitalization: TextCapitalization.characters,
                 maxLength: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Code',
-                  hintText: 'ABC123',
+                decoration: InputDecoration(
+                  labelText: pairingJoinCodeLabel(lang),
+                  hintText: pairingJoinCodeHint(lang),
                 ),
               ),
               if (_error != null) ...[
@@ -87,7 +94,7 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
               ],
               const SizedBox(height: AppSpacing.md),
               FilledButton(
-                onPressed: _loading ? null : _join,
+                onPressed: _loading ? null : () => _join(lang),
                 child: _loading
                     ? SizedBox(
                         height: 20,
@@ -97,7 +104,7 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
                           color: Theme.of(context).colorScheme.onPrimary,
                         ),
                       )
-                    : const Text('Rejoindre'),
+                    : Text(pairingJoinButton(lang)),
               ),
             ],
           ),

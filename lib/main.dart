@@ -1,15 +1,18 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/config/app_config.dart';
+import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 void main() async {
@@ -50,18 +53,28 @@ class MainApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = AppTheme.dark;
+    final locale = ref.watch(appLocaleProvider);
+    const supportedLocales = [Locale('fr'), Locale('en')];
+    const localizationsDelegates = [
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ];
     if (!AppConfig.isSupabaseConfigured) {
       return MaterialApp(
         title: 'Nous Deux',
         debugShowCheckedModeBanner: false,
         theme: theme,
         darkTheme: theme,
+        locale: locale,
+        supportedLocales: supportedLocales,
+        localizationsDelegates: localizationsDelegates,
         home: Scaffold(
           body: Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Text(
-                'Configurez Supabase : définissez SUPABASE_URL et SUPABASE_ANON_KEY via --dart-define.',
+                appSupabaseConfigMessage(locale.languageCode),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -75,6 +88,9 @@ class MainApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: theme,
       darkTheme: theme,
+      locale: locale,
+      supportedLocales: supportedLocales,
+      localizationsDelegates: localizationsDelegates,
       routerConfig: router,
       builder: (context, child) => _FcmRegistration(child: child),
     );

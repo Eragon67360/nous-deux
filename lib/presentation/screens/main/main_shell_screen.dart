@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
@@ -44,11 +45,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               ref.invalidate(myProfileProvider);
               ref.invalidate(myCoupleProvider);
               if (mounted) {
+                final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: const Text(
-                      'Votre partenaire a rejoint ! Bienvenue à deux.',
-                    ),
+                    content: Text(mainPartnerJoinedSnackbar(lang)),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
@@ -117,7 +117,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                           const SizedBox(width: AppSpacing.sm),
                           Expanded(
                             child: Text(
-                              'Pas encore de partenaire ? Invitez-le ou invitez-la.',
+                              mainNoPartnerBubble(lang),
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ),

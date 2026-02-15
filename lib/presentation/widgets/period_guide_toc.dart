@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/period_guide_sections.dart';
+import 'package:nousdeux/core/constants/period_ui_strings.dart';
 
 /// Table of contents for the Period Guide. Tapping an item scrolls to that section.
 class PeriodGuideToc extends StatelessWidget {
@@ -30,7 +31,7 @@ class PeriodGuideToc extends StatelessWidget {
         .toList();
 
     return Semantics(
-      label: language == 'fr' ? 'Sommaire du guide' : 'Guide table of contents',
+      label: periodTocLabel(language),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.symmetric(
@@ -42,7 +43,7 @@ class PeriodGuideToc extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                language == 'fr' ? 'Sommaire' : 'Table of contents',
+                periodTocTitle(language),
                 style: theme.textTheme.titleSmall?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: theme.colorScheme.primary,
@@ -52,7 +53,7 @@ class PeriodGuideToc extends StatelessWidget {
               ...sectionsToShow.map(
                 (section) => Semantics(
                   button: true,
-                  label: '${language == 'fr' ? 'Aller à' : 'Go to'} ${periodGuideSectionTitle(section, language)}',
+                  label: '${periodTocGoTo(language)} ${periodGuideSectionTitle(section, language)}',
                   child: InkWell(
                     onTap: () => onSectionTap(section),
                     borderRadius: BorderRadius.circular(8),
@@ -86,12 +87,8 @@ class PeriodGuideToc extends StatelessWidget {
                         if (onBookmarkToggle != null)
                           IconButton(
                             tooltip: bookmarkedSections.contains(section)
-                                ? (language == 'fr'
-                                    ? 'Retirer des enregistrés'
-                                    : 'Remove from saved')
-                                : (language == 'fr'
-                                    ? 'Enregistrer cette section'
-                                    : 'Save this section'),
+                                ? periodRemoveFromSaved(language)
+                                : periodSaveSection(language),
                             icon: Icon(
                               bookmarkedSections.contains(section)
                                   ? Icons.bookmark

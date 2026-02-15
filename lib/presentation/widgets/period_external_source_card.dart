@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/period_ui_strings.dart';
 import 'package:nousdeux/core/constants/period_verified_sources.dart';
 import 'package:nousdeux/core/services/period_guide_analytics.dart';
 
@@ -51,9 +52,7 @@ class PeriodExternalSourceCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              language == 'fr'
-                  ? 'Impossible d\'ouvrir le lien'
-                  : 'Could not open link',
+              periodCouldNotOpenLink(language),
             ),
             behavior: SnackBarBehavior.floating,
           ),

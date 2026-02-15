@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
@@ -71,12 +72,11 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
       await _settingsChannel.invokeMethod<void>('openAppSettings');
     } on MissingPluginException catch (_) {
       if (!mounted) return;
+      final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Redémarrez complètement l\'app (arrêt puis relance) pour que le bouton Réglages fonctionne.',
-          ),
-          duration: Duration(seconds: 5),
+        SnackBar(
+          content: Text(calendarImportRestartMessage(lang)),
+          duration: const Duration(seconds: 5),
         ),
       );
     }
@@ -170,15 +170,16 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
 
   @override
   Widget build(BuildContext context) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
     return Scaffold(
-      appBar: AppBar(title: const Text('Importer depuis l\'agenda')),
+      appBar: AppBar(title: Text(calendarImportTitle(lang))),
       body: _loading && _calendars.isEmpty && !_hasCompletedInitialLoad
-          ? const LoadingContent(message: 'Chargement des agendas...')
+          ? LoadingContent(message: calendarImportLoading(lang))
           : ListView(
               padding: const EdgeInsets.all(AppSpacing.sm),
               children: [
                 Text(
-                  'Choisissez un agenda et une période, puis importez les événements dans Nous Deux.',
+                  calendarImportIntro(lang),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -195,7 +196,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'L\'accès au calendrier est nécessaire pour importer les événements. Si la demande n\'apparaît pas, ouvrez les réglages pour l\'activer.',
+                          calendarImportPermissionMessage(lang),
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         const SizedBox(height: AppSpacing.sm),
@@ -215,8 +216,8 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                               : const Icon(Icons.calendar_today, size: 20),
                           label: Text(
                             _loading
-                                ? 'Vérification...'
-                                : 'Autoriser l\'accès au calendrier',
+                                ? calendarImportVerifying(lang)
+                                : calendarImportAllowAccess(lang),
                           ),
                         ),
                         const SizedBox(height: AppSpacing.xs),
@@ -230,7 +231,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                                   await _openAppSettings();
                                 },
                           icon: const Icon(Icons.settings, size: 20),
-                          label: const Text('Ouvrir les réglages'),
+                          label: Text(calendarImportOpenSettings(lang)),
                         ),
                       ],
                     ),
@@ -247,7 +248,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      'Aucun calendrier trouvé sur cet appareil.',
+                      calendarImportNoCalendars(lang),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ),
@@ -281,7 +282,9 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                       return DropdownButtonFormField<String>(
                         value: value,
                         isExpanded: true,
-                        decoration: const InputDecoration(labelText: 'Agenda'),
+                        decoration: InputDecoration(
+                          labelText: calendarImportCalendarLabel(lang),
+                        ),
                         items: _calendars
                             .where((c) => c.id != null)
                             .map(
@@ -303,7 +306,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   ListTile(
-                    title: const Text('Du'),
+                    title: Text(calendarImportFrom(lang)),
                     subtitle: Text(_formatDate(context, _start)),
                     onTap: () async {
                       final d = await showDatePicker(
@@ -316,7 +319,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                     },
                   ),
                   ListTile(
-                    title: const Text('Au'),
+                    title: Text(calendarImportTo(lang)),
                     subtitle: Text(_formatDate(context, _end)),
                     onTap: () async {
                       final d = await showDatePicker(
@@ -368,10 +371,10 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
-                            const Text('Importation...'),
+                            Text(calendarImportImporting(lang)),
                           ],
                         )
-                      : const Text('Importer'),
+                      : Text(calendarImportButton(lang)),
                 ),
               ],
             ),
