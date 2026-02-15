@@ -60,6 +60,13 @@ String appInfoEvahBaumlin(String lang) =>
         : 'Input, scientific and woman-focused explanations';
 String appInfoFriends(String lang) => lang == 'fr' ? 'Soutien tout au long du projet' : 'Support along the way';
 
+// Language
+String settingsLanguage(String lang) => lang == 'fr' ? 'Langue' : 'Language';
+String settingsLanguageFrench(String lang) => lang == 'fr' ? 'Français' : 'French';
+String settingsLanguageEnglish(String lang) => lang == 'fr' ? 'Anglais' : 'English';
+String settingsLanguageUpdated(String lang) =>
+    lang == 'fr' ? 'Langue mise à jour' : 'Language updated';
+
 // Username edit
 String settingsEditUsername(String lang) => lang == 'fr' ? 'Modifier le nom' : 'Edit name';
 String settingsSave(String lang) => lang == 'fr' ? 'Enregistrer' : 'Save';

@@ -66,7 +66,16 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
 
-              // 2. Account & Info Group
+              // 2. Language
+              _SettingsGroup(
+                title: settingsLanguage(lang),
+                children: [
+                  _LanguageTile(lang: lang),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // 3. Account & Info Group
               _SettingsGroup(
                 title: settingsAboutApp(lang),
                 children: [
@@ -398,6 +407,106 @@ class _SettingsTile extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _LanguageTile extends ConsumerWidget {
+  const _LanguageTile({required this.lang});
+  final String lang;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final currentLabel =
+        lang == 'fr' ? settingsLanguageFrench(lang) : settingsLanguageEnglish(lang);
+
+    return InkWell(
+      onTap: () => _showLanguageDialog(context, ref, lang),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Icon(Icons.language, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                settingsLanguage(lang),
+                style: theme.textTheme.bodyLarge,
+                softWrap: true,
+                overflow: TextOverflow.visible,
+              ),
+            ),
+            Text(
+              currentLabel,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              Icons.chevron_right,
+              size: 20,
+              color: theme.colorScheme.outline,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, WidgetRef ref, String currentLang) {
+    final screenContext = context;
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: Text(settingsLanguage(currentLang)),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              RadioListTile<String>(
+                title: Text(settingsLanguageFrench(currentLang)),
+                value: 'fr',
+                groupValue: currentLang,
+                onChanged: (v) => _selectLanguage(screenContext, dialogContext, ref, v!),
+              ),
+              RadioListTile<String>(
+                title: Text(settingsLanguageEnglish(currentLang)),
+                value: 'en',
+                groupValue: currentLang,
+                onChanged: (v) => _selectLanguage(screenContext, dialogContext, ref, v!),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _selectLanguage(
+    BuildContext screenContext,
+    BuildContext dialogContext,
+    WidgetRef ref,
+    String newLang,
+  ) async {
+    Navigator.of(dialogContext).pop();
+    final repo = ref.read(profileRepositoryProvider);
+    final result = await repo.updateProfile(language: newLang);
+    ref.invalidate(myProfileProvider);
+    if (!screenContext.mounted) return;
+    if (result.failure != null) {
+      ScaffoldMessenger.of(screenContext).showSnackBar(
+        SnackBar(content: Text(result.failure!.message ?? '')),
+      );
+    } else {
+      ScaffoldMessenger.of(screenContext).showSnackBar(
+        SnackBar(
+          content: Text(settingsLanguageUpdated(newLang)),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }
 

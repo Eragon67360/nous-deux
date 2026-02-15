@@ -4,7 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/pairing_strings.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
+import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
 class PairingScreen extends ConsumerStatefulWidget {
@@ -28,7 +31,11 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
     if (!mounted) return;
     setState(() => _creating = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Erreur');
+      final lang =
+          ref.read(myProfileProvider).valueOrNull?.language ??
+          ref.read(deviceLanguageProvider) ??
+          'fr';
+      setState(() => _error = result.failure!.message ?? pairingError(lang));
       return;
     }
     ref.invalidate(myCoupleProvider);
@@ -38,8 +45,12 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   Widget build(BuildContext context) {
     final coupleAsync = ref.watch(myCoupleProvider);
     final colorScheme = Theme.of(context).colorScheme;
+    final lang =
+        ref.watch(myProfileProvider).valueOrNull?.language ??
+        ref.watch(deviceLanguageProvider) ??
+        'fr';
     return Scaffold(
-      appBar: AppBar(title: const Text('Inviter votre partenaire')),
+      appBar: AppBar(title: Text(pairingInviteTitle(lang))),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
@@ -58,7 +69,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                         children: [
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Créez un lien pour inviter votre partenaire. Il pourra scanner le QR code ou saisir le code manuellement.',
+                            pairingIntro(lang),
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           if (_error != null) ...[
@@ -80,7 +91,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                                       color: colorScheme.onPrimary,
                                     ),
                                   )
-                                : const Text('Générer le code'),
+                                : Text(pairingGenerateCode(lang)),
                           ),
                         ],
                       );
@@ -91,7 +102,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                         children: [
                           const SizedBox(height: AppSpacing.sm),
                           Text(
-                            'Votre partenaire peut scanner ce QR code :',
+                            pairingScanQrPrompt(lang),
                             style: Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(height: AppSpacing.sm),
@@ -105,7 +116,7 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
-                            'Ou saisir ce code :',
+                            pairingOrEnterCode(lang),
                             style: Theme.of(context).textTheme.titleSmall,
                           ),
                           const SizedBox(height: AppSpacing.xs),
@@ -121,25 +132,24 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                           OutlinedButton.icon(
                             onPressed: () => context.push('/pairing/join'),
                             icon: const Icon(Icons.person_add),
-                            label: const Text('Rejoindre avec un code'),
+                            label: Text(pairingJoinWithCode(lang)),
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           OutlinedButton.icon(
                             onPressed: () => context.push('/pairing/scan'),
                             icon: const Icon(Icons.qr_code_scanner),
-                            label: const Text('Scanner un QR code'),
+                            label: Text(pairingScanQr(lang)),
                           ),
                           const SizedBox(height: AppSpacing.md),
                         ],
                       ),
                     );
                   }
-                  return const Center(
-                    child: Text('Vous êtes déjà en couple. Redirection...'),
-                  );
+                  return Center(child: Text(pairingAlreadyPaired(lang)));
                 },
                 loading: () => const LoadingContent(),
-                error: (e, _) => Center(child: Text('Erreur: $e')),
+                error: (e, _) =>
+                    Center(child: Text('${pairingError(lang)}: $e')),
               ),
             ),
           ),

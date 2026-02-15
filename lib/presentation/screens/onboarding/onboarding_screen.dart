@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -27,7 +28,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _save() async {
     final name = _displayNameController.text.trim();
     if (name.isEmpty) {
-      setState(() => _error = 'Entrez un nom d\'affichage');
+      setState(() => _error = onboardingErrorDisplayName(_language));
       return;
     }
     setState(() {
@@ -43,7 +44,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? 'Erreur');
+      setState(
+        () => _error = result.failure!.message ?? onboardingErrorGeneric(_language),
+      );
       return;
     }
     ref.invalidate(myProfileProvider);
@@ -52,8 +55,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final lang = _language;
     return Scaffold(
-      appBar: AppBar(title: const Text('Configurez votre compte')),
+      appBar: AppBar(title: Text(onboardingTitle(lang))),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(
@@ -65,42 +69,44 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             children: [
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Une dernière étape pour personnaliser votre compte.',
+                onboardingSubtitle(lang),
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: _displayNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom d\'affichage',
-                  hintText: 'Prénom ou pseudo',
+                decoration: InputDecoration(
+                  labelText: onboardingDisplayNameLabel(lang),
+                  hintText: onboardingDisplayNameHint(lang),
                 ),
                 textCapitalization: TextCapitalization.words,
               ),
               const SizedBox(height: AppSpacing.md),
-              Text('Genre', style: Theme.of(context).textTheme.titleSmall),
+              Text(onboardingGender(lang),
+                  style: Theme.of(context).textTheme.titleSmall),
               RadioListTile<String>(
-                title: const Text('Femme'),
+                title: Text(onboardingWoman(lang)),
                 value: 'woman',
                 groupValue: _gender,
                 onChanged: (v) => setState(() => _gender = v!),
               ),
               RadioListTile<String>(
-                title: const Text('Homme'),
+                title: Text(onboardingMan(lang)),
                 value: 'man',
                 groupValue: _gender,
                 onChanged: (v) => setState(() => _gender = v!),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text('Langue', style: Theme.of(context).textTheme.titleSmall),
+              Text(onboardingLanguageLabel(lang),
+                  style: Theme.of(context).textTheme.titleSmall),
               RadioListTile<String>(
-                title: const Text('Français'),
+                title: Text(onboardingFrench(lang)),
                 value: 'fr',
                 groupValue: _language,
                 onChanged: (v) => setState(() => _language = v!),
               ),
               RadioListTile<String>(
-                title: const Text('English'),
+                title: Text(onboardingEnglish(lang)),
                 value: 'en',
                 groupValue: _language,
                 onChanged: (v) => setState(() => _language = v!),
@@ -121,7 +127,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           color: colorScheme.onPrimary,
                         ),
                       )
-                    : const Text('Continuer'),
+                    : Text(onboardingContinue(lang)),
               ),
               const SizedBox(height: AppSpacing.md),
             ],

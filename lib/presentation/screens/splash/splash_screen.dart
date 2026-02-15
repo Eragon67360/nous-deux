@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math' as math;
 
-// NOTE: Keeping your original imports commented out for copy-paste runnability.
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
+import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -107,6 +108,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     appLog('SPLASH', message: 'build', color: '\x1B[35m');
 
     final colorScheme = Theme.of(context).colorScheme;
+    final lang = ref.watch(deviceLanguageProvider);
 
     return Scaffold(
       body: Stack(
@@ -150,18 +152,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     child: Column(
                       children: [
                         Text(
-                          'Nous Deux',
+                          appName(lang),
                           style: Theme.of(context).textTheme.displaySmall?.copyWith(
                             color: colorScheme.onSurface,
                             fontWeight: FontWeight.w300,
                             letterSpacing: 1.5,
-                            fontFamily:
-                                'Didot', // Example of a classy serif font, falls back to default
+                            fontFamily: 'Didot',
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Là où les histoires se rejoignent',
+                          splashTagline(lang),
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
                                 color: colorScheme.onSurfaceVariant,

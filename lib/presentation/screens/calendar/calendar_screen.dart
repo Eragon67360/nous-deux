@@ -5,12 +5,12 @@ import 'package:table_calendar/table_calendar.dart';
 
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.dart';
-import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
 class CalendarHomeScreen extends ConsumerStatefulWidget {
@@ -47,11 +47,11 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
     final eventsAsync = ref.watch(calendarEventsProvider);
     final currentUser = ref.watch(currentUserProvider).valueOrNull;
     final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
 
-    // Préparation des données
     final partnerName = partnerProfile?.username?.trim().isNotEmpty == true
         ? partnerProfile!.username!
-        : 'Partenaire';
+        : calendarPartner(lang);
 
     final currentUserId = currentUser?.id;
 
@@ -62,6 +62,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
           children: [
             // 1. En-tête (Date & Actions)
             _HomeHeader(
+              lang: lang,
               onTodayTap: () {
                 setState(() {
                   _focusedDay = DateTime.now();
@@ -77,6 +78,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
             eventsAsync.when(
               data: (allEvents) {
                 return _CalendarSection(
+                  language: lang,
                   focusedDay: _focusedDay,
                   selectedDay: _selectedDay,
                   calendarFormat: _calendarFormat,
@@ -106,6 +108,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
 
                   if (dayEvents.isEmpty) {
                     return _EmptyDayState(
+                      lang: lang,
                       date: _selectedDay ?? _focusedDay,
                       onAddPressed: () => _openEventForm(context),
                     );
@@ -120,6 +123,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
                     itemBuilder: (context, index) {
                       final event = dayEvents[index];
                       return _EventCard(
+                        lang: lang,
                         event: event,
                         currentUserId: currentUserId,
                         partnerName: partnerName,
@@ -140,7 +144,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEventForm(context),
         icon: const Icon(Icons.add),
-        label: const Text('Ajouter'),
+        label: Text(calendarAdd(lang)),
         elevation: 2,
       ),
     );
@@ -171,18 +175,19 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
   }
 
   void _confirmDelete(BuildContext context, CalendarEventEntity event) {
+    final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Supprimer l\'événement ?'),
+        title: Text(calendarDeleteEventTitle(lang)),
         content: Text(
-          'Voulez-vous vraiment supprimer « ${event.title} » ?',
+          calendarDeleteEventConfirm(lang, event.title),
           softWrap: true,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annuler'),
+            child: Text(calendarCancel(lang)),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -193,7 +198,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
               await ref.read(calendarRepositoryProvider).deleteEvent(event.id);
               if (context.mounted) ref.invalidate(calendarEventsProvider);
             },
-            child: const Text('Supprimer'),
+            child: Text(calendarDelete(lang)),
           ),
         ],
       ),
@@ -206,17 +211,22 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
 // -----------------------------------------------------------------------------
 
 class _HomeHeader extends StatelessWidget {
+  final String lang;
   final VoidCallback onTodayTap;
   final VoidCallback onImportTap;
 
-  const _HomeHeader({required this.onTodayTap, required this.onImportTap});
+  const _HomeHeader({
+    required this.lang,
+    required this.onTodayTap,
+    required this.onImportTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final today = DateTime.now();
-    // Utilisation explicite du français pour la date
-    final dateString = DateFormat.yMMMMd('fr_FR').format(today);
+    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final dateString = DateFormat.yMMMMd(locale).format(today);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -232,7 +242,7 @@ class _HomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Calendrier',
+                  calendarTitle(lang),
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.onSurface,
@@ -252,13 +262,13 @@ class _HomeHeader extends StatelessWidget {
           IconButton.filledTonal(
             onPressed: onTodayTap,
             icon: const Icon(Icons.today),
-            tooltip: "Aujourd'hui",
+            tooltip: calendarToday(lang),
           ),
           const SizedBox(width: 8),
           IconButton.outlined(
             onPressed: onImportTap,
             icon: const Icon(Icons.upload_file),
-            tooltip: "Importer",
+            tooltip: calendarImportTooltip(lang),
           ),
         ],
       ),
@@ -267,6 +277,7 @@ class _HomeHeader extends StatelessWidget {
 }
 
 class _CalendarSection extends StatelessWidget {
+  final String language;
   final DateTime focusedDay;
   final DateTime? selectedDay;
   final CalendarFormat calendarFormat;
@@ -281,6 +292,7 @@ class _CalendarSection extends StatelessWidget {
   static const Color _markerPartner = Color(0xFFFF8FA3);
 
   const _CalendarSection({
+    required this.language,
     required this.focusedDay,
     required this.selectedDay,
     required this.calendarFormat,
@@ -294,6 +306,7 @@ class _CalendarSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
 
     return TableCalendar<CalendarEventEntity>(
       firstDay: DateTime(2020),
@@ -302,7 +315,7 @@ class _CalendarSection extends StatelessWidget {
       selectedDayPredicate: (day) => isSameDay(selectedDay, day),
       calendarFormat: calendarFormat,
       startingDayOfWeek: StartingDayOfWeek.monday,
-      locale: 'fr_FR', // Localisation française du calendrier
+      locale: locale,
       // Styles visuels
       calendarStyle: CalendarStyle(
         markersMaxCount: 1,
@@ -340,10 +353,10 @@ class _CalendarSection extends StatelessWidget {
         formatButtonTextStyle: theme.textTheme.labelSmall!,
       ),
 
-      availableCalendarFormats: const {
-        CalendarFormat.month: 'Mois',
-        CalendarFormat.twoWeeks: '2 sem.',
-        CalendarFormat.week: 'Semaine',
+      availableCalendarFormats: {
+        CalendarFormat.month: calendarFormatMonth(language),
+        CalendarFormat.twoWeeks: calendarFormatTwoWeeks(language),
+        CalendarFormat.week: calendarFormatWeek(language),
       },
 
       // Logique
@@ -396,6 +409,7 @@ class _CalendarSection extends StatelessWidget {
 }
 
 class _EventCard extends StatelessWidget {
+  final String lang;
   final CalendarEventEntity event;
   final String? currentUserId;
   final String partnerName;
@@ -407,6 +421,7 @@ class _EventCard extends StatelessWidget {
   static const Color _colorPartner = Color(0xFFFF8FA3);
 
   const _EventCard({
+    required this.lang,
     required this.event,
     required this.currentUserId,
     required this.partnerName,
@@ -420,9 +435,10 @@ class _EventCard extends StatelessWidget {
     final isMine = currentUserId != null && event.createdBy == currentUserId;
 
     final accentColor = isMine ? _colorMine : _colorPartner;
-    final creatorLabel = isMine ? 'Moi' : partnerName;
+    final creatorLabel = isMine ? calendarMe(lang) : partnerName;
 
-    final startTime = DateFormat.Hm('fr_FR').format(event.startTime);
+    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final startTime = DateFormat.Hm(locale).format(event.startTime);
 
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -534,15 +550,24 @@ class _EventCard extends StatelessWidget {
 }
 
 class _EmptyDayState extends StatelessWidget {
+  final String lang;
   final DateTime date;
   final VoidCallback onAddPressed;
 
-  const _EmptyDayState({required this.date, required this.onAddPressed});
+  const _EmptyDayState({
+    required this.lang,
+    required this.date,
+    required this.onAddPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     final isToday = isSameDay(date, DateTime.now());
-    final dateStr = DateFormat.MMMMd('fr_FR').format(date);
+    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final dateStr = DateFormat.MMMMd(locale).format(date);
+    final message = isToday
+        ? calendarNothingToday(lang)
+        : calendarNoEventsOn(lang, dateStr);
 
     return Center(
       child: Padding(
@@ -559,9 +584,7 @@ class _EmptyDayState extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                isToday
-                    ? 'Rien de prévu aujourd\'hui'
-                    : 'Aucun événement le $dateStr',
+                message,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -572,7 +595,7 @@ class _EmptyDayState extends StatelessWidget {
               TextButton.icon(
                 onPressed: onAddPressed,
                 icon: const Icon(Icons.add),
-                label: const Text('Créer un événement'),
+                label: Text(calendarCreateEvent(lang)),
               ),
             ],
           ),
