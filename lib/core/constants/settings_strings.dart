@@ -41,6 +41,23 @@ String settingsLocationRequiredForSharing(String lang) =>
         : 'Location is required to share your position.';
 String settingsCamera(String lang) => lang == 'fr' ? 'Appareil photo' : 'Camera';
 
+// Leave couple
+String settingsCoupleGroup(String lang) => lang == 'fr' ? 'Couple' : 'Couple';
+String settingsLeaveCouple(String lang) => lang == 'fr' ? 'Quitter le couple' : 'Leave couple';
+String settingsLeaveCoupleSubtitle(String lang) =>
+    lang == 'fr'
+        ? 'Vous ne serez plus lié à votre partenaire ; le calendrier partagé et les données de règles de ce couple seront supprimés.'
+        : 'You will no longer be linked to your partner; shared calendar and period data for this couple will be removed.';
+String settingsLeaveCoupleConfirmTitle(String lang) =>
+    lang == 'fr' ? 'Quitter le couple ?' : 'Leave the couple?';
+String settingsLeaveCoupleConfirmMessage(String lang) =>
+    lang == 'fr'
+        ? 'Êtes-vous sûr de vouloir quitter le couple ? Les données partagées (calendrier, règles) seront supprimées.'
+        : 'Are you sure you want to leave the couple? Shared data (calendar, period) will be removed.';
+String settingsLeaveCoupleConfirm(String lang) => lang == 'fr' ? 'Quitter' : 'Leave';
+String settingsLeaveCoupleSuccess(String lang) =>
+    lang == 'fr' ? 'Vous avez quitté le couple.' : 'You have left the couple.';
+
 // App info
 String appInfoTitle(String lang) => lang == 'fr' ? 'À propos de l\'app' : 'About the app';
 String appInfoDescription(String lang) =>
