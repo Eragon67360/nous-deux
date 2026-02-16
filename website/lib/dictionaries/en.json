@@ -1,0 +1,214 @@
+{
+  "common": {
+    "siteName": "Nous Deux"
+  },
+  "home": {
+    "meta": {
+      "title": "Couples app",
+      "description": "Nous Deux is a privacy-focused couples app: shared calendar, period tracking, optional location sharing. Free, no ads."
+    },
+    "hero": {
+      "title": "Nous Deux",
+      "tagline": "A privacy-focused couples app: shared calendar, period tracking, optional location.",
+      "free": "Free, no ads.",
+      "description": "Nous Deux is a couples app that lets you share a calendar, track periods and, optionally, share your location in real time — with no ads and data shared only within your couple.",
+      "googlePlay": "Google Play – closed testing",
+      "appStoreComing": "Coming soon on the App Store"
+    },
+    "features": {
+      "heading": "Features",
+      "list": [
+        {
+          "id": "calendar",
+          "title": "Shared calendar",
+          "description": "Shared events, synced between you and your partner. One view to coordinate your schedules.",
+          "imageAlt": "Shared calendar preview in the Nous Deux app"
+        },
+        {
+          "id": "period",
+          "title": "Period tracking",
+          "description": "Cycle, mood, symptoms and notes, shared with your partner to support and coordinate.",
+          "imageAlt": "Period tracking preview in the Nous Deux app"
+        },
+        {
+          "id": "position",
+          "title": "Location (optional)",
+          "description": "Real-time location sharing on the map. No history stored — only to find each other.",
+          "imageAlt": "Location sharing preview in the Nous Deux app"
+        }
+      ]
+    },
+    "privacy": {
+      "heading": "Free, no ads",
+      "paragraph": "Minimal data, shared only within your couple. No resale, no targeting. An app designed for privacy. See our",
+      "privacyLink": "privacy policy",
+      "and": "and the",
+      "accountDeletionLink": "account deletion",
+      "suffix": "page."
+    },
+    "faq": {
+      "heading": "Frequently asked questions",
+      "items": [
+        {
+          "question": "Is Nous Deux free?",
+          "answer": "Yes. Nous Deux is a free, ad-free app focused on couple life: shared calendar, period tracking, optional location sharing."
+        },
+        {
+          "question": "Is my data shared outside the couple?",
+          "answer": "No. Data is shared only within your couple (calendar, period tracking, location if you enable it). No resale, no targeting. See our privacy policy for details."
+        },
+        {
+          "question": "How do I delete my Nous Deux account?",
+          "answer": "Send an email to the address given on the Account deletion page with the phone number linked to your account. Your request will be processed as soon as possible."
+        }
+      ]
+    }
+  },
+  "footer": {
+    "ariaLabel": "Footer",
+    "privacy": "Privacy policy",
+    "accountDeletion": "Account deletion",
+    "github": "GitHub"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "privacy": "Privacy policy",
+    "accountDeletion": "Account deletion"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "policy": {
+    "meta": {
+      "title": "Privacy Policy",
+      "description": "Privacy policy for the Nous Deux application."
+    },
+    "lastUpdated": "Last updated:",
+    "effectiveDate": "11 February 2026",
+    "effectiveDateISO": "2026-02-11",
+    "backHome": "Back to home",
+    "sections": {
+      "editor": {
+        "title": "Publisher and contact",
+        "body": "The « Nous Deux » app is a free, ad-free project focused on couple life (shared calendar, period tracking, optional location sharing). For any questions about this policy or your data, you can contact us via the project repository:"
+      },
+      "dataCollected": {
+        "title": "Data we collect",
+        "intro": "We only collect and process data necessary for the app to work and for sharing within the couple you form with your partner.",
+        "items": [
+          {
+            "label": "Account and authentication",
+            "text": "login identifier (Google or Apple sign-in), email address linked to the account if provided by the identity provider."
+          },
+          {
+            "label": "Profile",
+            "text": "display name, gender, app language, profile picture (avatar), link to your partner when you form a couple."
+          },
+          {
+            "label": "Shared calendar",
+            "text": "titles, descriptions, dates and times of events you or your partner create, visible only within the couple."
+          },
+          {
+            "label": "Period tracking",
+            "text": "cycle dates, mood, symptoms, notes. This data is shared with your partner to support and coordinate."
+          },
+          {
+            "label": "Location (optional)",
+            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored."
+          },
+          {
+            "label": "Notifications",
+            "text": "notification token (FCM) to send you reminders (e.g. partner period reminder) and calendar reminders."
+          },
+          {
+            "label": "Technical data",
+            "text": "requested permissions (calendar, notifications, location, camera for profile photo) and information needed for the app to work on your device."
+          }
+        ]
+      },
+      "purposes": {
+        "title": "Purposes of processing",
+        "body": "Data is used to: provide and secure the service (authentication, storage, sync); enable sharing within the couple (calendar, period tracking, location when enabled); send notifications you have agreed to; display the map (via Mapbox) when location sharing is enabled."
+      },
+      "legalBasis": {
+        "title": "Legal basis",
+        "body": "Processing of data related to your account, profile, calendar and period tracking is necessary for the performance of the contract (use of the app). Location sharing and push notifications are optional and based on your consent; you can turn them off at any time in the app or device settings."
+      },
+      "hosting": {
+        "title": "Hosting and processors",
+        "intro": "Data is hosted and processed by the following services, in line with their privacy policies and applicable rules (including GDPR where relevant):",
+        "items": [
+          {
+            "label": "Supabase",
+            "text": "authentication, database, profile photo storage (hosting may be in the EU depending on project configuration)."
+          },
+          {
+            "label": "Firebase (Google)",
+            "text": "sending push notifications (FCM)."
+          },
+          {
+            "label": "Mapbox",
+            "text": "map display when location sharing is enabled."
+          },
+          {
+            "label": "Google and Apple",
+            "text": "sign-in (Sign in with Google / Sign in with Apple); data processed by these services is governed by their own policies."
+          }
+        ]
+      },
+      "retention": {
+        "title": "Retention",
+        "body": "Data is kept while your account is active. Location is not stored long term: only the current position is used for real-time display. If you delete your account or request deletion, your data is deleted in line with our procedures and processors' technical constraints."
+      },
+      "rights": {
+        "title": "Your rights",
+        "intro": "Under the GDPR and applicable data protection law, you have the following rights:",
+        "rightsList": [
+          "Right of access to your personal data",
+          "Right to rectification of inaccurate or incomplete data",
+          "Right to erasure (subject to legal obligations)",
+          "Right to restriction of processing",
+          "Right to object to certain processing",
+          "Right to data portability"
+        ],
+        "deletionText": "To request deletion of your account and data, see the dedicated page:",
+        "deletionLink": "Account deletion",
+        "otherRightsText": "To exercise your other rights, contact us via the GitHub link at the start of this document. You may also lodge a complaint with the CNIL (",
+        "cnilUrl": "www.cnil.fr",
+        "otherRightsSuffix": ") or the supervisory authority in your country of residence."
+      },
+      "changes": {
+        "title": "Policy changes",
+        "body": "We may update this privacy policy. The current version is the one published on this page; the last update date is shown at the top. We encourage you to check it from time to time."
+      },
+      "effective": {
+        "title": "Effective date",
+        "body": "This privacy policy took effect on"
+      }
+    }
+  },
+  "suppression": {
+    "meta": {
+      "title": "Account deletion",
+      "description": "How to request deletion of your account and data in the Nous Deux app."
+    },
+    "title": "Account deletion",
+    "intro": "Account deletion from within the app is not yet available. Until that feature is available, you can request deletion of your account and data as follows.",
+    "howToTitle": "How do I request account deletion?",
+    "howToIntro": "Send an email to the following address to request deletion of your account and personal data:",
+    "phoneNote": "Please include your phone number",
+    "phoneNoteSuffix": "(the one linked to your account or used to sign in) in your message. This allows us to identify your account and process your request correctly.",
+    "processingNote": "We will process your request as soon as possible. Once the account is deleted, associated data is erased in line with our",
+    "privacyLink": "privacy policy",
+    "noteTitle": "Note",
+    "noteBody": "This process is temporary. An in-app account deletion option will be offered in a future version.",
+    "footerPrivacy": "Privacy policy",
+    "backHome": "Back to home",
+    "emailSubject": "Account deletion request - Nous Deux"
+  },
+  "featureCard": {
+    "imageFallback": "Preview"
+  }
+}
