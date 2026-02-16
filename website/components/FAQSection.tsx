@@ -1,35 +1,22 @@
-const FAQ_ITEMS = [
-  {
-    question: "Nous Deux est-il gratuit ?",
-    answer:
-      "Oui. Nous Deux est une application gratuite et sans publicité, centrée sur la vie de couple : calendrier partagé, suivi des règles, partage de position optionnel.",
-  },
-  {
-    question: "Mes données sont-elles partagées en dehors du couple ?",
-    answer:
-      "Non. Les données sont partagées uniquement au sein de votre couple (calendrier, suivi des règles, position si vous l'activez). Aucune revente, aucun ciblage. Consultez notre politique de confidentialité pour le détail.",
-  },
-  {
-    question: "Comment supprimer mon compte Nous Deux ?",
-    answer:
-      "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte en précisant votre numéro de téléphone associé au compte. La demande est traitée dans les meilleurs délais.",
-  },
-] as const;
-
-const faqStructuredData = {
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  mainEntity: FAQ_ITEMS.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
-  })),
+type FAQDict = {
+  heading: string;
+  items: { question: string; answer: string }[];
 };
 
-export default function FAQSection() {
+export default function FAQSection({ dict }: { dict: FAQDict }) {
+  const faqStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: dict.items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
     <section className="px-6 py-16 sm:py-24" aria-labelledby="faq-heading">
       <script
@@ -43,10 +30,10 @@ export default function FAQSection() {
           id="faq-heading"
           className="text-2xl font-semibold text-on-surface text-center sm:text-3xl"
         >
-          Questions fréquentes
+          {dict.heading}
         </h2>
         <dl className="mt-10 space-y-8">
-          {FAQ_ITEMS.map((item) => (
+          {dict.items.map((item) => (
             <div key={item.question}>
               <dt className="text-lg font-medium text-on-surface">
                 {item.question}

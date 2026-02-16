@@ -1,20 +1,23 @@
-export default function HeroSection() {
+type HeroDict = {
+  title: string;
+  tagline: string;
+  free: string;
+  description: string;
+  googlePlay: string;
+  appStoreComing: string;
+};
+
+export default function HeroSection({ dict }: { dict: HeroDict }) {
   return (
     <section className="min-h-[70vh] flex flex-col items-center justify-center px-6 py-16 sm:py-24">
       <div className="mx-auto max-w-2xl text-center">
         <h1 className="text-4xl font-semibold tracking-tight text-on-surface sm:text-5xl">
-          Nous Deux
+          {dict.title}
         </h1>
-        <p className="mt-4 text-lg text-on-surface-variant">
-          Application pour couples centrée sur la confidentialité : calendrier
-          partagé, suivi des règles, position optionnelle.
-        </p>
-        <p className="mt-2 text-on-surface-variant">Gratuit, sans publicité.</p>
+        <p className="mt-4 text-lg text-on-surface-variant">{dict.tagline}</p>
+        <p className="mt-2 text-on-surface-variant">{dict.free}</p>
         <p className="mt-4 text-base text-on-surface-variant/90 max-w-xl mx-auto">
-          Nous Deux est une application pour couples qui permet de partager un
-          calendrier, de suivre les règles et, en option, de partager sa
-          position en temps réel — sans publicité et avec des données partagées
-          uniquement au sein du couple.
+          {dict.description}
         </p>
         <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
           <a
@@ -23,13 +26,13 @@ export default function HeroSection() {
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-surface font-medium transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
           >
-            Google Play – test fermé
+            {dict.googlePlay}
           </a>
           <span
             className="inline-flex items-center justify-center rounded-xl border border-outline px-6 py-3 text-on-surface-variant"
             aria-disabled="true"
           >
-            Prochainement sur l’App Store
+            {dict.appStoreComing}
           </span>
         </div>
       </div>

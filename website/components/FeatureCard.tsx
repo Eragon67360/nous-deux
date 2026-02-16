@@ -8,6 +8,7 @@ type FeatureCardProps = {
   description: string;
   imageSrc: string | null;
   imageAlt: string;
+  imageFallback?: string;
 };
 
 export default function FeatureCard({
@@ -15,6 +16,7 @@ export default function FeatureCard({
   description,
   imageSrc,
   imageAlt,
+  imageFallback = "Aperçu",
 }: FeatureCardProps) {
   const [imageError, setImageError] = useState(false);
   const showImage = imageSrc && !imageError;
@@ -38,7 +40,7 @@ export default function FeatureCard({
             className="flex h-full w-full items-center justify-center text-on-surface-variant/40"
             aria-hidden
           >
-            <span className="text-sm">Aperçu</span>
+            <span className="text-sm">{imageFallback}</span>
           </div>
         )}
       </div>

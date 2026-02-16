@@ -11,7 +11,7 @@ export default function NotFound() {
           La page que vous recherchez n’existe pas ou a été déplacée.
         </p>
         <Link
-          href="/"
+          href="/fr"
           className="mt-8 inline-block rounded-xl bg-primary px-6 py-3 text-surface font-medium transition-opacity hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface"
         >
           Retour à l’accueil

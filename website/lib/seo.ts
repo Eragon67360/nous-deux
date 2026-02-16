@@ -23,7 +23,7 @@ export const DEFAULT_TWITTER = {
 };
 
 /** Base Organization + WebSite JSON-LD for layout or home. */
-export function getBaseStructuredData() {
+export function getBaseStructuredData(locale: string = "fr") {
   return {
     "@context": "https://schema.org",
     "@graph": [
@@ -39,7 +39,7 @@ export function getBaseStructuredData() {
         "@id": `${SITE_URL}/#website`,
         name: SITE_NAME,
         url: SITE_URL,
-        inLanguage: "fr",
+        inLanguage: locale,
         publisher: { "@id": `${SITE_URL}/#organization` },
       },
     ],

@@ -1,0 +1,214 @@
+{
+  "common": {
+    "siteName": "Nous Deux"
+  },
+  "home": {
+    "meta": {
+      "title": "Application pour couples",
+      "description": "Nous Deux est une application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle. Gratuit, sans publicité."
+    },
+    "hero": {
+      "title": "Nous Deux",
+      "tagline": "Application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.",
+      "free": "Gratuit, sans publicité.",
+      "description": "Nous Deux est une application pour couples qui permet de partager un calendrier, de suivre les règles et, en option, de partager sa position en temps réel — sans publicité et avec des données partagées uniquement au sein du couple.",
+      "googlePlay": "Google Play – test fermé",
+      "appStoreComing": "Prochainement sur l'App Store"
+    },
+    "features": {
+      "heading": "Fonctionnalités",
+      "list": [
+        {
+          "id": "calendar",
+          "title": "Calendrier partagé",
+          "description": "Événements communs, synchronisés entre vous et votre partenaire. Une seule vue pour coordonner vos agendas.",
+          "imageAlt": "Aperçu du calendrier partagé dans l'application Nous Deux"
+        },
+        {
+          "id": "period",
+          "title": "Suivi des règles",
+          "description": "Cycle, humeur, symptômes et notes, partagés avec votre partenaire pour faciliter l'entraide et la coordination.",
+          "imageAlt": "Aperçu du suivi des règles dans l'application Nous Deux"
+        },
+        {
+          "id": "position",
+          "title": "Position (optionnelle)",
+          "description": "Partage de position sur la carte en temps réel. Aucun historique conservé — uniquement pour vous retrouver.",
+          "imageAlt": "Aperçu du partage de position dans l'application Nous Deux"
+        }
+      ]
+    },
+    "privacy": {
+      "heading": "Gratuit, sans publicité",
+      "paragraph": "Données minimales, partagées uniquement au sein de votre couple. Aucune revente, aucun ciblage. Une application pensée pour la confidentialité. Consultez notre",
+      "privacyLink": "politique de confidentialité",
+      "and": "et la page",
+      "accountDeletionLink": "suppression du compte",
+      "suffix": "."
+    },
+    "faq": {
+      "heading": "Questions fréquentes",
+      "items": [
+        {
+          "question": "Nous Deux est-il gratuit ?",
+          "answer": "Oui. Nous Deux est une application gratuite et sans publicité, centrée sur la vie de couple : calendrier partagé, suivi des règles, partage de position optionnel."
+        },
+        {
+          "question": "Mes données sont-elles partagées en dehors du couple ?",
+          "answer": "Non. Les données sont partagées uniquement au sein de votre couple (calendrier, suivi des règles, position si vous l'activez). Aucune revente, aucun ciblage. Consultez notre politique de confidentialité pour le détail."
+        },
+        {
+          "question": "Comment supprimer mon compte Nous Deux ?",
+          "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte en précisant votre numéro de téléphone associé au compte. La demande est traitée dans les meilleurs délais."
+        }
+      ]
+    }
+  },
+  "footer": {
+    "ariaLabel": "Pied de page",
+    "privacy": "Politique de confidentialité",
+    "accountDeletion": "Suppression du compte",
+    "github": "GitHub"
+  },
+  "breadcrumbs": {
+    "home": "Accueil",
+    "privacy": "Politique de confidentialité",
+    "accountDeletion": "Suppression du compte"
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "description": "La page que vous recherchez n'existe pas ou a été déplacée.",
+    "backHome": "Retour à l'accueil"
+  },
+  "policy": {
+    "meta": {
+      "title": "Politique de Confidentialité",
+      "description": "Politique de confidentialité de l'application Nous Deux."
+    },
+    "lastUpdated": "Dernière mise à jour :",
+    "effectiveDate": "11 février 2026",
+    "effectiveDateISO": "2026-02-11",
+    "backHome": "Retour à l'accueil",
+    "sections": {
+      "editor": {
+        "title": "Éditeur et contact",
+        "body": "L'application « Nous Deux » est un projet gratuit, sans publicité, centré sur la vie de couple (calendrier partagé, suivi des règles, partage de position optionnel). Pour toute question relative à cette politique ou à vos données, vous pouvez nous contacter via le dépôt du projet :"
+      },
+      "dataCollected": {
+        "title": "Données collectées",
+        "intro": "Nous collectons et traitons uniquement les données nécessaires au fonctionnement de l'application et au partage au sein du couple que vous formez avec votre partenaire.",
+        "items": [
+          {
+            "label": "Compte et authentification",
+            "text": "identifiant de connexion (connexion avec Google ou Apple), adresse e-mail associée au compte si fournie par le fournisseur d'authentification."
+          },
+          {
+            "label": "Profil",
+            "text": "nom d'affichage, genre, langue de l'application, photo de profil (avatar), lien avec le partenaire lorsque vous formez un couple."
+          },
+          {
+            "label": "Calendrier partagé",
+            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, uniquement visibles au sein du couple."
+          },
+          {
+            "label": "Suivi des règles",
+            "text": "dates de cycle, humeur, symptômes, notes. Ces données sont partagées avec votre partenaire pour faciliter la coordination et l'entraide."
+          },
+          {
+            "label": "Position (optionnelle)",
+            "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé."
+          },
+          {
+            "label": "Notifications",
+            "text": "token de notification (FCM) pour vous envoyer des rappels (ex. rappel SPM partenaire) et des rappels de calendrier."
+          },
+          {
+            "label": "Données techniques",
+            "text": "permissions demandées (calendrier, notifications, position, appareil photo pour la photo de profil) et informations nécessaires au bon fonctionnement de l'application sur votre appareil."
+          }
+        ]
+      },
+      "purposes": {
+        "title": "Finalités des traitements",
+        "body": "Les données sont utilisées pour : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, position si activée) ; envoyer des notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
+      },
+      "legalBasis": {
+        "title": "Base légale",
+        "body": "Le traitement des données liées à votre compte, profil, calendrier et suivi des règles est nécessaire à l'exécution du contrat (utilisation de l'application). Le partage de position et les notifications push sont optionnels et reposent sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
+      },
+      "hosting": {
+        "title": "Hébergement et sous-traitants",
+        "intro": "Les données sont hébergées et traitées par les services suivants, dans le respect de leurs politiques de confidentialité et des règles applicables (dont le RGPD lorsque pertinent) :",
+        "items": [
+          {
+            "label": "Supabase",
+            "text": "authentification, base de données, stockage des photos de profil (hébergement possible dans l'Union européenne selon la configuration du projet)."
+          },
+          {
+            "label": "Firebase (Google)",
+            "text": "envoi des notifications push (FCM)."
+          },
+          {
+            "label": "Mapbox",
+            "text": "affichage de la carte lorsque le partage de position est activé."
+          },
+          {
+            "label": "Google et Apple",
+            "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques."
+          }
+        ]
+      },
+      "retention": {
+        "title": "Durée de conservation",
+        "body": "Les données sont conservées tant que votre compte est actif. La position n'est pas stockée à long terme : seule la position actuelle est utilisée pour l'affichage en temps réel. En cas de suppression de compte ou de demande de suppression, les données vous concernant sont supprimées conformément à nos procédures et aux délais techniques des sous-traitants."
+      },
+      "rights": {
+        "title": "Vos droits",
+        "intro": "Conformément au Règlement général sur la protection des données (RGPD) et à la loi « informatique et libertés », vous disposez des droits suivants :",
+        "rightsList": [
+          "Droit d'accès à vos données personnelles",
+          "Droit de rectification des données inexactes ou incomplètes",
+          "Droit à l'effacement (sous réserve des obligations légales)",
+          "Droit à la limitation du traitement",
+          "Droit d'opposition à certains traitements",
+          "Droit à la portabilité de vos données"
+        ],
+        "deletionText": "Pour demander la suppression de votre compte et de vos données, consultez la page dédiée :",
+        "deletionLink": "Suppression du compte",
+        "otherRightsText": "Pour exercer vos autres droits, contactez-nous via le lien GitHub indiqué en début de document. Vous pouvez également introduire une réclamation auprès de la CNIL (",
+        "cnilUrl": "www.cnil.fr",
+        "otherRightsSuffix": ") ou de l'autorité de contrôle de votre pays de résidence."
+      },
+      "changes": {
+        "title": "Modifications de la politique",
+        "body": "Nous nous réservons le droit de modifier cette politique de confidentialité. La version en vigueur est celle publiée sur cette page ; la date de dernière mise à jour est indiquée en haut. Nous vous encourageons à la consulter périodiquement."
+      },
+      "effective": {
+        "title": "Entrée en vigueur",
+        "body": "La présente politique de confidentialité est entrée en vigueur le"
+      }
+    }
+  },
+  "suppression": {
+    "meta": {
+      "title": "Suppression du compte",
+      "description": "Comment demander la suppression de votre compte et de vos données dans l'application Nous Deux."
+    },
+    "title": "Suppression du compte",
+    "intro": "La suppression du compte directement depuis l'application n'est pas encore disponible. En attendant cette fonctionnalité, vous pouvez demander la suppression de votre compte et de vos données de la manière suivante.",
+    "howToTitle": "Comment demander la suppression de mon compte ?",
+    "howToIntro": "Envoyez un e-mail à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
+    "phoneNote": "Merci d'indiquer votre numéro de téléphone",
+    "phoneNoteSuffix": "(celui associé à votre compte ou utilisé pour vous connecter) dans votre message. Cela nous permet d'identifier votre compte et de traiter votre demande correctement.",
+    "processingNote": "Nous nous engageons à traiter votre demande dans les meilleurs délais. Une fois le compte supprimé, les données associées sont effacées conformément à notre",
+    "privacyLink": "politique de confidentialité",
+    "noteTitle": "À noter",
+    "noteBody": "Cette procédure est une solution temporaire. Une option de suppression du compte directement depuis l'application sera proposée dans une prochaine version.",
+    "footerPrivacy": "Politique de confidentialité",
+    "backHome": "Retour à l'accueil",
+    "emailSubject": "Demande de suppression de compte - Nous Deux"
+  },
+  "featureCard": {
+    "imageFallback": "Aperçu"
+  }
+}
