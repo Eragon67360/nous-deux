@@ -51,4 +51,18 @@ class PairingRepositoryImpl implements PairingRepository {
       return (couple: null, failure: UnknownFailure(e.toString()));
     }
   }
+
+  @override
+  Future<PairingResult> leaveCouple() async {
+    try {
+      await _datasource.leaveCouple();
+      return (couple: null, failure: null);
+    } on AuthException catch (e) {
+      return (couple: null, failure: AuthFailure(e.message));
+    } on PostgrestException catch (e) {
+      return (couple: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (couple: null, failure: UnknownFailure(e.toString()));
+    }
+  }
 }

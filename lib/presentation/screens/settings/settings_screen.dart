@@ -109,6 +109,10 @@ class SettingsScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
 
+              // 5. Leave couple (only when paired)
+              const _LeaveCoupleSection(),
+              const SizedBox(height: AppSpacing.lg),
+
               // 6. Notifications Group
               _SettingsGroup(
                 title: settingsNotifications(lang),
@@ -701,6 +705,79 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
     if (enable) {
       await ref.read(locationUpdateNotifierProvider.notifier).pushCurrentPosition();
     }
+  }
+}
+
+class _LeaveCoupleSection extends ConsumerWidget {
+  const _LeaveCoupleSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final coupleAsync = ref.watch(myCoupleProvider);
+
+    return coupleAsync.when(
+      data: (couple) {
+        if (couple == null || !couple.isPaired) return const SizedBox.shrink();
+        return _SettingsGroup(
+          title: settingsCoupleGroup(lang),
+          children: [
+            _SettingsTile(
+              icon: Icons.person_remove_outlined,
+              title: settingsLeaveCouple(lang),
+              subtitle: settingsLeaveCoupleSubtitle(lang),
+              onTap: () => _showLeaveCoupleDialog(context, ref, lang),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
+    );
+  }
+}
+
+Future<void> _showLeaveCoupleDialog(
+  BuildContext context,
+  WidgetRef ref,
+  String lang,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(settingsLeaveCoupleConfirmTitle(lang)),
+      content: Text(settingsLeaveCoupleConfirmMessage(lang)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: Text(settingsCancel(lang)),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(settingsLeaveCoupleConfirm(lang)),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true || !context.mounted) return;
+  final result = await ref.read(pairingRepositoryProvider).leaveCouple();
+  ref.invalidate(myCoupleProvider);
+  ref.invalidate(myProfileProvider);
+  ref.invalidate(partnerProfileProvider);
+  ref.invalidate(myLocationSharingProvider);
+  if (!context.mounted) return;
+  if (result.failure != null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(result.failure!.message ?? '')),
+    );
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(settingsLeaveCoupleSuccess(lang)),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }
 

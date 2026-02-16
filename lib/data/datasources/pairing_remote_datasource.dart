@@ -92,4 +92,9 @@ class PairingRemoteDatasource {
     final res = await _client.from(_table).select().eq('id', coupleId).single();
     return CoupleModel.fromJson(Map<String, dynamic>.from(res));
   }
+
+  /// Leave current couple (RPC: clear partner_id on both profiles, delete couple row).
+  Future<void> leaveCouple() async {
+    await _client.rpc('leave_couple');
+  }
 }
