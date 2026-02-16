@@ -62,6 +62,11 @@
           "answer": "Send an email to the address given on the Account deletion page with the phone number linked to your account. Your request will be processed as soon as possible."
         }
       ]
+    },
+    "support": {
+      "heading": "Support the project",
+      "description": "Nous Deux is free and ad-free. If you find it useful, you can support its development.",
+      "button": "Buy me a coffee"
     }
   },
   "footer": {

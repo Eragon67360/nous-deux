@@ -62,6 +62,11 @@
           "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte en précisant votre numéro de téléphone associé au compte. La demande est traitée dans les meilleurs délais."
         }
       ]
+    },
+    "support": {
+      "heading": "Soutenir le projet",
+      "description": "Nous Deux est gratuit et sans pub. Si l'app vous est utile, vous pouvez soutenir son développement.",
+      "button": "Offrir un café"
     }
   },
   "footer": {

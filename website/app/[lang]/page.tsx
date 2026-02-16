@@ -3,6 +3,7 @@ import Footer from "@/components/Footer";
 import FeaturesSection from "@/components/FeaturesSection";
 import HeroSection from "@/components/HeroSection";
 import PrivacySection from "@/components/PrivacySection";
+import SupportSection from "@/components/SupportSection";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -33,6 +34,7 @@ export default async function Home({ params }: PageProps) {
         />
         <PrivacySection dict={dict.home.privacy} lang={lang} />
         <FAQSection dict={dict.home.faq} />
+        <SupportSection dict={dict.home.support} />
       </main>
       <Footer lang={lang} dict={dict} />
     </div>
