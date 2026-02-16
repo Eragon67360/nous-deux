@@ -68,7 +68,8 @@
     "ariaLabel": "Footer",
     "privacy": "Privacy policy",
     "accountDeletion": "Account deletion",
-    "github": "GitHub"
+    "github": "GitHub",
+    "support": "Support the project"
   },
   "breadcrumbs": {
     "home": "Home",

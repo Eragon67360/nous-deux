@@ -2,6 +2,7 @@ import type { Locale } from "@/lib/i18n";
 import LocaleLink from "./LocaleLink";
 
 const GITHUB_REPO = "https://github.com/Eragon67360/nous-deux";
+const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/thomasmoser";
 
 const linkClass =
   "text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded";
@@ -14,6 +15,7 @@ type FooterProps = {
       privacy: string;
       accountDeletion: string;
       github: string;
+      support: string;
     };
   };
 };
@@ -46,6 +48,14 @@ export default function Footer({ lang, dict }: FooterProps) {
           className={linkClass}
         >
           {dict.footer.github}
+        </a>
+        <a
+          href={BUY_ME_A_COFFEE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={linkClass}
+        >
+          {dict.footer.support}
         </a>
       </nav>
     </footer>

@@ -68,7 +68,8 @@
     "ariaLabel": "Pied de page",
     "privacy": "Politique de confidentialité",
     "accountDeletion": "Suppression du compte",
-    "github": "GitHub"
+    "github": "GitHub",
+    "support": "Soutenir le projet"
   },
   "breadcrumbs": {
     "home": "Accueil",
