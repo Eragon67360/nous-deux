@@ -1,0 +1,124 @@
+<!doctype html>
+<!-- Nous Deux hover loop (8s, 1280x800). Real captures of nous-deux-website.vercel.app (see capture.mjs)
+     and the real app screenshots the site ships in ../public/screenshots. -->
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="base.css" />
+<style>
+  :root { --surface: #1c1917; --tan: #c4a77d; --pink: #dd95a0; }
+  body, .stage { background: var(--surface); }
+  .scroll { position: absolute; left: 0; top: 0; width: 1280px; height: 800px; }
+  /* The card's phone crop (object-cover, top) grown into the whole app screen. */
+  .phone { position: absolute; overflow: hidden; background: #292524; z-index: 10; }
+  .phone img { position: absolute; left: 0; top: 0; width: 100%; display: block; }
+  .glow { position: absolute; inset: 0; z-index: 5;
+    background: radial-gradient(520px 420px at 640px 420px, rgba(196,167,125,.16), rgba(221,149,160,.05) 55%, transparent 75%); }
+  .wipe { position: absolute; top: 0; bottom: 0; width: 1500px; left: -1500px; z-index: 30;
+    background: var(--tan); box-shadow: 18px 0 0 var(--pink); }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="layer" id="site">
+    <img class="shot" id="homeImg" src="captures/home.png" />
+    <div id="scrollFrames"></div>
+    <img class="shot" id="featuresImg" src="captures/features.png" />
+  </div>
+  <div class="glow" id="glow"></div>
+  <div class="phone" id="phone">
+    <img class="app" src="../public/screenshots/calendar.png" />
+    <img class="app" src="../public/screenshots/period.png" />
+    <img class="app" src="../public/screenshots/screenshot_3.png" />
+    <img class="app" src="../public/screenshots/position.png" />
+  </div>
+  <div class="layer" id="homeEnd"><img class="shot" id="homeEndImg" src="captures/home.png" /></div>
+  <div class="wipe" id="wipe"></div>
+  <div class="hv-cursor" id="cursor"></div>
+</div>
+<script src="engine.js"></script>
+<script src="captures/layout.js"></script>
+<script>
+  const { tw, seg, keys, ease, clamp } = HV;
+  const L = window.LAYOUT;
+  const $ = (id) => document.getElementById(id);
+
+  // Real scroll captures, stacked and switched by opacity.
+  const N = L.scrollFrames;
+  for (let i = 1; i <= N; i++) {
+    const img = document.createElement("img");
+    img.className = "shot scroll";
+    img.src = `captures/scroll/${String(i).padStart(2, "0")}.jpg`;
+    $("scrollFrames").appendChild(img);
+  }
+  const scrollImgs = [...document.querySelectorAll(".scroll")];
+  const apps = [...document.querySelectorAll(".app")];
+
+  // Phone geometry: from the calendar card's real crop box to the full screen, centred.
+  const SRC = L.calendarPhone; // 245x320 crop of a 1290x2796 screenshot
+  const H_END = 740, W_END = Math.round((H_END * 1290) / 2796), X_END = (1280 - W_END) / 2, Y_END = 30;
+  // Tap targets in the screenshots (fractions of 1290x2796): bottom tabs and the Guide sub-tab.
+  // The phone pushes in slowly (scale 1 -> 1.03 around its centre), so taps follow that scale.
+  const CX = X_END + W_END / 2, CY = Y_END + H_END / 2, DRIFT = [2.95, 6.9];
+  const phoneScale = (t) => 1 + 0.03 * seg(t, DRIFT[0], DRIFT[1], ease.linear);
+  const at = (fx, fy, t) => {
+    const s = phoneScale(t);
+    return [CX + (X_END + fx * W_END - CX) * s, CY + (Y_END + fy * H_END - CY) * s];
+  };
+  const SCROLL = [0.45, 1.55], TAP_PHONE = 2.05, MORPH = [2.15, 2.95];
+  const TAP1 = 3.35, TAP2 = 4.4, TAP3 = 5.45;
+  const TAB_REGLES = at(0.375, 0.9285, TAP1), TAB_GUIDE = at(0.75, 0.1656, TAP2), TAB_POSITION = at(0.625, 0.9285, TAP3);
+  const PHONE_TAP = [SRC.x + SRC.w * 0.5, SRC.y + SRC.h * 0.55];
+  const moveCursor = HV.cursor($("cursor"), [
+    [1.2, 720, 760], [TAP_PHONE, ...PHONE_TAP], [2.25, ...PHONE_TAP], [TAP1, ...TAB_REGLES], [3.55, ...TAB_REGLES],
+    [TAP2, ...TAB_GUIDE], [4.6, ...TAB_GUIDE], [TAP3, ...TAB_POSITION], [5.65, ...TAB_POSITION], [6.25, 1000, 860],
+  ], [TAP_PHONE, TAP1, TAP2, TAP3]);
+
+  const wipeX = (t, start, mid, end) =>
+    t < start || t > end ? -1600 : t < mid ? tw(t, start, mid, -1600, -110, ease.in) : tw(t, mid, end, -110, 1300, ease.out);
+  const WIPE = [6.55, 6.9, 7.3];
+
+  window.DURATION = 8;
+  window.renderAt = (t) => {
+    // Website: home, real scroll frames, then the feature cards at rest.
+    const p = seg(t, SCROLL[0], SCROLL[1]);
+    const idx = t < SCROLL[0] ? -1 : t >= SCROLL[1] ? N : Math.round(p * N); // 0 = home
+    $("homeImg").style.opacity = idx <= 0 ? 1 : 0;
+    scrollImgs.forEach((img, i) => (img.style.opacity = i + 1 === idx && idx < N ? 1 : 0));
+    $("featuresImg").style.opacity = idx >= N ? 1 : 0;
+    // Push in on the calendar card, then fade the site so only the app remains.
+    const k = seg(t, MORPH[0], MORPH[1]);
+    const ox = SRC.x + SRC.w / 2, oy = SRC.y + SRC.h / 2;
+    $("site").style.transformOrigin = `${ox}px ${oy}px`;
+    $("site").style.transform = `scale(${1 + 0.12 * seg(t, MORPH[0], MORPH[1], ease.in)})`;
+    $("site").style.opacity = t < 6.9 ? 1 - seg(t, MORPH[0] + 0.1, MORPH[1] - 0.1) : 0;
+
+    // Phone: sits exactly on the card crop, then grows to the whole screen.
+    const inApp = t >= MORPH[0] && t < 6.9;
+    const phone = $("phone");
+    phone.style.opacity = inApp ? 1 : 0;
+    const w = tw(t, MORPH[0], MORPH[1], SRC.w, W_END);
+    const h = tw(t, MORPH[0], MORPH[1], SRC.h, H_END);
+    const x = tw(t, MORPH[0], MORPH[1], SRC.x, X_END);
+    const y = tw(t, MORPH[0], MORPH[1], SRC.y, Y_END);
+    const s = phoneScale(t);
+    Object.assign(phone.style, { left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px`,
+      borderRadius: `${tw(t, MORPH[0], MORPH[1], 12, 44)}px`, transform: `scale(${s})`,
+      boxShadow: `0 30px 80px rgba(0,0,0,${0.55 * k}), 0 0 0 ${2 * k}px rgba(196,167,125,${0.35 * k})` });
+    // App screens: Calendrier -> Règles (Journal) -> Guide -> Position, one per tap.
+    const screen = t < TAP1 + 0.1 ? 0 : t < TAP2 + 0.1 ? 1 : t < TAP3 + 0.1 ? 2 : 3;
+    const fade = (tap) => seg(t, tap + 0.1, tap + 0.28);
+    apps.forEach((img, i) => (img.style.opacity = i === 0 ? 1 : i < screen ? 1 : i === screen ? fade([0, TAP1, TAP2, TAP3][i]) : 0));
+    phone.style.transformOrigin = `${CX - x}px ${CY - y}px`;
+    $("glow").style.opacity = inApp ? k : 0;
+
+    // Back home under the brand wipe, easing out to exactly the first frame.
+    $("homeEnd").style.opacity = t >= WIPE[1] ? 1 : 0;
+    $("homeEndImg").style.transform = `scale(${tw(t, WIPE[1], 7.75, 1.035, 1, ease.out)})`;
+    $("wipe").style.transform = `translateX(${wipeX(t, ...WIPE) + 1500}px)`;
+
+    moveCursor(t);
+  };
+</script>
+</body>
+</html>
