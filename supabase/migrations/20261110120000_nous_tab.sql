@@ -15,7 +15,9 @@ UPDATE public.couples
 SET together_since = created_at::date
 WHERE user2_id IS NOT NULL AND together_since IS NULL;
 
--- New pairs: default to the day the partner joins.
+-- New pairs: the app sends the joiner's local day; if it doesn't, fall back
+-- to the server's day. Dates more than a day ahead (a timezone's worth) are
+-- refused.
 CREATE OR REPLACE FUNCTION public.set_together_since_on_pair()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -23,6 +25,10 @@ BEGIN
      AND OLD.user2_id IS NULL
      AND NEW.together_since IS NULL THEN
     NEW.together_since := CURRENT_DATE;
+  END IF;
+  IF NEW.together_since IS DISTINCT FROM OLD.together_since
+     AND NEW.together_since > CURRENT_DATE + 1 THEN
+    RAISE EXCEPTION 'together_since_in_future' USING ERRCODE = 'P0001';
   END IF;
   RETURN NEW;
 END;
@@ -73,7 +79,6 @@ SET search_path = public
 AS $$
 DECLARE
   _couple_id UUID;
-  _last_sent TIMESTAMPTZ;
   _row public.couple_pings;
 BEGIN
   IF p_kind IS NULL OR p_kind NOT IN
@@ -91,26 +96,30 @@ BEGIN
     RAISE EXCEPTION 'not_paired' USING ERRCODE = 'P0001';
   END IF;
 
-  SELECT sent_at INTO _last_sent
-  FROM public.couple_pings
-  WHERE couple_id = _couple_id AND sender_id = auth.uid();
+  -- One atomic statement, so two quick taps cannot both get through: the
+  -- update only happens when the previous note is at least 30 seconds old.
+  INSERT INTO public.couple_pings AS p (couple_id, sender_id, kind, sent_at)
+  VALUES (_couple_id, auth.uid(), p_kind, NOW())
+  ON CONFLICT (couple_id, sender_id) DO UPDATE
+    SET kind = EXCLUDED.kind, sent_at = EXCLUDED.sent_at
+    WHERE p.sent_at <= NOW() - INTERVAL '30 seconds'
+  RETURNING * INTO _row;
 
-  IF _last_sent IS NOT NULL AND _last_sent > NOW() - INTERVAL '30 seconds' THEN
+  IF NOT FOUND THEN
     RAISE EXCEPTION 'cooldown' USING ERRCODE = 'P0001';
   END IF;
-
-  INSERT INTO public.couple_pings (couple_id, sender_id, kind, sent_at)
-  VALUES (_couple_id, auth.uid(), p_kind, NOW())
-  ON CONFLICT (couple_id, sender_id)
-    DO UPDATE SET kind = EXCLUDED.kind, sent_at = EXCLUDED.sent_at
-  RETURNING * INTO _row;
 
   RETURN _row;
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.send_ping(TEXT) FROM PUBLIC;
+-- Supabase grants new tables and functions to anon and authenticated by
+-- default. Signed-out callers get nothing; signed-in ones may only read the
+-- table and call the function.
+REVOKE ALL ON FUNCTION public.send_ping(TEXT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.send_ping(TEXT) TO authenticated;
+REVOKE ALL ON TABLE public.couple_pings FROM anon;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE ON TABLE public.couple_pings FROM authenticated;
 
 COMMENT ON FUNCTION public.send_ping(TEXT) IS
   'Send a little note to your partner: one of five kinds, at most every 30 seconds.';

@@ -12,9 +12,20 @@ SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-000
 DO $$ BEGIN PERFORM public.send_ping('kiss'); RAISE EXCEPTION 'expected not_paired'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'not_paired' THEN RAISE; END IF; RAISE NOTICE 'unpaired ping refused: %', SQLERRM; END $$;
 RESET ROLE;
 
--- B joins: the trigger fills together_since with today.
-UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-00000000000b', pairing_code = NULL;
+-- A cannot pull C into the couple (pre-existing hole, now guarded).
+SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
+DO $$ BEGIN
+  UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-00000000000c';
+  RAISE EXCEPTION 'expected refusal';
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'forced pairing refused: %', SQLERRM;
+END $$;
+-- B joins by code the way the app does (join policy, sets themself).
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
+UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-00000000000b' WHERE pairing_code = 'ABC123';
+RESET ROLE;
+SELECT 'B joined: ' || (user2_id = '00000000-0000-0000-0000-00000000000b') FROM public.couples;
 SELECT 'paired together_since = today: ' || (together_since = CURRENT_DATE) FROM public.couples;
+SELECT 'profiles linked: ' || ((SELECT partner_id FROM public.profiles WHERE id = '00000000-0000-0000-0000-00000000000a') = '00000000-0000-0000-0000-00000000000b');
 
 -- A pings; a second ping inside 30 s is refused; an unknown kind is refused.
 SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000a';
@@ -23,6 +34,11 @@ DO $$ BEGIN PERFORM public.send_ping('kiss'); RAISE EXCEPTION 'expected cooldown
 DO $$ BEGIN PERFORM public.send_ping('hello'); RAISE EXCEPTION 'expected invalid_kind'; EXCEPTION WHEN raise_exception THEN IF SQLERRM <> 'invalid_kind' THEN RAISE; END IF; RAISE NOTICE 'unknown kind refused: %', SQLERRM; END $$;
 -- Direct writes are not allowed (no policy).
 DO $$ BEGIN INSERT INTO public.couple_pings (couple_id, sender_id, kind) VALUES ('11111111-1111-1111-1111-111111111111','00000000-0000-0000-0000-00000000000a','kiss'); RAISE EXCEPTION 'expected RLS refusal'; EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'direct insert refused by RLS'; END $$;
+RESET ROLE;
+
+-- Signed-out callers cannot use the function at all.
+SET ROLE anon;
+DO $$ BEGIN PERFORM public.send_ping('kiss'); RAISE EXCEPTION 'expected refusal'; EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'anon cannot call send_ping'; END $$;
 RESET ROLE;
 
 -- Pretend 31 s passed: A can ping again, and the row is replaced, not added.
@@ -40,6 +56,11 @@ SELECT 'C sees rows: ' || count(*) FROM public.couple_pings;
 -- Either partner can change the start date.
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
 UPDATE public.couples SET together_since = DATE '2025-09-24';
+DO $$ BEGIN
+  UPDATE public.couples SET together_since = CURRENT_DATE + 10;
+  RAISE EXCEPTION 'expected refusal';
+EXCEPTION WHEN raise_exception THEN RAISE NOTICE 'future start date refused: %', SQLERRM;
+END $$;
 RESET ROLE;
 SELECT 'together_since edited by B: ' || together_since FROM public.couples;
 

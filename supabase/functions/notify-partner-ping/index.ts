@@ -43,13 +43,20 @@ const BODIES: Record<"fr" | "en", Record<PingKind, (name: string) => string>> = 
 };
 
 Deno.serve(async (req) => {
+  // Only the Database Webhook knows this secret. Fail closed: without it,
+  // anyone holding the app's public key could trigger pushes.
+  const secret = Deno.env.get("PING_WEBHOOK_SECRET");
+  if (!secret || req.headers.get("x-webhook-secret") !== secret) {
+    return new Response("forbidden", { status: 403 });
+  }
+
   try {
     const payload: WebhookPayload = await req.json();
-    const record = payload.record;
+    const hint = payload.record;
     if (
       payload.table !== "couple_pings" ||
       (payload.type !== "INSERT" && payload.type !== "UPDATE") ||
-      !record
+      !hint
     ) {
       return json({ ok: true, skipped: "not a ping write" });
     }
@@ -59,6 +66,16 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
+    // Trust the database, not the request body.
+    const { data: ping } = await supabase
+      .from("couple_pings")
+      .select("couple_id, sender_id, kind, sent_at")
+      .eq("couple_id", hint.couple_id)
+      .eq("sender_id", hint.sender_id)
+      .maybeSingle();
+    if (!ping) return json({ ok: true, skipped: "no such ping" });
+    const record = ping as PingRecord;
+
     const { data: couple } = await supabase
       .from("couples")
       .select("user1_id, user2_id")
@@ -66,9 +83,10 @@ Deno.serve(async (req) => {
       .single();
     if (!couple) return json({ ok: true, skipped: "couple not found" });
 
-    const partnerId = couple.user1_id === record.sender_id
-      ? couple.user2_id
-      : couple.user1_id;
+    const isUser1 = couple.user1_id === record.sender_id;
+    const isUser2 = couple.user2_id === record.sender_id;
+    if (!isUser1 && !isUser2) return json({ ok: true, skipped: "sender not in couple" });
+    const partnerId = isUser1 ? couple.user2_id : couple.user1_id;
     if (!partnerId) return json({ ok: true, skipped: "no partner" });
 
     const { data: people } = await supabase
@@ -88,7 +106,7 @@ Deno.serve(async (req) => {
     const name = sender?.username?.trim() ||
       (lang === "fr" ? "Votre partenaire" : "Your partner");
     const body = BODIES[lang][record.kind]?.(name);
-    if (!body) return json({ ok: true, skipped: `unknown kind ${record.kind}` });
+    if (!body) return json({ ok: true, skipped: "unknown kind" });
 
     const result = await sendPush(sa, {
       token: partner.fcm_token,
@@ -96,8 +114,10 @@ Deno.serve(async (req) => {
       body,
       data: { type: "ping", kind: record.kind, sent_at: record.sent_at },
     });
-    return json(result);
+    if (!result.ok) console.error("FCM error", result.detail);
+    return json({ ok: result.ok });
   } catch (e) {
-    return json({ ok: false, error: String(e) });
+    console.error("notify-partner-ping failed", e);
+    return json({ ok: false });
   }
 });

@@ -33,3 +33,8 @@ enabled = true
 
 [auth.external.phone]
 enabled = true
+
+# The Database Webhook authenticates with a shared secret
+# (PING_WEBHOOK_SECRET) instead of a JWT; see the function's README.
+[functions.notify-partner-ping]
+verify_jwt = false
