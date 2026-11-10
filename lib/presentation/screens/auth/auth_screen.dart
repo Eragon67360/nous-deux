@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -44,7 +45,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
+      setState(
+        () => _error = result.failure!.message ?? authErrorGeneric(lang),
+      );
       return;
     }
     context.push(AppRoutes.authVerify, extra: {'phone': phone});
@@ -60,7 +63,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
+      setState(
+        () => _error = result.failure!.message ?? authErrorGeneric(lang),
+      );
     }
   }
 
@@ -74,7 +79,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
-      setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
+      setState(
+        () => _error = result.failure!.message ?? authErrorGeneric(lang),
+      );
     }
   }
 
@@ -154,14 +161,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     const SizedBox(height: AppSpacing.md),
                     _OrDivider(label: authOr(lang)),
                     const SizedBox(height: AppSpacing.md),
+                    // Apple sign-in is native on iOS only (Android would
+                    // need the web flow).
+                    if (defaultTargetPlatform == TargetPlatform.iOS) ...[
+                      OutlinedButton.icon(
+                        onPressed: _loading
+                            ? null
+                            : () => _signInWithApple(lang),
+                        icon: const Icon(Icons.apple, size: 22),
+                        label: Text(authContinueWithApple(lang)),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
                     OutlinedButton.icon(
-                      onPressed: _loading ? null : () => _signInWithApple(lang),
-                      icon: const Icon(Icons.apple, size: 22),
-                      label: Text(authContinueWithApple(lang)),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    OutlinedButton.icon(
-                      onPressed: _loading ? null : () => _signInWithGoogle(lang),
+                      onPressed: _loading
+                          ? null
+                          : () => _signInWithGoogle(lang),
                       icon: const _GoogleMark(),
                       label: Text(authContinueWithGoogle(lang)),
                     ),

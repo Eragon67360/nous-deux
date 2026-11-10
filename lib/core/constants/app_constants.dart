@@ -12,6 +12,18 @@ abstract class AppConstants {
     defaultValue: '',
   );
 
+  // Google sign-in OAuth client ids (public identifiers, not secrets). The
+  // web client id is the token audience the auth server checks; iOS also
+  // needs its own client id.
+  static const String googleWebClientId = String.fromEnvironment(
+    'GOOGLE_WEB_CLIENT_ID',
+    defaultValue: '',
+  );
+  static const String googleIosClientId = String.fromEnvironment(
+    'GOOGLE_IOS_CLIENT_ID',
+    defaultValue: '',
+  );
+
   // Pairing
   static const int pairingCodeLength = 6;
   static const String pairingCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

@@ -23,18 +23,31 @@ Future<GoRouter> _pumpAuth(WidgetTester tester, TestDeps deps) {
 
 void main() {
   for (final lang in ['fr', 'en']) {
-    testWidgets('[$lang] shows the sign-in options in the device language', (
-      tester,
-    ) async {
-      await _pumpAuth(tester, TestDeps(user: null, deviceLanguage: lang));
+    testWidgets(
+      '[$lang] shows the sign-in options in the device language',
+      (tester) async {
+        await _pumpAuth(tester, TestDeps(user: null, deviceLanguage: lang));
 
-      expect(find.text(authSubtitle(lang)), findsOneWidget);
-      expect(find.text(authPhoneLabel(lang)), findsOneWidget);
-      expect(find.text(authSendCode(lang)), findsOneWidget);
-      expect(find.text(authContinueWithApple(lang)), findsOneWidget);
-      expect(find.text(authContinueWithGoogle(lang)), findsOneWidget);
-    });
+        expect(find.text(authSubtitle(lang)), findsOneWidget);
+        expect(find.text(authPhoneLabel(lang)), findsOneWidget);
+        expect(find.text(authSendCode(lang)), findsOneWidget);
+        expect(find.text(authContinueWithApple(lang)), findsOneWidget);
+        expect(find.text(authContinueWithGoogle(lang)), findsOneWidget);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    );
   }
+
+  testWidgets(
+    'Android offers Google but not Apple',
+    (tester) async {
+      await _pumpAuth(tester, TestDeps(user: null));
+
+      expect(find.text(authContinueWithApple('fr')), findsNothing);
+      expect(find.text(authContinueWithGoogle('fr')), findsOneWidget);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.android),
+  );
 
   testWidgets('an empty phone number shows an error and sends nothing', (
     tester,
@@ -140,19 +153,23 @@ void main() {
     expect(find.text(authErrorGeneric('en')), findsOneWidget);
   });
 
-  testWidgets('Apple and Google buttons call their sign-in', (tester) async {
-    final deps = TestDeps(user: null);
-    await _pumpAuth(tester, deps);
+  testWidgets(
+    'Apple and Google buttons call their sign-in',
+    (tester) async {
+      final deps = TestDeps(user: null);
+      await _pumpAuth(tester, deps);
 
-    await tester.tap(find.text(authContinueWithApple('fr')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text(authContinueWithGoogle('fr')));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text(authContinueWithApple('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(authContinueWithGoogle('fr')));
+      await tester.pumpAndSettle();
 
-    expect(deps.auth.appleCalls, 1);
-    expect(deps.auth.googleCalls, 1);
-    expect(deps.auth.otpPhones, isEmpty);
-  });
+      expect(deps.auth.appleCalls, 1);
+      expect(deps.auth.googleCalls, 1);
+      expect(deps.auth.otpPhones, isEmpty);
+    },
+    variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+  );
 
   testWidgets('a social sign-in failure shows the generic error', (
     tester,
