@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/data/datasources/live_rows.dart';
 import 'package:nousdeux/data/models/calendar_event_model.dart';
 
 class CalendarRemoteDatasource {
@@ -11,22 +12,14 @@ class CalendarRemoteDatasource {
 
   String? get _userId => _client.auth.currentUser?.id;
 
-  /// Stream of calendar events for couple (realtime). Emits initial fetch then updates on INSERT/UPDATE/DELETE.
+  /// The couple's events, soonest first, live (the partner's deletes
+  /// included, see [watchCoupleRows]).
   Stream<List<CalendarEventModel>> watchEvents(String coupleId) {
-    return _client
-        .from(_table)
-        .stream(primaryKey: ['id'])
-        .eq('couple_id', coupleId)
-        .order('start_time')
-        .map(
-          (event) => (event as List)
-              .map(
-                (e) => CalendarEventModel.fromJson(
-                  Map<String, dynamic>.from(e as Map),
-                ),
-              )
-              .toList(),
-        );
+    return watchCoupleRows(_client, table: _table, coupleId: coupleId).map(
+      (rows) =>
+          rows.map(CalendarEventModel.fromJson).toList()
+            ..sort((a, b) => a.startTime.compareTo(b.startTime)),
+    );
   }
 
   Future<List<CalendarEventModel>> getEvents({

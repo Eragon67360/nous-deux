@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/data/datasources/live_rows.dart';
 import 'package:nousdeux/data/models/period_log_model.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 
@@ -10,22 +11,14 @@ class PeriodRemoteDatasource {
   final SupabaseClient _client;
   static const String _table = 'period_logs';
 
-  /// Stream of period logs for the couple (realtime). Emits initial fetch then updates on INSERT/UPDATE/DELETE.
+  /// The couple's period logs, latest first, live (deletes included, see
+  /// [watchCoupleRows]).
   Stream<List<PeriodLogModel>> watchLogs(String coupleId) {
-    return _client
-        .from(_table)
-        .stream(primaryKey: ['id'])
-        .eq('couple_id', coupleId)
-        .order('start_date', ascending: false)
-        .map(
-          (event) => (event as List)
-              .map(
-                (e) => PeriodLogModel.fromJson(
-                  Map<String, dynamic>.from(e as Map),
-                ),
-              )
-              .toList(),
-        );
+    return watchCoupleRows(_client, table: _table, coupleId: coupleId).map(
+      (rows) =>
+          rows.map(PeriodLogModel.fromJson).toList()
+            ..sort((a, b) => b.startDate.compareTo(a.startDate)),
+    );
   }
 
   /// Fetch period logs for a couple, optionally filtered by user and date range.
@@ -106,5 +99,4 @@ class PeriodRemoteDatasource {
   Future<void> delete(String id) async {
     await _client.from(_table).delete().eq('id', id);
   }
-
 }
