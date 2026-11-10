@@ -37,10 +37,10 @@ export default function Colophon({
         </div>
         <div className="nd-close__inner">
           <RingsMark className="nd-close__mark" />
-          <h2 id="ch-close" className="sc-display sc-display--md" data-sc-cue="0.04">
+          <h2 id="ch-close" className="sc-display sc-display--md" data-sc-cue="0 1 0 0">
             {dict.heading}
           </h2>
-          <p className="sc-lede nd-close__support" data-sc-cue="0.08">
+          <p className="sc-lede nd-close__support" data-sc-cue="0 1 0 0">
             {dict.support}{" "}
             <a href={BUY_ME_A_COFFEE_URL} target="_blank" rel="noopener noreferrer" className="nd-link">
               {dict.supportLink}

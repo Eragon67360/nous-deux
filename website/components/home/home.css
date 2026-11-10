@@ -368,6 +368,19 @@
    Keep the opacity that carries the meaning, drop every position change:
    the phones sit side by side, then cross-fade into the shared one. */
 @media (prefers-reduced-motion: reduce) {
+  /* The rail stops being a pinned drawer and becomes a plain grid, so there
+     is no held scroll with nothing moving. */
+  .nd-share { height: auto !important; }
+  .nd-share__stage { position: static; height: auto; overflow: visible; }
+  .nd-rail {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    flex: 1;
+    width: 100%;
+    transform: none !important;
+  }
+  .nd-rail__lead, .nd-rail__note { grid-column: 1 / -1; width: auto; }
+  .nd-rail__item { width: auto; }
   .nd-merge__phone--left { transform: translateX(-58%); }
   .nd-merge__phone--right { transform: translateX(58%); }
   .nd-merge__phone--merged { transform: none; }
