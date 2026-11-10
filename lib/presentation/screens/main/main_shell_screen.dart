@@ -11,6 +11,7 @@ import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/providers/realtime_provider.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
@@ -30,9 +31,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     if (userId == _subscribedUserId) return;
     _profileChannel?.unsubscribe();
     _subscribedUserId = userId;
-    final client = Supabase.instance.client;
-    _profileChannel = client
-        .channel('profile-partner-$userId')
+    _profileChannel = ref
+        .read(realtimeChannelFactoryProvider)('profile-partner-$userId')
         .onPostgresChanges(
           event: PostgresChangeEvent.update,
           schema: 'public',
