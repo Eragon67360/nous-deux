@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
@@ -70,6 +71,7 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
                 autofocus: true,
                 keyboardType: TextInputType.number,
                 autofillHints: const [AutofillHints.oneTimeCode],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 maxLength: 6,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(

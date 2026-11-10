@@ -124,4 +124,17 @@ void main() {
 
     expect(find.text('Token has expired'), findsOneWidget);
   });
+
+  testWidgets('only digits reach the code field', (tester) async {
+    final deps = await pumpVerify(tester);
+
+    await tester.enterText(find.byType(TextField), ' 12a34 ');
+    await tester.pump();
+
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      '1234',
+    );
+    expect(deps.auth.verifyCalls, isEmpty);
+  });
 }
