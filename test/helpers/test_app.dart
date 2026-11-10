@@ -184,6 +184,13 @@ GoRoute screenRoute(
   return GoRoute(path: path, routes: routes, builder: (_, _) => screen);
 }
 
+/// Makes the test surface tall enough that long lists build every row.
+void useTallSurface(WidgetTester tester, {double height = 3000}) {
+  tester.view.devicePixelRatio = 1;
+  tester.view.physicalSize = Size(800, height);
+  addTearDown(tester.view.reset);
+}
+
 /// The [ProviderContainer] above [finder] (defaults to the first Scaffold).
 ProviderContainer containerOf(WidgetTester tester, [Finder? finder]) {
   return ProviderScope.containerOf(
