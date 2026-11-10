@@ -152,13 +152,9 @@ void main() {
 
     testWidgets(
       'shows the stored calendar day whatever the device timezone',
-      skip: true, // Bug, see reason below.
       (tester) async {
-        // Bug: logs come back from Supabase as UTC midnight (PeriodLogModel
-        // parses "2026-03-01" as 2026-03-01T00:00Z) and the list formats
-        // them after .toLocal(). West of UTC (e.g. TZ=America/New_York) that
-        // is the evening before, so the entry reads "28 févr. 2026". Passes
-        // in Europe, fails with `TZ=America/New_York flutter test`.
+        // Regression: DATE columns used to be parsed as UTC midnight and
+        // shown after .toLocal(), i.e. the previous day west of UTC.
         await pumpPeriod(
           tester,
           logs: [periodLog(start: DateTime.utc(2026, 3, 1))],

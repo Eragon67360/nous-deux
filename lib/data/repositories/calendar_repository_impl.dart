@@ -92,10 +92,10 @@ class CalendarRepositoryImpl implements CalendarRepository {
   @override
   Future<CalendarEventResult> updateEvent({
     required String id,
-    String? title,
-    String? description,
-    DateTime? startTime,
-    DateTime? endTime,
+    required String title,
+    required String? description,
+    required DateTime startTime,
+    required DateTime endTime,
   }) async {
     try {
       final model = await _calendar.update(

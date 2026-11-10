@@ -327,9 +327,9 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
         ? DateFormat('d MMM y', locale)
         : DateFormat('MMM d, y', locale);
     if (end == null || _isSameDay(start, end)) {
-      return fmt.format(start.toLocal());
+      return fmt.format(start);
     }
-    return '${fmt.format(start.toLocal())} – ${fmt.format(end.toLocal())}';
+    return '${fmt.format(start)} – ${fmt.format(end)}';
   }
 
   bool _isSameDay(DateTime a, DateTime b) {

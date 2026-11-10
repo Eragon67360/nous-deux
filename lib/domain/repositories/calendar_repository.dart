@@ -25,13 +25,14 @@ abstract class CalendarRepository {
     DateTime? endTime,
   });
 
-  /// Update event.
+  /// Update an event. Every editable field is sent; a null description
+  /// clears it.
   Future<CalendarEventResult> updateEvent({
     required String id,
-    String? title,
-    String? description,
-    DateTime? startTime,
-    DateTime? endTime,
+    required String title,
+    required String? description,
+    required DateTime startTime,
+    required DateTime endTime,
   });
 
   /// Delete event.

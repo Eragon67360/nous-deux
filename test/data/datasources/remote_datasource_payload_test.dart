@@ -57,14 +57,16 @@ Map<String, dynamic> _body(http.Request r) =>
 
 void main() {
   group('CalendarRemoteDatasource', () {
-    test('update sends only the given fields, times in UTC', () async {
+    test('update sends every editable field, times in UTC', () async {
       final requests = <http.Request>[];
       final ds = CalendarRemoteDatasource(_client(_eventRow, requests));
 
       final updated = await ds.update(
         id: 'e1',
         title: 'Dîner',
+        description: 'Chez ses parents',
         startTime: DateTime.utc(2026, 3, 14, 19, 30),
+        endTime: DateTime.utc(2026, 3, 14, 21),
       );
 
       final r = requests.single;
@@ -73,35 +75,29 @@ void main() {
       expect(r.url.queryParameters['id'], 'eq.e1');
       expect(_body(r), {
         'title': 'Dîner',
+        'description': 'Chez ses parents',
         'start_time': '2026-03-14T19:30:00.000Z',
+        'end_time': '2026-03-14T21:00:00.000Z',
       });
       expect(updated.id, 'e1');
     });
 
-    test('update with nothing to change only reads the row', () async {
+    test('clearing the description on edit clears it in the database', () async {
+      // Regression: update() used to drop null fields, so an emptied
+      // description was never removed.
       final requests = <http.Request>[];
       final ds = CalendarRemoteDatasource(_client(_eventRow, requests));
 
-      await ds.update(id: 'e1');
+      await ds.update(
+        id: 'e1',
+        title: 'Dîner',
+        description: null,
+        startTime: DateTime.utc(2026, 3, 14, 19, 30),
+        endTime: DateTime.utc(2026, 3, 14, 21),
+      );
 
-      expect(requests.single.method, 'GET');
+      expect(_body(requests.single), containsPair('description', null));
     });
-
-    test(
-      'clearing the description on edit clears it in the database',
-      skip: true, // Bug, see below.
-      () async {
-        // Bug: CalendarEventFormScreen passes description: null when the
-        // field is emptied, and update() drops null fields, so an existing
-        // description can never be removed (same for end_time).
-        final requests = <http.Request>[];
-        final ds = CalendarRemoteDatasource(_client(_eventRow, requests));
-
-        await ds.update(id: 'e1', title: 'Dîner', description: null);
-
-        expect(_body(requests.single), containsPair('description', null));
-      },
-    );
 
     test('create refuses to run signed out, before any request', () async {
       final requests = <http.Request>[];
@@ -137,7 +133,7 @@ void main() {
         'symptoms': <String>[],
         'notes': null,
       });
-      expect(created.startDate, DateTime.utc(2026, 3, 1));
+      expect(created.startDate, DateTime(2026, 3, 1));
     });
 
     test('create includes the end date only when given', () async {
@@ -165,42 +161,50 @@ void main() {
       });
     });
 
-    test('update sends only the given fields, dates as YYYY-MM-DD', () async {
+    test('update sends every editable field, dates as YYYY-MM-DD', () async {
       final requests = <http.Request>[];
       final ds = PeriodRemoteDatasource(_client(_logRow, requests));
 
       await ds.update(
         'l1',
-        startDate: DateTime.utc(2026, 3, 2),
+        startDate: DateTime(2026, 3, 2),
+        endDate: DateTime(2026, 3, 6),
+        mood: 'tired',
         symptoms: const [],
+        notes: 'Canapé',
       );
 
       final r = requests.single;
       expect(r.method, 'PATCH');
       expect(r.url.queryParameters['id'], 'eq.l1');
-      expect(_body(r), {'start_date': '2026-03-02', 'symptoms': <String>[]});
+      expect(_body(r), {
+        'start_date': '2026-03-02',
+        'end_date': '2026-03-06',
+        'mood': 'tired',
+        'symptoms': <String>[],
+        'notes': 'Canapé',
+      });
     });
 
-    test(
-      'clearing the mood or notes on edit clears them in the database',
-      skip: true, // Bug, see below.
-      () async {
-        // Bug: PeriodLogFormScreen passes mood: null / notes: null when they
-        // are cleared ("—" mood, empty notes) and update() drops null fields,
-        // so a saved mood or note can never be removed.
-        final requests = <http.Request>[];
-        final ds = PeriodRemoteDatasource(_client(_logRow, requests));
+    test('clearing the end date, mood or notes on edit clears them', () async {
+      // Regression: update() used to drop null fields, so a saved mood or
+      // note could never be removed.
+      final requests = <http.Request>[];
+      final ds = PeriodRemoteDatasource(_client(_logRow, requests));
 
-        await ds.update(
-          'l1',
-          startDate: DateTime(2026, 3, 1),
-          mood: null,
-          notes: null,
-        );
+      await ds.update(
+        'l1',
+        startDate: DateTime(2026, 3, 1),
+        endDate: null,
+        mood: null,
+        symptoms: const ['cramps'],
+        notes: null,
+      );
 
-        expect(_body(requests.single), containsPair('mood', null));
-        expect(_body(requests.single), containsPair('notes', null));
-      },
-    );
+      final body = _body(requests.single);
+      expect(body, containsPair('end_date', null));
+      expect(body, containsPair('mood', null));
+      expect(body, containsPair('notes', null));
+    });
   });
 }

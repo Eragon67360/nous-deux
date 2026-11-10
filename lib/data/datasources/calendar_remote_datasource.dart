@@ -75,29 +75,22 @@ class CalendarRemoteDatasource {
     return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
   }
 
+  /// Full update of the editable fields. A null [description] clears it.
   Future<CalendarEventModel> update({
     required String id,
-    String? title,
-    String? description,
-    DateTime? startTime,
-    DateTime? endTime,
+    required String title,
+    required String? description,
+    required DateTime startTime,
+    required DateTime endTime,
   }) async {
-    final data = <String, dynamic>{};
-    if (title != null) data['title'] = title;
-    if (description != null) data['description'] = description;
-    if (startTime != null) {
-      data['start_time'] = startTime.toUtc().toIso8601String();
-    }
-    if (endTime != null) {
-      data['end_time'] = endTime.toUtc().toIso8601String();
-    }
-    if (data.isEmpty) {
-      final res = await _client.from(_table).select().eq('id', id).single();
-      return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
-    }
     final res = await _client
         .from(_table)
-        .update(data)
+        .update({
+          'title': title,
+          'description': description,
+          'start_time': startTime.toUtc().toIso8601String(),
+          'end_time': endTime.toUtc().toIso8601String(),
+        })
         .eq('id', id)
         .select()
         .single();

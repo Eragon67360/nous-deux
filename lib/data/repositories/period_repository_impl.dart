@@ -90,11 +90,11 @@ class PeriodRepositoryImpl implements PeriodRepository {
   @override
   Future<PeriodLogResult> updateLog({
     required String id,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
+    required DateTime startDate,
+    required DateTime? endDate,
+    required String? mood,
+    required List<String> symptoms,
+    required String? notes,
   }) async {
     try {
       final model = await _period.update(

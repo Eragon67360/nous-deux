@@ -346,10 +346,10 @@ class FakeCalendarRepository implements CalendarRepository {
   @override
   Future<CalendarEventResult> updateEvent({
     required String id,
-    String? title,
-    String? description,
-    DateTime? startTime,
-    DateTime? endTime,
+    required String title,
+    required String? description,
+    required DateTime startTime,
+    required DateTime endTime,
   }) async {
     updateCalls.add((
       id: id,
@@ -448,11 +448,11 @@ class FakePeriodRepository implements PeriodRepository {
   @override
   Future<PeriodLogResult> updateLog({
     required String id,
-    DateTime? startDate,
-    DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
+    required DateTime startDate,
+    required DateTime? endDate,
+    required String? mood,
+    required List<String> symptoms,
+    required String? notes,
   }) async {
     updateCalls.add((
       id: id,

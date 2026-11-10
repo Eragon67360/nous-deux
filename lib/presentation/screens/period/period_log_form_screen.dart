@@ -103,7 +103,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
     final fmt = language == 'fr'
         ? DateFormat('d MMM y', locale)
         : DateFormat('MMM d, y', locale);
-    return fmt.format(d.toLocal());
+    return fmt.format(d);
   }
 
   @override

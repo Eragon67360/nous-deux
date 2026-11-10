@@ -32,18 +32,8 @@ class PeriodLogModel {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       coupleId: json['couple_id'] as String,
-      startDate: startRaw is String
-          ? DateTime.parse(
-              startRaw.length > 10 ? startRaw : '${startRaw}T00:00:00.000Z',
-            )
-          : DateTime.parse('$startRaw'),
-      endDate: endRaw == null
-          ? null
-          : endRaw is String
-          ? DateTime.parse(
-              endRaw.length > 10 ? endRaw : '${endRaw}T00:00:00.000Z',
-            )
-          : DateTime.parse('$endRaw'),
+      startDate: _parseDay(startRaw),
+      endDate: endRaw == null ? null : _parseDay(endRaw),
       mood: json['mood'] as String?,
       symptoms: json['symptoms'] != null
           ? List<String>.from(json['symptoms'] as List)
@@ -71,6 +61,18 @@ class PeriodLogModel {
       'created_at': createdAt?.toUtc().toIso8601String(),
       'updated_at': updatedAt?.toUtc().toIso8601String(),
     };
+  }
+
+  /// `start_date` / `end_date` are Postgres DATE columns: calendar days with
+  /// no timezone. Parse "YYYY-MM-DD" as a local date (not UTC midnight, which
+  /// shows as the previous day west of UTC).
+  static DateTime _parseDay(Object raw) {
+    final text = '$raw';
+    if (text.length == 10) return DateTime.parse(text);
+    // A full timestamp: keep the calendar day it names in UTC, as Postgres
+    // would when casting it to DATE.
+    final t = DateTime.parse(text).toUtc();
+    return DateTime(t.year, t.month, t.day);
   }
 
   static String _dateOnly(DateTime d) {

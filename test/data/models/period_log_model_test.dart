@@ -21,11 +21,11 @@ void main() {
   };
 
   group('PeriodLogModel.fromJson', () {
-    test('reads Postgres date columns as UTC midnight', () {
+    test('reads Postgres DATE columns as local calendar days', () {
       final m = PeriodLogModel.fromJson(row());
-      expect(m.startDate, DateTime.utc(2026, 3, 1));
-      expect(m.startDate.isUtc, isTrue);
-      expect(m.endDate, DateTime.utc(2026, 3, 5));
+      expect(m.startDate, DateTime(2026, 3, 1));
+      expect(m.startDate.isUtc, isFalse);
+      expect(m.endDate, DateTime(2026, 3, 5));
       expect(m.mood, 'tired');
       expect(m.symptoms, ['cramps', 'headache']);
       expect(m.notes, 'Couch day');
@@ -33,12 +33,12 @@ void main() {
       expect(m.updatedAt, DateTime.utc(2026, 3, 2, 8));
     });
 
-    test('accepts full timestamps for the dates', () {
+    test('reduces full timestamps to the UTC calendar day', () {
       final m = PeriodLogModel.fromJson(
-        row(start: '2026-03-01T10:00:00Z', end: '2026-03-05T10:00:00Z'),
+        row(start: '2026-03-01T10:00:00Z', end: '2026-03-05T23:30:00Z'),
       );
-      expect(m.startDate, DateTime.utc(2026, 3, 1, 10));
-      expect(m.endDate, DateTime.utc(2026, 3, 5, 10));
+      expect(m.startDate, DateTime(2026, 3, 1));
+      expect(m.endDate, DateTime(2026, 3, 5));
     });
 
     test('accepts a null end date and null symptoms', () {
@@ -92,8 +92,8 @@ void main() {
     expect(e.id, 'l1');
     expect(e.userId, 'u1');
     expect(e.coupleId, 'c1');
-    expect(e.startDate, DateTime.utc(2026, 3, 1));
-    expect(e.endDate, DateTime.utc(2026, 3, 5));
+    expect(e.startDate, DateTime(2026, 3, 1));
+    expect(e.endDate, DateTime(2026, 3, 5));
     expect(e.symptoms, ['cramps', 'headache']);
     expect(() => e.symptoms.add('acne'), throwsUnsupportedError);
   });

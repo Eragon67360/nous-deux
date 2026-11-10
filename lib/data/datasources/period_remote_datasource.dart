@@ -77,28 +77,25 @@ class PeriodRemoteDatasource {
     return PeriodLogModel.fromJson(Map<String, dynamic>.from(res as Map));
   }
 
+  /// Full update of the editable fields. Null clears the end date, mood or
+  /// notes.
   Future<PeriodLogModel> update(
     String id, {
-    DateTime? startDate,
-    DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
+    required DateTime startDate,
+    required DateTime? endDate,
+    required String? mood,
+    required List<String> symptoms,
+    required String? notes,
   }) async {
-    final data = <String, dynamic>{};
-    if (startDate != null) data['start_date'] = _dateOnly(startDate);
-    if (endDate != null) data['end_date'] = _dateOnly(endDate);
-    if (mood != null) data['mood'] = mood;
-    if (symptoms != null) data['symptoms'] = symptoms;
-    if (notes != null) data['notes'] = notes;
-
-    if (data.isEmpty) {
-      final res = await _client.from(_table).select().eq('id', id).single();
-      return PeriodLogModel.fromJson(Map<String, dynamic>.from(res as Map));
-    }
     final res = await _client
         .from(_table)
-        .update(data)
+        .update({
+          'start_date': _dateOnly(startDate),
+          'end_date': endDate == null ? null : _dateOnly(endDate),
+          'mood': mood,
+          'symptoms': symptoms,
+          'notes': notes,
+        })
         .eq('id', id)
         .select()
         .single();
