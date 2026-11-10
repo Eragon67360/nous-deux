@@ -5,7 +5,9 @@ behaviour (pairing sets the start date, pings are limited to one every 30
 seconds and kept without history, only the couple can read them, leaving the
 couple deletes everything) and the shared lists (both partners can add,
 tick and clear; another couple sees nothing and cannot write; authors
-cannot be forged). Nothing here touches the real project.
+cannot be forged; signed-out callers get nothing; a list outlives its
+creator's deleted account, minus what they wrote). Nothing here touches the
+real project.
 
 ```bash
 docker run -d --name nd-sqldry -e POSTGRES_PASSWORD=dry -e POSTGRES_DB=nd postgres:16

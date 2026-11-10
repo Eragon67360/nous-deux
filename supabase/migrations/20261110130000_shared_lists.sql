@@ -7,8 +7,10 @@ CREATE TABLE public.shared_lists (
   name TEXT NOT NULL CHECK (char_length(btrim(name)) BETWEEN 1 AND 60),
   icon TEXT NOT NULL DEFAULT 'list'
     CHECK (icon IN ('list', 'cart', 'star', 'home', 'gift')),
-  created_by UUID NOT NULL DEFAULT auth.uid()
-    REFERENCES public.profiles(id) ON DELETE CASCADE,
+  -- A list belongs to both: if its creator's account is deleted, it stays
+  -- for the other person (their own items with it), with no creator.
+  created_by UUID DEFAULT auth.uid()
+    REFERENCES public.profiles(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -22,6 +24,7 @@ CREATE TABLE public.shared_list_items (
   couple_id UUID NOT NULL REFERENCES public.couples(id) ON DELETE CASCADE,
   text TEXT NOT NULL CHECK (char_length(btrim(text)) BETWEEN 1 AND 200),
   checked BOOLEAN NOT NULL DEFAULT false,
+  -- What someone wrote goes with their account when it is deleted.
   added_by UUID NOT NULL DEFAULT auth.uid()
     REFERENCES public.profiles(id) ON DELETE CASCADE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -61,7 +64,8 @@ BEGIN
   IF TG_OP = 'INSERT' THEN
     NEW.created_by := COALESCE(auth.uid(), NEW.created_by);
   ELSE
-    NEW.created_by := OLD.created_by;
+    -- Never handed to someone else; cleared only (account deleted).
+    NEW.created_by := CASE WHEN NEW.created_by IS NULL THEN NULL ELSE OLD.created_by END;
     NEW.couple_id := OLD.couple_id;
   END IF;
   RETURN NEW;
@@ -82,23 +86,32 @@ CREATE TRIGGER shared_list_items_updated_at
 ALTER TABLE public.shared_lists ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shared_list_items ENABLE ROW LEVEL SECURITY;
 
--- Both partners can do everything with their couple's lists, and only once
+-- The caller's couple, only once both people are in it.
+CREATE OR REPLACE FUNCTION public.my_paired_couple_ids()
+RETURNS SETOF UUID AS $$
+  SELECT id FROM public.couples
+  WHERE (user1_id = auth.uid() OR user2_id = auth.uid())
+    AND user2_id IS NOT NULL
+$$ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public;
+
+REVOKE ALL ON FUNCTION public.my_paired_couple_ids() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.my_paired_couple_ids() TO authenticated;
+
+-- Both partners can read their couple's lists, and write them only while
 -- they are actually paired.
 CREATE POLICY "Couple members manage their lists"
   ON public.shared_lists FOR ALL
   USING (couple_id IN (SELECT public.my_couple_ids()))
-  WITH CHECK (
-    couple_id IN (
-      SELECT id FROM public.couples
-      WHERE (user1_id = auth.uid() OR user2_id = auth.uid())
-        AND user2_id IS NOT NULL
-    )
-  );
+  WITH CHECK (couple_id IN (SELECT public.my_paired_couple_ids()));
 
 CREATE POLICY "Couple members manage their list items"
   ON public.shared_list_items FOR ALL
   USING (couple_id IN (SELECT public.my_couple_ids()))
-  WITH CHECK (couple_id IN (SELECT public.my_couple_ids()));
+  WITH CHECK (couple_id IN (SELECT public.my_paired_couple_ids()));
+
+-- Signed-in people only, through RLS.
+REVOKE ALL ON TABLE public.shared_lists, public.shared_list_items FROM anon;
+REVOKE TRUNCATE ON TABLE public.shared_lists, public.shared_list_items FROM authenticated;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.shared_lists;
 ALTER PUBLICATION supabase_realtime ADD TABLE public.shared_list_items;

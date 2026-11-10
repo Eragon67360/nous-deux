@@ -51,11 +51,42 @@ DO $$ BEGIN
   RAISE EXCEPTION 'expected check violation';
 EXCEPTION WHEN check_violation THEN RAISE NOTICE 'blank list name refused';
 END $$;
+-- Signed out: nothing at all.
+RESET ROLE; SET ROLE anon;
+DO $$ BEGIN
+  PERFORM count(*) FROM public.shared_lists;
+  RAISE EXCEPTION 'expected permission denied';
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'anon cannot read lists';
+END $$;
 RESET ROLE;
 SELECT 'realtime has both list tables: ' || (SELECT count(*) = 2 FROM pg_publication_tables WHERE pubname = 'supabase_realtime' AND tablename IN ('shared_lists','shared_list_items'));
+
+-- D's account is deleted (by the admin, no session): the list D made stays
+-- for C with C's items; what D wrote goes. C, now alone, can't add more.
+SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000d1';
+INSERT INTO public.shared_lists (id, couple_id, name) VALUES
+ ('55555555-5555-5555-5555-555555555555','33333333-3333-3333-3333-333333333333','Week-end');
+INSERT INTO public.shared_list_items (list_id, couple_id, text) VALUES
+ ('55555555-5555-5555-5555-555555555555','33333333-3333-3333-3333-333333333333','Duvet');
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c1';
+INSERT INTO public.shared_list_items (list_id, couple_id, text) VALUES
+ ('55555555-5555-5555-5555-555555555555','33333333-3333-3333-3333-333333333333','Tente');
+RESET ROLE; RESET request.jwt.claim.sub;
+DELETE FROM auth.users WHERE id = '00000000-0000-0000-0000-0000000000d1';
+SELECT 'list kept without creator: ' || (created_by IS NULL) FROM public.shared_lists WHERE name = 'Week-end';
+SELECT 'items left: ' || string_agg(text, ',') FROM public.shared_list_items WHERE list_id = '55555555-5555-5555-5555-555555555555';
+SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000c1';
+DO $$ BEGIN
+  INSERT INTO public.shared_list_items (list_id, couple_id, text) VALUES
+   ('55555555-5555-5555-5555-555555555555','33333333-3333-3333-3333-333333333333','Réchaud');
+  RAISE EXCEPTION 'expected RLS refusal';
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'unpaired add refused by RLS';
+END $$;
+RESET ROLE;
 
 -- A leaves: their lists and items go with the couple.
 SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000000a1';
 SELECT public.leave_couple();
 RESET ROLE;
-SELECT 'after leave: lists=' || (SELECT count(*) FROM public.shared_lists) || ' items=' || (SELECT count(*) FROM public.shared_list_items);
+SELECT 'after A leaves, their lists=' || (SELECT count(*) FROM public.shared_lists WHERE couple_id = '22222222-2222-2222-2222-222222222222')
+  || ' items=' || (SELECT count(*) FROM public.shared_list_items WHERE couple_id = '22222222-2222-2222-2222-222222222222');
