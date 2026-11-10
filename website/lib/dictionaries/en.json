@@ -166,25 +166,25 @@
   },
   "policy": {
     "meta": {
-      "title": "Privacy Policy",
+      "title": "Privacy policy",
       "description": "Privacy policy for the Nous Deux application."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "11 February 2026",
-    "effectiveDateISO": "2026-02-11",
+    "effectiveDate": "10 November 2026",
+    "effectiveDateISO": "2026-11-10",
     "backHome": "Back to home",
     "sections": {
       "editor": {
         "title": "Publisher and contact",
-        "body": "The « Nous Deux » app is a free, ad-free project focused on couple life (shared calendar, period tracking, optional location sharing). For any questions about this policy or your data, you can contact us via the project repository:"
+        "body": "Nous Deux is a free, ad-free app for couples: a shared calendar, period tracking, location sharing if you turn it on, lists and little notes. For any question about this policy or your data, contact us through the project repository:"
       },
       "dataCollected": {
         "title": "Data we collect",
-        "intro": "We only collect and process data necessary for the app to work and for sharing within the couple you form with your partner.",
+        "intro": "We only process the data the app needs to work and to share things with your partner.",
         "items": [
           {
             "label": "Account and authentication",
-            "text": "login identifier (Google or Apple sign-in), email address linked to the account if provided by the identity provider."
+            "text": "sign-in identifier (sign in with Google, with Apple or with a text-message code), the email address Google or Apple provides if any, and your phone number if you sign in by text message."
           },
           {
             "label": "Profile",
@@ -192,7 +192,7 @@
           },
           {
             "label": "Shared calendar",
-            "text": "titles, descriptions, dates and times of events you or your partner create, visible only within the couple."
+            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. Visible only within the couple."
           },
           {
             "label": "Period tracking",
@@ -203,8 +203,20 @@
             "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored."
           },
           {
+            "label": "Shared lists",
+            "text": "list names, items, who added them and whether they are ticked. Visible only within the couple."
+          },
+          {
+            "label": "Little notes",
+            "text": "the last little note each of you sent (its type and time), so your partner can see it. No history is kept."
+          },
+          {
+            "label": "Days together",
+            "text": "the date your relationship started, which either of you can change."
+          },
+          {
             "label": "Notifications",
-            "text": "notification token (FCM) to send you reminders (e.g. partner period reminder) and calendar reminders."
+            "text": "notification token (FCM) to send you the reminders you turn on (for example your partner's PMS reminder) and your partner's little notes."
           },
           {
             "label": "Technical data",
@@ -214,7 +226,7 @@
       },
       "purposes": {
         "title": "Purposes of processing",
-        "body": "Data is used to: provide and secure the service (authentication, storage, sync); enable sharing within the couple (calendar, period tracking, location when enabled); send notifications you have agreed to; display the map (via Mapbox) when location sharing is enabled."
+        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through Mapbox) when location sharing is on."
       },
       "legalBasis": {
         "title": "Legal basis",
@@ -226,7 +238,7 @@
         "items": [
           {
             "label": "Supabase",
-            "text": "authentication, database, profile photo storage (hosting may be in the EU depending on project configuration)."
+            "text": "sign-in (including sending the text-message sign-in code, through the SMS provider configured in Supabase), database, profile photo storage (may be hosted in the European Union depending on the project configuration)."
           },
           {
             "label": "Firebase (Google)",
@@ -244,7 +256,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. Location is not stored long term: only the current position is used for real-time display. If you delete your account or request deletion, your data is deleted in line with our procedures and processors' technical constraints."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period tracking, location, lists, little notes and start date) is deleted for both of you. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays."
       },
       "rights": {
         "title": "Your rights",
@@ -265,7 +277,7 @@
       },
       "changes": {
         "title": "Policy changes",
-        "body": "We may update this privacy policy. The current version is the one published on this page; the last update date is shown at the top. We encourage you to check it from time to time."
+        "body": "We may change this policy. The version in force is the one published on this page, with its last-updated date shown at the top."
       },
       "effective": {
         "title": "Effective date",
@@ -279,15 +291,15 @@
       "description": "How to request deletion of your account and data in the Nous Deux app."
     },
     "title": "Account deletion",
-    "intro": "Account deletion from within the app is not yet available. Until that feature is available, you can request deletion of your account and data as follows.",
+    "intro": "You can't delete your account from the app yet. Until you can, request it by email: we delete the account and the data linked to it.",
     "howToTitle": "How do I request account deletion?",
-    "howToIntro": "Send an email to the following address to request deletion of your account and personal data:",
-    "phoneNote": "Please include your phone number",
-    "phoneNoteSuffix": "(the one linked to your account or used to sign in) in your message. This allows us to identify your account and process your request correctly.",
-    "processingNote": "We will process your request as soon as possible. Once the account is deleted, associated data is erased in line with our",
+    "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
+    "phoneNote": "In your message, include the phone number or the email address (Google or Apple)",
+    "phoneNoteSuffix": "you sign in with. That's how we find your account.",
+    "processingNote": "We handle the request as soon as we can. Once the account is deleted, the associated data is erased as described in our",
     "privacyLink": "privacy policy",
     "noteTitle": "Note",
-    "noteBody": "This process is temporary. An in-app account deletion option will be offered in a future version.",
+    "noteBody": "This is a temporary process. Deleting your account from within the app is coming in a later version.",
     "footerPrivacy": "Privacy policy",
     "backHome": "Back to home",
     "emailSubject": "Account deletion request - Nous Deux"

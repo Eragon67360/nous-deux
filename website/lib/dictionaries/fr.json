@@ -166,25 +166,25 @@
   },
   "policy": {
     "meta": {
-      "title": "Politique de Confidentialité",
+      "title": "Politique de confidentialité",
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "11 février 2026",
-    "effectiveDateISO": "2026-02-11",
+    "effectiveDate": "10 novembre 2026",
+    "effectiveDateISO": "2026-11-10",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
         "title": "Éditeur et contact",
-        "body": "L'application « Nous Deux » est un projet gratuit, sans publicité, centré sur la vie de couple (calendrier partagé, suivi des règles, partage de position optionnel). Pour toute question relative à cette politique ou à vos données, vous pouvez nous contacter via le dépôt du projet :"
+        "body": "Nous Deux est une application gratuite et sans publicité pour les couples : calendrier partagé, suivi des règles, partage de position si vous l'activez, listes et petits mots. Pour toute question sur cette politique ou sur vos données, écrivez-nous via le dépôt du projet :"
       },
       "dataCollected": {
         "title": "Données collectées",
-        "intro": "Nous collectons et traitons uniquement les données nécessaires au fonctionnement de l'application et au partage au sein du couple que vous formez avec votre partenaire.",
+        "intro": "Nous ne traitons que les données nécessaires au fonctionnement de l'application et au partage avec votre partenaire.",
         "items": [
           {
             "label": "Compte et authentification",
-            "text": "identifiant de connexion (connexion avec Google ou Apple), adresse e-mail associée au compte si fournie par le fournisseur d'authentification."
+            "text": "identifiant de connexion (connexion avec Google, avec Apple ou par code SMS), adresse e-mail transmise par Google ou Apple le cas échéant, numéro de téléphone si vous vous connectez par SMS."
           },
           {
             "label": "Profil",
@@ -192,7 +192,7 @@
           },
           {
             "label": "Calendrier partagé",
-            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, uniquement visibles au sein du couple."
+            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, et l'option « compte à rebours » si vous l'activez sur un événement. Visibles uniquement au sein du couple."
           },
           {
             "label": "Suivi des règles",
@@ -203,8 +203,20 @@
             "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé."
           },
           {
+            "label": "Listes partagées",
+            "text": "noms des listes, éléments, qui les a ajoutés et s'ils sont cochés. Visibles uniquement au sein du couple."
+          },
+          {
+            "label": "Petits mots",
+            "text": "le dernier petit mot envoyé par chacun de vous (son type et son heure), pour l'afficher à votre partenaire. Aucun historique n'est conservé."
+          },
+          {
+            "label": "Vos jours ensemble",
+            "text": "la date de début de votre relation, que l'un ou l'autre peut modifier."
+          },
+          {
             "label": "Notifications",
-            "text": "token de notification (FCM) pour vous envoyer des rappels (ex. rappel SPM partenaire) et des rappels de calendrier."
+            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel SPM de votre partenaire) et les petits mots de votre partenaire."
           },
           {
             "label": "Données techniques",
@@ -214,7 +226,7 @@
       },
       "purposes": {
         "title": "Finalités des traitements",
-        "body": "Les données sont utilisées pour : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, position si activée) ; envoyer des notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
+        "body": "Les données servent à : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, listes, petits mots, compteur de jours, position si activée) ; envoyer les notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
       },
       "legalBasis": {
         "title": "Base légale",
@@ -226,7 +238,7 @@
         "items": [
           {
             "label": "Supabase",
-            "text": "authentification, base de données, stockage des photos de profil (hébergement possible dans l'Union européenne selon la configuration du projet)."
+            "text": "authentification (y compris l'envoi du code de connexion par SMS, via le prestataire d'envoi configuré dans Supabase), base de données, stockage des photos de profil (hébergement possible dans l'Union européenne selon la configuration du projet)."
           },
           {
             "label": "Firebase (Google)",
@@ -244,7 +256,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. La position n'est pas stockée à long terme : seule la position actuelle est utilisée pour l'affichage en temps réel. En cas de suppression de compte ou de demande de suppression, les données vous concernant sont supprimées conformément à nos procédures et aux délais techniques des sous-traitants."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, suivi des règles, position, listes, petits mots et date de début) sont supprimées pour vous deux. En cas de suppression du compte, les données vous concernant sont effacées selon nos procédures et les délais techniques de nos sous-traitants."
       },
       "rights": {
         "title": "Vos droits",
@@ -265,7 +277,7 @@
       },
       "changes": {
         "title": "Modifications de la politique",
-        "body": "Nous nous réservons le droit de modifier cette politique de confidentialité. La version en vigueur est celle publiée sur cette page ; la date de dernière mise à jour est indiquée en haut. Nous vous encourageons à la consulter périodiquement."
+        "body": "Nous pouvons modifier cette politique. La version en vigueur est celle publiée sur cette page, avec sa date de mise à jour indiquée en haut."
       },
       "effective": {
         "title": "Entrée en vigueur",
@@ -279,15 +291,15 @@
       "description": "Comment demander la suppression de votre compte et de vos données dans l'application Nous Deux."
     },
     "title": "Suppression du compte",
-    "intro": "La suppression du compte directement depuis l'application n'est pas encore disponible. En attendant cette fonctionnalité, vous pouvez demander la suppression de votre compte et de vos données de la manière suivante.",
+    "intro": "Vous ne pouvez pas encore supprimer votre compte depuis l'application. En attendant, faites la demande par e-mail : nous supprimons le compte et les données qui y sont liées.",
     "howToTitle": "Comment demander la suppression de mon compte ?",
-    "howToIntro": "Envoyez un e-mail à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
-    "phoneNote": "Merci d'indiquer votre numéro de téléphone",
-    "phoneNoteSuffix": "(celui associé à votre compte ou utilisé pour vous connecter) dans votre message. Cela nous permet d'identifier votre compte et de traiter votre demande correctement.",
-    "processingNote": "Nous nous engageons à traiter votre demande dans les meilleurs délais. Une fois le compte supprimé, les données associées sont effacées conformément à notre",
+    "howToIntro": "Écrivez à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
+    "phoneNote": "Indiquez dans votre message le numéro de téléphone ou l'adresse e-mail (Google ou Apple)",
+    "phoneNoteSuffix": "qui vous sert à vous connecter. C'est ce qui nous permet de retrouver votre compte.",
+    "processingNote": "Nous traitons la demande dès que possible. Une fois le compte supprimé, les données associées sont effacées comme le prévoit notre",
     "privacyLink": "politique de confidentialité",
     "noteTitle": "À noter",
-    "noteBody": "Cette procédure est une solution temporaire. Une option de suppression du compte directement depuis l'application sera proposée dans une prochaine version.",
+    "noteBody": "Cette procédure est provisoire. La suppression du compte depuis l'application arrivera dans une prochaine version.",
     "footerPrivacy": "Politique de confidentialité",
     "backHome": "Retour à l'accueil",
     "emailSubject": "Demande de suppression de compte - Nous Deux"
