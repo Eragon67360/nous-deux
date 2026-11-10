@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/data/datasources/live_rows.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 
 class ListsRemoteDatasource {
@@ -10,21 +11,28 @@ class ListsRemoteDatasource {
   static const _lists = 'shared_lists';
   static const _items = 'shared_list_items';
 
+  /// The couple's lists, oldest first, live (deletes included).
   Stream<List<SharedListEntity>> watchLists(String coupleId) {
-    return _client
-        .from(_lists)
-        .stream(primaryKey: ['id'])
-        .eq('couple_id', coupleId)
-        .order('created_at')
-        .map((rows) => rows.map(listFromJson).toList());
+    return watchCoupleRows(
+      _client,
+      table: _lists,
+      coupleId: coupleId,
+    ).map((rows) => rows.map(listFromJson).toList()..sort(_oldestFirst));
   }
 
+  /// Every item of the couple's lists, live (deletes included).
   Stream<List<ListItemEntity>> watchItems(String coupleId) {
-    return _client
-        .from(_items)
-        .stream(primaryKey: ['id'])
-        .eq('couple_id', coupleId)
-        .map((rows) => rows.map(itemFromJson).toList());
+    return watchCoupleRows(
+      _client,
+      table: _items,
+      coupleId: coupleId,
+    ).map((rows) => rows.map(itemFromJson).toList());
+  }
+
+  static int _oldestFirst(SharedListEntity a, SharedListEntity b) {
+    final da = a.createdAt, db = b.createdAt;
+    if (da == null || db == null) return a.id.compareTo(b.id);
+    return da.compareTo(db);
   }
 
   /// `created_by` is set by the database from the signed-in user.
@@ -73,7 +81,7 @@ class ListsRemoteDatasource {
         coupleId: json['couple_id'] as String,
         name: json['name'] as String,
         icon: ListIcon.fromWire(json['icon'] as String?),
-        createdBy: json['created_by'] as String,
+        createdBy: json['created_by'] as String?,
         createdAt: json['created_at'] == null
             ? null
             : DateTime.parse(json['created_at'] as String),

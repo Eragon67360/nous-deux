@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,6 +14,7 @@ import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/lists/lists_screen.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
+import 'package:nousdeux/presentation/widgets/empty_state.dart';
 
 class ListDetailScreen extends ConsumerStatefulWidget {
   const ListDetailScreen({super.key, required this.listId});
@@ -28,6 +30,10 @@ enum _Menu { rename, delete }
 class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
   final _input = TextEditingController();
   final _focus = FocusNode();
+  bool _adding = false;
+
+  /// Items swiped away whose delete waits for the undo snackbar to close.
+  final _hidden = <String>{};
 
   @override
   void dispose() {
@@ -45,15 +51,20 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
     ).showSnackBar(SnackBar(content: Text(listsError(_lang))));
   }
 
+  /// The text stays in the field until the item is saved, so a failed add
+  /// can be sent again as is.
   Future<void> _add() async {
     final text = _input.text.trim();
-    if (text.isEmpty) return;
-    _input.clear();
-    _focus.requestFocus();
+    if (text.isEmpty || _adding) return;
+    _adding = true;
     final failure = await ref
         .read(listsRepositoryProvider)
         .addItem(widget.listId, text);
-    _report(failure);
+    _adding = false;
+    if (!mounted) return;
+    if (failure != null) return _report(failure);
+    if (_input.text.trim() == text) _input.clear();
+    _focus.requestFocus();
   }
 
   Future<void> _toggle(ListItemEntity item) async {
@@ -64,9 +75,33 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
     _report(failure);
   }
 
-  Future<void> _delete(ListItemEntity item) async {
-    final failure = await ref.read(listsRepositoryProvider).deleteItem(item.id);
-    _report(failure);
+  /// Hides the item at once and deletes it when the snackbar closes, unless
+  /// Undo was pressed. If the delete fails, the item comes back.
+  void _delete(ListItemEntity item) {
+    HapticFeedback.lightImpact();
+    final lang = _lang;
+    final repo = ref.read(listsRepositoryProvider);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _hidden.add(item.id));
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(listsItemDeleted(lang, item.text)),
+          // Times out like a plain snackbar, so the delete goes through.
+          persist: false,
+          action: SnackBarAction(label: listsUndo(lang), onPressed: () {}),
+        ),
+      ).closed.then((reason) async {
+        if (reason == SnackBarClosedReason.action) {
+          if (mounted) setState(() => _hidden.remove(item.id));
+          return;
+        }
+        final failure = await repo.deleteItem(item.id);
+        if (failure == null) return;
+        if (mounted) setState(() => _hidden.remove(item.id));
+        messenger.showSnackBar(SnackBar(content: Text(listsError(lang))));
+      });
   }
 
   Future<void> _clearChecked() async {
@@ -108,13 +143,7 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
             .read(listsRepositoryProvider)
             .deleteList(list.id);
         if (failure != null) return _report(failure);
-        if (!mounted) return;
-        // Opened from a link there may be nothing to go back to.
-        if (context.canPop()) {
-          context.pop();
-        } else {
-          context.go(AppRoutes.lists);
-        }
+        if (mounted) _leave();
     }
   }
 
@@ -122,9 +151,16 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-    final lists = ref.watch(sharedListsProvider).valueOrNull ?? const [];
+    final listsAsync = ref.watch(sharedListsProvider);
+    final lists = listsAsync.valueOrNull ?? const [];
     final list = lists.where((l) => l.id == widget.listId).firstOrNull;
-    final items = ref.watch(listItemsProvider(widget.listId));
+    if (list == null && listsAsync.hasValue && !listsAsync.isLoading) {
+      return _gone(lang);
+    }
+    final items = ref
+        .watch(listItemsProvider(widget.listId))
+        .where((i) => !_hidden.contains(i.id))
+        .toList();
     final open = items.where((i) => !i.checked).toList();
     final done = items.where((i) => i.checked).toList();
 
@@ -223,6 +259,33 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
     );
   }
 
+  /// Deleted on the other phone while open here.
+  Widget _gone(String lang) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: EmptyState(
+          icon: Icons.playlist_remove_rounded,
+          message: listsGoneTitle(lang),
+          secondary: listsGoneBody(lang),
+          actionLabel: listsAll(lang),
+          actionIcon: Icons.checklist_rounded,
+          onAction: _leave,
+        ),
+      ),
+    );
+  }
+
+  /// Opened from a link there may be nothing to go back to.
+  void _leave() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.lists);
+    }
+  }
+
   Widget _itemRow(ListItemEntity item, String lang) {
     final theme = Theme.of(context);
     final myId = ref.watch(currentUserProvider).valueOrNull?.id;
@@ -249,49 +312,61 @@ class _ListDetailScreenState extends ConsumerState<ListDetailScreen> {
             bottom: BorderSide(color: theme.colorScheme.surfaceContainerHigh),
           ),
         ),
-        child: CheckboxListTile(
-          value: item.checked,
-          onChanged: (_) => _toggle(item),
-          controlAffinity: ListTileControlAffinity.leading,
-          contentPadding: EdgeInsets.zero,
-          activeColor: theme.colorScheme.primary,
-          checkColor: theme.colorScheme.onPrimary,
-          title: Text(
-            item.text,
-            style: item.checked
-                ? theme.textTheme.bodyLarge?.copyWith(
-                    decoration: TextDecoration.lineThrough,
-                    color: theme.colorScheme.onSurfaceVariant.withValues(
-                      alpha: 0.8,
-                    ),
-                  )
-                : theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface,
-                  ),
-          ),
-          secondary: item.checked
-              ? null
-              : Tooltip(
-                  message: mine
-                      ? listsAddedByMe(lang)
-                      : listsAddedBy(
-                          lang,
-                          author.isEmpty ? nousPartnerFallback(lang) : author,
+        // One node for the screen reader, with Delete as an action since
+        // swiping isn't available to it.
+        child: MergeSemantics(
+          child: Semantics(
+            customSemanticsActions: {
+              CustomSemanticsAction(label: listsDeleteItem(lang)): () =>
+                  _delete(item),
+            },
+            child: CheckboxListTile(
+              value: item.checked,
+              onChanged: (_) => _toggle(item),
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+              activeColor: theme.colorScheme.primary,
+              checkColor: theme.colorScheme.onPrimary,
+              title: Text(
+                item.text,
+                style: item.checked
+                    ? theme.textTheme.bodyLarge?.copyWith(
+                        decoration: TextDecoration.lineThrough,
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.8,
                         ),
-                  child: CircleAvatar(
-                    radius: 13,
-                    backgroundColor: tint.withValues(alpha: 0.22),
-                    child: Text(
-                      author.isEmpty
-                          ? '·'
-                          : author.characters.first.toUpperCase(),
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: tint,
-                        fontWeight: FontWeight.w600,
+                      )
+                    : theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+              ),
+              secondary: item.checked
+                  ? null
+                  : Tooltip(
+                      message: mine
+                          ? listsAddedByMe(lang)
+                          : listsAddedBy(
+                              lang,
+                              author.isEmpty
+                                  ? nousPartnerFallback(lang)
+                                  : author,
+                            ),
+                      child: CircleAvatar(
+                        radius: 13,
+                        backgroundColor: tint.withValues(alpha: 0.22),
+                        child: Text(
+                          author.isEmpty
+                              ? '·'
+                              : author.characters.first.toUpperCase(),
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: tint,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+            ),
+          ),
         ),
       ),
     );

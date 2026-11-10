@@ -663,6 +663,8 @@ class FakeListsRepository implements ListsRepository {
   @override
   Future<Failure?> renameList(String listId, String name) async {
     calls.add('rename:$listId:$name');
+    final f = _take();
+    if (f != null) return f; // a failed write changes nothing
     final i = lists.indexWhere((l) => l.id == listId);
     final l = lists[i];
     lists[i] = SharedListEntity(
@@ -673,16 +675,18 @@ class FakeListsRepository implements ListsRepository {
       createdBy: l.createdBy,
     );
     _publish();
-    return _take();
+    return null;
   }
 
   @override
   Future<Failure?> deleteList(String listId) async {
     calls.add('deleteList:$listId');
+    final f = _take();
+    if (f != null) return f; // a failed write changes nothing
     lists.removeWhere((l) => l.id == listId);
     items.removeWhere((i) => i.listId == listId);
     _publish();
-    return _take();
+    return null;
   }
 
   @override
@@ -707,6 +711,8 @@ class FakeListsRepository implements ListsRepository {
   @override
   Future<Failure?> setChecked(String itemId, bool checked) async {
     calls.add('check:$itemId:$checked');
+    final f = _take();
+    if (f != null) return f; // a failed write changes nothing
     final i = items.indexWhere((x) => x.id == itemId);
     final x = items[i];
     items[i] = ListItemEntity(
@@ -718,22 +724,26 @@ class FakeListsRepository implements ListsRepository {
       createdAt: x.createdAt,
     );
     _publish();
-    return _take();
+    return null;
   }
 
   @override
   Future<Failure?> deleteItem(String itemId) async {
     calls.add('deleteItem:$itemId');
+    final f = _take();
+    if (f != null) return f; // a failed write changes nothing
     items.removeWhere((x) => x.id == itemId);
     _publish();
-    return _take();
+    return null;
   }
 
   @override
   Future<Failure?> clearChecked(String listId) async {
     calls.add('clear:$listId');
+    final f = _take();
+    if (f != null) return f; // a failed write changes nothing
     items.removeWhere((x) => x.listId == listId && x.checked);
     _publish();
-    return _take();
+    return null;
   }
 }

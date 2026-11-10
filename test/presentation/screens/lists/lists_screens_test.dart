@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/lists_strings.dart';
+import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/presentation/screens/lists/list_detail_screen.dart';
@@ -156,14 +158,102 @@ void main() {
       expect(find.byTooltip(listsAddedByMe('fr')), findsOneWidget);
     });
 
-    testWidgets('swiping an item deletes it', (tester) async {
+    testWidgets('swiping hides an item, deleting it once the snackbar goes', (
+      tester,
+    ) async {
       final deps = _deps(items: [_item('tomatoes')]);
       await _pumpDetail(tester, deps);
 
       await tester.drag(find.text('tomatoes'), const Offset(-500, 0));
       await tester.pumpAndSettle();
+      expect(find.text('tomatoes'), findsNothing);
+      expect(find.text(listsItemDeleted('fr', 'tomatoes')), findsOneWidget);
+      expect(deps.lists.calls, isEmpty, reason: 'Undo is still possible');
 
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
       expect(deps.lists.calls, ['deleteItem:tomatoes']);
+    });
+
+    testWidgets('Undo brings the item back without deleting it', (
+      tester,
+    ) async {
+      final deps = _deps(items: [_item('tomatoes')]);
+      await _pumpDetail(tester, deps);
+
+      await tester.drag(find.text('tomatoes'), const Offset(-500, 0));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(listsUndo('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('tomatoes'), findsOneWidget);
+      expect(deps.lists.calls, isEmpty);
+    });
+
+    testWidgets('a delete that fails brings the item back and says so', (
+      tester,
+    ) async {
+      final deps = _deps(items: [_item('tomatoes')]);
+      await _pumpDetail(tester, deps);
+      deps.lists.nextFailure = const NetworkFailure();
+
+      await tester.drag(find.text('tomatoes'), const Offset(-500, 0));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+
+      expect(find.text('tomatoes'), findsOneWidget);
+      expect(find.text(listsError('fr')), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('screen readers get Delete as an action on the item', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _pumpDetail(tester, _deps(items: [_item('tomatoes')]));
+
+      expect(
+        tester.getSemantics(find.text('tomatoes')),
+        containsSemantics(
+          customActions: [CustomSemanticsAction(label: listsDeleteItem('fr'))],
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a failed add keeps the text to try again', (tester) async {
+      final deps = _deps();
+      await _pumpDetail(tester, deps);
+      deps.lists.nextFailure = const NetworkFailure();
+
+      await tester.enterText(find.byType(TextField), 'Lait');
+      await tester.tap(find.byTooltip(listsAddButton('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(listsError('fr')), findsOneWidget);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'Lait',
+      );
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('a list deleted on the other phone offers a way back', (
+      tester,
+    ) async {
+      final deps = _deps(items: [_item('tomatoes')]);
+      await _pumpDetail(tester, deps);
+
+      await deps.lists.deleteList('groceries');
+      await tester.pumpAndSettle();
+
+      expect(find.text(listsGoneTitle('fr')), findsOneWidget);
+      await tester.tap(find.text(listsAll('fr')));
+      await tester.pumpAndSettle();
+      expect(find.byType(ListDetailScreen), findsNothing);
     });
 
     testWidgets('deleting the list asks first, then goes back', (tester) async {

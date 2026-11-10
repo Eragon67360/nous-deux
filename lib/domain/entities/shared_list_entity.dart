@@ -18,7 +18,7 @@ class SharedListEntity extends Equatable {
     required this.coupleId,
     required this.name,
     required this.icon,
-    required this.createdBy,
+    this.createdBy,
     this.createdAt,
   });
 
@@ -26,7 +26,9 @@ class SharedListEntity extends Equatable {
   final String coupleId;
   final String name;
   final ListIcon icon;
-  final String createdBy;
+
+  /// Null once its creator's account is deleted.
+  final String? createdBy;
   final DateTime? createdAt;
 
   @override

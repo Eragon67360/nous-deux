@@ -200,7 +200,8 @@ class _ListEditorSheetState extends ConsumerState<_ListEditorSheet> {
   Widget build(BuildContext context) {
     final lang = widget.lang;
     final editing = widget.existing != null;
-    return Padding(
+    // Scrolls when the keyboard and a large text size leave too little room.
+    return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.md - 4,
         0,

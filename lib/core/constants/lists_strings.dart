@@ -21,7 +21,8 @@ String listsCounts(String lang, int open, int total) {
   return lang == 'fr' ? '$open à faire sur $total' : '$open left of $total';
 }
 
-String listsNameLabel(String lang) => lang == 'fr' ? 'Nom de la liste' : 'List name';
+String listsNameLabel(String lang) =>
+    lang == 'fr' ? 'Nom de la liste' : 'List name';
 String listsNameHint(String lang) => lang == 'fr' ? 'Courses' : 'Groceries';
 String listsIconLabel(String lang) => lang == 'fr' ? 'Icône' : 'Icon';
 String listsCreate(String lang) => lang == 'fr' ? 'Créer' : 'Create';
@@ -50,8 +51,17 @@ String listsAddedByMe(String lang) =>
     lang == 'fr' ? 'Ajouté par vous' : 'Added by you';
 String listsAddedBy(String lang, String name) =>
     lang == 'fr' ? 'Ajouté par $name' : 'Added by $name';
-String listsItemDeleted(String lang) =>
-    lang == 'fr' ? 'Élément supprimé.' : 'Item deleted.';
+String listsItemDeleted(String lang, String text) =>
+    lang == 'fr' ? '« $text » supprimé.' : '"$text" deleted.';
+String listsUndo(String lang) => lang == 'fr' ? 'Annuler' : 'Undo';
+String listsDeleteItem(String lang) => lang == 'fr' ? 'Supprimer' : 'Delete';
+String listsGoneTitle(String lang) =>
+    lang == 'fr' ? "Cette liste n'existe plus" : 'This list is gone';
+String listsGoneBody(String lang) => lang == 'fr'
+    ? "Elle a sans doute été supprimée sur l'autre téléphone."
+    : 'It was probably deleted on the other phone.';
+String listsAll(String lang) =>
+    lang == 'fr' ? 'Toutes les listes' : 'All lists';
 String listsEmptyListBody(String lang) => lang == 'fr'
     ? 'Ajoutez le premier élément ci-dessus.'
     : 'Add the first item above.';
