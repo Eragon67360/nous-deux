@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
@@ -11,6 +12,7 @@ import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
 import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
 import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
+import 'package:nousdeux/presentation/screens/nous/nous_screen.dart';
 import 'package:nousdeux/presentation/screens/onboarding/onboarding_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_join_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_scan_screen.dart';
@@ -168,22 +170,22 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           message: '  → /main (onboarding done)',
           color: '\x1B[32m',
         );
-        return '/main';
+        return AppRoutes.home;
       }
       appLog('ROUTER', message: '  → null (no redirect)', color: '\x1B[33m');
       return null;
     },
     routes: [
       GoRoute(
-        path: '/',
+        path: AppRoutes.splash,
         pageBuilder: (_, state) => _fadePage(state, const SplashScreen()),
       ),
       GoRoute(
-        path: '/auth',
+        path: AppRoutes.auth,
         pageBuilder: (_, state) => _fadePage(state, const AuthScreen()),
       ),
       GoRoute(
-        path: '/auth/verify',
+        path: AppRoutes.authVerify,
         pageBuilder: (_, state) => _fadePage(
           state,
           VerifyOtpScreen(
@@ -194,20 +196,30 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: '/onboarding',
+        path: AppRoutes.onboarding,
         pageBuilder: (_, state) => _fadePage(state, const OnboardingScreen()),
       ),
       GoRoute(
-        path: '/pairing',
+        path: AppRoutes.pairing,
         pageBuilder: (_, state) => _fadePage(state, const PairingScreen()),
       ),
       GoRoute(
-        path: '/pairing/join',
+        path: AppRoutes.pairingJoin,
         pageBuilder: (_, state) => _fadePage(state, const PairingJoinScreen()),
       ),
       GoRoute(
-        path: '/pairing/scan',
+        path: AppRoutes.pairingScan,
         pageBuilder: (_, state) => _fadePage(state, const PairingScanScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        pageBuilder: (_, state) => _fadePage(state, const SettingsScreen()),
+        routes: [
+          GoRoute(
+            path: 'info',
+            pageBuilder: (_, state) => _fadePage(state, const AppInfoScreen()),
+          ),
+        ],
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -217,7 +229,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             navigatorKey: _shellNavigatorKey,
             routes: [
               GoRoute(
-                path: '/main',
+                path: AppRoutes.home,
+                pageBuilder: (_, state) => _fadePage(state, const NousScreen()),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.calendar,
                 pageBuilder: (_, state) =>
                     _fadePage(state, const CalendarHomeScreen()),
               ),
@@ -226,7 +246,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/main/period',
+                path: AppRoutes.period,
                 pageBuilder: (_, state) => _fadePage(
                   state,
                   PeriodScreen(
@@ -240,25 +260,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/main/position',
+                path: AppRoutes.position,
                 pageBuilder: (_, state) =>
                     _fadePage(state, const PositionScreen()),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/main/settings',
-                pageBuilder: (_, state) =>
-                    _fadePage(state, const SettingsScreen()),
-                routes: [
-                  GoRoute(
-                    path: 'info',
-                    pageBuilder: (_, state) =>
-                        _fadePage(state, const AppInfoScreen()),
-                  ),
-                ],
               ),
             ],
           ),

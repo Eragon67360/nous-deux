@@ -14,6 +14,7 @@ import 'package:light/light.dart';
 import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/utils/geo_utils.dart';
@@ -285,7 +286,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
           secondary: _positionNoPartnerSecondary(_lang()),
         ),
         bottomWidget: FilledButton.icon(
-          onPressed: () => context.push('/pairing'),
+          onPressed: () => context.push(AppRoutes.pairing),
           icon: const Icon(Icons.person_add_outlined),
           label: Text(_positionInvitePartner(_lang())),
         ),
@@ -308,7 +309,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
           secondary: _positionEnableSharingSecondary(_lang()),
         ),
         bottomWidget: OutlinedButton.icon(
-          onPressed: () => context.go('/main/settings'),
+          onPressed: () => context.push(AppRoutes.settings),
           icon: const Icon(Icons.settings_outlined),
           label: Text(_positionOpenSettings(_lang())),
         ),

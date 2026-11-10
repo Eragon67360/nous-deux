@@ -40,7 +40,7 @@ Future<(TestDeps, GoRouter)> _pumpPosition(
     initialLocation: '/main/position',
     routes: [
       screenRoute('/main/position', const PositionScreen()),
-      stubRoute('/main/settings'),
+      stubRoute('/settings'),
       stubRoute('/pairing'),
     ],
   );
@@ -134,7 +134,7 @@ void main() {
       await tester.tap(find.text('Open settings'));
       await tester.pumpAndSettle();
 
-      expect(router.state.uri.path, '/main/settings');
+      expect(router.state.uri.path, '/settings');
     });
 
     positionTest('a sharing row without coordinates still counts as none', (
@@ -246,7 +246,7 @@ void main() {
       final updates = _updates(tester);
       final stopsBefore = updates.stopCalls;
 
-      router.go('/main/settings');
+      router.go('/settings');
       await tester.pumpAndSettle();
 
       expect(tester.takeException(), isNull);

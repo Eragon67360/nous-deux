@@ -9,6 +9,7 @@ class CalendarEventModel {
     required this.startTime,
     this.endTime,
     required this.createdBy,
+    this.isCountdown = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -20,6 +21,9 @@ class CalendarEventModel {
   final DateTime startTime;
   final DateTime? endTime;
   final String createdBy;
+
+  /// Counted down to on the Nous tab.
+  final bool isCountdown;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -34,6 +38,7 @@ class CalendarEventModel {
           ? DateTime.parse(json['end_time'] as String)
           : null,
       createdBy: json['created_by'] as String,
+      isCountdown: json['is_countdown'] as bool? ?? false,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -52,6 +57,7 @@ class CalendarEventModel {
       'start_time': startTime.toIso8601String(),
       'end_time': endTime?.toIso8601String(),
       'created_by': createdBy,
+      'is_countdown': isCountdown,
       'created_at': createdAt?.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),
     };
@@ -66,6 +72,7 @@ class CalendarEventModel {
       startTime: startTime,
       endTime: endTime,
       createdBy: createdBy,
+      isCountdown: isCountdown,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

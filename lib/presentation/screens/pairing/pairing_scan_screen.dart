@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
@@ -45,7 +46,7 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
     if (result.failure == null) {
       ref.invalidate(myCoupleProvider);
       ref.invalidate(myProfileProvider);
-      context.go('/main');
+      context.go(AppRoutes.home);
     }
   }
 

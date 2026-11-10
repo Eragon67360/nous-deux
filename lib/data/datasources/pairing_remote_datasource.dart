@@ -6,6 +6,7 @@ import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/data/models/couple_model.dart';
 
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/utils/date_only.dart';
 
 class PairingRemoteDatasource {
   PairingRemoteDatasource([SupabaseClient? client])
@@ -22,6 +23,14 @@ class PairingRemoteDatasource {
       AppConstants.pairingCodeLength,
       (_) => chars[_random.nextInt(chars.length)],
     ).join();
+  }
+
+  /// Sets `together_since` on the current couple (a calendar day).
+  Future<void> updateTogetherSince(String coupleId, DateTime day) async {
+    await _client
+        .from(_table)
+        .update({'together_since': formatDay(day)})
+        .eq('id', coupleId);
   }
 
   Future<CoupleModel?> getMyCouple() async {

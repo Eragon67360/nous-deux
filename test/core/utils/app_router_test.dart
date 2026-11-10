@@ -126,7 +126,7 @@ void main() {
         final c = await _session(TestDeps(user: null));
         expect(await _redirectFrom(tester, c, '/'), '/auth');
         expect(await _redirectFrom(tester, c, '/main'), '/auth');
-        expect(await _redirectFrom(tester, c, '/main/settings'), '/auth');
+        expect(await _redirectFrom(tester, c, '/settings'), '/auth');
         expect(await _redirectFrom(tester, c, '/onboarding'), '/auth');
         expect(await _redirectFrom(tester, c, '/pairing'), '/auth');
       });
@@ -190,7 +190,7 @@ void main() {
         final c = await _session(TestDeps());
         expect(await _redirectFrom(tester, c, '/main'), isNull);
         expect(await _redirectFrom(tester, c, '/main/period'), isNull);
-        expect(await _redirectFrom(tester, c, '/main/settings/info'), isNull);
+        expect(await _redirectFrom(tester, c, '/settings/info'), isNull);
         expect(await _redirectFrom(tester, c, '/pairing'), isNull);
         expect(await _redirectFrom(tester, c, '/pairing/join'), isNull);
       });

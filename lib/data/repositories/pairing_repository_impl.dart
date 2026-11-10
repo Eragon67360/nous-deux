@@ -55,6 +55,20 @@ class PairingRepositoryImpl implements PairingRepository {
   }
 
   @override
+  Future<Failure?> updateTogetherSince(DateTime day) async {
+    try {
+      final couple = await _datasource.getMyCouple();
+      if (couple == null) return const NotFoundFailure('No couple');
+      await _datasource.updateTogetherSince(couple.id, day);
+      return null;
+    } on PostgrestException catch (e) {
+      return ServerFailure(e.message);
+    } catch (e) {
+      return UnknownFailure(e.toString());
+    }
+  }
+
+  @override
   Future<PairingResult> leaveCouple() async {
     try {
       await _datasource.leaveCouple();

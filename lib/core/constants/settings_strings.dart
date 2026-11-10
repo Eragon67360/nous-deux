@@ -4,7 +4,6 @@
 String mainNavCalendar(String lang) => lang == 'fr' ? 'Calendrier' : 'Calendar';
 String mainNavPeriod(String lang) => lang == 'fr' ? 'Règles' : 'Period';
 String mainNavPosition(String lang) => lang == 'fr' ? 'Position' : 'Location';
-String mainNavSettings(String lang) => lang == 'fr' ? 'Paramètres' : 'Settings';
 
 String settingsTitle(String lang) => lang == 'fr' ? 'Paramètres' : 'Settings';
 String settingsAboutApp(String lang) => lang == 'fr' ? 'À propos' : 'About';

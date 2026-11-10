@@ -31,6 +31,7 @@ class _CalendarEventFormScreenState
   late final TextEditingController _descController;
   late DateTime _startTime;
   late DateTime _endTime;
+  late bool _isCountdown;
   bool _loading = false;
   String? _error;
 
@@ -45,6 +46,7 @@ class _CalendarEventFormScreenState
     _startTime = widget.event?.startTime ?? _roundToNextHour(initial);
     _endTime =
         widget.event?.endTime ?? _startTime.add(const Duration(hours: 1));
+    _isCountdown = widget.event?.isCountdown ?? false;
   }
 
   /// Rounds to the next full hour (e.g. 15:28 → 16:00).
@@ -81,6 +83,7 @@ class _CalendarEventFormScreenState
             : _descController.text.trim(),
         startTime: _startTime,
         endTime: _endTime,
+        isCountdown: _isCountdown,
       );
       if (!mounted) return;
       setState(() => _loading = false);
@@ -96,6 +99,7 @@ class _CalendarEventFormScreenState
             : _descController.text.trim(),
         startTime: _startTime,
         endTime: _endTime,
+        isCountdown: _isCountdown,
       );
       if (!mounted) return;
       setState(() => _loading = false);
@@ -208,6 +212,13 @@ class _CalendarEventFormScreenState
                   ),
                 );
               },
+            ),
+            SwitchListTile.adaptive(
+              value: _isCountdown,
+              onChanged: (v) => setState(() => _isCountdown = v),
+              activeThumbColor: Theme.of(context).colorScheme.primary,
+              title: Text(calendarEventCountdown(lang)),
+              subtitle: Text(calendarEventCountdownHint(lang)),
             ),
             if (_error != null) ...[
               const SizedBox(height: AppSpacing.xs),

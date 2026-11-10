@@ -177,3 +177,45 @@ class _RingsPainter extends CustomPainter {
       old.right != right ||
       old.dot != dot;
 }
+
+/// The mark as an icon: two locked rings in the current [IconTheme] color.
+class RingsIcon extends StatelessWidget {
+  const RingsIcon({super.key, this.size});
+
+  final double? size;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = IconTheme.of(context);
+    final s = size ?? theme.size ?? 24;
+    return SizedBox(
+      width: s,
+      height: s,
+      child: CustomPaint(
+        painter: _RingsIconPainter(theme.color ?? const Color(0xFFF5F0EB)),
+      ),
+    );
+  }
+}
+
+class _RingsIconPainter extends CustomPainter {
+  _RingsIconPainter(this.color);
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final r = size.width * 0.27;
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.085
+      ..color = color
+      ..isAntiAlias = true;
+    final c = size.center(Offset.zero);
+    canvas.drawCircle(c.translate(-r * 0.62, 0), r, paint);
+    canvas.drawCircle(c.translate(r * 0.62, 0), r, paint);
+  }
+
+  @override
+  bool shouldRepaint(_RingsIconPainter old) => old.color != color;
+}

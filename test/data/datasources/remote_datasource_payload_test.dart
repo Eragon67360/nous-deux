@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/data/datasources/ping_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/calendar_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/period_remote_datasource.dart';
 
@@ -67,6 +69,7 @@ void main() {
         description: 'Chez ses parents',
         startTime: DateTime.utc(2026, 3, 14, 19, 30),
         endTime: DateTime.utc(2026, 3, 14, 21),
+        isCountdown: true,
       );
 
       final r = requests.single;
@@ -78,6 +81,7 @@ void main() {
         'description': 'Chez ses parents',
         'start_time': '2026-03-14T19:30:00.000Z',
         'end_time': '2026-03-14T21:00:00.000Z',
+        'is_countdown': true,
       });
       expect(updated.id, 'e1');
     });
@@ -94,6 +98,7 @@ void main() {
         description: null,
         startTime: DateTime.utc(2026, 3, 14, 19, 30),
         endTime: DateTime.utc(2026, 3, 14, 21),
+        isCountdown: true,
       );
 
       expect(_body(requests.single), containsPair('description', null));
@@ -205,6 +210,28 @@ void main() {
       expect(body, containsPair('end_date', null));
       expect(body, containsPair('mood', null));
       expect(body, containsPair('notes', null));
+    });
+  });
+
+  group('PingRemoteDatasource', () {
+    test('send calls the send_ping RPC with the wire kind', () async {
+      final requests = <http.Request>[];
+      final ds = PingRemoteDatasource(
+        _client({
+          'couple_id': 'c1',
+          'sender_id': 'u1',
+          'kind': 'miss_you',
+          'sent_at': '2026-11-10T17:00:00Z',
+        }, requests),
+      );
+
+      final sent = await ds.send(PingKind.missYou);
+
+      final r = requests.single;
+      expect(r.method, 'POST');
+      expect(r.url.path, '/rest/v1/rpc/send_ping');
+      expect(_body(r), {'p_kind': 'miss_you'});
+      expect(sent.kind, PingKind.missYou);
     });
   });
 }

@@ -68,6 +68,7 @@ void main() {
       'start_time': '2026-03-14T19:30:00.000Z',
       'end_time': '2026-03-14T22:00:00.000Z',
       'created_by': 'u1',
+      'is_countdown': false,
       'created_at': '2026-03-01T08:00:00.000Z',
       'updated_at': '2026-03-02T08:00:00.000Z',
     });
@@ -99,5 +100,20 @@ void main() {
     expect(e.createdBy, 'u1');
     expect(e.createdAt, DateTime.utc(2026, 3, 1, 8));
     expect(e.updatedAt, DateTime.utc(2026, 3, 2, 8));
+  });
+
+  test('reads is_countdown, defaulting to false for older rows', () {
+    final row = {
+      'id': 'e1',
+      'couple_id': 'c1',
+      'title': 'Lyon',
+      'start_time': '2026-11-20T08:00:00Z',
+      'created_by': 'u1',
+    };
+    expect(CalendarEventModel.fromJson(row).isCountdown, isFalse);
+    expect(
+      CalendarEventModel.fromJson({...row, 'is_countdown': true}).toEntity().isCountdown,
+      isTrue,
+    );
   });
 }

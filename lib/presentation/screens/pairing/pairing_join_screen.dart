@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
@@ -57,7 +58,7 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
     }
     ref.invalidate(myCoupleProvider);
     ref.invalidate(myProfileProvider);
-    if (mounted) context.go('/main');
+    if (mounted) context.go(AppRoutes.home);
   }
 
   @override

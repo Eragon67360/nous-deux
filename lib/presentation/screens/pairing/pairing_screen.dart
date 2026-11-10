@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -71,13 +72,13 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                     final code = couple?.pairingCode;
                     final joinOptions = <Widget>[
                       OutlinedButton.icon(
-                        onPressed: () => context.push('/pairing/join'),
+                        onPressed: () => context.push(AppRoutes.pairingJoin),
                         icon: const Icon(Icons.keyboard_outlined),
                         label: Text(pairingJoinWithCode(lang)),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       OutlinedButton.icon(
-                        onPressed: () => context.push('/pairing/scan'),
+                        onPressed: () => context.push(AppRoutes.pairingScan),
                         icon: const Icon(Icons.qr_code_scanner),
                         label: Text(pairingScanQr(lang)),
                       ),

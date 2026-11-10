@@ -68,6 +68,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
     String? description,
     required DateTime startTime,
     DateTime? endTime,
+    bool isCountdown = false,
   }) async {
     try {
       final coupleId = await _getCoupleId();
@@ -80,6 +81,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
         description: description,
         startTime: startTime,
         endTime: endTime,
+        isCountdown: isCountdown,
       );
       return (event: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {
@@ -96,6 +98,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
     required String? description,
     required DateTime startTime,
     required DateTime endTime,
+    required bool isCountdown,
   }) async {
     try {
       final model = await _calendar.update(
@@ -104,6 +107,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
         description: description,
         startTime: startTime,
         endTime: endTime,
+        isCountdown: isCountdown,
       );
       return (event: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {

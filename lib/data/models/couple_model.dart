@@ -1,3 +1,4 @@
+import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
 
 class CoupleModel {
@@ -6,6 +7,7 @@ class CoupleModel {
     required this.user1Id,
     this.user2Id,
     this.pairingCode,
+    this.togetherSince,
     this.createdAt,
     this.updatedAt,
   });
@@ -14,6 +16,7 @@ class CoupleModel {
   final String user1Id;
   final String? user2Id;
   final String? pairingCode;
+  final DateTime? togetherSince;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -23,6 +26,9 @@ class CoupleModel {
       user1Id: json['user1_id'] as String,
       user2Id: json['user2_id'] as String?,
       pairingCode: json['pairing_code'] as String?,
+      togetherSince: json['together_since'] == null
+          ? null
+          : parseDay(json['together_since'] as Object),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -38,6 +44,7 @@ class CoupleModel {
       user1Id: user1Id,
       user2Id: user2Id,
       pairingCode: pairingCode,
+      togetherSince: togetherSince,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

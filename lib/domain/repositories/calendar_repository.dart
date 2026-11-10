@@ -23,6 +23,7 @@ abstract class CalendarRepository {
     String? description,
     required DateTime startTime,
     DateTime? endTime,
+    bool isCountdown = false,
   });
 
   /// Update an event. Every editable field is sent; a null description
@@ -33,6 +34,7 @@ abstract class CalendarRepository {
     required String? description,
     required DateTime startTime,
     required DateTime endTime,
+    required bool isCountdown,
   });
 
   /// Delete event.

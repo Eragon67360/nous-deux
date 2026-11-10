@@ -7,12 +7,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
+import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/realtime_provider.dart';
+import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
+import 'package:nousdeux/presentation/widgets/ping_received.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.navigationShell});
@@ -26,6 +32,24 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   RealtimeChannel? _profileChannel;
   String? _subscribedUserId;
   bool _celebrating = false;
+
+  /// The partner's note currently shown full screen, if any.
+  PingEntity? _incomingPing;
+
+  /// A note arriving while the app is open, or sent in the last minute when
+  /// the app starts (e.g. opened from its push), gets the full-screen moment.
+  void _onPartnerPing(PingEntity? previous, PingEntity? next) {
+    if (next == null || !mounted) return;
+    final now = ref.read(clockProvider)();
+    final fresh = previous == null
+        ? now.difference(next.sentAt) < const Duration(minutes: 1)
+        : next.sentAt.isAfter(previous.sentAt);
+    if (fresh) setState(() => _incomingPing = next);
+  }
+
+  Future<void> _reply(PingKind kind) async {
+    await ref.read(pingRepositoryProvider).send(kind);
+  }
 
   void _subscribeToPartnerJoined(String userId) {
     if (userId == _subscribedUserId) return;
@@ -77,6 +101,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
         (profileAsync.valueOrNull!.hasPartner == false);
+    ref.listen<PingEntity?>(partnerLastPingProvider, _onPartnerPing);
+    final incoming = _incomingPing;
+    final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
 
     return Stack(
       children: [
@@ -86,6 +113,19 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             child: PairingCelebration(
               lang: lang,
               onDismissed: () => setState(() => _celebrating = false),
+            ),
+          ),
+        if (incoming != null && !_celebrating)
+          Positioned.fill(
+            child: PingReceived(
+              key: ValueKey(incoming.sentAt),
+              lang: lang,
+              partnerName: (partnerName?.trim().isNotEmpty ?? false)
+                  ? partnerName!.trim()
+                  : nousPartnerFallback(lang),
+              kind: incoming.kind,
+              onReply: _reply,
+              onDismissed: () => setState(() => _incomingPing = null),
             ),
           ),
       ],
@@ -115,7 +155,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(AppRadius.sm),
                   child: InkWell(
-                    onTap: () => context.push('/pairing'),
+                    onTap: () => context.push(AppRoutes.pairing),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
@@ -166,19 +206,16 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           child: NavigationBar(
             selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: (i) {
-              if (i != widget.navigationShell.currentIndex) {
-                HapticFeedback.selectionClick();
-              }
-              const paths = [
-                '/main',
-                '/main/period',
-                '/main/position',
-                '/main/settings',
-              ];
-              context.go(paths[i]);
-              widget.navigationShell.goBranch(i);
+              final current = widget.navigationShell.currentIndex;
+              if (i != current) HapticFeedback.selectionClick();
+              // Tapping the current tab again returns to its first screen.
+              widget.navigationShell.goBranch(i, initialLocation: i == current);
             },
             destinations: [
+              NavigationDestination(
+                icon: const RingsIcon(),
+                label: nousTitle(lang),
+              ),
               NavigationDestination(
                 icon: const Icon(Icons.calendar_today_outlined),
                 selectedIcon: const Icon(Icons.calendar_today),
@@ -193,11 +230,6 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 icon: const Icon(Icons.location_on_outlined),
                 selectedIcon: const Icon(Icons.location_on),
                 label: mainNavPosition(lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.settings_outlined),
-                selectedIcon: const Icon(Icons.settings),
-                label: mainNavSettings(lang),
               ),
             ],
           ),

@@ -50,3 +50,15 @@ class PairingFailure extends Failure {
   @override
   List<Object?> get props => [problem];
 }
+
+/// Why a little note could not be sent.
+enum PingProblem { cooldown, notPaired }
+
+class PingFailure extends Failure {
+  const PingFailure(this.problem) : super(null);
+
+  final PingProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}

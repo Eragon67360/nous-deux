@@ -82,3 +82,8 @@ String calendarEventStart(String lang) => lang == 'fr' ? 'Début' : 'Start';
 String calendarEventEnd(String lang) => lang == 'fr' ? 'Fin' : 'End';
 String calendarEventSave(String lang) =>
     lang == 'fr' ? 'Enregistrer' : 'Save';
+String calendarEventCountdown(String lang) =>
+    lang == 'fr' ? 'Compte à rebours' : 'Countdown';
+String calendarEventCountdownHint(String lang) => lang == 'fr'
+    ? "Affiché dans l'onglet Nous jusqu'au jour J."
+    : 'Shown on the Nous tab until the day comes.';

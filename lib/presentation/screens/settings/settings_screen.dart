@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
@@ -83,7 +84,7 @@ class SettingsScreen extends ConsumerWidget {
                   _SettingsTile(
                     icon: Icons.info_outline,
                     title: settingsAboutApp(lang),
-                    onTap: () => context.push('/main/settings/info'),
+                    onTap: () => context.push(AppRoutes.settingsInfo),
                   ),
                   _SettingsTile(
                     icon: Icons.settings_applications_outlined,

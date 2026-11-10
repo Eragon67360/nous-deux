@@ -48,12 +48,16 @@ ProfileEntity partnerProfile({
 CoupleEntity couple({
   String? user2Id = partnerId,
   String? pairingCode = 'ABC234',
+  DateTime? togetherSince,
+  DateTime? createdAt,
 }) {
   return CoupleEntity(
     id: coupleId,
     user1Id: meId,
     user2Id: user2Id,
     pairingCode: pairingCode,
+    togetherSince: togetherSince,
+    createdAt: createdAt,
   );
 }
 
@@ -64,6 +68,7 @@ CalendarEventEntity event({
   required DateTime start,
   DateTime? end,
   String createdBy = meId,
+  bool isCountdown = false,
 }) {
   return CalendarEventEntity(
     id: id,
@@ -73,6 +78,7 @@ CalendarEventEntity event({
     startTime: start,
     endTime: end,
     createdBy: createdBy,
+    isCountdown: isCountdown,
   );
 }
 

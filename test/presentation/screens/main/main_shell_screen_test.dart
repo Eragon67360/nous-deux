@@ -3,6 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/presentation/widgets/ping_received.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
+import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
@@ -24,12 +28,7 @@ Future<GoRouter> _pumpShell(WidgetTester tester, TestDeps deps) {
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) =>
             MainShellScreen(navigationShell: shell),
-        branches: [
-          branch('/main'),
-          branch('/main/period'),
-          branch('/main/position'),
-          branch('/main/settings'),
-        ],
+        branches: [for (final path in AppRoutes.tabs) branch(path)],
       ),
       stubRoute('/pairing'),
     ],
@@ -43,10 +42,10 @@ void main() {
     ) async {
       await _pumpShell(tester, TestDeps(myProfile: profile(language: lang)));
 
+      expect(find.text(nousTitle(lang)), findsOneWidget);
       expect(find.text(mainNavCalendar(lang)), findsOneWidget);
       expect(find.text(mainNavPeriod(lang)), findsOneWidget);
       expect(find.text(mainNavPosition(lang)), findsOneWidget);
-      expect(find.text(mainNavSettings(lang)), findsOneWidget);
       expect(find.text('stub:/main'), findsOneWidget);
     });
   }
@@ -60,16 +59,16 @@ void main() {
     expect(find.text('stub:/main/period'), findsOneWidget);
     expect(
       tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
-      1,
+      2,
     );
-
-    await tester.tap(find.text(mainNavSettings('fr')));
-    await tester.pumpAndSettle();
-    expect(router.state.uri.path, '/main/settings');
 
     await tester.tap(find.text(mainNavCalendar('fr')));
     await tester.pumpAndSettle();
-    expect(router.state.uri.path, '/main');
+    expect(router.state.uri.path, AppRoutes.calendar);
+
+    await tester.tap(find.text(nousTitle('fr')));
+    await tester.pumpAndSettle();
+    expect(router.state.uri.path, AppRoutes.home);
   });
 
   group('no-partner bubble', () {
@@ -171,6 +170,52 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(PairingCelebration), findsNothing);
+    });
+  });
+
+  group('little note from the partner', () {
+    PingEntity note(DateTime at, [PingKind kind = PingKind.thinkingOfYou]) =>
+        PingEntity(coupleId: coupleId, senderId: partnerId, kind: kind, sentAt: at);
+
+    TestDeps paired({List<PingEntity>? pings}) => TestDeps(
+      myProfile: profile(partner: partnerId),
+      partner: partnerProfile(),
+      couple: couple(pairingCode: null),
+      pings: pings,
+    );
+
+    testWidgets('a new note arriving while open shows the moment', (tester) async {
+      final deps = paired(pings: [note(DateTime(2026, 11, 10, 9))]);
+      await _pumpShell(tester, deps);
+      expect(find.byType(PingReceived), findsNothing, reason: 'old note on start');
+
+      deps.pings.emit([note(DateTime(2026, 11, 10, 18), PingKind.goodNight)]);
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(pingReceivedTitle('fr', PingKind.goodNight, 'Alex')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('"Me too" replies with "thinking of you" and closes', (tester) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(pingReplyMeToo('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.pings.sent, [PingKind.thinkingOfYou]);
+      expect(find.byType(PingReceived), findsNothing);
+    });
+
+    testWidgets('a note sent within the last minute shows on start', (tester) async {
+      final deps = paired(pings: [note(DateTime(2026, 11, 10, 17, 59, 30))]);
+      await _pumpShell(tester, deps);
+
+      expect(find.byType(PingReceived), findsOneWidget);
     });
   });
 }

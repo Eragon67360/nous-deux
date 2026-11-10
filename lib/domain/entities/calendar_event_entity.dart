@@ -9,6 +9,7 @@ class CalendarEventEntity extends Equatable {
     required this.startTime,
     this.endTime,
     required this.createdBy,
+    this.isCountdown = false,
     this.createdAt,
     this.updatedAt,
   });
@@ -20,6 +21,9 @@ class CalendarEventEntity extends Equatable {
   final DateTime startTime;
   final DateTime? endTime;
   final String createdBy;
+
+  /// Counted down to on the Nous tab.
+  final bool isCountdown;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -32,6 +36,7 @@ class CalendarEventEntity extends Equatable {
     startTime,
     endTime,
     createdBy,
+    isCountdown,
     createdAt,
     updatedAt,
   ];

@@ -72,10 +72,10 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
     overrides: [
       permissionsProvider.overrideWith((ref) => Stream.value(_statuses)),
     ],
-    initialLocation: '/main/settings',
+    initialLocation: '/settings',
     routes: [
       screenRoute(
-        '/main/settings',
+        '/settings',
         const SettingsScreen(),
         routes: [stubRoute('info')],
       ),
@@ -134,7 +134,7 @@ void main() {
     await tester.tap(find.text(settingsAboutApp('fr')));
     await tester.pumpAndSettle();
 
-    expect(router.state.uri.path, '/main/settings/info');
+    expect(router.state.uri.path, '/settings/info');
   });
 
   group('leave couple', () {

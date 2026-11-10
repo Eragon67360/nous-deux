@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:nousdeux/domain/repositories/ping_repository.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
@@ -221,6 +223,7 @@ class FakePairingRepository implements PairingRepository {
   int createCalls = 0;
   final joinCodes = <String>[];
   int leaveCalls = 0;
+  final togetherSinceUpdates = <DateTime>[];
 
   Failure? _takeFailure() {
     final f = nextFailure;
@@ -230,6 +233,26 @@ class FakePairingRepository implements PairingRepository {
 
   @override
   Future<PairingResult> getMyCouple() async => (couple: couple, failure: null);
+
+  @override
+  Future<Failure?> updateTogetherSince(DateTime day) async {
+    togetherSinceUpdates.add(day);
+    final failure = _takeFailure();
+    if (failure != null) return failure;
+    final c = couple;
+    if (c != null) {
+      couple = CoupleEntity(
+        id: c.id,
+        user1Id: c.user1Id,
+        user2Id: c.user2Id,
+        pairingCode: c.pairingCode,
+        togetherSince: day,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      );
+    }
+    return null;
+  }
 
   @override
   Future<PairingResult> createCoupleAndGetCode() async {
@@ -323,6 +346,7 @@ class FakeCalendarRepository implements CalendarRepository {
     String? description,
     required DateTime startTime,
     DateTime? endTime,
+    bool isCountdown = false,
   }) async {
     createCalls.add((
       title: title,
@@ -350,6 +374,7 @@ class FakeCalendarRepository implements CalendarRepository {
     required String? description,
     required DateTime startTime,
     required DateTime endTime,
+    required bool isCountdown,
   }) async {
     updateCalls.add((
       id: id,
@@ -536,4 +561,45 @@ class FakeLocationUpdateNotifier extends LocationUpdateNotifier {
 
   @override
   Future<void> pushCurrentPosition() async => pushCalls++;
+}
+
+class FakePingRepository implements PingRepository {
+  FakePingRepository([List<PingEntity>? initial])
+    : _pings = [...?initial];
+
+  final List<PingEntity> _pings;
+  final _controller = StreamController<List<PingEntity>>.broadcast();
+  final sent = <PingKind>[];
+  Failure? nextFailure;
+
+  /// Replace both people's latest notes and push them to listeners.
+  void emit(List<PingEntity> pings) {
+    _pings
+      ..clear()
+      ..addAll(pings);
+    _controller.add(List.unmodifiable(_pings));
+  }
+
+  @override
+  Stream<List<PingEntity>> watchPings() async* {
+    yield List.unmodifiable(_pings);
+    yield* _controller.stream;
+  }
+
+  @override
+  Future<PingResult> send(PingKind kind) async {
+    sent.add(kind);
+    final failure = nextFailure;
+    nextFailure = null;
+    if (failure != null) return (ping: null, failure: failure);
+    return (
+      ping: PingEntity(
+        coupleId: coupleId,
+        senderId: meId,
+        kind: kind,
+        sentAt: DateTime(2026, 11, 10, 18),
+      ),
+      failure: null,
+    );
+  }
 }

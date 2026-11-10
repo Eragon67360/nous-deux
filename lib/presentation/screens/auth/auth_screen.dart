@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/auth_strings.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/utils/phone_utils.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
@@ -46,7 +47,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
       return;
     }
-    context.push('/auth/verify', extra: {'phone': phone});
+    context.push(AppRoutes.authVerify, extra: {'phone': phone});
   }
 
   Future<void> _signInWithGoogle(String lang) async {

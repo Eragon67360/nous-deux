@@ -57,6 +57,7 @@ class CalendarRemoteDatasource {
     String? description,
     required DateTime startTime,
     DateTime? endTime,
+    bool isCountdown = false,
   }) async {
     final uid = _userId;
     if (uid == null) throw Exception('Not signed in');
@@ -68,6 +69,7 @@ class CalendarRemoteDatasource {
           'description': description,
           'start_time': startTime.toUtc().toIso8601String(),
           'end_time': endTime?.toUtc().toIso8601String(),
+          'is_countdown': isCountdown,
           'created_by': uid,
         })
         .select()
@@ -82,6 +84,7 @@ class CalendarRemoteDatasource {
     required String? description,
     required DateTime startTime,
     required DateTime endTime,
+    required bool isCountdown,
   }) async {
     final res = await _client
         .from(_table)
@@ -90,6 +93,7 @@ class CalendarRemoteDatasource {
           'description': description,
           'start_time': startTime.toUtc().toIso8601String(),
           'end_time': endTime.toUtc().toIso8601String(),
+          'is_countdown': isCountdown,
         })
         .eq('id', id)
         .select()

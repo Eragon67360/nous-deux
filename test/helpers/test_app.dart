@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/presentation/providers/nous_provider.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
@@ -53,8 +55,12 @@ class TestDeps {
     List<PeriodLogEntity>? logs,
     LocationSharingEntity? myLocation,
     LocationSharingEntity? partnerLocation,
+    List<PingEntity>? pings,
+    DateTime? now,
     this.deviceLanguage = 'fr',
-  }) : auth = FakeAuthRepository(user: user),
+  }) : now = now ?? DateTime(2026, 11, 10, 18),
+       pings = FakePingRepository(pings),
+       auth = FakeAuthRepository(user: user),
        profiles = FakeProfileRepository(
          mine: myProfile ?? profile(partner: partner?.id),
          others: partner == null ? {} : {partner.id: partner},
@@ -74,6 +80,10 @@ class TestDeps {
   final FakePeriodRepository period;
   final FakeLocationRepository location;
   final FakeRealtime realtime = FakeRealtime();
+  final FakePingRepository pings;
+
+  /// What the app reads as "now" (clockProvider).
+  final DateTime now;
   final String deviceLanguage;
 
   List<Override> get overrides => [
@@ -86,6 +96,8 @@ class TestDeps {
     deviceLanguageProvider.overrideWithValue(deviceLanguage),
     locationUpdateNotifierProvider.overrideWith(FakeLocationUpdateNotifier.new),
     realtimeChannelFactoryProvider.overrideWithValue(realtime.open),
+    pingRepositoryProvider.overrideWithValue(pings),
+    clockProvider.overrideWithValue(() => now),
   ];
 }
 
