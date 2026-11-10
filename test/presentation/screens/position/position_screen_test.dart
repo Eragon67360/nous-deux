@@ -239,14 +239,9 @@ void main() {
 
   testWidgets(
     'leaving the screen stops the periodic updates',
-    skip: true, // Bug, see below.
     (tester) async {
-      // Bug: _PositionScreenState.dispose() calls
-      // ref.read(locationUpdateNotifierProvider.notifier).stop(), but with
-      // flutter_riverpod 2.6 `ref` throws once the element is unmounted
-      // ("Cannot use "ref" after the widget was disposed."). stop() never
-      // runs, so the 30 s location timer keeps going (and super.dispose() is
-      // skipped) whenever the screen leaves the tree, e.g. on sign-out.
+      // Regression: dispose() used to call ref.read after unmount, which
+      // Riverpod 2.6 forbids, so stop() never ran and the timer kept going.
       final (_, router) = await _pumpPosition(tester);
       final updates = _updates(tester);
       final stopsBefore = updates.stopCalls;

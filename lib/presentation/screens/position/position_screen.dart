@@ -67,9 +67,14 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   String? _lastPartnerAvatarUrl;
   String? _lastPartnerName;
 
+  // Read while mounted: `ref` is unusable in dispose() (Riverpod 2.6 throws),
+  // which used to skip stop() and leave the 30 s location timer running.
+  late final LocationUpdateNotifier _locationUpdates;
+
   @override
   void initState() {
     super.initState();
+    _locationUpdates = ref.read(locationUpdateNotifierProvider.notifier);
     _initAmbientMode();
   }
 
@@ -201,7 +206,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   void dispose() {
     _lightSubscription?.cancel();
     _locationChannel?.unsubscribe();
-    ref.read(locationUpdateNotifierProvider.notifier).stop();
+    _locationUpdates.stop();
     super.dispose();
   }
 
@@ -260,9 +265,9 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       if (!mounted) return;
       final isSharing = next.valueOrNull?.isSharing ?? false;
       if (isSharing) {
-        ref.read(locationUpdateNotifierProvider.notifier).start();
+        _locationUpdates.start();
       } else {
-        ref.read(locationUpdateNotifierProvider.notifier).stop();
+        _locationUpdates.stop();
       }
     });
 
