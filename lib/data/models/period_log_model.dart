@@ -1,3 +1,4 @@
+import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 
 class PeriodLogModel {
@@ -32,8 +33,8 @@ class PeriodLogModel {
       id: json['id'] as String,
       userId: json['user_id'] as String,
       coupleId: json['couple_id'] as String,
-      startDate: _parseDay(startRaw),
-      endDate: endRaw == null ? null : _parseDay(endRaw),
+      startDate: parseDay(startRaw),
+      endDate: endRaw == null ? null : parseDay(endRaw),
       mood: json['mood'] as String?,
       symptoms: json['symptoms'] != null
           ? List<String>.from(json['symptoms'] as List)
@@ -53,8 +54,8 @@ class PeriodLogModel {
       'id': id,
       'user_id': userId,
       'couple_id': coupleId,
-      'start_date': _dateOnly(startDate),
-      'end_date': endDate != null ? _dateOnly(endDate!) : null,
+      'start_date': formatDay(startDate),
+      'end_date': endDate != null ? formatDay(endDate!) : null,
       'mood': mood,
       'symptoms': symptoms,
       'notes': notes,
@@ -63,24 +64,6 @@ class PeriodLogModel {
     };
   }
 
-  /// `start_date` / `end_date` are Postgres DATE columns: calendar days with
-  /// no timezone. Parse "YYYY-MM-DD" as a local date (not UTC midnight, which
-  /// shows as the previous day west of UTC).
-  static DateTime _parseDay(Object raw) {
-    final text = '$raw';
-    if (text.length == 10) return DateTime.parse(text);
-    // A full timestamp: keep the calendar day it names in UTC, as Postgres
-    // would when casting it to DATE.
-    final t = DateTime.parse(text).toUtc();
-    return DateTime(t.year, t.month, t.day);
-  }
-
-  static String _dateOnly(DateTime d) {
-    final y = d.year;
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
 
   PeriodLogEntity toEntity() {
     return PeriodLogEntity(

@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/data/models/period_log_model.dart';
+import 'package:nousdeux/core/utils/date_only.dart';
 
 class PeriodRemoteDatasource {
   PeriodRemoteDatasource([SupabaseClient? client])
@@ -39,10 +40,10 @@ class PeriodRemoteDatasource {
       query = query.eq('user_id', userId);
     }
     if (start != null) {
-      query = query.gte('start_date', _dateOnly(start));
+      query = query.gte('start_date', formatDay(start));
     }
     if (end != null) {
-      query = query.lte('start_date', _dateOnly(end));
+      query = query.lte('start_date', formatDay(end));
     }
     final res = await query.order('start_date', ascending: false);
     return (res as List)
@@ -65,13 +66,13 @@ class PeriodRemoteDatasource {
     final data = <String, dynamic>{
       'user_id': userId,
       'couple_id': coupleId,
-      'start_date': _dateOnly(startDate),
+      'start_date': formatDay(startDate),
       'mood': mood,
       'symptoms': symptoms ?? [],
       'notes': notes,
     };
     if (endDate != null) {
-      data['end_date'] = _dateOnly(endDate);
+      data['end_date'] = formatDay(endDate);
     }
     final res = await _client.from(_table).insert(data).select().single();
     return PeriodLogModel.fromJson(Map<String, dynamic>.from(res as Map));
@@ -90,8 +91,8 @@ class PeriodRemoteDatasource {
     final res = await _client
         .from(_table)
         .update({
-          'start_date': _dateOnly(startDate),
-          'end_date': endDate == null ? null : _dateOnly(endDate),
+          'start_date': formatDay(startDate),
+          'end_date': endDate == null ? null : formatDay(endDate),
           'mood': mood,
           'symptoms': symptoms,
           'notes': notes,
@@ -106,10 +107,4 @@ class PeriodRemoteDatasource {
     await _client.from(_table).delete().eq('id', id);
   }
 
-  static String _dateOnly(DateTime d) {
-    final y = d.year;
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
 }
