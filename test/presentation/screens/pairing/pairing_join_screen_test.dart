@@ -62,19 +62,23 @@ void main() {
     expect(router.state.uri.path, '/pairing/join');
   });
 
-  testWidgets('the server message wins over the generic one', (tester) async {
-    // PairingRemoteDatasource throws French messages such as "Code invalide".
-    final deps = TestDeps()
-      ..pairing.nextFailure = const ServerFailure('Code invalide');
-    await _pumpJoin(tester, deps);
+  for (final (problem, message) in [
+    (PairingProblem.invalidCode, pairingJoinErrorInvalid),
+    (PairingProblem.codeUsed, pairingJoinErrorUsed),
+    (PairingProblem.ownCode, pairingJoinErrorOwnCode),
+  ]) {
+    testWidgets('$problem is explained in the app language', (tester) async {
+      final deps = TestDeps(myProfile: profile(language: 'en'))
+        ..pairing.nextFailure = PairingFailure(problem);
+      await _pumpJoin(tester, deps);
 
-    await tester.enterText(find.byType(TextField), 'ZZZZZZ');
-    await tester.tap(find.text(pairingJoinButton('fr')));
-    await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'ZZZZZZ');
+      await tester.tap(find.text(pairingJoinButton('en')));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Code invalide'), findsOneWidget);
-    expect(find.text(pairingJoinErrorInvalid('fr')), findsNothing);
-  });
+      expect(find.text(message('en')), findsOneWidget);
+    });
+  }
 
   testWidgets('trims and uppercases the code before joining', (tester) async {
     final deps = TestDeps();

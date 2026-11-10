@@ -37,3 +37,16 @@ class PermissionFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure([super.message]);
 }
+
+/// Why joining a couple by code failed, so the UI can say it in the
+/// person's language.
+enum PairingProblem { invalidCode, codeUsed, ownCode }
+
+class PairingFailure extends Failure {
+  const PairingFailure(this.problem) : super(null);
+
+  final PairingProblem problem;
+
+  @override
+  List<Object?> get props => [problem];
+}

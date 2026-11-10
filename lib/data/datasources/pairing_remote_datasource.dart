@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/data/models/couple_model.dart';
 
+import 'package:nousdeux/core/errors/failures.dart';
+
 class PairingRemoteDatasource {
   PairingRemoteDatasource([SupabaseClient? client])
     : _client = client ?? Supabase.instance.client;
@@ -75,18 +77,16 @@ class PairingRemoteDatasource {
         .eq('pairing_code', normalizedCode)
         .maybeSingle();
     if (existing == null) {
-      throw PostgrestException(message: 'Code invalide');
+      throw const PairingException(PairingProblem.invalidCode);
     }
     final coupleId = existing['id'] as String;
     final user2Id = existing['user2_id'];
     if (user2Id != null && (user2Id as String).isNotEmpty) {
-      throw PostgrestException(message: 'Ce code a déjà été utilisé');
+      throw const PairingException(PairingProblem.codeUsed);
     }
     final user1Id = existing['user1_id'] as String;
     if (user1Id == uid) {
-      throw PostgrestException(
-        message: 'Vous ne pouvez pas rejoindre votre propre lien',
-      );
+      throw const PairingException(PairingProblem.ownCode);
     }
 
     await _client.from(_table).update({'user2_id': uid}).eq('id', coupleId);
@@ -99,4 +99,14 @@ class PairingRemoteDatasource {
   Future<void> leaveCouple() async {
     await _client.rpc('leave_couple');
   }
+}
+
+/// A join attempt the server would refuse, detected before writing.
+class PairingException implements Exception {
+  const PairingException(this.problem);
+
+  final PairingProblem problem;
+
+  @override
+  String toString() => 'PairingException($problem)';
 }

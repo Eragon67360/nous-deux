@@ -37,6 +37,12 @@ String pairingJoinButton(String lang) =>
 String pairingJoinErrorCode(String lang) => lang == 'fr'
     ? 'Tapez le code de votre partenaire.'
     : "Type your partner's code.";
+String pairingJoinErrorUsed(String lang) => lang == 'fr'
+    ? 'Ce code a déjà servi. Demandez-en un nouveau à votre partenaire.'
+    : 'This code has already been used. Ask your partner for a new one.';
+String pairingJoinErrorOwnCode(String lang) => lang == 'fr'
+    ? "C'est votre propre code : c'est à votre partenaire de le saisir."
+    : "That's your own code. Your partner needs to enter it.";
 String pairingJoinErrorInvalid(String lang) => lang == 'fr'
     ? 'Ce code ne correspond à aucune invitation. Vérifiez-le avec votre partenaire.'
     : "That code doesn't match an invite. Check it with your partner.";

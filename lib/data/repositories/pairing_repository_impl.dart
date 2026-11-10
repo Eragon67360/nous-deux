@@ -43,6 +43,8 @@ class PairingRepositoryImpl implements PairingRepository {
     try {
       final couple = await _datasource.joinByCode(code);
       return (couple: couple.toEntity(), failure: null);
+    } on PairingException catch (e) {
+      return (couple: null, failure: PairingFailure(e.problem));
     } on AuthException catch (e) {
       return (couple: null, failure: AuthFailure(e.message));
     } on PostgrestException catch (e) {

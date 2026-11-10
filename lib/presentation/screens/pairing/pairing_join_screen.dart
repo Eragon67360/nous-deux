@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
+import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -41,8 +42,16 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
+      final failure = result.failure!;
       setState(
-        () => _error = result.failure!.message ?? pairingJoinErrorInvalid(lang),
+        () => _error = switch (failure) {
+          PairingFailure(problem: PairingProblem.codeUsed) =>
+            pairingJoinErrorUsed(lang),
+          PairingFailure(problem: PairingProblem.ownCode) =>
+            pairingJoinErrorOwnCode(lang),
+          PairingFailure() => pairingJoinErrorInvalid(lang),
+          _ => failure.message ?? pairingJoinErrorInvalid(lang),
+        },
       );
       return;
     }
