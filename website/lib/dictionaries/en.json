@@ -237,8 +237,8 @@
         "intro": "Data is hosted and processed by the following services, in line with their privacy policies and applicable rules (including GDPR where relevant):",
         "items": [
           {
-            "label": "Supabase",
-            "text": "sign-in (including sending the text-message sign-in code, through the SMS provider configured in Supabase), database, profile photo storage (may be hosted in the European Union depending on the project configuration)."
+            "label": "Hetzner (Germany)",
+            "text": "our own servers, running Supabase (open-source software): sign-in, database and profile photos. The data stays in Germany. For text-message sign-in, the code is sent through an SMS provider."
           },
           {
             "label": "Firebase (Google)",

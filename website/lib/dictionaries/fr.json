@@ -237,8 +237,8 @@
         "intro": "Les données sont hébergées et traitées par les services suivants, dans le respect de leurs politiques de confidentialité et des règles applicables (dont le RGPD lorsque pertinent) :",
         "items": [
           {
-            "label": "Supabase",
-            "text": "authentification (y compris l'envoi du code de connexion par SMS, via le prestataire d'envoi configuré dans Supabase), base de données, stockage des photos de profil (hébergement possible dans l'Union européenne selon la configuration du projet)."
+            "label": "Hetzner (Allemagne)",
+            "text": "nos propres serveurs, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil. Les données restent en Allemagne. Pour la connexion par SMS, le code est envoyé par un prestataire d'envoi de SMS."
           },
           {
             "label": "Firebase (Google)",
