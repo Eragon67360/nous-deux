@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -75,7 +74,7 @@ class AppInfoScreen extends ConsumerWidget {
                             color: theme.colorScheme.primary,
                             decoration: TextDecoration.underline,
                             decorationColor: theme.colorScheme.primary
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                           ),
                           // WRAP: Ensure long URL wraps
                           softWrap: true,

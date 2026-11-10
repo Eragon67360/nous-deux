@@ -71,8 +71,9 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }) async {
     try {
       final coupleId = await _getCoupleId();
-      if (coupleId == null)
+      if (coupleId == null) {
         return (event: null, failure: const AuthFailure('No couple'));
+      }
       final model = await _calendar.create(
         coupleId: coupleId,
         title: title,

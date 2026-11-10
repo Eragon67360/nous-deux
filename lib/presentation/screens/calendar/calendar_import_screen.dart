@@ -50,14 +50,16 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed || _permissionGranted || _loading)
+    if (state != AppLifecycleState.resumed || _permissionGranted || _loading) {
       return;
+    }
     // Only re-check when user likely returned from app settings (they tapped "Ouvrir les réglages").
     if (_openedSettingsAt == null) return;
     final now = DateTime.now();
     if (_lastResumeCheckAt != null &&
-        now.difference(_lastResumeCheckAt!) < _resumeDebounce)
+        now.difference(_lastResumeCheckAt!) < _resumeDebounce) {
       return;
+    }
     _lastResumeCheckAt = now;
     _openedSettingsAt = null;
     _loadCalendars();
@@ -280,7 +282,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
                         });
                       }
                       return DropdownButtonFormField<String>(
-                        value: value,
+                        initialValue: value,
                         isExpanded: true,
                         decoration: InputDecoration(
                           labelText: calendarImportCalendarLabel(lang),

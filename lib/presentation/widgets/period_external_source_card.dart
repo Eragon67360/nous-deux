@@ -31,7 +31,6 @@ class PeriodExternalSourceCard extends StatelessWidget {
         break;
       case VerifiedSourcePlatform.web:
       case VerifiedSourcePlatform.other:
-      default:
         // Use Platform Default (Custom Tabs / Safari VC) for standard websites
         mode = LaunchMode.platformDefault;
         break;

@@ -55,7 +55,6 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
         ref.watch(myProfileProvider).valueOrNull?.language ??
         ref.watch(deviceLanguageProvider) ??
         'fr';
-    ;
     return Scaffold(
       appBar: AppBar(
         title: Text(pairingScanTitle(lang)),

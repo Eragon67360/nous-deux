@@ -48,8 +48,9 @@ class PairingRemoteDatasource {
           .eq('pairing_code', code)
           .maybeSingle();
       if (existing == null) break;
-      if (++attempts > 10)
+      if (++attempts > 10) {
         throw AuthException('Could not generate unique code');
+      }
     }
     final res = await _client
         .from(_table)
@@ -64,8 +65,9 @@ class PairingRemoteDatasource {
     final uid = _client.auth.currentUser?.id;
     if (uid == null) throw AuthException('Not signed in');
     final normalizedCode = code.trim().toUpperCase();
-    if (normalizedCode.isEmpty)
+    if (normalizedCode.isEmpty) {
       throw PostgrestException(message: 'Code requis');
+    }
 
     final existing = await _client
         .from(_table)
