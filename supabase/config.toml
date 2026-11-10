@@ -1,4 +1,5 @@
-# Nous Deux - Supabase local config (optional; use dashboard for hosted project)
+# Nous Deux - Supabase CLI config, for local development only. The server is
+# self-hosted (docs/SELF_HOSTING.md); its settings live in infra/supabase/.
 [project]
 id = "nous-deux"
 
@@ -34,7 +35,10 @@ enabled = true
 [auth.external.phone]
 enabled = true
 
-# The Database Webhook authenticates with a shared secret
-# (PING_WEBHOOK_SECRET) instead of a JWT; see the function's README.
+# Only the database calls the push functions, with a shared secret
+# (PUSH_WEBHOOK_SECRET) instead of a JWT.
 [functions.notify-partner-ping]
+verify_jwt = false
+
+[functions.notify-partner-period]
 verify_jwt = false

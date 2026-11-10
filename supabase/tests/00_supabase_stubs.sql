@@ -16,3 +16,12 @@ GRANT USAGE ON SCHEMA public, auth TO authenticated, anon;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO authenticated, anon;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO authenticated, anon;
 GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated, anon;
+-- pg_net: net.http_post only records what would have been sent.
+CREATE SCHEMA net;
+CREATE TABLE net.http_calls (id bigserial PRIMARY KEY, url text, body jsonb, headers jsonb, timeout_milliseconds int);
+CREATE FUNCTION net.http_post(url text, body jsonb DEFAULT '{}', params jsonb DEFAULT '{}', headers jsonb DEFAULT '{}', timeout_milliseconds int DEFAULT 5000)
+RETURNS bigint LANGUAGE sql AS $$
+  INSERT INTO net.http_calls (url, body, headers, timeout_milliseconds)
+  VALUES (http_post.url, http_post.body, http_post.headers, http_post.timeout_milliseconds)
+  RETURNING id
+$$;

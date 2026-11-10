@@ -9,6 +9,11 @@ cannot be forged; signed-out callers get nothing; a list outlives its
 creator's deleted account, minus what they wrote). Nothing here touches the
 real project.
 
+`30_push_webhooks_scenario.sql` checks the push triggers: each write calls the
+right internal function with the shared secret, nothing is sent without it,
+and signed-in users can't call pg_net themselves. `00_supabase_stubs.sql`
+replaces pg_net's `net.http_post` with a recorder for this.
+
 ```bash
 docker run -d --name nd-sqldry -e POSTGRES_PASSWORD=dry -e POSTGRES_DB=nd postgres:16
 for f in supabase/tests/00_supabase_stubs.sql supabase/migrations/*.sql; do

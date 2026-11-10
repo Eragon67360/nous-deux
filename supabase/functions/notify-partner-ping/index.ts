@@ -1,8 +1,10 @@
-// Push a little note to the partner (Database Webhook on couple_pings → this function).
-// Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (automatic), FIREBASE_SERVICE_ACCOUNT_JSON.
+// Push a little note to the partner. Called by the database on each
+// couple_pings insert or update (migration 20261111100000_push_webhooks.sql).
+// Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUSH_WEBHOOK_SECRET,
+// FIREBASE_SERVICE_ACCOUNT_JSON.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { json, readServiceAccount, sendPush } from "../_shared/fcm.ts";
+import { fromDatabase, json, readServiceAccount, sendPush } from "../_shared/fcm.ts";
 
 type PingKind =
   | "thinking_of_you"
@@ -43,12 +45,7 @@ const BODIES: Record<"fr" | "en", Record<PingKind, (name: string) => string>> = 
 };
 
 Deno.serve(async (req) => {
-  // Only the Database Webhook knows this secret. Fail closed: without it,
-  // anyone holding the app's public key could trigger pushes.
-  const secret = Deno.env.get("PING_WEBHOOK_SECRET");
-  if (!secret || req.headers.get("x-webhook-secret") !== secret) {
-    return new Response("forbidden", { status: 403 });
-  }
+  if (!fromDatabase(req)) return new Response("forbidden", { status: 403 });
 
   try {
     const payload: WebhookPayload = await req.json();
