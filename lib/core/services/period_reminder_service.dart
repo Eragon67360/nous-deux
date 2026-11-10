@@ -21,10 +21,13 @@ Future<void> initPeriodReminderNotifications() async {
       _tzInitialized = true;
     }
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Don't prompt at launch, before the person has seen the app. iOS shares
+    // one notification permission per app: registerFcmToken asks for it right
+    // after sign-in, which also covers these local reminders.
     const darwin = DarwinInitializationSettings(
-      requestAlertPermission: true,
+      requestAlertPermission: false,
       requestBadgePermission: false,
-      requestSoundPermission: true,
+      requestSoundPermission: false,
     );
     await _plugin.initialize(
       const InitializationSettings(android: android, iOS: darwin),
