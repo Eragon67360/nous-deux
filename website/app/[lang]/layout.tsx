@@ -9,8 +9,6 @@ import {
 import type { Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
-import LocaleLink from "@/components/LocaleLink";
 import SetLangAttr from "@/components/SetLangAttr";
 
 export async function generateStaticParams() {
@@ -26,7 +24,7 @@ export async function generateMetadata({
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
   const siteName = dict.common.siteName;
-  const title = `${siteName} – ${dict.home.meta.title}`;
+  const title = `${siteName} · ${dict.home.meta.title}`;
   const description = dict.home.meta.description;
   const basePath = `/${lang}`;
   return {
@@ -83,7 +81,6 @@ export default async function LangLayout({
     notFound();
   }
   const baseStructuredData = getBaseStructuredData(lang);
-  const dict = await getDictionary(lang as Locale);
   return (
     <>
       <SetLangAttr lang={lang as Locale} />
@@ -93,18 +90,6 @@ export default async function LangLayout({
           __html: JSON.stringify(baseStructuredData),
         }}
       />
-      <header className="sticky top-0 z-10 border-b border-outline/30 bg-surface/95 backdrop-blur supports-[backdrop-filter]:bg-surface/80">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
-          <LocaleLink
-            href="/"
-            locale={lang as Locale}
-            className="text-lg font-semibold text-on-surface hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded"
-          >
-            {dict.common.siteName}
-          </LocaleLink>
-          <LanguageSwitcher currentLocale={lang as Locale} />
-        </div>
-      </header>
       {children}
       <Analytics />
     </>

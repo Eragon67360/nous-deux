@@ -4,69 +4,147 @@
   },
   "home": {
     "meta": {
-      "title": "Couples app",
-      "description": "Nous Deux is a privacy-focused couples app: shared calendar, period tracking, optional location sharing. Free, no ads."
+      "title": "The private app for couples",
+      "description": "Nous Deux puts a couple's calendar, cycle, location and lists in one private space. Free, no ads, coming soon to the App Store and Google Play."
+    },
+    "folio": {
+      "label": "Contents",
+      "titlePage": "Cover"
     },
     "hero": {
-      "title": "Nous Deux",
-      "tagline": "A privacy-focused couples app: shared calendar, period tracking, optional location.",
-      "free": "Free, no ads.",
-      "description": "Nous Deux is a couples app that lets you share a calendar, track periods and, optionally, share your location in real time — with no ads and data shared only within your couple.",
-      "googlePlay": "Google Play – closed testing",
-      "appStoreComing": "Coming soon on the App Store"
+      "word1": "Nous",
+      "word2": "Deux",
+      "line": "An app for just the two of you. What you put in it stays between you.",
+      "storesLabel": "Availability",
+      "appStore": "App Store",
+      "googlePlay": "Google Play",
+      "soon": "Coming soon"
     },
-    "features": {
-      "heading": "Features",
-      "list": [
-        {
-          "id": "calendar",
-          "title": "Shared calendar",
-          "description": "Shared events, synced between you and your partner. One view to coordinate your schedules.",
-          "imageAlt": "Shared calendar preview in the Nous Deux app"
-        },
-        {
-          "id": "period",
-          "title": "Period tracking",
-          "description": "Cycle, mood, symptoms and notes, shared with your partner to support and coordinate.",
-          "imageAlt": "Period tracking preview in the Nous Deux app"
-        },
-        {
-          "id": "position",
-          "title": "Location (optional)",
-          "description": "Real-time location sharing on the map. No history stored — only to find each other.",
-          "imageAlt": "Location sharing preview in the Nous Deux app"
-        }
-      ]
-    },
-    "privacy": {
-      "heading": "Free, no ads",
-      "paragraph": "Minimal data, shared only within your couple. No resale, no targeting. An app designed for privacy. See our",
-      "privacyLink": "privacy policy",
-      "and": "and the",
-      "accountDeletionLink": "account deletion",
-      "suffix": "page."
-    },
-    "faq": {
-      "heading": "Frequently asked questions",
-      "items": [
-        {
-          "question": "Is Nous Deux free?",
-          "answer": "Yes. Nous Deux is a free, ad-free app focused on couple life: shared calendar, period tracking, optional location sharing."
-        },
-        {
-          "question": "Is my data shared outside the couple?",
-          "answer": "No. Data is shared only within your couple (calendar, period tracking, location if you enable it). No resale, no targeting. See our privacy policy for details."
-        },
-        {
-          "question": "How do I delete my Nous Deux account?",
-          "answer": "Send an email to the address given on the Account deletion page with the phone number linked to your account. Your request will be processed as soon as possible."
-        }
-      ]
-    },
-    "support": {
-      "heading": "Support the project",
-      "description": "Nous Deux is free and ad-free. If you find it useful, you can support its development.",
-      "button": "Buy me a coffee"
+    "chapters": {
+      "agendas": {
+        "folio": "Two calendars",
+        "heading": "\"What time are you home?\"",
+        "body": "Dinner at their parents' is in their calendar, the dentist is in yours, and in between there are a lot of texts to line things up.",
+        "body2": "Nous Deux puts both lives on the same screen, and all it asks for is a six-character code.",
+        "caption": "The shared calendar. Each event keeps the colour of whoever added it.",
+        "imageAlt": "The Nous Deux shared calendar screen"
+      },
+      "merge": {
+        "folio": "One space",
+        "before": "Two phones.",
+        "after": "One shared space.",
+        "body": "One of you generates a code, the other scans it. From then on, whatever one of you adds, the other sees.",
+        "leftAlt": "The calendar on your phone",
+        "rightAlt": "Cycle tracking on your partner's phone",
+        "mergedAlt": "The same calendar, shared by two",
+        "labelMe": "Me",
+        "labelYou": "You"
+      },
+      "share": {
+        "folio": "What you share",
+        "heading": "What you share",
+        "intro": "Six things, and nothing more.",
+        "outro": "No feed, no ads, no strangers.",
+        "items": [
+          {
+            "id": "calendar",
+            "name": "Calendar",
+            "facts": [
+              "One calendar for two.",
+              "Imports from your phone's calendar."
+            ]
+          },
+          {
+            "id": "cycle",
+            "name": "Cycle",
+            "facts": [
+              "Log, mood, symptoms.",
+              "A guide for each of you."
+            ]
+          },
+          {
+            "id": "position",
+            "name": "Location",
+            "facts": [
+              "Live, when you turn it on.",
+              "No history."
+            ]
+          },
+          {
+            "id": "together",
+            "name": "Your days",
+            "facts": [
+              "How many days you've been together.",
+              "A countdown to the next plan."
+            ]
+          },
+          {
+            "id": "pings",
+            "name": "Little notes",
+            "facts": [
+              "Thinking of you, good night, on my way.",
+              "Sent with one tap."
+            ]
+          },
+          {
+            "id": "lists",
+            "name": "Lists",
+            "facts": [
+              "Groceries, to-dos, ideas.",
+              "Ticked off on both phones, live."
+            ]
+          }
+        ]
+      },
+      "trust": {
+        "folio": "Between you",
+        "heading": "Nobody else reads it.",
+        "points": [
+          "There are no ads, and there never will be.",
+          "Your data isn't sold or used to target you.",
+          "Location has no history: only the latest one is kept.",
+          "If one of you leaves the couple, everything you shared is deleted."
+        ],
+        "more": "The details are in the",
+        "privacyLink": "privacy policy",
+        "and": "and on the",
+        "deletionLink": "account deletion page",
+        "suffix": "."
+      },
+      "faq": {
+        "folio": "Questions",
+        "heading": "Questions",
+        "items": [
+          {
+            "question": "Is it free?",
+            "answer": "Yes, and there are no ads. If the app is useful to you, you can support the project with a coffee."
+          },
+          {
+            "question": "How do I invite my partner?",
+            "answer": "In the app, generate a code and show it. Your partner scans it or types it, and you're linked straight away."
+          },
+          {
+            "question": "Who sees my data?",
+            "answer": "Your partner, and nobody else in the app. It isn't sold or used for advertising. The privacy policy explains where it's hosted."
+          },
+          {
+            "question": "How do I delete my account?",
+            "answer": "Email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
+          },
+          {
+            "question": "When does the app come out?",
+            "answer": "It's coming soon to the App Store and Google Play. The source code is already public on GitHub."
+          }
+        ]
+      },
+      "close": {
+        "folio": "Colophon",
+        "heading": "Coming soon to the App Store and Google Play.",
+        "support": "Until then, if you like the project, you can",
+        "supportLink": "buy its developer a coffee",
+        "supportSuffix": ".",
+        "source": "Source code"
+      }
     }
   },
   "footer": {
@@ -213,8 +291,5 @@
     "footerPrivacy": "Privacy policy",
     "backHome": "Back to home",
     "emailSubject": "Account deletion request - Nous Deux"
-  },
-  "featureCard": {
-    "imageFallback": "Preview"
   }
 }

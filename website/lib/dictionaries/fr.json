@@ -4,69 +4,147 @@
   },
   "home": {
     "meta": {
-      "title": "Application pour couples",
-      "description": "Nous Deux est une application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle. Gratuit, sans publicité."
+      "title": "L'application privée des couples",
+      "description": "Nous Deux réunit l'agenda, le cycle, la position et les listes d'un couple dans un seul espace privé. Gratuit, sans publicité, bientôt sur l'App Store et Google Play."
+    },
+    "folio": {
+      "label": "Sommaire",
+      "titlePage": "Couverture"
     },
     "hero": {
-      "title": "Nous Deux",
-      "tagline": "Application pour couples centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.",
-      "free": "Gratuit, sans publicité.",
-      "description": "Nous Deux est une application pour couples qui permet de partager un calendrier, de suivre les règles et, en option, de partager sa position en temps réel — sans publicité et avec des données partagées uniquement au sein du couple.",
-      "googlePlay": "Google Play – test fermé",
-      "appStoreComing": "Prochainement sur l'App Store"
+      "word1": "Nous",
+      "word2": "Deux",
+      "line": "Une application rien qu'à vous deux. Ce que vous y mettez ne sort pas du couple.",
+      "storesLabel": "Disponibilité",
+      "appStore": "App Store",
+      "googlePlay": "Google Play",
+      "soon": "Bientôt"
     },
-    "features": {
-      "heading": "Fonctionnalités",
-      "list": [
-        {
-          "id": "calendar",
-          "title": "Calendrier partagé",
-          "description": "Événements communs, synchronisés entre vous et votre partenaire. Une seule vue pour coordonner vos agendas.",
-          "imageAlt": "Aperçu du calendrier partagé dans l'application Nous Deux"
-        },
-        {
-          "id": "period",
-          "title": "Suivi des règles",
-          "description": "Cycle, humeur, symptômes et notes, partagés avec votre partenaire pour faciliter l'entraide et la coordination.",
-          "imageAlt": "Aperçu du suivi des règles dans l'application Nous Deux"
-        },
-        {
-          "id": "position",
-          "title": "Position (optionnelle)",
-          "description": "Partage de position sur la carte en temps réel. Aucun historique conservé — uniquement pour vous retrouver.",
-          "imageAlt": "Aperçu du partage de position dans l'application Nous Deux"
-        }
-      ]
-    },
-    "privacy": {
-      "heading": "Gratuit, sans publicité",
-      "paragraph": "Données minimales, partagées uniquement au sein de votre couple. Aucune revente, aucun ciblage. Une application pensée pour la confidentialité. Consultez notre",
-      "privacyLink": "politique de confidentialité",
-      "and": "et la page",
-      "accountDeletionLink": "suppression du compte",
-      "suffix": "."
-    },
-    "faq": {
-      "heading": "Questions fréquentes",
-      "items": [
-        {
-          "question": "Nous Deux est-il gratuit ?",
-          "answer": "Oui. Nous Deux est une application gratuite et sans publicité, centrée sur la vie de couple : calendrier partagé, suivi des règles, partage de position optionnel."
-        },
-        {
-          "question": "Mes données sont-elles partagées en dehors du couple ?",
-          "answer": "Non. Les données sont partagées uniquement au sein de votre couple (calendrier, suivi des règles, position si vous l'activez). Aucune revente, aucun ciblage. Consultez notre politique de confidentialité pour le détail."
-        },
-        {
-          "question": "Comment supprimer mon compte Nous Deux ?",
-          "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte en précisant votre numéro de téléphone associé au compte. La demande est traitée dans les meilleurs délais."
-        }
-      ]
-    },
-    "support": {
-      "heading": "Soutenir le projet",
-      "description": "Nous Deux est gratuit et sans pub. Si l'app vous est utile, vous pouvez soutenir son développement.",
-      "button": "Offrir un café"
+    "chapters": {
+      "agendas": {
+        "folio": "Deux agendas",
+        "heading": "« Tu rentres à quelle heure ? »",
+        "body": "Le dîner chez ses parents est dans son agenda, le dentiste dans le vôtre, et entre les deux il y a beaucoup de messages pour se mettre d'accord.",
+        "body2": "Nous Deux met ces deux vies sur le même écran, sans rien demander d'autre qu'un code à six caractères.",
+        "caption": "Le calendrier partagé. Chaque événement garde la couleur de la personne qui l'a ajouté.",
+        "imageAlt": "Écran du calendrier partagé de Nous Deux"
+      },
+      "merge": {
+        "folio": "Un seul espace",
+        "before": "Deux téléphones.",
+        "after": "Un seul espace.",
+        "body": "L'un de vous génère un code, l'autre le scanne. À partir de là, ce que l'un ajoute, l'autre le voit.",
+        "leftAlt": "Le calendrier sur votre téléphone",
+        "rightAlt": "Le suivi du cycle sur le téléphone de votre partenaire",
+        "mergedAlt": "Le même calendrier, partagé à deux",
+        "labelMe": "Moi",
+        "labelYou": "Toi"
+      },
+      "share": {
+        "folio": "Ce que vous partagez",
+        "heading": "Ce que vous partagez",
+        "intro": "Six choses, pas une de plus.",
+        "outro": "Pas de fil d'actualité, pas de publicité, pas d'inconnus.",
+        "items": [
+          {
+            "id": "calendar",
+            "name": "Calendrier",
+            "facts": [
+              "Un agenda pour deux.",
+              "Import depuis le calendrier du téléphone."
+            ]
+          },
+          {
+            "id": "cycle",
+            "name": "Cycle",
+            "facts": [
+              "Journal, humeur, symptômes.",
+              "Un guide pour chacun des deux."
+            ]
+          },
+          {
+            "id": "position",
+            "name": "Position",
+            "facts": [
+              "En direct, quand vous l'activez.",
+              "Aucun historique."
+            ]
+          },
+          {
+            "id": "together",
+            "name": "Vos jours",
+            "facts": [
+              "Le compte de vos jours ensemble.",
+              "Le décompte jusqu'au prochain rendez-vous."
+            ]
+          },
+          {
+            "id": "pings",
+            "name": "Petits mots",
+            "facts": [
+              "Je pense à toi, bonne nuit, j'arrive.",
+              "Envoyés d'un geste."
+            ]
+          },
+          {
+            "id": "lists",
+            "name": "Listes",
+            "facts": [
+              "Courses, choses à faire, idées.",
+              "Cochées des deux côtés en direct."
+            ]
+          }
+        ]
+      },
+      "trust": {
+        "folio": "Entre vous",
+        "heading": "Personne d'autre ne lit.",
+        "points": [
+          "Il n'y a pas de publicité, et il n'y en aura jamais.",
+          "Vos données ne sont ni vendues, ni utilisées pour vous cibler.",
+          "La position n'a pas d'historique : seule la dernière est gardée.",
+          "Si l'un de vous quitte le couple, tout ce que vous partagiez est supprimé."
+        ],
+        "more": "Le détail est dans la",
+        "privacyLink": "politique de confidentialité",
+        "and": "et sur la page",
+        "deletionLink": "suppression du compte",
+        "suffix": "."
+      },
+      "faq": {
+        "folio": "Questions",
+        "heading": "Questions",
+        "items": [
+          {
+            "question": "C'est gratuit ?",
+            "answer": "Oui, et sans publicité. Si l'application vous rend service, vous pouvez soutenir le projet avec un café."
+          },
+          {
+            "question": "Comment inviter mon ou ma partenaire ?",
+            "answer": "Dans l'application, générez un code et montrez-le. Votre partenaire le scanne ou le tape, et vous êtes reliés aussitôt."
+          },
+          {
+            "question": "Qui voit mes données ?",
+            "answer": "Votre partenaire, et personne d'autre dans l'application. Elles ne sont ni revendues ni utilisées pour de la publicité. La politique de confidentialité précise où elles sont hébergées."
+          },
+          {
+            "question": "Comment supprimer mon compte ?",
+            "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte, avec le numéro de téléphone ou l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
+          },
+          {
+            "question": "Quand sort l'application ?",
+            "answer": "Elle arrive bientôt sur l'App Store et Google Play. Le code source est déjà public sur GitHub."
+          }
+        ]
+      },
+      "close": {
+        "folio": "Colophon",
+        "heading": "Bientôt sur l'App Store et Google Play.",
+        "support": "D'ici là, si le projet vous plaît, vous pouvez",
+        "supportLink": "offrir un café à son développeur",
+        "supportSuffix": ".",
+        "source": "Code source"
+      }
     }
   },
   "footer": {
@@ -91,14 +169,14 @@
       "title": "Politique de Confidentialité",
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
-    "lastUpdated": "Dernière mise à jour :",
+    "lastUpdated": "Dernière mise à jour :",
     "effectiveDate": "11 février 2026",
     "effectiveDateISO": "2026-02-11",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
         "title": "Éditeur et contact",
-        "body": "L'application « Nous Deux » est un projet gratuit, sans publicité, centré sur la vie de couple (calendrier partagé, suivi des règles, partage de position optionnel). Pour toute question relative à cette politique ou à vos données, vous pouvez nous contacter via le dépôt du projet :"
+        "body": "L'application « Nous Deux » est un projet gratuit, sans publicité, centré sur la vie de couple (calendrier partagé, suivi des règles, partage de position optionnel). Pour toute question relative à cette politique ou à vos données, vous pouvez nous contacter via le dépôt du projet :"
       },
       "dataCollected": {
         "title": "Données collectées",
@@ -136,15 +214,15 @@
       },
       "purposes": {
         "title": "Finalités des traitements",
-        "body": "Les données sont utilisées pour : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, position si activée) ; envoyer des notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
+        "body": "Les données sont utilisées pour : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, position si activée) ; envoyer des notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
       },
       "legalBasis": {
         "title": "Base légale",
-        "body": "Le traitement des données liées à votre compte, profil, calendrier et suivi des règles est nécessaire à l'exécution du contrat (utilisation de l'application). Le partage de position et les notifications push sont optionnels et reposent sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
+        "body": "Le traitement des données liées à votre compte, profil, calendrier et suivi des règles est nécessaire à l'exécution du contrat (utilisation de l'application). Le partage de position et les notifications push sont optionnels et reposent sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
       },
       "hosting": {
         "title": "Hébergement et sous-traitants",
-        "intro": "Les données sont hébergées et traitées par les services suivants, dans le respect de leurs politiques de confidentialité et des règles applicables (dont le RGPD lorsque pertinent) :",
+        "intro": "Les données sont hébergées et traitées par les services suivants, dans le respect de leurs politiques de confidentialité et des règles applicables (dont le RGPD lorsque pertinent) :",
         "items": [
           {
             "label": "Supabase",
@@ -160,17 +238,17 @@
           },
           {
             "label": "Google et Apple",
-            "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques."
+            "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques."
           }
         ]
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. La position n'est pas stockée à long terme : seule la position actuelle est utilisée pour l'affichage en temps réel. En cas de suppression de compte ou de demande de suppression, les données vous concernant sont supprimées conformément à nos procédures et aux délais techniques des sous-traitants."
+        "body": "Les données sont conservées tant que votre compte est actif. La position n'est pas stockée à long terme : seule la position actuelle est utilisée pour l'affichage en temps réel. En cas de suppression de compte ou de demande de suppression, les données vous concernant sont supprimées conformément à nos procédures et aux délais techniques des sous-traitants."
       },
       "rights": {
         "title": "Vos droits",
-        "intro": "Conformément au Règlement général sur la protection des données (RGPD) et à la loi « informatique et libertés », vous disposez des droits suivants :",
+        "intro": "Conformément au Règlement général sur la protection des données (RGPD) et à la loi « informatique et libertés », vous disposez des droits suivants :",
         "rightsList": [
           "Droit d'accès à vos données personnelles",
           "Droit de rectification des données inexactes ou incomplètes",
@@ -179,7 +257,7 @@
           "Droit d'opposition à certains traitements",
           "Droit à la portabilité de vos données"
         ],
-        "deletionText": "Pour demander la suppression de votre compte et de vos données, consultez la page dédiée :",
+        "deletionText": "Pour demander la suppression de votre compte et de vos données, consultez la page dédiée :",
         "deletionLink": "Suppression du compte",
         "otherRightsText": "Pour exercer vos autres droits, contactez-nous via le lien GitHub indiqué en début de document. Vous pouvez également introduire une réclamation auprès de la CNIL (",
         "cnilUrl": "www.cnil.fr",
@@ -187,7 +265,7 @@
       },
       "changes": {
         "title": "Modifications de la politique",
-        "body": "Nous nous réservons le droit de modifier cette politique de confidentialité. La version en vigueur est celle publiée sur cette page ; la date de dernière mise à jour est indiquée en haut. Nous vous encourageons à la consulter périodiquement."
+        "body": "Nous nous réservons le droit de modifier cette politique de confidentialité. La version en vigueur est celle publiée sur cette page ; la date de dernière mise à jour est indiquée en haut. Nous vous encourageons à la consulter périodiquement."
       },
       "effective": {
         "title": "Entrée en vigueur",
@@ -202,8 +280,8 @@
     },
     "title": "Suppression du compte",
     "intro": "La suppression du compte directement depuis l'application n'est pas encore disponible. En attendant cette fonctionnalité, vous pouvez demander la suppression de votre compte et de vos données de la manière suivante.",
-    "howToTitle": "Comment demander la suppression de mon compte ?",
-    "howToIntro": "Envoyez un e-mail à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
+    "howToTitle": "Comment demander la suppression de mon compte ?",
+    "howToIntro": "Envoyez un e-mail à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
     "phoneNote": "Merci d'indiquer votre numéro de téléphone",
     "phoneNoteSuffix": "(celui associé à votre compte ou utilisé pour vous connecter) dans votre message. Cela nous permet d'identifier votre compte et de traiter votre demande correctement.",
     "processingNote": "Nous nous engageons à traiter votre demande dans les meilleurs délais. Une fois le compte supprimé, les données associées sont effacées conformément à notre",
@@ -213,8 +291,5 @@
     "footerPrivacy": "Politique de confidentialité",
     "backHome": "Retour à l'accueil",
     "emailSubject": "Demande de suppression de compte - Nous Deux"
-  },
-  "featureCard": {
-    "imageFallback": "Aperçu"
   }
 }

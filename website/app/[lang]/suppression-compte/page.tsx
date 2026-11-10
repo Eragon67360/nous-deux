@@ -1,4 +1,5 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
+import SiteHeader from "@/components/SiteHeader";
 import LocaleLink from "@/components/LocaleLink";
 import { SITE_URL } from "@/lib/seo";
 import { localizedPath } from "@/lib/i18n";
@@ -83,6 +84,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
+      <SiteHeader lang={lang as Locale} siteName={dict.common.siteName} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -92,14 +94,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
         <header className="mb-10">
           <Breadcrumbs items={breadcrumbItems} />
-          <LocaleLink
-            href="/"
-            locale={lang as Locale}
-            className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface rounded"
-          >
-            {dict.common.siteName}
-          </LocaleLink>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-on-surface sm:text-4xl">
+          <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.02] tracking-tight text-on-surface sm:text-6xl">
             {s.title}
           </h1>
           <hr className="mt-6 border-outline/50" />
@@ -109,7 +104,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
           <p>{s.intro}</p>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
               {s.howToTitle}
             </h2>
             <p className="mb-4">{s.howToIntro}</p>
@@ -139,7 +134,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xl font-semibold text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
               {s.noteTitle}
             </h2>
             <p>{s.noteBody}</p>
