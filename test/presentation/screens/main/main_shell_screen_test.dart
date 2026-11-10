@@ -75,6 +75,8 @@ void main() {
   group('no-partner bubble', () {
     testWidgets('shows without a partner and opens pairing', (tester) async {
       final router = await _pumpShell(tester, TestDeps());
+      await tester.tap(find.text(mainNavCalendar('fr')));
+      await tester.pumpAndSettle();
 
       expect(find.text(mainNoPartnerBubble('fr')), findsOneWidget);
       await tester.tap(find.text(mainNoPartnerBubble('fr')));
@@ -83,13 +85,24 @@ void main() {
       expect(router.state.uri.path, '/pairing');
     });
 
+    testWidgets('stays off the Nous tab, which has its own invite', (
+      tester,
+    ) async {
+      await _pumpShell(tester, TestDeps());
+      expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
+    });
+
     testWidgets('is hidden once paired', (tester) async {
       await _pumpShell(tester, TestDeps(partner: partnerProfile()));
+      await tester.tap(find.text(mainNavCalendar('fr')));
+      await tester.pumpAndSettle();
       expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
     });
 
     testWidgets('is hidden while the profile is unknown', (tester) async {
       await _pumpShell(tester, TestDeps(user: null));
+      await tester.tap(find.text(mainNavCalendar('fr')));
+      await tester.pumpAndSettle();
       expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
     });
   });

@@ -133,9 +133,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
 
     final profileAsync = ref.watch(myProfileProvider);
     final lang = profileAsync.valueOrNull?.language ?? 'fr';
+    // The Nous tab has its own invite card; the banner would repeat it.
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
-        (profileAsync.valueOrNull!.hasPartner == false);
+        (profileAsync.valueOrNull!.hasPartner == false) &&
+        widget.navigationShell.currentIndex != 0;
     final incoming = _incomingPing;
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
 
