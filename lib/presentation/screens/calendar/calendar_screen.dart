@@ -11,6 +11,8 @@ import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.dart';
+import 'package:nousdeux/presentation/theme/app_theme.dart';
+import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
 class CalendarHomeScreen extends ConsumerStatefulWidget {
@@ -92,7 +94,7 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
               },
               loading: () =>
                   const SizedBox(height: 140, child: LoadingContent()),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
 
             const Divider(height: 1, thickness: 1),
@@ -287,10 +289,6 @@ class _CalendarSection extends StatelessWidget {
   final void Function(CalendarFormat) onFormatChanged;
   final void Function(DateTime) onPageChanged;
 
-  // Couleurs définies dans les spécifications
-  static const Color _markerMine = Color(0xFF722F37);
-  static const Color _markerPartner = Color(0xFFFF8FA3);
-
   const _CalendarSection({
     required this.language,
     required this.focusedDay,
@@ -388,9 +386,9 @@ class _CalendarSection extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (hasMine) _buildDot(_markerMine),
+                if (hasMine) _buildDot(CoupleColors.of(context).mine),
                 if (hasMine && hasPartner) const SizedBox(width: 2),
-                if (hasPartner) _buildDot(_markerPartner),
+                if (hasPartner) _buildDot(CoupleColors.of(context).partner),
               ],
             ),
           );
@@ -416,10 +414,6 @@ class _EventCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onLongPress;
 
-  // Couleurs
-  static const Color _colorMine = Color(0xFF722F37);
-  static const Color _colorPartner = Color(0xFFFF8FA3);
-
   const _EventCard({
     required this.lang,
     required this.event,
@@ -434,7 +428,8 @@ class _EventCard extends StatelessWidget {
     final theme = Theme.of(context);
     final isMine = currentUserId != null && event.createdBy == currentUserId;
 
-    final accentColor = isMine ? _colorMine : _colorPartner;
+    final couple = CoupleColors.of(context);
+    final accentColor = isMine ? couple.mine : couple.partner;
     final creatorLabel = isMine ? calendarMe(lang) : partnerName;
 
     final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
@@ -447,7 +442,7 @@ class _EventCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -522,7 +517,7 @@ class _EventCard extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: accentColor.withOpacity(0.1),
+                                color: accentColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -569,38 +564,11 @@ class _EmptyDayState extends StatelessWidget {
         ? calendarNothingToday(lang)
         : calendarNoEventsOn(lang, dateStr);
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.xl),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.event_note,
-                size: 64,
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                softWrap: true,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              TextButton.icon(
-                onPressed: onAddPressed,
-                icon: const Icon(Icons.add),
-                label: Text(calendarCreateEvent(lang)),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return EmptyState(
+      icon: Icons.event_note_outlined,
+      message: message,
+      actionLabel: calendarCreateEvent(lang),
+      onAction: onAddPressed,
     );
   }
 }

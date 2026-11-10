@@ -9,18 +9,17 @@ String calendarPartner(String lang) =>
 String calendarMe(String lang) => lang == 'fr' ? 'Moi' : 'Me';
 String calendarDeleteEventTitle(String lang) =>
     lang == 'fr' ? 'Supprimer l\'événement ?' : 'Delete event?';
-String calendarDeleteEventConfirm(String lang, String title) =>
-    lang == 'fr'
-        ? 'Voulez-vous vraiment supprimer « $title » ?'
-        : 'Are you sure you want to delete « $title »?';
+String calendarDeleteEventConfirm(String lang, String title) => lang == 'fr'
+    ? '« $title » sera supprimé pour vous deux.'
+    : '"$title" will be deleted for both of you.';
 String calendarCancel(String lang) => lang == 'fr' ? 'Annuler' : 'Cancel';
 String calendarDelete(String lang) => lang == 'fr' ? 'Supprimer' : 'Delete';
 String calendarNothingToday(String lang) =>
     lang == 'fr' ? 'Rien de prévu aujourd\'hui' : 'Nothing planned for today';
 String calendarNoEventsOn(String lang, String dateStr) =>
-    lang == 'fr' ? 'Aucun événement le $dateStr' : 'No events on $dateStr';
+    lang == 'fr' ? 'Rien de prévu le $dateStr' : 'Nothing planned on $dateStr';
 String calendarCreateEvent(String lang) =>
-    lang == 'fr' ? 'Créer un événement' : 'Create event';
+    lang == 'fr' ? 'Ajouter un événement' : 'Add an event';
 String calendarImportTooltip(String lang) =>
     lang == 'fr' ? 'Importer' : 'Import';
 
@@ -36,17 +35,17 @@ String calendarFormatWeek(String lang) =>
 String calendarImportTitle(String lang) =>
     lang == 'fr' ? 'Importer depuis l\'agenda' : 'Import from calendar';
 String calendarImportLoading(String lang) =>
-    lang == 'fr' ? 'Chargement des agendas...' : 'Loading calendars...';
+    lang == 'fr' ? 'Chargement des agendas…' : 'Loading calendars…';
 String calendarImportIntro(String lang) =>
     lang == 'fr'
-        ? 'Choisissez un agenda et une période, puis importez les événements dans Nous Deux.'
-        : 'Choose a calendar and date range, then import events into Nous Deux.';
+        ? 'Choisissez un agenda et une période : les événements seront copiés dans Nous Deux.'
+        : 'Pick a calendar and a date range. The events will be copied into Nous Deux.';
 String calendarImportPermissionMessage(String lang) =>
     lang == 'fr'
-        ? 'L\'accès au calendrier est nécessaire pour importer les événements. Si la demande n\'apparaît pas, ouvrez les réglages pour l\'activer.'
-        : 'Calendar access is required to import events. If the prompt doesn\'t appear, open settings to enable it.';
+        ? "Nous Deux a besoin d'accéder à votre calendrier pour importer des événements. Si la demande ne s'affiche pas, autorisez l'accès dans les réglages."
+        : 'Nous Deux needs access to your calendar to import events. If no prompt appears, allow access in Settings.';
 String calendarImportVerifying(String lang) =>
-    lang == 'fr' ? 'Vérification...' : 'Verifying...';
+    lang == 'fr' ? 'Vérification…' : 'Verifying…';
 String calendarImportAllowAccess(String lang) =>
     lang == 'fr' ? 'Autoriser l\'accès au calendrier' : 'Allow calendar access';
 String calendarImportOpenSettings(String lang) =>
@@ -60,7 +59,7 @@ String calendarImportCalendarLabel(String lang) =>
 String calendarImportFrom(String lang) => lang == 'fr' ? 'Du' : 'From';
 String calendarImportTo(String lang) => lang == 'fr' ? 'Au' : 'To';
 String calendarImportImporting(String lang) =>
-    lang == 'fr' ? 'Importation...' : 'Importing...';
+    lang == 'fr' ? 'Importation…' : 'Importing…';
 String calendarImportButton(String lang) =>
     lang == 'fr' ? 'Importer' : 'Import';
 String calendarImportRestartMessage(String lang) =>
@@ -76,7 +75,7 @@ String calendarEventNew(String lang) =>
 String calendarEventTitleLabel(String lang) =>
     lang == 'fr' ? 'Titre' : 'Title';
 String calendarEventTitleRequired(String lang) =>
-    lang == 'fr' ? 'Titre requis' : 'Title required';
+    lang == 'fr' ? 'Ajoutez un titre.' : 'Add a title.';
 String calendarEventDescriptionLabel(String lang) =>
     lang == 'fr' ? 'Description (optionnel)' : 'Description (optional)';
 String calendarEventStart(String lang) => lang == 'fr' ? 'Début' : 'Start';

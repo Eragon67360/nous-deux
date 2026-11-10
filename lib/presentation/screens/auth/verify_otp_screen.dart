@@ -67,17 +67,24 @@ class _VerifyOtpScreenState extends ConsumerState<VerifyOtpScreen> {
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: _codeController,
+                autofocus: true,
                 keyboardType: TextInputType.number,
+                autofillHints: const [AutofillHints.oneTimeCode],
                 maxLength: 6,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  letterSpacing: 12,
+                ),
+                onChanged: (value) {
+                  if (value.length == 6 && !_loading) _verify(lang);
+                },
                 decoration: InputDecoration(
-                  labelText: authVerifyCodeLabel(lang),
+                  counterText: '',
                   hintText: authVerifyCodeHint(lang),
+                  errorText: _error,
+                  errorMaxLines: 3,
                 ),
               ),
-              if (_error != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(_error!, style: TextStyle(color: colorScheme.error)),
-              ],
               const SizedBox(height: AppSpacing.md),
               FilledButton(
                 onPressed: _loading ? null : () => _verify(lang),

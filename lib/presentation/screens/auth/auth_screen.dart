@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/auth_strings.dart';
+import 'package:nousdeux/core/utils/phone_utils.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
+import 'package:nousdeux/presentation/widgets/entrance.dart';
+import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -26,7 +29,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   }
 
   Future<void> _sendOtp(String lang) async {
-    final phone = _phoneController.text.trim();
+    final phone = normalizePhone(_phoneController.text);
     if (phone.isEmpty) {
       setState(() => _error = authErrorEnterPhone(lang));
       return;
@@ -36,19 +39,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _loading = true;
     });
     final repo = ref.read(authRepositoryProvider);
-    final result = await repo.signInWithOtp(
-      phone: phone.startsWith('+') ? phone : '+33$phone',
-    );
+    final result = await repo.signInWithOtp(phone: phone);
     if (!mounted) return;
     setState(() => _loading = false);
     if (result.failure != null) {
       setState(() => _error = result.failure!.message ?? authErrorGeneric(lang));
       return;
     }
-    context.push(
-      '/auth/verify',
-      extra: {'phone': phone.startsWith('+') ? phone : '+33$phone'},
-    );
+    context.push('/auth/verify', extra: {'phone': phone});
   }
 
   Future<void> _signInWithGoogle(String lang) async {
@@ -81,7 +79,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final lang = ref.watch(deviceLanguageProvider);
     return Scaffold(
       body: SafeArea(
@@ -94,63 +93,129 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.xl),
-              Text(
-                authTitle(lang),
-                style: Theme.of(context).textTheme.headlineMedium,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                authSubtitle(lang),
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
+              const Center(
+                child: Hero(
+                  tag: MergingRings.heroTag,
+                  child: MergingRings(size: 96),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                decoration: InputDecoration(
-                  labelText: authPhoneLabel(lang),
-                  hintText: authPhoneHint(lang),
-                ),
-              ),
-              if (_error != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(_error!, style: TextStyle(color: colorScheme.error)),
-              ],
-              const SizedBox(height: AppSpacing.sm),
-              FilledButton(
-                onPressed: _loading ? null : () => _sendOtp(lang),
-                child: _loading
-                    ? SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colorScheme.onPrimary,
-                        ),
-                      )
-                    : Text(authSendCode(lang)),
               ),
               const SizedBox(height: AppSpacing.md),
-              const Divider(),
-              const SizedBox(height: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: _loading ? null : () => _signInWithGoogle(lang),
-                icon: const Icon(Icons.g_mobiledata, size: 24),
-                label: Text(authContinueWithGoogle(lang)),
+              Entrance(
+                delay: const Duration(milliseconds: 60),
+                child: Column(
+                  children: [
+                    Text(
+                      authTitle(lang),
+                      style: theme.textTheme.displaySmall,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      authSubtitle(lang),
+                      style: theme.textTheme.bodyLarge,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: _loading ? null : () => _signInWithApple(lang),
-                icon: const Icon(Icons.apple, size: 24),
-                label: Text(authContinueWithApple(lang)),
+              const SizedBox(height: AppSpacing.xl),
+              Entrance(
+                delay: const Duration(milliseconds: 120),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      autofillHints: const [AutofillHints.telephoneNumber],
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _loading ? null : _sendOtp(lang),
+                      decoration: InputDecoration(
+                        labelText: authPhoneLabel(lang),
+                        hintText: authPhoneHint(lang),
+                        errorText: _error,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    FilledButton(
+                      onPressed: _loading ? null : () => _sendOtp(lang),
+                      child: _loading
+                          ? SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colorScheme.onPrimary,
+                              ),
+                            )
+                          : Text(authSendCode(lang)),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _OrDivider(label: authOr(lang)),
+                    const SizedBox(height: AppSpacing.md),
+                    OutlinedButton.icon(
+                      onPressed: _loading ? null : () => _signInWithApple(lang),
+                      icon: const Icon(Icons.apple, size: 22),
+                      label: Text(authContinueWithApple(lang)),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    OutlinedButton.icon(
+                      onPressed: _loading ? null : () => _signInWithGoogle(lang),
+                      icon: const _GoogleMark(),
+                      label: Text(authContinueWithGoogle(lang)),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        const Expanded(child: Divider()),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+          child: Text(
+            label,
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+/// A plain "G" in the button's color. Avoids shipping Google's logo asset.
+class _GoogleMark extends StatelessWidget {
+  const _GoogleMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 22,
+      child: Text(
+        'G',
+        textAlign: TextAlign.center,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontWeight: FontWeight.w700,
+          color: IconTheme.of(context).color,
         ),
       ),
     );

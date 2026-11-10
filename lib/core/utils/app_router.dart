@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -19,23 +20,33 @@ import 'package:nousdeux/presentation/screens/position/position_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
 import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
+import 'package:nousdeux/presentation/theme/app_motion.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
-const _transitionDuration = Duration(milliseconds: 250);
-
-/// Fade transition for route changes.
+/// Route transition: a quiet fade with a few pixels of upward drift.
+/// Reduced motion keeps the fade and drops the movement.
 CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
   return CustomTransitionPage<void>(
     key: state.pageKey,
     child: child,
-    transitionDuration: _transitionDuration,
-    reverseTransitionDuration: _transitionDuration,
+    transitionDuration: AppMotion.medium,
+    reverseTransitionDuration: AppMotion.fast,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
-        child: child,
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppMotion.enter,
+        reverseCurve: AppMotion.exit,
+      );
+      final faded = FadeTransition(opacity: curved, child: child);
+      if (AppMotion.reduced(context)) return faded;
+      return SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.015),
+          end: Offset.zero,
+        ).animate(curved),
+        child: faded,
       );
     },
   );

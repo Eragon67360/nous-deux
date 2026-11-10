@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.navigationShell});
@@ -21,6 +24,7 @@ class MainShellScreen extends ConsumerStatefulWidget {
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   RealtimeChannel? _profileChannel;
   String? _subscribedUserId;
+  bool _celebrating = false;
 
   void _subscribeToPartnerJoined(String userId) {
     if (userId == _subscribedUserId) return;
@@ -44,15 +48,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             if (partnerId != null && partnerId.toString().isNotEmpty) {
               ref.invalidate(myProfileProvider);
               ref.invalidate(myCoupleProvider);
-              if (mounted) {
-                final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(mainPartnerJoinedSnackbar(lang)),
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
-              }
+              if (mounted) setState(() => _celebrating = true);
             }
           },
         )
@@ -82,6 +78,25 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         profileAsync.valueOrNull != null &&
         (profileAsync.valueOrNull!.hasPartner == false);
 
+    return Stack(
+      children: [
+        _buildScaffold(context, lang, showNoPartnerBubble),
+        if (_celebrating)
+          Positioned.fill(
+            child: PairingCelebration(
+              lang: lang,
+              onDismissed: () => setState(() => _celebrating = false),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildScaffold(
+    BuildContext context,
+    String lang,
+    bool showNoPartnerBubble,
+  ) {
     return Scaffold(
       body: SafeArea(
         top: true,
@@ -98,10 +113,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                 ),
                 child: Material(
                   color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                   child: InkWell(
                     onTap: () => context.push('/pairing'),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.sm,
@@ -151,6 +166,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           child: NavigationBar(
             selectedIndex: widget.navigationShell.currentIndex,
             onDestinationSelected: (i) {
+              if (i != widget.navigationShell.currentIndex) {
+                HapticFeedback.selectionClick();
+              }
               const paths = [
                 '/main',
                 '/main/period',

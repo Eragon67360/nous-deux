@@ -711,8 +711,8 @@ class _PeriodGuideContentState extends ConsumerState<PeriodGuideContent> {
                     Expanded(
                       child: Text(
                         language == 'fr'
-                            ? 'Contenu adapté au partenaire : soutien et communication en premier.'
-                            : 'Content tailored for partners: support and communication first.',
+                            ? 'Version pour le ou la partenaire : comment soutenir et en parler.'
+                            : 'The partner version: how to support and how to talk about it.',
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
@@ -875,8 +875,8 @@ class _GuideFeedbackRowState extends State<_GuideFeedbackRow> {
         children: [
           Text(
             widget.language == 'fr'
-                ? 'Ce guide vous a-t-il été utile ?'
-                : 'Was this guide useful?',
+                ? 'Ce guide vous a aidé ?'
+                : 'Did this guide help?',
             style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(width: AppSpacing.sm),

@@ -553,9 +553,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     // 1. If Merged: Show ONLY the Heart marker
     if (isMerged && myPos != null) {
       // Ensure heart marker is generated
-      if (_heartMarkerBytes == null) {
-        _heartMarkerBytes = await _createHeartMarker(context);
-      }
+      _heartMarkerBytes ??= await _createHeartMarker(context);
 
       final heartIcon = _heartMarkerBytes;
       if (heartIcon == null) return;
@@ -1107,17 +1105,21 @@ class _MapboxOnlyPlaceholder extends StatelessWidget {
 String _positionTitle(String lang) => lang == 'fr' ? 'Position' : 'Location';
 String _positionNoPartnerMessage(String lang) =>
     lang == 'fr' ? 'Invitez votre partenaire' : 'Invite your partner';
-String _positionNoPartnerSecondary(String lang) =>
-    lang == 'fr' ? 'Pour partager votre position' : 'To share your location';
+String _positionNoPartnerSecondary(String lang) => lang == 'fr'
+    ? 'Une fois à deux, vous vous verrez sur la carte.'
+    : "Once they join, you'll see each other on the map.";
 String _positionInvitePartner(String lang) =>
     lang == 'fr' ? 'Inviter' : 'Invite';
 String _positionEnableSharingMessage(String lang) =>
-    lang == 'fr' ? 'Activez la localisation' : 'Enable location';
-String _positionEnableSharingSecondary(String lang) =>
-    lang == 'fr' ? 'Dans les paramètres' : 'In settings';
+    lang == 'fr' ? 'Activez la position' : 'Turn on location';
+String _positionEnableSharingSecondary(String lang) => lang == 'fr'
+    ? "Autorisez l'accès à la position dans les réglages de votre téléphone."
+    : "Allow location access in your phone's settings.";
 String _positionOpenSettings(String lang) =>
-    lang == 'fr' ? 'Paramètres' : 'Settings';
+    lang == 'fr' ? 'Ouvrir les réglages' : 'Open settings';
 String _positionReloadTooltip(String lang) =>
     lang == 'fr' ? 'Actualiser' : 'Refresh';
-String _positionReloadDone(String lang) => lang == 'fr' ? 'À jour' : 'Updated';
-String _positionMapboxOnlyMessage(String lang) => 'Mapbox Setup Required';
+String _positionReloadDone(String lang) => lang == 'fr' ? 'À jour' : 'Up to date';
+String _positionMapboxOnlyMessage(String lang) => lang == 'fr'
+    ? "Carte indisponible : la clé Mapbox n'est pas configurée."
+    : "Map unavailable: the Mapbox key isn't set up.";

@@ -3,15 +3,16 @@ String appName(String lang) => 'Nous Deux';
 String splashTagline(String lang) =>
     lang == 'fr' ? 'Là où les histoires se rejoignent' : 'Where stories meet';
 
-String mainNoPartnerBubble(String lang) =>
-    lang == 'fr'
-        ? 'Pas encore de partenaire ? Invitez-le ou invitez-la.'
-        : 'No partner yet? Invite them.';
+String mainNoPartnerBubble(String lang) => lang == 'fr'
+    ? "Votre partenaire n'est pas encore là. Envoyez-lui une invitation."
+    : "Your partner isn't here yet. Send them an invite.";
 
-String mainPartnerJoinedSnackbar(String lang) =>
-    lang == 'fr'
-        ? 'Votre partenaire a rejoint ! Bienvenue à deux.'
-        : 'Your partner has joined! Welcome, you two.';
+String pairingCelebrationTitle(String lang) =>
+    lang == 'fr' ? 'Vous voilà deux.' : "It's the two of you now.";
+
+String pairingCelebrationBody(String lang) => lang == 'fr'
+    ? 'Votre partenaire vous a rejoint. Ce que vous ajoutez ici, vous le partagez à deux.'
+    : 'Your partner is in. Whatever you add here, you now share.';
 
 String appSupabaseConfigMessage(String lang) =>
     lang == 'fr'

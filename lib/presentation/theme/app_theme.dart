@@ -1,13 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'package:nousdeux/core/constants/app_radius.dart';
+
+/// Colors that tell "mine" from "my partner's" (calendar markers, event cards).
+@immutable
+class CoupleColors extends ThemeExtension<CoupleColors> {
+  const CoupleColors({required this.mine, required this.partner});
+
+  final Color mine;
+  final Color partner;
+
+  static CoupleColors of(BuildContext context) =>
+      Theme.of(context).extension<CoupleColors>()!;
+
+  @override
+  CoupleColors copyWith({Color? mine, Color? partner}) =>
+      CoupleColors(mine: mine ?? this.mine, partner: partner ?? this.partner);
+
+  @override
+  CoupleColors lerp(CoupleColors? other, double t) {
+    if (other == null) return this;
+    return CoupleColors(
+      mine: Color.lerp(mine, other.mine, t)!,
+      partner: Color.lerp(partner, other.partner, t)!,
+    );
+  }
+}
+
 /// Warm dark theme for Nous Deux. Single theme used globally.
+///
+/// Type pairing: Instrument Serif for display and headline styles (shared with
+/// the website), DM Sans for everything else.
 abstract final class AppTheme {
   AppTheme._();
 
   // Warm dark palette
   static const Color _surface = Color(0xFF1C1917);
+  static const Color _surfaceContainerLowest = Color(0xFF141210);
+  static const Color _surfaceContainerLow = Color(0xFF221F1C);
   static const Color _surfaceContainer = Color(0xFF292524);
+  static const Color _surfaceContainerMid = Color(0xFF36312D);
   static const Color _surfaceContainerHigh = Color(0xFF44403C);
   static const Color _onSurface = Color(0xFFF5F0EB);
   static const Color _onSurfaceVariant = Color(0xFFD6D3D1);
@@ -24,6 +57,10 @@ abstract final class AppTheme {
     final colorScheme = ColorScheme.dark(
       surface: _surface,
       onSurface: _onSurface,
+      surfaceContainerLowest: _surfaceContainerLowest,
+      surfaceContainerLow: _surfaceContainerLow,
+      surfaceContainer: _surfaceContainer,
+      surfaceContainerHigh: _surfaceContainerMid,
       surfaceContainerHighest: _surfaceContainerHigh,
       primary: _primary,
       onPrimary: _onPrimary,
@@ -38,21 +75,54 @@ abstract final class AppTheme {
       onSurfaceVariant: _onSurfaceVariant,
     );
 
-    final textTheme = GoogleFonts.dmSansTextTheme(
-      ThemeData.dark().textTheme.copyWith(
-        headlineLarge: const TextStyle(
-          fontWeight: FontWeight.w300,
-          letterSpacing: -0.5,
-        ),
-        headlineMedium: const TextStyle(fontWeight: FontWeight.w600),
-        bodyLarge: TextStyle(color: _onSurfaceVariant),
+    final base = GoogleFonts.dmSansTextTheme(
+      ThemeData.dark().textTheme,
+    ).apply(bodyColor: _onSurface, displayColor: _onSurface);
+
+    // Instrument Serif ships a single regular weight: never ask it for bold.
+    TextStyle? serif(TextStyle? style, {double letterSpacing = -0.4}) =>
+        GoogleFonts.instrumentSerif(
+          textStyle: style?.copyWith(
+            fontWeight: FontWeight.w400,
+            letterSpacing: letterSpacing,
+            height: 1.1,
+          ),
+        );
+
+    final textTheme = base.copyWith(
+      displayLarge: serif(base.displayLarge, letterSpacing: -1),
+      displayMedium: serif(base.displayMedium, letterSpacing: -0.8),
+      displaySmall: serif(base.displaySmall, letterSpacing: -0.6),
+      headlineLarge: serif(base.headlineLarge),
+      headlineMedium: serif(base.headlineMedium),
+      headlineSmall: serif(base.headlineSmall, letterSpacing: -0.2),
+      // Material's default body tracking (0.5) reads loose in DM Sans.
+      bodyLarge: base.bodyLarge?.copyWith(
+        color: _onSurfaceVariant,
+        letterSpacing: 0.1,
+        height: 1.45,
       ),
+      bodyMedium: base.bodyMedium?.copyWith(letterSpacing: 0.1, height: 1.45),
+      bodySmall: base.bodySmall?.copyWith(letterSpacing: 0.2),
     );
 
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
       textTheme: textTheme,
+      extensions: const [
+        CoupleColors(mine: Color(0xFF722F37), partner: Color(0xFFFF8FA3)),
+      ],
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: _surfaceContainerHigh,
+        contentTextStyle: textTheme.bodyMedium?.copyWith(color: _onSurface),
+        actionTextColor: _primary,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+        ),
+      ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -62,25 +132,24 @@ abstract final class AppTheme {
         toolbarHeight: 72,
         titleSpacing: 24,
         titleTextStyle: textTheme.headlineMedium?.copyWith(
-          fontWeight: FontWeight.w800,
-          fontSize: 22,
+          fontSize: 30,
           color: _onSurface,
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: _surfaceContainer,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: _outlineVariant),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: _primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
           borderSide: const BorderSide(color: _error),
         ),
         contentPadding: const EdgeInsets.symmetric(
@@ -93,7 +162,7 @@ abstract final class AppTheme {
       cardTheme: CardThemeData(
         color: _surfaceContainer,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
       ),
@@ -101,7 +170,7 @@ abstract final class AppTheme {
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           textStyle: textTheme.labelLarge?.copyWith(
             fontWeight: FontWeight.w600,
@@ -112,7 +181,7 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           side: const BorderSide(color: _outline),
         ),
@@ -124,7 +193,7 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         indicatorColor: _primary.withValues(alpha: 0.2),
         indicatorShape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -139,6 +208,32 @@ abstract final class AppTheme {
           return textTheme.labelMedium?.copyWith(color: _onSurfaceVariant);
         }),
       ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          padding: const WidgetStatePropertyAll(
+            EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          ),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+          ),
+          side: const WidgetStatePropertyAll(
+            BorderSide(color: _outlineVariant),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? _primary.withValues(alpha: 0.18)
+                : Colors.transparent,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? _primary
+                : _onSurfaceVariant,
+          ),
+          textStyle: WidgetStatePropertyAll(textTheme.labelLarge),
+        ),
+      ),
       dividerTheme: const DividerThemeData(
         color: _outlineVariant,
         thickness: 1,
@@ -146,7 +241,7 @@ abstract final class AppTheme {
       scaffoldBackgroundColor: _surface,
       dialogTheme: DialogThemeData(
         backgroundColor: _surfaceContainer,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         titleTextStyle: textTheme.titleLarge?.copyWith(color: _onSurface),
         contentTextStyle: textTheme.bodyMedium?.copyWith(
           color: _onSurfaceVariant,
@@ -155,7 +250,7 @@ abstract final class AppTheme {
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: _surfaceContainer,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.md)),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(

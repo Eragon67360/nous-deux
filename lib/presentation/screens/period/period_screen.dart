@@ -168,8 +168,8 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
                                 Expanded(
                                   child: Text(
                                     lang == 'fr'
-                                        ? 'Vous consultez le journal de $partnerDisplayName.'
-                                        : 'Viewing $partnerDisplayName\'s log.',
+                                        ? 'Journal de $partnerDisplayName'
+                                        : "$partnerDisplayName's log",
                                     style: Theme.of(
                                       context,
                                     ).textTheme.bodySmall,

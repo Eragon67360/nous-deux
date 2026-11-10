@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -92,6 +93,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
       }
     }
     if (!mounted) return;
+    HapticFeedback.lightImpact();
     Navigator.of(context).pop();
   }
 
@@ -159,7 +161,7 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
             ),
             const SizedBox(height: AppSpacing.sm),
             DropdownButtonFormField<String>(
-              value: _mood,
+              initialValue: _mood,
               decoration: InputDecoration(labelText: periodMoodLabelForm(lang)),
               items: [
                 const DropdownMenuItem<String>(value: null, child: Text('—')),

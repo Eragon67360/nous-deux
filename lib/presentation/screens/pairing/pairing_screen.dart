@@ -3,12 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/theme/app_motion.dart';
+import 'package:nousdeux/presentation/widgets/empty_state.dart';
+import 'package:nousdeux/presentation/widgets/entrance.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
+import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 
 class PairingScreen extends ConsumerStatefulWidget {
   const PairingScreen({super.key});
@@ -44,7 +49,8 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
   @override
   Widget build(BuildContext context) {
     final coupleAsync = ref.watch(myCoupleProvider);
-    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final lang =
         ref.watch(myProfileProvider).valueOrNull?.language ??
         ref.watch(deviceLanguageProvider) ??
@@ -55,45 +61,80 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 220),
-            switchInCurve: Curves.easeOut,
+            duration: AppMotion.medium,
+            switchInCurve: AppMotion.enter,
             child: KeyedSubtree(
               key: ValueKey('${coupleAsync.isLoading}_${coupleAsync.hasValue}'),
               child: coupleAsync.when(
                 data: (couple) {
                   if (couple == null || !couple.isPaired) {
                     final code = couple?.pairingCode;
+                    final joinOptions = <Widget>[
+                      OutlinedButton.icon(
+                        onPressed: () => context.push('/pairing/join'),
+                        icon: const Icon(Icons.keyboard_outlined),
+                        label: Text(pairingJoinWithCode(lang)),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      OutlinedButton.icon(
+                        onPressed: () => context.push('/pairing/scan'),
+                        icon: const Icon(Icons.qr_code_scanner),
+                        label: Text(pairingScanQr(lang)),
+                      ),
+                    ];
                     if (code == null || code.isEmpty) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: AppSpacing.md),
-                          Text(
-                            pairingIntro(lang),
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                          if (_error != null) ...[
-                            const SizedBox(height: AppSpacing.sm),
-                            Text(
-                              _error!,
-                              style: TextStyle(color: colorScheme.error),
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: AppSpacing.lg),
+                            const Entrance(
+                              child: Center(child: MergingRings(size: 120)),
                             ),
+                            const SizedBox(height: AppSpacing.lg),
+                            Entrance(
+                              delay: const Duration(milliseconds: 60),
+                              child: Text(
+                                pairingIntro(lang),
+                                style: theme.textTheme.bodyLarge,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            if (_error != null) ...[
+                              const SizedBox(height: AppSpacing.sm),
+                              Text(
+                                _error!,
+                                style: TextStyle(color: colorScheme.error),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                            const SizedBox(height: AppSpacing.xl),
+                            FilledButton(
+                              onPressed: _creating ? null : _createAndShowCode,
+                              child: _creating
+                                  ? SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: colorScheme.onPrimary,
+                                      ),
+                                    )
+                                  : Text(pairingGenerateCode(lang)),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              pairingAlreadyHaveCode(lang),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            ...joinOptions,
+                            const SizedBox(height: AppSpacing.md),
                           ],
-                          const Spacer(),
-                          FilledButton(
-                            onPressed: _creating ? null : _createAndShowCode,
-                            child: _creating
-                                ? SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: colorScheme.onPrimary,
-                                    ),
-                                  )
-                                : Text(pairingGenerateCode(lang)),
-                          ),
-                        ],
+                        ),
                       );
                     }
                     return SingleChildScrollView(
@@ -103,43 +144,55 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                           const SizedBox(height: AppSpacing.sm),
                           Text(
                             pairingScanQrPrompt(lang),
-                            style: Theme.of(context).textTheme.bodyLarge,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Center(
-                            child: QrImageView(
-                              data: code,
-                              version: QrVersions.auto,
-                              size: 200,
-                              backgroundColor: Colors.white,
-                            ),
+                            style: theme.textTheme.bodyLarge,
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.md),
+                          Center(
+                            child: Entrance(
+                              child: Container(
+                                padding: const EdgeInsets.all(AppSpacing.sm),
+                                decoration: BoxDecoration(
+                                  // QR codes need a light, high-contrast field.
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.md,
+                                  ),
+                                ),
+                                child: QrImageView(
+                                  data: code,
+                                  version: QrVersions.auto,
+                                  size: 200,
+                                  padding: EdgeInsets.zero,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
                           Text(
                             pairingOrEnterCode(lang),
-                            style: Theme.of(context).textTheme.titleSmall,
+                            style: theme.textTheme.titleSmall,
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.xs),
                           SelectableText(
                             code,
-                            style: Theme.of(context).textTheme.headlineSmall
-                                ?.copyWith(
-                                  letterSpacing: 4,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.displaySmall?.copyWith(
+                              letterSpacing: 6,
+                              color: colorScheme.primary,
+                            ),
                           ),
-                          const SizedBox(height: AppSpacing.lg),
-                          OutlinedButton.icon(
-                            onPressed: () => context.push('/pairing/join'),
-                            icon: const Icon(Icons.person_add),
-                            label: Text(pairingJoinWithCode(lang)),
+                          const SizedBox(height: AppSpacing.xl),
+                          Text(
+                            pairingAlreadyHaveCode(lang),
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.sm),
-                          OutlinedButton.icon(
-                            onPressed: () => context.push('/pairing/scan'),
-                            icon: const Icon(Icons.qr_code_scanner),
-                            label: Text(pairingScanQr(lang)),
-                          ),
+                          ...joinOptions,
                           const SizedBox(height: AppSpacing.md),
                         ],
                       ),
@@ -148,8 +201,10 @@ class _PairingScreenState extends ConsumerState<PairingScreen> {
                   return Center(child: Text(pairingAlreadyPaired(lang)));
                 },
                 loading: () => const LoadingContent(),
-                error: (e, _) =>
-                    Center(child: Text('${pairingError(lang)}: $e')),
+                error: (e, _) => EmptyState(
+                  icon: Icons.wifi_off_outlined,
+                  message: pairingError(lang),
+                ),
               ),
             ),
           ),

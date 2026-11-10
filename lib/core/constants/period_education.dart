@@ -458,7 +458,7 @@ List<FaqItem> get faqList => [
     answerFr:
         'Les hormones (notamment la chute de progestérone avant les règles) peuvent augmenter la sensibilité et la réactivité. Ce n\'est pas une « excuse » : c\'est physiologique. Le soutien et la compréhension aident.',
     answerEn:
-        'Hormones (especially the drop in progesterone before your period) can increase sensitivity and reactivity. It\'s not an "excuse"—it\'s physiological. Support and understanding help.',
+        'Hormones (especially the drop in progesterone before your period) can increase sensitivity and reactivity. It\'s not an "excuse": it\'s physiological. Support and understanding help.',
   ),
 ];
 

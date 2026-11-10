@@ -1,4 +1,4 @@
-// Settings and App info strings. FR default; extend with lang param for EN later.
+// Settings and app info strings. Use lang 'fr' or 'en'.
 
 /// Bottom nav labels (used in MainShellScreen).
 String mainNavCalendar(String lang) => lang == 'fr' ? 'Calendrier' : 'Calendar';
@@ -7,21 +7,25 @@ String mainNavPosition(String lang) => lang == 'fr' ? 'Position' : 'Location';
 String mainNavSettings(String lang) => lang == 'fr' ? 'Paramètres' : 'Settings';
 
 String settingsTitle(String lang) => lang == 'fr' ? 'Paramètres' : 'Settings';
-String settingsAboutApp(String lang) => lang == 'fr' ? 'À propos' : 'About the app';
-String settingsUsername(String lang) => lang == 'fr' ? 'Nom d\'affichage' : 'Display name';
+String settingsAboutApp(String lang) => lang == 'fr' ? 'À propos' : 'About';
+String settingsUsername(String lang) =>
+    lang == 'fr' ? 'Prénom ou surnom' : 'Name or nickname';
 String settingsProfilePhoto(String lang) => lang == 'fr' ? 'Photo de profil' : 'Profile photo';
 String settingsChangePhoto(String lang) => lang == 'fr' ? 'Changer la photo' : 'Change photo';
 String settingsPermissions(String lang) => lang == 'fr' ? 'Autorisations' : 'Permissions';
 String settingsOpenAppSettings(String lang) => lang == 'fr' ? 'Ouvrir les réglages' : 'Open app settings';
 String settingsNotifications(String lang) => lang == 'fr' ? 'Notifications' : 'Notifications';
-String settingsPeriodReminder(String lang) => lang == 'fr' ? 'Rappel SPM partenaire' : 'Partner PMS reminder';
+String settingsPeriodReminder(String lang) => lang == 'fr'
+    ? 'Rappel SPM de votre partenaire'
+    : "Reminder for your partner's PMS";
 String settingsCalendarReminders(String lang) => lang == 'fr' ? 'Rappels calendrier' : 'Calendar reminders';
 String settingsCalendarRemindersSubtitle(String lang) =>
-    lang == 'fr' ? 'Rappels d\'événements (à venir)' : 'Event reminders (coming soon)';
+    lang == 'fr' ? 'Bientôt disponible' : 'Coming soon';
 String settingsPermissionGranted(String lang) => lang == 'fr' ? 'Autorisé' : 'Granted';
 String settingsPermissionDenied(String lang) => lang == 'fr' ? 'Refusé' : 'Denied';
 String settingsPermissionRestricted(String lang) => lang == 'fr' ? 'Restreint' : 'Restricted';
-String settingsPermissionPermanentDenied(String lang) => lang == 'fr' ? 'Refusé définitif' : 'Permanently denied';
+String settingsPermissionPermanentDenied(String lang) =>
+    lang == 'fr' ? 'Bloqué' : 'Blocked';
 String settingsCalendars(String lang) => lang == 'fr' ? 'Calendrier' : 'Calendar';
 String settingsNotificationsPerm(String lang) => lang == 'fr' ? 'Notifications' : 'Notifications';
 String settingsLocation(String lang) => lang == 'fr' ? 'Position' : 'Location';
@@ -33,12 +37,12 @@ String settingsShareMyLocation(String lang) =>
     lang == 'fr' ? 'Partager ma position' : 'Share my location';
 String settingsShareMyLocationSubtitle(String lang) =>
     lang == 'fr'
-        ? 'Votre partenaire peut voir votre position sur la carte.'
-        : 'Your partner can see your position on the map.';
+        ? "Votre partenaire voit où vous êtes sur la carte. Aucun historique n'est gardé."
+        : 'Your partner sees where you are on the map. No history is kept.';
 String settingsLocationRequiredForSharing(String lang) =>
     lang == 'fr'
-        ? 'La position est requise pour partager votre localisation.'
-        : 'Location is required to share your position.';
+        ? "Autorisez l'accès à la position pour la partager."
+        : 'Allow location access to share where you are.';
 String settingsCamera(String lang) => lang == 'fr' ? 'Appareil photo' : 'Camera';
 
 // Leave couple
@@ -46,35 +50,35 @@ String settingsCoupleGroup(String lang) => lang == 'fr' ? 'Couple' : 'Couple';
 String settingsLeaveCouple(String lang) => lang == 'fr' ? 'Quitter le couple' : 'Leave couple';
 String settingsLeaveCoupleSubtitle(String lang) =>
     lang == 'fr'
-        ? 'Vous ne serez plus lié à votre partenaire ; le calendrier partagé et les données de règles de ce couple seront supprimés.'
-        : 'You will no longer be linked to your partner; shared calendar and period data for this couple will be removed.';
+        ? 'Coupe le lien avec votre partenaire et supprime ce que vous partagez : calendrier, cycle et position.'
+        : 'Unlinks you from your partner and deletes what you share: calendar, cycle and location.';
 String settingsLeaveCoupleConfirmTitle(String lang) =>
     lang == 'fr' ? 'Quitter le couple ?' : 'Leave the couple?';
 String settingsLeaveCoupleConfirmMessage(String lang) =>
     lang == 'fr'
-        ? 'Êtes-vous sûr de vouloir quitter le couple ? Les données partagées (calendrier, règles) seront supprimées.'
-        : 'Are you sure you want to leave the couple? Shared data (calendar, period) will be removed.';
+        ? 'Le calendrier, le cycle et la position seront supprimés pour vous deux. Impossible de revenir en arrière.'
+        : "Your calendar, cycle and location data will be deleted for both of you. This can't be undone.";
 String settingsLeaveCoupleConfirm(String lang) => lang == 'fr' ? 'Quitter' : 'Leave';
 String settingsLeaveCoupleSuccess(String lang) =>
-    lang == 'fr' ? 'Vous avez quitté le couple.' : 'You have left the couple.';
+    lang == 'fr' ? 'Vous avez quitté le couple.' : "You've left the couple.";
 
 // App info
 String appInfoTitle(String lang) => lang == 'fr' ? 'À propos de l\'app' : 'About the app';
 String appInfoDescription(String lang) =>
     lang == 'fr'
-        ? 'Nous Deux est une application couple centrée sur la confidentialité : calendrier partagé, suivi des règles, position optionnelle.'
-        : 'Nous Deux is a privacy-focused couple app: shared calendar, period tracking, optional location.';
+        ? 'Nous Deux est une application pour les couples, pensée pour la vie privée : un calendrier commun, le suivi du cycle et, si vous le voulez, le partage de position.'
+        : 'Nous Deux is a private app for couples: a shared calendar, cycle tracking and, if you want it, location sharing.';
 String appInfoFree(String lang) =>
     lang == 'fr'
-        ? 'Ce projet est et restera gratuit, sans publicité.'
-        : 'This project is and will always be free; there will never be ads.';
+        ? "Le projet est gratuit et le restera. Il n'y aura jamais de publicité."
+        : 'The project is free and will stay free. There will never be ads.';
 String appInfoSource(String lang) => lang == 'fr' ? 'Code source' : 'Source code';
 String appInfoContributors(String lang) => lang == 'fr' ? 'Contributeurs' : 'Contributors';
 String appInfoThomasMoser(String lang) => lang == 'fr' ? 'Développement' : 'Development';
 String appInfoEvahBaumlin(String lang) =>
     lang == 'fr'
-        ? 'Contenu, explications scientifiques et féminines'
-        : 'Input, scientific and woman-focused explanations';
+        ? 'Contenu, explications scientifiques et regard féminin'
+        : "Content, scientific explanations and a woman's perspective";
 String appInfoFriends(String lang) => lang == 'fr' ? 'Soutien tout au long du projet' : 'Support along the way';
 
 // Language

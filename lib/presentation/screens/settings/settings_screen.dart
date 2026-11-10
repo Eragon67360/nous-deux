@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
@@ -143,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
           controller: controller,
           decoration: InputDecoration(
             labelText: settingsUsername(lang),
-            hintText: lang == 'fr' ? 'Prénom ou pseudo' : 'Name or nickname',
+            hintText: onboardingDisplayNameHint(lang),
             border: const OutlineInputBorder(),
           ),
           autofocus: true,
@@ -235,9 +236,13 @@ class _ProfileHeaderSection extends StatelessWidget {
                 child: InkWell(
                   customBorder: const CircleBorder(),
                   onTap: onEditAvatar,
-                  child: const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(Icons.edit, size: 16, color: Colors.white),
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xs),
+                    child: Icon(
+                      Icons.edit,
+                      size: 16,
+                      color: theme.colorScheme.onPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -612,7 +617,7 @@ class _PermissionsListBody extends ConsumerWidget {
         padding: EdgeInsets.all(16.0),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
@@ -641,7 +646,7 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
                 style: theme.textTheme.bodySmall,
               ),
               value: isSharing,
-              activeColor: theme.colorScheme.primary,
+              activeThumbColor: theme.colorScheme.primary,
               onChanged: hasCouple ? (v) => _onLocationSharingChanged(context, ref, couple.id, v, lang) : null,
             );
           },
@@ -649,14 +654,14 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             child: LinearProgressIndicator(),
           ),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         );
       },
       loading: () => const Padding(
         padding: EdgeInsets.all(16),
         child: Center(child: CircularProgressIndicator()),
       ),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 
@@ -732,7 +737,7 @@ class _LeaveCoupleSection extends ConsumerWidget {
         );
       },
       loading: () => const SizedBox.shrink(),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
     );
   }
 }
@@ -797,7 +802,7 @@ class _NotificationSwitchesBody extends ConsumerWidget {
           data: (enabled) => SwitchListTile.adaptive(
             title: Text(settingsPeriodReminder(lang), softWrap: true),
             value: enabled,
-            activeColor: theme.colorScheme.primary,
+            activeThumbColor: theme.colorScheme.primary,
             onChanged: (v) =>
                 setPartnerReminderEnabled(ref, enabled: v, lang: lang),
           ),
@@ -805,7 +810,7 @@ class _NotificationSwitchesBody extends ConsumerWidget {
             padding: EdgeInsets.all(16),
             child: LinearProgressIndicator(),
           ),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
         Divider(height: 1, indent: 16, color: theme.colorScheme.surface),
         calendarEnabled.when(
@@ -817,12 +822,12 @@ class _NotificationSwitchesBody extends ConsumerWidget {
               style: theme.textTheme.bodySmall,
             ),
             value: enabled,
-            activeColor: theme.colorScheme.primary,
+            activeThumbColor: theme.colorScheme.primary,
             onChanged: (v) =>
                 ref.read(calendarPrefsProvider.notifier).toggle(v),
           ),
           loading: () => const SizedBox.shrink(),
-          error: (_, __) => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
         ),
       ],
     );
