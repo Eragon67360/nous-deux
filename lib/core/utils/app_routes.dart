@@ -16,6 +16,10 @@ abstract final class AppRoutes {
   static const period = '/main/period';
   static const position = '/main/position';
 
+  /// Shared lists, opened from the Nous tab.
+  static const lists = '/lists';
+  static String listDetail(String id) => '/lists/$id';
+
   /// Opened from the avatar on the Nous tab; not a tab.
   static const settings = '/settings';
   static const settingsInfo = '/settings/info';

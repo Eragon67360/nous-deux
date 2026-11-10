@@ -49,14 +49,14 @@ String settingsCoupleGroup(String lang) => lang == 'fr' ? 'Couple' : 'Couple';
 String settingsLeaveCouple(String lang) => lang == 'fr' ? 'Quitter le couple' : 'Leave couple';
 String settingsLeaveCoupleSubtitle(String lang) =>
     lang == 'fr'
-        ? 'Coupe le lien avec votre partenaire et supprime ce que vous partagez : calendrier, cycle et position.'
-        : 'Unlinks you from your partner and deletes what you share: calendar, cycle and location.';
+        ? 'Coupe le lien avec votre partenaire et supprime ce que vous partagez : calendrier, cycle, position, listes et petits mots.'
+        : 'Unlinks you from your partner and deletes what you share: calendar, cycle, location, lists and little notes.';
 String settingsLeaveCoupleConfirmTitle(String lang) =>
     lang == 'fr' ? 'Quitter le couple ?' : 'Leave the couple?';
 String settingsLeaveCoupleConfirmMessage(String lang) =>
     lang == 'fr'
-        ? 'Le calendrier, le cycle et la position seront supprimés pour vous deux. Impossible de revenir en arrière.'
-        : "Your calendar, cycle and location data will be deleted for both of you. This can't be undone.";
+        ? 'Le calendrier, le cycle, la position, les listes et les petits mots seront supprimés pour vous deux. Impossible de revenir en arrière.'
+        : "Your calendar, cycle, location, lists and little notes will be deleted for both of you. This can't be undone.";
 String settingsLeaveCoupleConfirm(String lang) => lang == 'fr' ? 'Quitter' : 'Leave';
 String settingsLeaveCoupleSuccess(String lang) =>
     lang == 'fr' ? 'Vous avez quitté le couple.' : "You've left the couple.";

@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/data/datasources/lists_remote_datasource.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/data/datasources/ping_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/calendar_remote_datasource.dart';
@@ -232,6 +233,40 @@ void main() {
       expect(r.url.path, '/rest/v1/rpc/send_ping');
       expect(_body(r), {'p_kind': 'miss_you'});
       expect(sent.kind, PingKind.missYou);
+    });
+  });
+
+  group('ListsRemoteDatasource', () {
+    const listRow = {
+      'id': 'l1',
+      'couple_id': 'c1',
+      'name': 'Courses',
+      'icon': 'cart',
+      'created_by': 'u1',
+    };
+
+    test('addItem leaves the author to the database', () async {
+      final requests = <http.Request>[];
+      final ds = ListsRemoteDatasource(_client(listRow, requests));
+
+      await ds.addItem(coupleId: 'c1', listId: 'l1', text: 'Pain');
+
+      final r = requests.single;
+      expect(r.method, 'POST');
+      expect(r.url.path, '/rest/v1/shared_list_items');
+      expect(_body(r), {'list_id': 'l1', 'couple_id': 'c1', 'text': 'Pain'});
+    });
+
+    test('clearChecked deletes only the ticked items of that list', () async {
+      final requests = <http.Request>[];
+      final ds = ListsRemoteDatasource(_client(listRow, requests));
+
+      await ds.clearChecked('l1');
+
+      final r = requests.single;
+      expect(r.method, 'DELETE');
+      expect(r.url.queryParameters['list_id'], 'eq.l1');
+      expect(r.url.queryParameters['checked'], 'eq.true');
     });
   });
 }

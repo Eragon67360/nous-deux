@@ -11,6 +11,8 @@ import 'package:nousdeux/presentation/providers/splash_provider.dart';
 import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
 import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
+import 'package:nousdeux/presentation/screens/lists/list_detail_screen.dart';
+import 'package:nousdeux/presentation/screens/lists/lists_screen.dart';
 import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
 import 'package:nousdeux/presentation/screens/nous/nous_screen.dart';
 import 'package:nousdeux/presentation/screens/onboarding/onboarding_screen.dart';
@@ -210,6 +212,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.pairingScan,
         pageBuilder: (_, state) => _fadePage(state, const PairingScanScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.lists,
+        pageBuilder: (_, state) => _fadePage(state, const ListsScreen()),
+        routes: [
+          GoRoute(
+            path: ':id',
+            pageBuilder: (_, state) => _fadePage(
+              state,
+              ListDetailScreen(listId: state.pathParameters['id']!),
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.settings,

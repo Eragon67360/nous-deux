@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/presentation/providers/lists_provider.dart';
+import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
@@ -56,10 +58,13 @@ class TestDeps {
     LocationSharingEntity? myLocation,
     LocationSharingEntity? partnerLocation,
     List<PingEntity>? pings,
+    List<SharedListEntity>? lists,
+    List<ListItemEntity>? listItems,
     DateTime? now,
     this.deviceLanguage = 'fr',
   }) : now = now ?? DateTime(2026, 11, 10, 18),
        pings = FakePingRepository(pings),
+       lists = FakeListsRepository(lists: lists, items: listItems),
        auth = FakeAuthRepository(user: user),
        profiles = FakeProfileRepository(
          mine: myProfile ?? profile(partner: partner?.id),
@@ -81,6 +86,7 @@ class TestDeps {
   final FakeLocationRepository location;
   final FakeRealtime realtime = FakeRealtime();
   final FakePingRepository pings;
+  final FakeListsRepository lists;
 
   /// What the app reads as "now" (clockProvider).
   final DateTime now;
@@ -97,6 +103,7 @@ class TestDeps {
     locationUpdateNotifierProvider.overrideWith(FakeLocationUpdateNotifier.new),
     realtimeChannelFactoryProvider.overrideWithValue(realtime.open),
     pingRepositoryProvider.overrideWithValue(pings),
+    listsRepositoryProvider.overrideWithValue(lists),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
   ];

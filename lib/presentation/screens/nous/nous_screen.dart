@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/lists_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/domain/nous/nous_dates.dart';
+import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -84,6 +86,11 @@ class NousScreen extends ConsumerWidget {
               Entrance(
                 delay: const Duration(milliseconds: 120),
                 child: _UpcomingRow(lang: lang, since: since),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Entrance(
+                delay: const Duration(milliseconds: 180),
+                child: _ListsPreview(lang: lang),
               ),
             ],
           ],
@@ -526,6 +533,101 @@ class _SmallCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _ListsPreview extends ConsumerWidget {
+  const _ListsPreview({required this.lang});
+
+  final String lang;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final lists = ref.watch(sharedListsProvider).valueOrNull ?? const [];
+    final divider = BorderSide(color: theme.colorScheme.surfaceContainerHigh);
+
+    Widget row(
+      String title,
+      String trailing,
+      VoidCallback onTap, {
+      bool last = false,
+    }) {
+      return InkWell(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            border: Border(
+              top: divider,
+              bottom: last ? divider : BorderSide.none,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+              ),
+              Text(
+                trailing,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final shown = lists.take(2).toList();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                listsTitle(lang),
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => context.push(AppRoutes.lists),
+              child: Text(listsSeeAll(lang)),
+            ),
+          ],
+        ),
+        if (shown.isEmpty)
+          row(
+            listsNew(lang),
+            '+',
+            () => context.push(AppRoutes.lists),
+            last: true,
+          )
+        else
+          for (final (i, list) in shown.indexed)
+            Consumer(
+              builder: (context, ref, _) {
+                final counts = ref.watch(listCountsProvider(list.id));
+                return row(
+                  list.name,
+                  listsCounts(lang, counts.open, counts.total),
+                  () => context.push(AppRoutes.listDetail(list.id)),
+                  last: i == shown.length - 1,
+                );
+              },
+            ),
+      ],
     );
   }
 }

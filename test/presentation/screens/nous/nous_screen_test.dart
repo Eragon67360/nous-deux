@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:nousdeux/domain/entities/shared_list_entity.dart';
+import 'package:nousdeux/core/constants/lists_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
@@ -41,6 +43,8 @@ Future<void> _pump(WidgetTester tester, TestDeps deps) => pumpRouter(
     stubRoute(AppRoutes.settings),
     stubRoute(AppRoutes.pairing),
     stubRoute(AppRoutes.calendar),
+    stubRoute(AppRoutes.lists),
+    stubRoute('/lists/:id'),
   ],
 ).then((_) {});
 
@@ -166,5 +170,26 @@ void main() {
 
     expect(find.text(nousNoCountdown('fr')), findsOneWidget);
     expect(find.text(nousNoCountdownHint('fr')), findsOneWidget);
+  });
+
+  testWidgets('previews the lists and opens them', (tester) async {
+    final deps = TestDeps(
+      now: _now,
+      myProfile: profile(partner: partnerId),
+      partner: partnerProfile(),
+      couple: couple(pairingCode: null, togetherSince: DateTime(2025, 9, 24)),
+      lists: const [
+        SharedListEntity(id: 'l1', coupleId: coupleId, name: 'Courses', icon: ListIcon.cart, createdBy: meId),
+      ],
+    );
+    await _pump(tester, deps);
+
+    await tester.scrollUntilVisible(find.text('Courses'), 200);
+    expect(find.text(listsCounts('fr', 0, 0)), findsOneWidget);
+    await tester.ensureVisible(find.text(listsSeeAll('fr')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(listsSeeAll('fr')));
+    await tester.pumpAndSettle();
+    expect(find.text('stub:${AppRoutes.lists}'), findsOneWidget);
   });
 }

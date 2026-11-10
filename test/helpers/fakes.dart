@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:nousdeux/domain/repositories/lists_repository.dart';
+import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/domain/repositories/ping_repository.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/core/errors/failures.dart';
@@ -601,5 +603,137 @@ class FakePingRepository implements PingRepository {
       ),
       failure: null,
     );
+  }
+}
+
+class FakeListsRepository implements ListsRepository {
+  FakeListsRepository({List<SharedListEntity>? lists, List<ListItemEntity>? items})
+    : lists = [...?lists],
+      items = [...?items];
+
+  final List<SharedListEntity> lists;
+  final List<ListItemEntity> items;
+  final _listsController = StreamController<List<SharedListEntity>>.broadcast();
+  final _itemsController = StreamController<List<ListItemEntity>>.broadcast();
+  Failure? nextFailure;
+  int _ids = 0;
+
+  final calls = <String>[];
+
+  Failure? _take() {
+    final f = nextFailure;
+    nextFailure = null;
+    return f;
+  }
+
+  void _publish() {
+    _listsController.add(List.unmodifiable(lists));
+    _itemsController.add(List.unmodifiable(items));
+  }
+
+  @override
+  Stream<List<SharedListEntity>> watchLists() async* {
+    yield List.unmodifiable(lists);
+    yield* _listsController.stream;
+  }
+
+  @override
+  Stream<List<ListItemEntity>> watchItems() async* {
+    yield List.unmodifiable(items);
+    yield* _itemsController.stream;
+  }
+
+  @override
+  Future<ListResult> createList({required String name, required ListIcon icon}) async {
+    calls.add('create:$name:${icon.name}');
+    final f = _take();
+    if (f != null) return (list: null, failure: f);
+    final list = SharedListEntity(
+      id: 'list-${++_ids}',
+      coupleId: coupleId,
+      name: name,
+      icon: icon,
+      createdBy: meId,
+    );
+    lists.add(list);
+    _publish();
+    return (list: list, failure: null);
+  }
+
+  @override
+  Future<Failure?> renameList(String listId, String name) async {
+    calls.add('rename:$listId:$name');
+    final i = lists.indexWhere((l) => l.id == listId);
+    final l = lists[i];
+    lists[i] = SharedListEntity(
+      id: l.id,
+      coupleId: l.coupleId,
+      name: name,
+      icon: l.icon,
+      createdBy: l.createdBy,
+    );
+    _publish();
+    return _take();
+  }
+
+  @override
+  Future<Failure?> deleteList(String listId) async {
+    calls.add('deleteList:$listId');
+    lists.removeWhere((l) => l.id == listId);
+    items.removeWhere((i) => i.listId == listId);
+    _publish();
+    return _take();
+  }
+
+  @override
+  Future<Failure?> addItem(String listId, String text) async {
+    calls.add('add:$listId:$text');
+    final f = _take();
+    if (f != null) return f;
+    items.add(
+      ListItemEntity(
+        id: 'item-${++_ids}',
+        listId: listId,
+        text: text,
+        checked: false,
+        addedBy: meId,
+        createdAt: DateTime(2026, 11, 10, 18, _ids),
+      ),
+    );
+    _publish();
+    return null;
+  }
+
+  @override
+  Future<Failure?> setChecked(String itemId, bool checked) async {
+    calls.add('check:$itemId:$checked');
+    final i = items.indexWhere((x) => x.id == itemId);
+    final x = items[i];
+    items[i] = ListItemEntity(
+      id: x.id,
+      listId: x.listId,
+      text: x.text,
+      checked: checked,
+      addedBy: x.addedBy,
+      createdAt: x.createdAt,
+    );
+    _publish();
+    return _take();
+  }
+
+  @override
+  Future<Failure?> deleteItem(String itemId) async {
+    calls.add('deleteItem:$itemId');
+    items.removeWhere((x) => x.id == itemId);
+    _publish();
+    return _take();
+  }
+
+  @override
+  Future<Failure?> clearChecked(String listId) async {
+    calls.add('clear:$listId');
+    items.removeWhere((x) => x.listId == listId && x.checked);
+    _publish();
+    return _take();
   }
 }
