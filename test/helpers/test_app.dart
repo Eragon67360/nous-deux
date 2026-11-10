@@ -98,6 +98,7 @@ class TestDeps {
     realtimeChannelFactoryProvider.overrideWithValue(realtime.open),
     pingRepositoryProvider.overrideWithValue(pings),
     clockProvider.overrideWithValue(() => now),
+    minuteTickProvider.overrideWith((ref) => Stream.value(0)),
   ];
 }
 

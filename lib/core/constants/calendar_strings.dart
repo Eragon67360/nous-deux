@@ -87,3 +87,6 @@ String calendarEventCountdown(String lang) =>
 String calendarEventCountdownHint(String lang) => lang == 'fr'
     ? "Affiché dans l'onglet Nous jusqu'au jour J."
     : 'Shown on the Nous tab until the day comes.';
+String calendarEventEndBeforeStart(String lang) => lang == 'fr'
+    ? 'La fin doit venir après le début.'
+    : 'The end has to come after the start.';

@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
-import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
@@ -47,7 +46,10 @@ class NousScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(
-                  child: Text(nousTitle(lang), style: theme.textTheme.displaySmall),
+                  child: Text(
+                    nousTitle(lang),
+                    style: theme.textTheme.displaySmall,
+                  ),
                 ),
                 _AvatarButton(
                   initial: _initial(profile?.username),
@@ -70,7 +72,9 @@ class NousScreen extends ConsumerWidget {
                 ),
               )
             else ...[
-              Entrance(child: _DaysCard(lang: lang, since: since)),
+              Entrance(
+                child: _DaysCard(lang: lang, since: since),
+              ),
               const SizedBox(height: AppSpacing.md),
               Entrance(
                 delay: const Duration(milliseconds: 60),
@@ -117,8 +121,8 @@ class _AvatarButton extends StatelessWidget {
           customBorder: const CircleBorder(),
           onTap: onPressed,
           child: SizedBox(
-            width: 44,
-            height: 44,
+            width: 48,
+            height: 48,
             child: Center(
               child: Text(
                 initial,
@@ -162,7 +166,9 @@ class _DaysCard extends ConsumerWidget {
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(failure == null ? nousStartSaved(lang) : nousNoteFailed(lang)),
+        content: Text(
+          failure == null ? nousStartSaved(lang) : nousNoteFailed(lang),
+        ),
       ),
     );
   }
@@ -171,6 +177,7 @@ class _DaysCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
+    ref.watch(minuteTickProvider);
     final days = daysTogether(since, ref.watch(clockProvider)());
     final reduced = AppMotion.reduced(context);
 
@@ -204,38 +211,52 @@ class _DaysCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: 6),
                 TweenAnimationBuilder<double>(
-                  tween: Tween(begin: reduced ? days.toDouble() : 0, end: days.toDouble()),
-                  duration: reduced ? Duration.zero : const Duration(milliseconds: 900),
+                  tween: Tween(
+                    begin: reduced ? days.toDouble() : 0,
+                    end: days.toDouble(),
+                  ),
+                  duration: reduced
+                      ? Duration.zero
+                      : const Duration(milliseconds: 900),
                   curve: AppMotion.enter,
-                  builder: (context, value, _) => Row(
-                    crossAxisAlignment: CrossAxisAlignment.baseline,
-                    textBaseline: TextBaseline.alphabetic,
-                    children: [
-                      Text(
-                        '${value.round()}',
-                        semanticsLabel: '$days ${nousDaysUnit(lang, days)}',
-                        style: theme.textTheme.displayLarge?.copyWith(
-                          fontSize: 88,
-                          height: 0.95,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ExcludeSemantics(
-                        child: Text(
-                          nousDaysUnit(lang, days),
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontStyle: FontStyle.italic,
+                  // Scales down instead of overflowing at large text sizes.
+                  builder: (context, value, _) => FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.baseline,
+                      textBaseline: TextBaseline.alphabetic,
+                      children: [
+                        Text(
+                          '${value.round()}',
+                          semanticsLabel: '$days ${nousDaysUnit(lang, days)}',
+                          style: theme.textTheme.displayLarge?.copyWith(
+                            fontSize: 88,
+                            height: 0.95,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 10),
+                        ExcludeSemantics(
+                          child: Text(
+                            nousDaysUnit(lang, days),
+                            style: theme.textTheme.headlineMedium?.copyWith(
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Text(nousSinceDate(lang, since), style: theme.textTheme.bodyMedium),
+                    Text(
+                      nousSinceDate(lang, since),
+                      style: theme.textTheme.bodyMedium,
+                    ),
                     TextButton(
                       onPressed: () => _edit(context, ref),
                       child: Text(nousEdit(lang)),
@@ -270,12 +291,7 @@ class _PingSectionState extends ConsumerState<_PingSection> {
     final result = await ref.read(pingRepositoryProvider).send(kind);
     if (!mounted) return;
     setState(() => _sending = null);
-    final failure = result.failure;
-    final message = switch (failure) {
-      null => nousNoteSent(widget.lang, kind),
-      PingFailure(problem: PingProblem.cooldown) => nousNoteCooldown(widget.lang),
-      _ => nousNoteFailed(widget.lang),
-    };
+    final message = pingResultMessage(widget.lang, kind, result.failure);
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -287,6 +303,7 @@ class _PingSectionState extends ConsumerState<_PingSection> {
     final lang = widget.lang;
     final partnerPing = ref.watch(partnerLastPingProvider);
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
+    ref.watch(minuteTickProvider);
     final now = ref.watch(clockProvider)();
 
     return Column(
@@ -374,7 +391,11 @@ class _PingChip extends StatelessWidget {
     const shape = StadiumBorder();
     const padding = EdgeInsets.symmetric(horizontal: 16);
     final child = busy
-        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+        ? const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
         : Text(label);
     return SizedBox(
       height: 44,
@@ -390,7 +411,9 @@ class _PingChip extends StatelessWidget {
                 shape: shape,
                 padding: padding,
                 foregroundColor: Theme.of(context).colorScheme.onSurface,
-                side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
               child: child,
             ),
@@ -406,6 +429,7 @@ class _UpcomingRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(minuteTickProvider);
     final now = ref.watch(clockProvider)();
     final next = ref.watch(upcomingCountdownsProvider).firstOrNull;
     final anniversary = nextAnniversary(since, now);

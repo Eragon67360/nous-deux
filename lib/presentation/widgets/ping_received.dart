@@ -10,7 +10,9 @@ import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 
 /// Full-screen moment when the partner's little note arrives while the app
-/// is open. Two quick replies; tap anywhere else to close. Leaves on its own.
+/// is open. Two quick replies; tap anywhere else or go Back to close. Leaves
+/// on its own after a few seconds, except with a screen reader on, where it
+/// waits to be closed.
 class PingReceived extends StatefulWidget {
   const PingReceived({
     super.key,
@@ -46,7 +48,18 @@ class _PingReceivedState extends State<PingReceived>
   void initState() {
     super.initState();
     HapticFeedback.mediumImpact();
-    _timer = Timer(_stay, _dismiss);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final screenReader = MediaQuery.accessibleNavigationOf(context);
+    if (screenReader) {
+      _timer?.cancel();
+      _timer = null;
+    } else if (_timer == null && !_leaving) {
+      _timer = Timer(_stay, _dismiss);
+    }
   }
 
   @override
@@ -74,71 +87,93 @@ class _PingReceivedState extends State<PingReceived>
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final lang = widget.lang;
-    return FadeTransition(
-      opacity: _fade,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: _dismiss,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-              center: const Alignment(0, -0.15),
-              radius: 0.85,
-              colors: [
-                Color.alphaBlend(
-                  scheme.primary.withValues(alpha: 0.14),
-                  scheme.surface,
-                ),
-                scheme.surface.withValues(alpha: 0.97),
-              ],
-            ),
-          ),
-          child: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const ExcludeSemantics(child: MergingRings(size: 168)),
-                    const SizedBox(height: AppSpacing.md),
-                    Semantics(
-                      liveRegion: true,
-                      child: Text(
-                        pingReceivedTitle(lang, widget.kind, widget.partnerName),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.displaySmall,
-                      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _dismiss();
+      },
+      // Screen readers stay on the note, not the tab underneath.
+      child: BlockSemantics(
+        child: FadeTransition(
+          opacity: _fade,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: _dismiss,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0, -0.15),
+                  radius: 0.85,
+                  colors: [
+                    Color.alphaBlend(
+                      scheme.primary.withValues(alpha: 0.14),
+                      scheme.surface,
                     ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(pingJustNow(lang), style: theme.textTheme.bodyMedium),
-                    const SizedBox(height: AppSpacing.lg),
-                    Wrap(
-                      spacing: 10,
-                      runSpacing: 10,
-                      alignment: WrapAlignment.center,
+                    scheme.surface.withValues(alpha: 0.97),
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        FilledButton(
-                          onPressed: () => _reply(PingKind.thinkingOfYou),
-                          style: FilledButton.styleFrom(shape: const StadiumBorder()),
-                          child: Text(pingReplyMeToo(lang)),
+                        const ExcludeSemantics(child: MergingRings(size: 168)),
+                        const SizedBox(height: AppSpacing.md),
+                        Semantics(
+                          liveRegion: true,
+                          child: Text(
+                            pingReceivedTitle(
+                              lang,
+                              widget.kind,
+                              widget.partnerName,
+                            ),
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.displaySmall,
+                          ),
                         ),
-                        OutlinedButton(
-                          onPressed: () => _reply(PingKind.kiss),
-                          style: OutlinedButton.styleFrom(shape: const StadiumBorder()),
-                          child: Text(pingLabel(lang, PingKind.kiss)),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          pingJustNow(lang),
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          alignment: WrapAlignment.center,
+                          children: [
+                            FilledButton(
+                              onPressed: () => _reply(PingKind.thinkingOfYou),
+                              style: FilledButton.styleFrom(
+                                shape: const StadiumBorder(),
+                              ),
+                              child: Text(pingReplyMeToo(lang)),
+                            ),
+                            OutlinedButton(
+                              onPressed: () => _reply(PingKind.kiss),
+                              style: OutlinedButton.styleFrom(
+                                shape: const StadiumBorder(),
+                              ),
+                              child: Text(pingLabel(lang, PingKind.kiss)),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        TextButton(
+                          onPressed: _dismiss,
+                          child: Text(
+                            pingTapToClose(lang),
+                            style: TextStyle(color: scheme.onSurfaceVariant),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    TextButton(
-                      onPressed: _dismiss,
-                      child: Text(
-                        pingTapToClose(lang),
-                        style: TextStyle(color: scheme.onSurfaceVariant),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

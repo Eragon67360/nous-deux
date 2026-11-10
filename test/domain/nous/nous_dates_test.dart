@@ -29,6 +29,14 @@ void main() {
       // Europe switches to winter time on 25 Oct 2026.
       expect(daysTogether(DateTime(2026, 10, 24), DateTime(2026, 10, 26)), 2);
     });
+
+    test('reads UTC times (event starts from the server) as local days', () {
+      // 00:30 tomorrow here is still "today" in UTC east of Greenwich.
+      final startUtc = DateTime(2026, 11, 11, 0, 30).toUtc();
+      expect(daysUntil(startUtc, DateTime(2026, 11, 10, 12)), 1);
+      final lateUtc = DateTime(2026, 11, 10, 23, 30).toUtc();
+      expect(daysUntil(lateUtc, DateTime(2026, 11, 10, 8)), 0);
+    });
   });
 
   group('nextAnniversary', () {

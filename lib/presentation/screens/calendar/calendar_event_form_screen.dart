@@ -69,6 +69,11 @@ class _CalendarEventFormScreenState
     if (!_formKey.currentState!.validate()) return;
     final title = _titleController.text.trim();
     if (title.isEmpty) return;
+    if (_endTime.isBefore(_startTime)) {
+      final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
+      setState(() => _error = calendarEventEndBeforeStart(lang));
+      return;
+    }
     setState(() {
       _error = null;
       _loading = true;
@@ -175,15 +180,21 @@ class _CalendarEventFormScreenState
                   initialTime: TimeOfDay.fromDateTime(_startTime),
                 );
                 if (time == null || !mounted) return;
-                setState(
-                  () => _startTime = DateTime(
+                setState(() {
+                  final duration = _endTime.difference(_startTime);
+                  _startTime = DateTime(
                     date.year,
                     date.month,
                     date.day,
                     time.hour,
                     time.minute,
-                  ),
-                );
+                  );
+                  // Moving the start keeps the event's length, so the end
+                  // never lands before it.
+                  _endTime = _startTime.add(
+                    duration.isNegative ? const Duration(hours: 1) : duration,
+                  );
+                });
               },
             ),
             ListTile(

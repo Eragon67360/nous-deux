@@ -6,7 +6,9 @@
 DateTime parseDay(Object raw) {
   final text = '$raw';
   if (text.length == 10) return DateTime.parse(text);
-  final t = DateTime.parse(text).toUtc();
+  // With a zone, DateTime.parse returns a UTC time, so the fields give the
+  // UTC day. Without one, they are the fields as written: never convert.
+  final t = DateTime.parse(text);
   return DateTime(t.year, t.month, t.day);
 }
 

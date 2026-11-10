@@ -65,6 +65,15 @@ void main() {
     });
   }
 
+  testWidgets('the day counter fits at the largest text size', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 3;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await _pump(tester, _paired(since: DateTime(1990, 1, 1)));
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('13462'), findsOneWidget);
+  });
+
   testWidgets('falls back to the pairing day when no start date is stored', (tester) async {
     final deps = TestDeps(
       now: _now,

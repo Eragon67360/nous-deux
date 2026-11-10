@@ -244,5 +244,26 @@ void main() {
       );
       expect(deps.calendar.updateCalls.single.description, isNull);
     });
+
+    testWidgets('an end before the start is refused with a message', (
+      tester,
+    ) async {
+      final deps = await _openForm(
+        tester,
+        editing: event(
+          id: 'e3',
+          title: 'Dîner',
+          start: DateTime(2026, 3, 14, 20),
+          end: DateTime(2026, 3, 14, 19),
+        ),
+      );
+
+      await tester.tap(find.text(calendarEventSave('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(calendarEventEndBeforeStart('fr')), findsOneWidget);
+      expect(deps.calendar.updateCalls, isEmpty);
+      expect(find.byType(CalendarEventFormScreen), findsOneWidget);
+    });
   });
 }

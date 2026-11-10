@@ -98,7 +98,12 @@ class PairingRemoteDatasource {
       throw const PairingException(PairingProblem.ownCode);
     }
 
-    await _client.from(_table).update({'user2_id': uid}).eq('id', coupleId);
+    // The joiner's local day: the server's CURRENT_DATE is UTC and can be off
+    // by one late in the evening in Europe.
+    await _client
+        .from(_table)
+        .update({'user2_id': uid, 'together_since': formatDay(DateTime.now())})
+        .eq('id', coupleId);
 
     final res = await _client.from(_table).select().eq('id', coupleId).single();
     return CoupleModel.fromJson(Map<String, dynamic>.from(res));

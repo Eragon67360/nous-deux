@@ -1,11 +1,14 @@
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 
-/// Whole days between [since] and [today], counting calendar days (never
-/// negative). Day one is the day after [since].
+/// Whole days between [since] and [today], counting calendar days on this
+/// device (never negative). Day one is the day after [since]. UTC inputs,
+/// such as event times from the server, are read in local time first.
 int daysTogether(DateTime since, DateTime today) {
-  final diff = DateTime.utc(today.year, today.month, today.day)
-      .difference(DateTime.utc(since.year, since.month, since.day))
+  final a = since.toLocal();
+  final b = today.toLocal();
+  final diff = DateTime.utc(b.year, b.month, b.day)
+      .difference(DateTime.utc(a.year, a.month, a.day))
       .inDays;
   return diff < 0 ? 0 : diff;
 }

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
+import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
@@ -211,11 +212,85 @@ void main() {
       expect(find.byType(PingReceived), findsNothing);
     });
 
-    testWidgets('a note sent within the last minute shows on start', (tester) async {
+    testWidgets('a note already there on start, however recent, stays quiet', (
+      tester,
+    ) async {
+      // Its push already went out; opening the app shows it on the Nous tab.
       final deps = paired(pings: [note(DateTime(2026, 11, 10, 17, 59, 30))]);
       await _pumpShell(tester, deps);
 
+      expect(find.byType(PingReceived), findsNothing);
+    });
+
+    testWidgets('the same note arriving again does not show twice', (
+      tester,
+    ) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      final evening = note(DateTime(2026, 11, 10, 18));
+      deps.pings.emit([evening]);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(pingTapToClose('fr')));
+      await tester.pumpAndSettle();
+
+      // My own note changes the snapshot; the partner's is unchanged.
+      deps.pings.emit([
+        evening,
+        PingEntity(
+          coupleId: coupleId,
+          senderId: meId,
+          kind: PingKind.kiss,
+          sentAt: DateTime(2026, 11, 10, 18, 1),
+        ),
+      ]);
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PingReceived), findsNothing);
+    });
+
+    testWidgets('a reply that fails says so', (tester) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
+      await tester.pumpAndSettle();
+
+      deps.pings.nextFailure = const PingFailure(PingProblem.cooldown);
+      await tester.tap(find.text(pingReplyMeToo('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(nousNoteCooldown('fr')), findsOneWidget);
+    });
+
+    testWidgets('with a screen reader on, it waits to be closed', (
+      tester,
+    ) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(accessibleNavigation: true);
+      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
+      await tester.pumpAndSettle();
+
+      await tester.pump(const Duration(seconds: 30));
       expect(find.byType(PingReceived), findsOneWidget);
+
+      await tester.tap(find.text(pingTapToClose('fr')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PingReceived), findsNothing);
+    });
+
+    testWidgets('otherwise it leaves on its own after a few seconds', (
+      tester,
+    ) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
+      await tester.pumpAndSettle();
+
+      await tester.pump(const Duration(seconds: 7));
+      await tester.pumpAndSettle();
+      expect(find.byType(PingReceived), findsNothing);
     });
   });
 }

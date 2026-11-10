@@ -36,19 +36,54 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   /// The partner's note currently shown full screen, if any.
   PingEntity? _incomingPing;
 
-  /// A note arriving while the app is open, or sent in the last minute when
-  /// the app starts (e.g. opened from its push), gets the full-screen moment.
-  void _onPartnerPing(PingEntity? previous, PingEntity? next) {
-    if (next == null || !mounted) return;
-    final now = ref.read(clockProvider)();
-    final fresh = previous == null
-        ? now.difference(next.sentAt) < const Duration(minutes: 1)
-        : next.sentAt.isAfter(previous.sentAt);
-    if (fresh) setState(() => _incomingPing = next);
+  /// Who the notes stream belongs to and the partner's latest note in its
+  /// first snapshot. Null until that snapshot arrives for a paired couple.
+  ({String user, DateTime? latest})? _pingBaseline;
+
+  @override
+  void initState() {
+    super.initState();
+    ref.listenManual<AsyncValue<List<PingEntity>>>(
+      couplePingsProvider,
+      (_, next) => _onPings(next),
+      fireImmediately: true,
+    );
+  }
+
+  /// Only a partner note newer than what the stream first showed gets the
+  /// full-screen moment: notes already there at launch were already pushed,
+  /// and a stream restart (couple or account change) sets a new baseline.
+  void _onPings(AsyncValue<List<PingEntity>> pings) {
+    if (pings.isLoading || !pings.hasValue) return;
+    final me = ref.read(currentUserProvider).valueOrNull?.id;
+    final paired = ref.read(myCoupleProvider).valueOrNull?.isPaired ?? false;
+    if (me == null || !paired) {
+      _pingBaseline = null;
+      return;
+    }
+    final latest = latestPing(pings.requireValue, (sender) => sender != me);
+    final baseline = _pingBaseline;
+    if (baseline == null || baseline.user != me) {
+      _pingBaseline = (user: me, latest: latest?.sentAt);
+      return;
+    }
+    if (latest == null) return;
+    final seen = baseline.latest;
+    if (seen != null && !latest.sentAt.isAfter(seen)) return;
+    _pingBaseline = (user: me, latest: latest.sentAt);
+    if (mounted) setState(() => _incomingPing = latest);
   }
 
   Future<void> _reply(PingKind kind) async {
-    await ref.read(pingRepositoryProvider).send(kind);
+    final messenger = ScaffoldMessenger.of(context);
+    final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final result = await ref.read(pingRepositoryProvider).send(kind);
+    if (!mounted) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(pingResultMessage(lang, kind, result.failure))),
+      );
   }
 
   void _subscribeToPartnerJoined(String userId) {
@@ -101,7 +136,6 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
         (profileAsync.valueOrNull!.hasPartner == false);
-    ref.listen<PingEntity?>(partnerLastPingProvider, _onPartnerPing);
     final incoming = _incomingPing;
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
 
