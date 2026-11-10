@@ -175,6 +175,7 @@
   --travel: 44vw;
 }
 .nd-merge__stage {
+  overflow: clip; /* see .nd-share__stage: no pre-mount overflow on phones */
   display: grid;
   grid-template-rows: auto 1fr auto;
   justify-items: center;
@@ -228,7 +229,9 @@
 .nd-merge__body { max-width: 40ch; margin-top: var(--sc-5); }
 
 /* ------------------------------------------------------- 3 · the rail -- */
-.nd-share__stage { display: flex; align-items: center; }
+/* Clip from first paint: before the engine mounts, the 2000px-wide rail
+   would make phone browsers zoom out to fit it, then snap back (CLS 1.0). */
+.nd-share__stage { display: flex; align-items: center; overflow: clip; }
 .nd-rail {
   display: flex;
   align-items: flex-end;
@@ -323,6 +326,7 @@
 .nd-close__stage {
   position: relative;
   isolation: isolate;
+  overflow: clip;
   display: grid;
   grid-template-rows: 1fr auto;
   padding: calc(var(--sc-9) + 0.5rem) var(--sc-gutter) var(--sc-6);
