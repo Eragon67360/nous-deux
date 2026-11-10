@@ -51,3 +51,5 @@ lib/core/config/supabase_keys.dart
 lib/core/config/mapbox_keys.dart
 
 .env
+# Smoke test dependencies (infra/supabase)
+infra/supabase/node_modules/

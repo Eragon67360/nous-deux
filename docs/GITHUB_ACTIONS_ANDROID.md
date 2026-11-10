@@ -17,8 +17,9 @@ Add these in **Settings → Secrets and variables → Actions**:
 
 | Secret                         | Description                                                        |
 | ------------------------------ | ------------------------------------------------------------------ |
-| `SUPABASE_URL`                 | Your Supabase project URL (e.g. `https://xxxx.supabase.co`).       |
+| `SUPABASE_URL`                 | `https://api.nous-deux.app` (self-hosted, see `docs/SELF_HOSTING.md`). |
 | `SUPABASE_ANON_KEY`            | Supabase anon (public) key. Same as in `docs/SUPABASE_KEYS.md`.    |
+| `GOOGLE_WEB_CLIENT_ID`         | Google OAuth **web** client id, needed for Google sign-in on Android. |
 | `ANDROID_KEYSTORE_BASE64`      | Your upload keystore file, **base64-encoded** (see below).         |
 | `ANDROID_KEY_ALIAS`            | Key alias used when creating the keystore.                         |
 | `ANDROID_KEY_PASSWORD`         | Password for the key.                                              |

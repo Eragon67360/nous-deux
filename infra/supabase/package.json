@@ -1,0 +1,12 @@
+{
+  "name": "nous-deux-supabase-smoke",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end smoke test for the self-hosted Supabase. See docs/SELF_HOSTING.md.",
+  "scripts": {
+    "smoke": "node smoke.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.118.0"
+  }
+}
