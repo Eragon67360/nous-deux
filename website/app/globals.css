@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Nous Deux: warm off-black with tan, the same palette as the app.
+   `html:root` outranks the engine's `:root` defaults regardless of load order. */
+html:root {
+  --sc-canvas: #1c1917;
+  --sc-surface: #292524;
+  --sc-ink: #f5f0eb;
+  --sc-ink-soft: #bdb4aa;
+  --sc-accent: #c4a77d;
+  --sc-accent-ink: #1c1917;
+  --sc-shadow-color: 24 24% 4%;
+  --sc-font-display: var(--font-manrope), system-ui, sans-serif;
+  --sc-font-text: var(--font-manrope), system-ui, sans-serif;
+  --sc-font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* The partner dot in the rings mark. Illustration only, never a UI accent. */
+  --nd-rose: #ff8fa3;
+  --nd-cream: #f5f0eb;
+  --nd-glow: color-mix(in oklab, var(--sc-accent) 16%, transparent);
+
+  /* Names the Tailwind utilities below map to. */
+  --surface: var(--sc-canvas);
+  --surface-container: var(--sc-surface);
+  --primary: var(--sc-accent);
+  --on-surface: var(--sc-ink);
+  --on-surface-variant: var(--sc-ink-soft);
+  --outline: #78716c;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+  --color-primary: var(--primary);
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-outline: var(--outline);
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-manrope);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* Display type in Manrope reads best light, as in the app. */
+.sc-display { font-weight: 300; }
+
+body {
+  background: var(--sc-canvas);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-text);
+}
