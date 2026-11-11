@@ -56,22 +56,31 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
   );
 }
 
+/// The app's one router, kept for the app's whole life. Auth, profile and
+/// splash changes re-run [GoRouter.redirect] through `refreshListenable`.
+/// Building a new router on each change would restart navigation at the
+/// splash screen, which is what used to happen after onboarding.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final isSupabaseConfigured = AppConfig.isSupabaseConfigured;
-  final authAsync = ref.watch(currentUserProvider);
-  final profileAsync = ref.watch(myProfileProvider);
-  ref.watch(splashAnimationCompleteProvider); // Re-run redirect when splash animation completes
-  final authLoading = authAsync.isLoading;
-  final isSignedIn = authAsync.valueOrNull != null;
-  final profile = profileAsync.valueOrNull;
-  final hasCompletedOnboarding = profile?.hasCompletedOnboarding ?? false;
-  final authHasError = authAsync.hasError;
-  final profileHasError = profileAsync.hasError;
+  final refresh = ValueNotifier<int>(0);
+  void reroute(Object? _, Object? _) => refresh.value++;
+  ref.listen(currentUserProvider, reroute);
+  ref.listen(myProfileProvider, reroute);
+  ref.listen(splashAnimationCompleteProvider, reroute);
 
-  return GoRouter(
+  final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
+    refreshListenable: refresh,
     redirect: (context, state) {
+      final authAsync = ref.read(currentUserProvider);
+      final profileAsync = ref.read(myProfileProvider);
+      final authLoading = authAsync.isLoading;
+      final isSignedIn = authAsync.valueOrNull != null;
+      final profile = profileAsync.valueOrNull;
+      final hasCompletedOnboarding = profile?.hasCompletedOnboarding ?? false;
+      final authHasError = authAsync.hasError;
+      final profileHasError = profileAsync.hasError;
       final loc = state.uri.path;
       appLog(
         'ROUTER',
@@ -108,8 +117,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      if (loc == '/' &&
-          !ref.read(splashAnimationCompleteProvider)) {
+      if (loc == '/' && !ref.read(splashAnimationCompleteProvider)) {
         appLog(
           'ROUTER',
           message: '  → null (splash animation not yet complete)',
@@ -265,8 +273,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (_, state) => _fadePage(
                   state,
                   PeriodScreen(
-                    initialTab:
-                        state.uri.queryParameters['tab'] == 'guide' ? 1 : null,
+                    initialTab: state.uri.queryParameters['tab'] == 'guide'
+                        ? 1
+                        : null,
                   ),
                 ),
               ),
@@ -285,4 +294,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
   );
+  ref.onDispose(() {
+    router.dispose();
+    refresh.dispose();
+  });
+  return router;
 });

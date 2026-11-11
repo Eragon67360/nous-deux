@@ -39,7 +39,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   void initState() {
     super.initState();
     appLog('SPLASH', message: 'initState (splash mounted)', color: '\x1B[35m');
-    ref.read(splashAnimationCompleteProvider.notifier).state = false;
+    // No reset of splashAnimationCompleteProvider here: it starts false, and
+    // writing a provider during a build throws. The router is created once,
+    // so the splash only mounts at launch.
     _textController.addStatusListener((status) {
       if (status == AnimationStatus.completed && mounted) {
         ref.read(splashAnimationCompleteProvider.notifier).state = true;
