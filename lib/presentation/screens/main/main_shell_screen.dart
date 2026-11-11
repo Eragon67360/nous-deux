@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
@@ -133,11 +132,14 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
 
     final profileAsync = ref.watch(myProfileProvider);
     final lang = profileAsync.valueOrNull?.language ?? 'fr';
-    // The Nous tab has its own invite card; the banner would repeat it.
+    // Nous (tab 0) and Position (tab 3) have their own invite; the banner
+    // would repeat it.
+    final tab = widget.navigationShell.currentIndex;
     final showNoPartnerBubble =
         profileAsync.valueOrNull != null &&
         (profileAsync.valueOrNull!.hasPartner == false) &&
-        widget.navigationShell.currentIndex != 0;
+        tab != 0 &&
+        tab != 3;
     final incoming = _incomingPing;
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
 
@@ -180,47 +182,44 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         child: Column(
           children: [
             if (showNoPartnerBubble)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.sm,
-                  AppSpacing.xs,
-                  AppSpacing.sm,
-                  AppSpacing.sm,
-                ),
-                child: Material(
-                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
-                  child: InkWell(
-                    onTap: () => context.push(AppRoutes.pairing),
-                    borderRadius: BorderRadius.circular(AppRadius.sm),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.sm,
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.person_add_outlined,
-                            size: 22,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              mainNoPartnerBubble(lang),
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                          ),
-                          Icon(
-                            Icons.chevron_right,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                          ),
-                        ],
+              // A quiet line, not a card: gold icon, the sentence, a thin
+              // rule under it.
+              InkWell(
+                onTap: () => context.push(AppRoutes.pairing),
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(28, 12, 20, 12),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
                       ),
                     ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_add_outlined,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          mainNoPartnerBubble(lang),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        size: 20,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ],
                   ),
                 ),
               ),

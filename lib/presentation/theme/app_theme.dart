@@ -176,8 +176,9 @@ abstract final class AppTheme {
         foregroundColor: _onSurface,
         toolbarHeight: 72,
         titleSpacing: 24,
-        titleTextStyle: textTheme.headlineMedium?.copyWith(
-          fontSize: 30,
+        // Screen titles: large and light, like the calendar's.
+        titleTextStyle: textTheme.headlineLarge?.copyWith(
+          fontSize: 32,
           color: _onSurface,
         ),
       ),

@@ -300,6 +300,7 @@ class _PeriodScreenState extends ConsumerState<PeriodScreen>
       ),
       floatingActionButton: _tabController.index == 0
           ? FloatingActionButton(
+              shape: const CircleBorder(),
               onPressed: () {
                 Navigator.of(context)
                     .push(

@@ -92,6 +92,15 @@ void main() {
       expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
     });
 
+    testWidgets('stays off Position, which has its own invite', (
+      tester,
+    ) async {
+      await _pumpShell(tester, TestDeps());
+      await tester.tap(find.text(mainNavPosition('fr')));
+      await tester.pumpAndSettle();
+      expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
+    });
+
     testWidgets('is hidden once paired', (tester) async {
       await _pumpShell(tester, TestDeps(partner: partnerProfile()));
       await tester.tap(find.text(mainNavCalendar('fr')));

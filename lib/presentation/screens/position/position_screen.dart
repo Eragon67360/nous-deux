@@ -424,7 +424,6 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_positionTitle(_lang())),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

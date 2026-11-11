@@ -25,7 +25,6 @@ class SettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(settingsTitle(lang)),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -49,8 +48,10 @@ class SettingsScreen extends ConsumerWidget {
         data: (profile) {
           if (profile == null) return const SizedBox.shrink();
 
+          // Rows keep their own 16 px inset, so their text lines up 28 px
+          // from the edge like the other tabs; the thin lines run wider.
           return ListView(
-            padding: const EdgeInsets.all(AppSpacing.md),
+            padding: const EdgeInsets.fromLTRB(12, 16, 12, 24),
             children: [
               // 1. Profile Header
               _ProfileHeaderSection(
@@ -315,46 +316,42 @@ class _SettingsGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(
-            left: AppSpacing.sm,
-            bottom: AppSpacing.xs,
-          ),
-          child: Text(
-            title.toUpperCase(),
-            style: theme.textTheme.labelMedium?.copyWith(
-              color: theme.colorScheme.primary,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
+          padding: const EdgeInsets.only(left: 16, bottom: AppSpacing.xs),
+          child: Semantics(
+            header: true,
+            child: Text(
+              title.toUpperCase(),
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontSize: 11,
+                color: theme.colorScheme.primary,
+                letterSpacing: 2,
+              ),
+              // Ensure title wraps if device text scale is huge
+              softWrap: true,
             ),
-            // Ensure title wraps if device text scale is huge
-            softWrap: true,
           ),
         ),
-        Card(
-          elevation: 0,
-          color: theme.colorScheme.surfaceContainer,
-          clipBehavior: Clip.antiAlias,
-          margin: EdgeInsets.zero,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        // A notebook list: thin lines above, between and below the rows,
+        // no filled card.
+        DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border(
+              top: BorderSide(color: theme.colorScheme.outlineVariant),
+              bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+            ),
           ),
           child: Column(
-            children: children.map((child) {
-              // Add dividers between items, but not after the last one
-              final index = children.indexOf(child);
-              return Column(
-                children: [
-                  child,
-                  if (index != children.length - 1)
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-                      indent: 56,
-                      color: theme.colorScheme.surface,
-                    ),
-                ],
-              );
-            }).toList(),
+            children: [
+              for (final (index, child) in children.indexed) ...[
+                if (index > 0)
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: theme.colorScheme.surfaceContainerHigh,
+                  ),
+                child,
+              ],
+            ],
           ),
         ),
       ],
