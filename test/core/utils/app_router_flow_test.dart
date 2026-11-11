@@ -97,6 +97,22 @@ void main() {
       expect(find.byType(SplashScreen), findsNothing);
     });
 
+    testWidgets('signing in from the sign-in screen opens the app', (
+      tester,
+    ) async {
+      final deps = TestDeps(user: null);
+      await _pumpApp(tester, deps);
+      expect(find.byType(AuthScreen), findsOneWidget);
+
+      deps.auth.emit(me);
+      await tester.pumpAndSettle();
+
+      // The profile still says "nobody" for an instant after the session
+      // arrives; that must not read as "signed in without a profile".
+      expect(deps.auth.signOutCalls, 0);
+      expect(find.byType(MainShellScreen), findsOneWidget);
+    });
+
     testWidgets('signing out returns to the sign-in screen', (tester) async {
       final deps = TestDeps();
       await _pumpApp(tester, deps);

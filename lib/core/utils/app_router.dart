@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/utils/app_log.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
+import 'package:nousdeux/domain/entities/profile_entity.dart';
+import 'package:nousdeux/domain/entities/user_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
@@ -56,6 +58,27 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
   );
 }
 
+/// Everything the redirect decides on, as one snapshot.
+///
+/// Watching the three together keeps them consistent: when a session
+/// arrives, the profile is already "loading" here. Reading them one by one
+/// from a listener on the session saw the previous user's profile (none)
+/// for an instant, and the "signed in without a profile" rule signed the
+/// new session straight out.
+typedef _RouteInputs = ({
+  AsyncValue<UserEntity?> auth,
+  AsyncValue<ProfileEntity?> profile,
+  bool splashDone,
+});
+
+final _routeInputsProvider = Provider<_RouteInputs>(
+  (ref) => (
+    auth: ref.watch(currentUserProvider),
+    profile: ref.watch(myProfileProvider),
+    splashDone: ref.watch(splashAnimationCompleteProvider),
+  ),
+);
+
 /// The app's one router, kept for the app's whole life. Auth, profile and
 /// splash changes re-run [GoRouter.redirect] through `refreshListenable`.
 /// Building a new router on each change would restart navigation at the
@@ -63,18 +86,16 @@ CustomTransitionPage<void> _fadePage(GoRouterState state, Widget child) {
 final appRouterProvider = Provider<GoRouter>((ref) {
   final isSupabaseConfigured = AppConfig.isSupabaseConfigured;
   final refresh = ValueNotifier<int>(0);
-  void reroute(Object? _, Object? _) => refresh.value++;
-  ref.listen(currentUserProvider, reroute);
-  ref.listen(myProfileProvider, reroute);
-  ref.listen(splashAnimationCompleteProvider, reroute);
+  ref.listen(_routeInputsProvider, (_, _) => refresh.value++);
 
   final router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     refreshListenable: refresh,
     redirect: (context, state) {
-      final authAsync = ref.read(currentUserProvider);
-      final profileAsync = ref.read(myProfileProvider);
+      final inputs = ref.read(_routeInputsProvider);
+      final authAsync = inputs.auth;
+      final profileAsync = inputs.profile;
       final authLoading = authAsync.isLoading;
       final isSignedIn = authAsync.valueOrNull != null;
       final profile = profileAsync.valueOrNull;
@@ -117,7 +138,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      if (loc == '/' && !ref.read(splashAnimationCompleteProvider)) {
+      if (loc == '/' && !inputs.splashDone) {
         appLog(
           'ROUTER',
           message: '  → null (splash animation not yet complete)',
