@@ -15,20 +15,13 @@ abstract class PeriodRepository {
   Future<PeriodLogResult> createLog({
     required DateTime startDate,
     DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
   });
 
-  /// Update a period log. Every editable field is sent; null clears the
-  /// end date, mood or notes.
+  /// Set a period log's dates; a null end clears it.
   Future<PeriodLogResult> updateLog({
     required String id,
     required DateTime startDate,
     required DateTime? endDate,
-    required String? mood,
-    required List<String> symptoms,
-    required String? notes,
   });
 
   /// Delete a period log.

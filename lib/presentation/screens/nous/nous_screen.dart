@@ -18,6 +18,7 @@ import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/entrance.dart';
+import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// The home tab, laid out like a notebook page: how long you have been
 /// together, a little note to send, what is coming up and your lists,
@@ -45,7 +46,7 @@ class NousScreen extends ConsumerWidget {
           children: [
             Row(
               children: [
-                Expanded(child: _SectionLabel(nousTitle(lang))),
+                Expanded(child: NotebookLabel(nousTitle(lang))),
                 _AvatarButton(
                   initial: _initial(profile?.username),
                   tooltip: nousSettingsTooltip(lang),
@@ -70,17 +71,17 @@ class NousScreen extends ConsumerWidget {
               Entrance(
                 child: _DaysBlock(lang: lang, since: since),
               ),
-              const _Rule(),
+              const NotebookRule(),
               Entrance(
                 delay: const Duration(milliseconds: 60),
                 child: _PingSection(lang: lang),
               ),
-              const _Rule(),
+              const NotebookRule(),
               Entrance(
                 delay: const Duration(milliseconds: 120),
                 child: _UpcomingSection(lang: lang, since: since),
               ),
-              const _Rule(),
+              const NotebookRule(),
               Entrance(
                 delay: const Duration(milliseconds: 180),
                 child: _ListsPreview(lang: lang),
@@ -95,45 +96,6 @@ class NousScreen extends ConsumerWidget {
   static String _initial(String? name) {
     final trimmed = name?.trim() ?? '';
     return trimmed.isEmpty ? '·' : trimmed.characters.first.toUpperCase();
-  }
-}
-
-/// Small gold capitals that open each part of the page.
-class _SectionLabel extends StatelessWidget {
-  const _SectionLabel(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Semantics(
-      header: true,
-      child: Text(
-        text.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontSize: 11,
-          letterSpacing: 2,
-          color: theme.colorScheme.primary,
-        ),
-      ),
-    );
-  }
-}
-
-/// The thin line between two parts of the page.
-class _Rule extends StatelessWidget {
-  const _Rule();
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 22),
-      child: Divider(
-        height: 1,
-        color: Theme.of(context).colorScheme.outlineVariant,
-      ),
-    );
   }
 }
 
@@ -322,7 +284,7 @@ class _PingSectionState extends ConsumerState<_PingSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionLabel(nousSendNote(lang)),
+        NotebookLabel(nousSendNote(lang)),
         const SizedBox(height: 6),
         Wrap(
           spacing: 18,
@@ -439,7 +401,7 @@ class _UpcomingSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SectionLabel(nousNextPlan(lang)),
+        NotebookLabel(nousNextPlan(lang)),
         InkWell(
           onTap: () => context.go(AppRoutes.calendar),
           child: Padding(
@@ -548,7 +510,7 @@ class _ListsPreview extends ConsumerWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _SectionLabel(listsTitle(lang))),
+            Expanded(child: NotebookLabel(listsTitle(lang))),
             TextButton(
               onPressed: () => context.push(AppRoutes.lists),
               child: Text(listsSeeAll(lang)),

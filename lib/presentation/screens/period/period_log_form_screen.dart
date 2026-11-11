@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
-import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
-import 'package:nousdeux/core/constants/period_options.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
+/// Fixes the dates of one period (or notes a new one).
 class PeriodLogFormScreen extends ConsumerStatefulWidget {
   const PeriodLogFormScreen({super.key, this.log});
 
@@ -21,203 +20,116 @@ class PeriodLogFormScreen extends ConsumerStatefulWidget {
 }
 
 class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
-  final _formKey = GlobalKey<FormState>();
   late DateTime _startDate;
   DateTime? _endDate;
-  String? _mood;
-  final Set<String> _symptoms = {};
-  final TextEditingController _notesController = TextEditingController();
   bool _loading = false;
   String? _error;
 
   @override
   void initState() {
     super.initState();
-    if (widget.log != null) {
-      _startDate = widget.log!.startDate;
-      _endDate = widget.log!.endDate;
-      _mood = widget.log!.mood;
-      _symptoms.addAll(widget.log!.symptoms);
-      _notesController.text = widget.log!.notes ?? '';
-    } else {
-      _startDate = DateTime.now();
-    }
-  }
-
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
+    final now = DateTime.now();
+    _startDate =
+        widget.log?.startDate ?? DateTime(now.year, now.month, now.day);
+    _endDate = widget.log?.endDate;
   }
 
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
     setState(() {
       _error = null;
       _loading = true;
     });
     final repo = ref.read(periodRepositoryProvider);
-
-    if (widget.log != null) {
-      final result = await repo.updateLog(
-        id: widget.log!.id,
-        startDate: _startDate,
-        endDate: _endDate,
-        mood: _mood,
-        symptoms: (_symptoms.toList()..sort()),
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      );
-      if (!mounted) return;
-      setState(() => _loading = false);
-      if (result.failure != null) {
-        setState(() => _error = result.failure!.message);
-        return;
-      }
-    } else {
-      final result = await repo.createLog(
-        startDate: _startDate,
-        endDate: _endDate,
-        mood: _mood,
-        symptoms: _symptoms.isEmpty ? null : (_symptoms.toList()..sort()),
-        notes: _notesController.text.trim().isEmpty
-            ? null
-            : _notesController.text.trim(),
-      );
-      if (!mounted) return;
-      setState(() => _loading = false);
-      if (result.failure != null) {
-        setState(() => _error = result.failure!.message);
-        return;
-      }
-    }
+    final log = widget.log;
+    final result = log == null
+        ? await repo.createLog(startDate: _startDate, endDate: _endDate)
+        : await repo.updateLog(
+            id: log.id,
+            startDate: _startDate,
+            endDate: _endDate,
+          );
     if (!mounted) return;
+    setState(() => _loading = false);
+    if (result.failure != null) {
+      setState(() => _error = result.failure!.message);
+      return;
+    }
     HapticFeedback.lightImpact();
     Navigator.of(context).pop();
   }
 
-  String _formatDate(BuildContext context, DateTime d) {
-    final language = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
-    final fmt = language == 'fr'
-        ? DateFormat('d MMM y', locale)
-        : DateFormat('MMM d, y', locale);
-    return fmt.format(d);
+  Future<DateTime?> _pick(DateTime initial, DateTime first) {
+    final now = DateTime.now();
+    return showDatePicker(
+      context: context,
+      initialDate: initial,
+      firstDate: first,
+      lastDate: DateTime(now.year, now.month, now.day),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          widget.log != null
-              ? periodLogEdit(lang)
-              : periodLogNew(lang),
+          widget.log != null ? periodLogEdit(lang) : periodLogNew(lang),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          children: [
-            ListTile(
-              title: Text(periodStartDate(lang)),
-              subtitle: Text(_formatDate(context, _startDate)),
-              onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _startDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                );
-                if (d != null && mounted) {
-                  setState(() {
-                    _startDate = d;
-                    if (_endDate != null && _endDate!.isBefore(d)) {
-                      _endDate = null;
-                    }
-                  });
-                }
-              },
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 24),
+        children: [
+          ListTile(
+            title: Text(periodStartDate(lang)),
+            subtitle: Text(cycleShortDate(lang, _startDate)),
+            onTap: () async {
+              final d = await _pick(_startDate, DateTime(2000));
+              if (d != null && mounted) {
+                setState(() {
+                  _startDate = d;
+                  if (_endDate != null && _endDate!.isBefore(d)) {
+                    _endDate = null;
+                  }
+                });
+              }
+            },
+          ),
+          ListTile(
+            title: Text(periodEndDate(lang)),
+            subtitle: Text(
+              _endDate == null ? '—' : cycleShortDate(lang, _endDate!),
             ),
-            ListTile(
-              title: Text(periodEndDate(lang)),
-              subtitle: Text(
-                _endDate == null ? '—' : _formatDate(context, _endDate!),
-              ),
-              onTap: () async {
-                final d = await showDatePicker(
-                  context: context,
-                  initialDate: _endDate ?? _startDate,
-                  firstDate: _startDate,
-                  lastDate: DateTime(2100),
-                );
-                if (d != null && mounted) {
-                  setState(() => _endDate = d);
-                }
-              },
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            DropdownButtonFormField<String>(
-              initialValue: _mood,
-              decoration: InputDecoration(labelText: periodMoodLabelForm(lang)),
-              items: [
-                const DropdownMenuItem<String>(value: null, child: Text('—')),
-                ...periodMoodOptions.map(
-                  (o) => DropdownMenuItem(
-                    value: o.value,
-                    child: Text(periodMoodOptionLabel(o.value, lang)),
+            trailing: _endDate == null
+                ? null
+                : IconButton(
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).deleteButtonTooltip,
+                    icon: const Icon(Icons.close),
+                    onPressed: () => setState(() => _endDate = null),
                   ),
-                ),
-              ],
-              onChanged: (v) => setState(() => _mood = v),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              periodSymptomsLabel(lang),
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: AppSpacing.xs,
-              children: periodSymptomOptions.map((o) {
-                final selected = _symptoms.contains(o.value);
-                return FilterChip(
-                  label: Text(periodSymptomOptionLabel(o.value, lang)),
-                  selected: selected,
-                  onSelected: (v) {
-                    setState(() {
-                      if (v) {
-                        _symptoms.add(o.value);
-                      } else {
-                        _symptoms.remove(o.value);
-                      }
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            TextFormField(
-              controller: _notesController,
-              decoration: InputDecoration(
-                labelText: periodNotesLabel(lang),
-                alignLabelWithHint: true,
-              ),
-              maxLines: 3,
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: AppSpacing.xs),
-              Text(
+            onTap: () async {
+              final d = await _pick(_endDate ?? _startDate, _startDate);
+              if (d != null && mounted) setState(() => _endDate = d);
+            },
+          ),
+          if (_error != null)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
                 _error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
+                style: TextStyle(color: theme.colorScheme.error),
               ),
-            ],
-            const SizedBox(height: AppSpacing.md),
-            FilledButton(
+            ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: FilledButton(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               onPressed: _loading ? null : _save,
               child: _loading
                   ? SizedBox(
@@ -225,13 +137,13 @@ class _PeriodLogFormScreenState extends ConsumerState<PeriodLogFormScreen> {
                       width: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     )
                   : Text(periodSave(lang)),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

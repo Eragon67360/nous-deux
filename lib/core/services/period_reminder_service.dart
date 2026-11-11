@@ -40,11 +40,13 @@ Future<void> initPeriodReminderNotifications() async {
 
 /// Schedules a single notification for the given date at 09:00 local time.
 /// [lang] is used for title/body (fr/en).
-Future<void> schedulePartnerPmsReminder(DateTime date, String lang) async {
+/// Schedules the reminder for the evening (19:00) of [day], the day before
+/// the partner's period is expected.
+Future<void> schedulePartnerPeriodReminder(DateTime day, String lang) async {
   await initPeriodReminderNotifications();
   if (!_initialized) return;
   try {
-    final local = DateTime(date.year, date.month, date.day, 9, 0);
+    final local = DateTime(day.year, day.month, day.day, 19, 0);
     if (local.isBefore(DateTime.now())) return;
     final tzDate = tz.TZDateTime.from(local, tz.local);
     await _plugin.zonedSchedule(
@@ -56,7 +58,7 @@ Future<void> schedulePartnerPmsReminder(DateTime date, String lang) async {
         android: AndroidNotificationDetails(
           'period_reminder',
           'Period reminder',
-          channelDescription: 'Reminder for partner PMS week',
+          channelDescription: "The evening before the partner's period",
         ),
         iOS: const DarwinNotificationDetails(),
       ),
@@ -69,8 +71,8 @@ Future<void> schedulePartnerPmsReminder(DateTime date, String lang) async {
   }
 }
 
-/// Cancels the partner PMS reminder notification.
-Future<void> cancelPartnerPmsReminder() async {
+/// Cancels the partner reminder notification.
+Future<void> cancelPartnerPeriodReminder() async {
   try {
     await _plugin.cancel(periodReminderNotificationId);
   } catch (_) {}

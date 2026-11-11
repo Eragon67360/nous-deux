@@ -1,394 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
-import 'package:nousdeux/domain/entities/period_log_entity.dart';
-import 'package:nousdeux/presentation/providers/auth_provider.dart';
-import 'package:nousdeux/presentation/providers/period_provider.dart';
+import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
-import 'package:nousdeux/presentation/screens/period/period_guide_content.dart';
-import 'package:nousdeux/presentation/screens/period/period_log_form_screen.dart';
-import 'package:nousdeux/presentation/widgets/empty_state.dart';
+import 'package:nousdeux/presentation/screens/period/cycle_today_view.dart';
+import 'package:nousdeux/presentation/screens/period/guide/guide_screen.dart';
+import 'package:nousdeux/presentation/screens/period/partner_cycle_view.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
-const String _kPeriodGuideVisitedKey = 'period_guide_visited';
-
+/// The Règles tab. Asks once whether I track a cycle, then shows my cycle
+/// (R1) or my partner's (R3). The guide (R4) opens from the top bar.
 class PeriodScreen extends ConsumerStatefulWidget {
-  const PeriodScreen({super.key, this.initialTab});
+  const PeriodScreen({super.key, this.openGuide = false});
 
-  /// When non-null, switch to this tab after first frame (e.g. from deep link ?tab=guide).
-  final int? initialTab;
+  /// Opens the guide on top once the tab shows (from `?tab=guide`).
+  final bool openGuide;
 
   @override
   ConsumerState<PeriodScreen> createState() => _PeriodScreenState();
 }
 
-class _PeriodScreenState extends ConsumerState<PeriodScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-  bool _partnerMode = false;
-  bool _partnerPathOnly = false;
-  bool _partnerDefaultApplied = false;
-
+class _PeriodScreenState extends ConsumerState<PeriodScreen> {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _tabController.addListener(() => setState(() {}));
-    if (widget.initialTab != null &&
-        widget.initialTab! >= 0 &&
-        widget.initialTab! < 2) {
+    if (widget.openGuide) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _tabController.animateTo(widget.initialTab!);
+        if (mounted) _openGuide();
       });
     }
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  String _lang(WidgetRef ref) {
-    return ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-  }
-
-  bool _isPartnerByLogs(List<PeriodLogEntity> logs, String? currentUserId) {
-    if (currentUserId == null || logs.isEmpty) return false;
-    int myCount = 0, partnerCount = 0;
-    for (final log in logs) {
-      if (log.userId == currentUserId) {
-        myCount++;
-      } else {
-        partnerCount++;
-      }
-    }
-    return partnerCount > myCount;
-  }
+  void _openGuide() => Navigator.of(
+    context,
+  ).push(MaterialPageRoute<void>(builder: (_) => const GuideScreen()));
 
   @override
   Widget build(BuildContext context) {
-    final lang = _lang(ref);
-    final logsAsync = ref.watch(periodLogsProvider);
-    final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
-    final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
-    final partnerDisplayName =
-        partnerProfile?.username?.trim().isNotEmpty == true
-        ? partnerProfile!.username!
-        : periodPartner(lang);
-    final colorScheme = Theme.of(context).colorScheme;
-    final phase = ref.watch(currentCyclePhaseProvider);
-    final hasPartner = partnerProfile != null;
-
-    if (hasPartner &&
-        !_partnerDefaultApplied &&
-        _tabController.index == 0 &&
-        (_partnerMode ||
-            (logsAsync.valueOrNull != null &&
-                currentUserId != null &&
-                _isPartnerByLogs(logsAsync.valueOrNull!, currentUserId)))) {
-      _partnerDefaultApplied = true;
-      SharedPreferences.getInstance().then((prefs) {
-        if (!(prefs.getBool(_kPeriodGuideVisitedKey) ?? false)) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
-              _tabController.animateTo(1);
-              prefs.setBool(_kPeriodGuideVisitedKey, true);
-            }
-          });
-        }
-      });
-    }
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final role = ref.watch(myCycleRoleProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(periodScreenTitle(lang)),
         actions: [
-          if (hasPartner)
-            Wrap(
-              spacing: AppSpacing.xs,
-              runSpacing: 4,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                FilterChip(
-                  label: Text(periodPartnerModeLabel(lang)),
-                  selected: _partnerMode,
-                  onSelected: (v) => setState(() => _partnerMode = v),
-                ),
-                if (_tabController.index == 1 && _partnerMode)
-                  FilterChip(
-                    label: Text(periodPartnerPathChipLabel(lang)),
-                    selected: _partnerPathOnly,
-                    onSelected: (v) => setState(() => _partnerPathOnly = v),
-                  ),
-              ],
-            ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: periodTabLogs(lang)),
-            Tab(text: periodTabGuide(lang)),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          logsAsync.when(
-            data: (logs) {
-              final partnerByLogs = _isPartnerByLogs(logs, currentUserId);
-              final showPartnerBanner =
-                  hasPartner && (_partnerMode || partnerByLogs);
-              return Stack(
-                children: [
-                  ListView(
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    children: [
-                      if (showPartnerBanner) ...[
-                        Card(
-                          color: colorScheme.surfaceContainerHigh,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.sm,
-                              vertical: AppSpacing.xs,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.person_outline,
-                                  size: 20,
-                                  color: colorScheme.primary,
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    lang == 'fr'
-                                        ? 'Journal de $partnerDisplayName'
-                                        : "$partnerDisplayName's log",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                      ],
-                      if (logs.isEmpty) ...[
-                        const SizedBox(height: AppSpacing.md),
-                        Padding(
-                          padding: const EdgeInsets.only(top: AppSpacing.lg),
-                          child: EmptyState(
-                            icon: Icons.favorite_border,
-                            message: periodEmptyMessage(lang),
-                            secondary: periodEmptySecondary(lang),
-                          ),
-                        ),
-                      ] else ...[
-                        const SizedBox(height: AppSpacing.sm),
-                        ...List.generate(logs.length, (i) {
-                          final log = logs[i];
-                          final isMine =
-                              currentUserId != null &&
-                              log.userId == currentUserId;
-                          return Card(
-                            margin: const EdgeInsets.only(
-                              bottom: AppSpacing.sm,
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
-                                vertical: AppSpacing.xs,
-                              ),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      _formatDateRange(
-                                        context,
-                                        ref,
-                                        log.startDate,
-                                        log.endDate,
-                                      ),
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.titleSmall,
-                                    ),
-                                  ),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.xs,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: isMine
-                                          ? colorScheme.primaryContainer
-                                          : colorScheme.surfaceContainerHighest,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      isMine
-                                          ? periodMe(lang)
-                                          : partnerDisplayName,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .labelSmall
-                                          ?.copyWith(
-                                            color: isMine
-                                                ? colorScheme.onPrimaryContainer
-                                                : colorScheme.onSurfaceVariant,
-                                          ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              subtitle: _buildSubtitle(context, ref, log, lang),
-                              onTap: () {
-                                if (isMine) {
-                                  Navigator.of(context)
-                                      .push(
-                                        MaterialPageRoute<void>(
-                                          builder: (_) =>
-                                              PeriodLogFormScreen(log: log),
-                                        ),
-                                      )
-                                      .then(
-                                        (_) =>
-                                            ref.invalidate(periodLogsProvider),
-                                      );
-                                }
-                              },
-                              onLongPress: isMine
-                                  ? () => _confirmDelete(context, ref, log)
-                                  : null,
-                            ),
-                          );
-                        }),
-                      ],
-                    ],
-                  ),
-                ],
-              );
-            },
-            loading: () => const LoadingContent(),
-            error: (err, _) => EmptyState(
-              icon: Icons.error_outline,
-              message: periodErrorLoad(lang),
-              secondary: err.toString(),
-              iconColor: colorScheme.error,
-            ),
+          TextButton(
+            onPressed: _openGuide,
+            child: Text('${guideLabel(lang)} ›'),
           ),
-          PeriodGuideContent(
-            language: lang,
-            phase: phase,
-            isPartnerMode:
-                _partnerMode ||
-                (hasPartner &&
-                    logsAsync.valueOrNull != null &&
-                    currentUserId != null &&
-                    _isPartnerByLogs(logsAsync.valueOrNull!, currentUserId)),
-            partnerPathOnly: _partnerPathOnly,
-          ),
+          const SizedBox(width: 8),
         ],
       ),
-      floatingActionButton: _tabController.index == 0
-          ? FloatingActionButton(
-              shape: const CircleBorder(),
-              onPressed: () {
-                Navigator.of(context)
-                    .push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => const PeriodLogFormScreen(),
-                      ),
-                    )
-                    .then((_) => ref.invalidate(periodLogsProvider));
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
+      body: switch (role) {
+        null => const LoadingContent(),
+        CycleRole.unasked => _AskWhoTracks(lang: lang),
+        CycleRole.tracker => CycleTodayView(lang: lang),
+        CycleRole.supporter => PartnerCycleView(lang: lang),
+      },
     );
   }
+}
 
-  String _formatDateRange(
-    BuildContext context,
-    WidgetRef ref,
-    DateTime start,
-    DateTime? end,
-  ) {
-    final language = _lang(ref);
-    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
-    final fmt = language == 'fr'
-        ? DateFormat('d MMM y', locale)
-        : DateFormat('MMM d, y', locale);
-    if (end == null || _isSameDay(start, end)) {
-      return fmt.format(start);
+/// Asked once; the answer can be changed in Settings.
+class _AskWhoTracks extends ConsumerStatefulWidget {
+  const _AskWhoTracks({required this.lang});
+
+  final String lang;
+
+  @override
+  ConsumerState<_AskWhoTracks> createState() => _AskWhoTracksState();
+}
+
+class _AskWhoTracksState extends ConsumerState<_AskWhoTracks> {
+  bool _saving = false;
+
+  Future<void> _answer(bool tracks) async {
+    setState(() => _saving = true);
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .updateCycleSettings(tracksCycle: tracks);
+    if (!mounted) return;
+    if (result.failure != null) {
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(cycleSaveFailed(widget.lang))));
+      return;
     }
-    return '${fmt.format(start)} – ${fmt.format(end)}';
+    ref.invalidate(myProfileProvider);
   }
 
-  bool _isSameDay(DateTime a, DateTime b) {
-    return a.year == b.year && a.month == b.month && a.day == b.day;
-  }
-
-  Widget? _buildSubtitle(
-    BuildContext context,
-    WidgetRef ref,
-    PeriodLogEntity log,
-    String lang,
-  ) {
-    final parts = <String>[];
-    if (log.mood != null && log.mood!.isNotEmpty) {
-      parts.add(periodMoodOptionLabel(log.mood!, lang));
-    }
-    if (log.symptoms.isNotEmpty) {
-      parts.add(
-        log.symptoms.map((s) => periodSymptomOptionLabel(s, lang)).join(', '),
-      );
-    }
-    if (log.notes != null && log.notes!.isNotEmpty) {
-      final raw = log.notes!;
-      final note = raw.length > 40 ? '${raw.substring(0, 40)}…' : raw;
-      parts.add(note);
-    }
-    if (parts.isEmpty) return null;
-    return Text(parts.join(' · '));
-  }
-
-  void _confirmDelete(
-    BuildContext context,
-    WidgetRef ref,
-    PeriodLogEntity log,
-  ) {
-    final lang = _lang(ref);
-    showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(periodDeleteConfirmTitle(lang)),
-        content: Text(
-          _formatDateRange(context, ref, log.startDate, log.endDate),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final lang = widget.lang;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 40),
+      children: [
+        Text(
+          cycleAskTitle(lang),
+          style: theme.textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w300,
+          ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(periodCancel(lang)),
+        const SizedBox(height: 12),
+        Text(
+          cycleAskBody(lang),
+          style: theme.textTheme.bodyLarge?.copyWith(
+            height: 1.5,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
-          FilledButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await ref.read(periodRepositoryProvider).deleteLog(log.id);
-              if (context.mounted) ref.invalidate(periodLogsProvider);
-            },
-            child: Text(periodDelete(lang)),
+        ),
+        const SizedBox(height: 32),
+        FilledButton(
+          style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+          onPressed: _saving ? null : () => _answer(true),
+          child: Text(cycleAskYes(lang)),
+        ),
+        const SizedBox(height: 12),
+        OutlinedButton(
+          style: OutlinedButton.styleFrom(
+            minimumSize: const Size.fromHeight(52),
           ),
-        ],
-      ),
+          onPressed: _saving ? null : () => _answer(false),
+          child: Text(cycleAskNo(lang)),
+        ),
+      ],
     );
   }
 }

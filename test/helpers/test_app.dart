@@ -12,12 +12,14 @@ import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/domain/entities/user_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
+import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
@@ -46,6 +48,8 @@ class TestDeps {
     CoupleEntity? couple,
     List<CalendarEventEntity>? events,
     List<PeriodLogEntity>? logs,
+    List<CycleCheckinEntity>? checkins,
+    Map<DateTime, String>? notes,
     LocationSharingEntity? myLocation,
     LocationSharingEntity? partnerLocation,
     List<PingEntity>? pings,
@@ -64,6 +68,7 @@ class TestDeps {
        pairing = FakePairingRepository(couple: couple),
        calendar = FakeCalendarRepository(events),
        period = FakePeriodRepository(logs),
+       cycle = FakeCycleRepository(checkins: checkins, notes: notes),
        location = FakeLocationRepository(
          mine: myLocation,
          partner: partnerLocation,
@@ -74,6 +79,7 @@ class TestDeps {
   final FakePairingRepository pairing;
   final FakeCalendarRepository calendar;
   final FakePeriodRepository period;
+  final FakeCycleRepository cycle;
   final FakeLocationRepository location;
   final FakeRealtime realtime = FakeRealtime();
   final FakePingRepository pings;
@@ -89,6 +95,7 @@ class TestDeps {
     pairingRepositoryProvider.overrideWithValue(pairing),
     calendarRepositoryProvider.overrideWithValue(calendar),
     periodRepositoryProvider.overrideWithValue(period),
+    cycleRepositoryProvider.overrideWithValue(cycle),
     locationRepositoryProvider.overrideWithValue(location),
     deviceLanguageProvider.overrideWithValue(deviceLanguage),
     locationUpdateNotifierProvider.overrideWith(FakeLocationUpdateNotifier.new),

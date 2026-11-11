@@ -5,15 +5,6 @@
 
 String periodScreenTitle(String lang) => lang == 'fr' ? 'Règles' : 'Period';
 
-String periodTabLogs(String lang) => lang == 'fr' ? 'Journal' : 'Logs';
-String periodTabGuide(String lang) => lang == 'fr' ? 'Guide' : 'Guide';
-
-String periodPartnerModeLabel(String lang) =>
-    lang == 'fr' ? 'Vue partenaire' : 'Partner view';
-
-String periodPartnerPathChipLabel(String lang) =>
-    lang == 'fr' ? 'Parcours partenaire' : 'Partner path';
-
 // --- Section: Understanding the Menstrual Cycle ---
 
 String sectionCycleTitle(String lang) => lang == 'fr'
@@ -130,7 +121,7 @@ const List<PhaseData> cyclePhasesData = [
     emotionalEn: ['Confidence', 'Openness to others', 'Optimism'],
   ),
   PhaseData(
-    nameFr: 'Lutérale',
+    nameFr: 'Lutéale',
     nameEn: 'Luteal',
     dayRange: '16–28',
     descriptionFr:
@@ -193,10 +184,6 @@ String whenToSeekHelp(String lang) => lang == 'fr'
 
 // --- Section: How Partners Can Support ---
 
-String sectionPartnerSupportTitle(String lang) => lang == 'fr'
-    ? 'Comment le partenaire peut soutenir'
-    : 'How Partners Can Support';
-
 String sectionPartnerSupportSubtitle(String lang) => lang == 'fr'
     ? 'Actions concrètes et attitudes qui aident, phase par phase.'
     : 'Practical actions and attitudes that help, phase by phase.';
@@ -222,9 +209,6 @@ String comfortKitBody(String lang) => lang == 'fr'
     : 'E.g. heat pack, herbal tea, favorite snacks, pain relief if they\'re okay with it, blanket. Adapt to their preferences.';
 
 // --- Section: Communication Guide ---
-
-String sectionCommunicationTitle(String lang) =>
-    lang == 'fr' ? 'Guide de communication' : 'Communication Guide';
 
 String sectionCommunicationSubtitle(String lang) => lang == 'fr'
     ? 'Formuler les questions et le soutien avec respect.'
@@ -294,9 +278,6 @@ String planningTogetherBody(String lang) => lang == 'fr'
 
 // --- Section: Myth Busters ---
 
-String sectionMythBustersTitle(String lang) =>
-    lang == 'fr' ? 'Idées reçues' : 'Myth Busters';
-
 String sectionMythBustersSubtitle(String lang) =>
     lang == 'fr' ? 'Démêler le vrai du faux.' : 'Separating fact from fiction.';
 
@@ -352,9 +333,6 @@ List<MythBuster> get mythBustersList => [
 String sectionQuickRefTitle(String lang) =>
     lang == 'fr' ? 'Aide-mémoire' : 'Quick Reference Cards';
 
-String sectionQuickRefSubtitle(String lang) =>
-    lang == 'fr' ? 'Résumé par phase.' : 'Summary by phase.';
-
 class QuickRefCard {
   const QuickRefCard({
     required this.titleFr,
@@ -397,7 +375,7 @@ List<QuickRefCard> get quickRefCards => [
     bulletsEn: ['Peak energy and libido', 'Respect their pace if needed'],
   ),
   QuickRefCard(
-    titleFr: 'Lutérale (j16–28)',
+    titleFr: 'Lutéale (j16–28)',
     titleEn: 'Luteal (day 16–28)',
     bulletsFr: [
       'Progestérone haute → fatigue, sensibilité',
@@ -411,9 +389,6 @@ List<QuickRefCard> get quickRefCards => [
 ];
 
 // --- Section: FAQ ---
-
-String sectionFaqTitle(String lang) =>
-    lang == 'fr' ? 'Questions fréquentes' : 'FAQ';
 
 class FaqItem {
   const FaqItem({
@@ -448,9 +423,9 @@ List<FaqItem> get faqList => [
     questionFr: 'Mon partenaire peut-il voir mes entrées ?',
     questionEn: 'Can my partner see my entries?',
     answerFr:
-        'Dans cette app, les entrées de cycle sont partagées au sein du couple. Chacun peut voir les logs de l\'autre pour mieux se coordonner et s\'entraider. La confidentialité reste importante : parlez-en ensemble.',
+        'C\'est vous qui choisissez. Dans Règles, « Ce que … voit » a deux interrupteurs : votre cycle (jour, phase, date prévue) et votre ressenti du jour. Vos notes restent toujours privées : personne d\'autre ne peut les lire.',
     answerEn:
-        'In this app, cycle entries are shared within the couple. Each can see the other\'s logs to coordinate and support. Privacy still matters: talk about it together.',
+        'You choose. In Period, "What … sees" has two switches: your cycle (day, phase, expected date) and how you feel each day. Your notes always stay private: nobody else can read them.',
   ),
   FaqItem(
     questionFr: 'Les règles rendent-elles vraiment plus irritable ?',
@@ -471,88 +446,28 @@ String disclaimerBody(String lang) => lang == 'fr'
     ? 'Ce contenu est à but informatif uniquement et ne constitue pas un avis médical. Pour toute question de santé ou décision personnelle, consultez un professionnel de santé.'
     : 'This content is for educational purposes only and is not medical advice. For any health question or personal decision, please consult a healthcare provider.';
 
-// --- Tip of the day (phase-based) ---
-
-String tipOfTheDayTitle(String lang) =>
-    lang == 'fr' ? 'Conseil du jour' : 'Tip of the day';
-
-String tipFallback(String lang) => lang == 'fr'
-    ? 'Chaque cycle est unique. Notez vos symptômes pour mieux les partager avec votre partenaire ou un professionnel.'
-    : 'Every cycle is unique. Track your symptoms to share better with your partner or a healthcare provider.';
-
-class PhaseTip {
-  const PhaseTip({required this.fr, required this.en});
-  final String fr, en;
-  String get(String lang) => lang == 'fr' ? fr : en;
-}
-
-Map<CyclePhase, PhaseTip> get phaseTips => {
-  CyclePhase.menstrual: PhaseTip(
-    fr: 'Repos et chaleur aident souvent. Proposez une bouillotte ou une tisane.',
-    en: 'Rest and heat often help. Offer a heat pack or herbal tea.',
-  ),
-  CyclePhase.follicular: PhaseTip(
-    fr: 'C\'est souvent une phase avec plus d\'énergie. Bon moment pour des activités à deux.',
-    en: 'This is often a higher-energy phase. Good time for activities together.',
-  ),
-  CyclePhase.ovulation: PhaseTip(
-    fr: 'Beaucoup ressentent un pic d\'énergie. Respectez le rythme de chacun.',
-    en: 'Many feel an energy peak. Respect each other\'s pace.',
-  ),
-  CyclePhase.luteal: PhaseTip(
-    fr: 'La progestérone peut causer fatigue et sensibilité. Écoute et réconfort font la différence.',
-    en: 'Progesterone can cause fatigue and sensitivity. Listening and comfort make a difference.',
-  ),
-};
-
-PhaseTip phaseTipFor(CyclePhase phase) =>
-    phaseTips[phase] ?? PhaseTip(fr: tipFallback('fr'), en: tipFallback('en'));
-
 // --- Period log form & list strings (for bilingual UI) ---
 
 String periodLogNew(String lang) =>
     lang == 'fr' ? 'Nouvel enregistrement' : 'New entry';
 String periodLogEdit(String lang) =>
     lang == 'fr' ? 'Modifier l\'enregistrement' : 'Edit entry';
-String periodEmptyMessage(String lang) =>
-    lang == 'fr' ? 'Aucun enregistrement' : 'No entries';
-String periodEmptySecondary(String lang) => lang == 'fr'
-    ? 'Appuyez sur + pour ajouter un enregistrement'
-    : 'Tap + to add an entry';
-String periodTipsCardTitle(String lang) => lang == 'fr' ? 'Conseils' : 'Tips';
 String periodDeleteConfirmTitle(String lang) =>
     lang == 'fr' ? 'Supprimer cet enregistrement ?' : 'Delete this entry?';
 String periodCancel(String lang) => lang == 'fr' ? 'Annuler' : 'Cancel';
 String periodDelete(String lang) => lang == 'fr' ? 'Supprimer' : 'Delete';
 String periodSave(String lang) => lang == 'fr' ? 'Enregistrer' : 'Save';
-String periodMe(String lang) => lang == 'fr' ? 'Moi' : 'Me';
-String periodPartner(String lang) => lang == 'fr' ? 'Partenaire' : 'Partner';
 String periodStartDate(String lang) =>
     lang == 'fr' ? 'Date de début' : 'Start date';
 String periodEndDate(String lang) =>
     lang == 'fr' ? 'Date de fin (optionnel)' : 'End date (optional)';
-String periodMoodLabelForm(String lang) => lang == 'fr' ? 'Humeur' : 'Mood';
-String periodSymptomsLabel(String lang) =>
-    lang == 'fr' ? 'Symptômes (optionnel)' : 'Symptoms (optional)';
-String periodNotesLabel(String lang) =>
-    lang == 'fr' ? 'Notes (optionnel)' : 'Notes (optional)';
-String periodErrorLoad(String lang) =>
-    lang == 'fr' ? 'Erreur de chargement' : 'Load error';
 
-// Partner reminder (PMS week)
-String periodReminderSwitchTitle(String lang) => lang == 'fr'
-    ? 'Me rappeler la semaine du SPM du partenaire'
-    : 'Remind me when partner\'s PMS week is coming';
-String periodReminderEstimated(String lang) =>
-    lang == 'fr' ? 'Estimé : ' : 'Estimated: ';
-String periodReminderNoDate(String lang) => lang == 'fr'
-    ? 'Ajoutez des entrées de règles pour estimer la date.'
-    : 'Add period entries to estimate the date.';
+// Partner reminder (the evening before)
 String periodReminderNotificationTitle(String lang) =>
-    lang == 'fr' ? 'Semaine SPM à venir' : 'PMS week coming up';
+    lang == 'fr' ? 'Règles prévues demain' : 'Period expected tomorrow';
 String periodReminderNotificationBody(String lang) => lang == 'fr'
-    ? 'La semaine du SPM de votre partenaire pourrait commencer. Pensez à un peu plus d\'écoute et de réconfort.'
-    : 'Your partner\'s PMS week may be starting. Consider extra support and comfort.';
+    ? "D'après son cycle, les règles de votre partenaire devraient commencer demain."
+    : "Going by their cycle, your partner's period should start tomorrow.";
 
 // Mood/symptom labels by language (value is same in DB)
 String periodMoodOptionLabel(String value, String lang) {

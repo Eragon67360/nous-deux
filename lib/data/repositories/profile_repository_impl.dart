@@ -77,6 +77,35 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<ProfileResult> updateCycleSettings({
+    bool? tracksCycle,
+    bool? shareCycle,
+    bool? shareCheckins,
+  }) async {
+    final uid = _userId;
+    if (uid == null) {
+      return (profile: null, failure: const AuthFailure('Not signed in'));
+    }
+    final data = <String, dynamic>{
+      'tracks_cycle': ?tracksCycle,
+      'share_cycle': ?shareCycle,
+      'share_checkins': ?shareCheckins,
+    };
+    try {
+      if (data.isEmpty) {
+        final existing = await _datasource.getById(uid);
+        return (profile: existing?.toEntity(), failure: null);
+      }
+      final profile = await _datasource.update(uid, data);
+      return (profile: profile.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (profile: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (profile: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<ProfileResult> completeOnboarding({
     required String username,
     required String gender,

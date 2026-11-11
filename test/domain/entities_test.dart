@@ -100,14 +100,13 @@ void main() {
     });
   });
 
-  test('PeriodLogEntity defaults to no symptoms and compares by value', () {
+  test('PeriodLogEntity compares by value', () {
     final a = PeriodLogEntity(
       id: 'l',
       userId: 'u',
       coupleId: 'c',
       startDate: DateTime.utc(2026, 3, 1),
     );
-    expect(a.symptoms, isEmpty);
     expect(
       a,
       PeriodLogEntity(

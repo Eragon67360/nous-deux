@@ -11,6 +11,7 @@ import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -121,6 +122,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Règles: keep the partner's sharing switches and the reminder current
+    // wherever the app is open.
+    ref.watch(partnerCycleSettingsLiveProvider);
+    ref.watch(partnerReminderSyncProvider);
     final userId = ref.watch(currentUserProvider).valueOrNull?.id;
     if (userId != null) {
       _subscribeToPartnerJoined(userId);

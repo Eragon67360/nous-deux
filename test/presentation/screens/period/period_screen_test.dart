@@ -1,325 +1,421 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:nousdeux/core/constants/cycle_strings.dart';
+import 'package:nousdeux/core/constants/guide_chapters.dart';
+import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
-import 'package:nousdeux/presentation/providers/period_provider.dart';
-import 'package:nousdeux/presentation/screens/period/period_log_form_screen.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/screens/period/period_screen.dart';
 
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
 
-const _guideVisitedKey = 'period_guide_visited';
-
 void main() {
-  setUp(() {
-    // By default the partner's first visit does not jump to the Guide tab.
-    SharedPreferences.setMockInitialValues({_guideVisitedKey: true});
-  });
+  // TestDeps' "now": Tuesday 10 November 2026, 18:00.
+  final today = DateTime(2026, 11, 10);
+  DateTime day(int month, int d) => DateTime(2026, month, d);
 
-  Future<TestDeps> pumpPeriod(
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  Future<TestDeps> pumpRegles(
     WidgetTester tester, {
+    bool? tracks = true,
+    bool paired = true,
+    bool partnerShares = true,
     List<PeriodLogEntity> logs = const [],
+    List<CycleCheckinEntity> checkins = const [],
     String lang = 'fr',
-    bool withPartner = false,
-    String? partnerName = 'Alex',
-    int? initialTab,
-    List<Override> overrides = const [],
+    bool openGuide = false,
   }) async {
+    useTallSurface(tester);
     final deps = TestDeps(
       myProfile: profile(
         language: lang,
-        partner: withPartner ? partnerId : null,
+        partner: paired ? partnerId : null,
+        tracksCycle: tracks,
       ),
-      partner: withPartner ? partnerProfile(username: partnerName) : null,
+      partner: paired ? partnerProfile(shareCycle: partnerShares) : null,
+      couple: paired ? couple() : null,
       logs: logs,
+      checkins: checkins,
     );
-    await pumpScreen(
-      tester,
-      PeriodScreen(initialTab: initialTab),
-      deps: deps,
-      overrides: overrides,
-    );
+    await pumpScreen(tester, PeriodScreen(openGuide: openGuide), deps: deps);
     return deps;
   }
 
-  TabController tabs(WidgetTester tester) =>
-      tester.widget<TabBar>(find.byType(TabBar)).controller!;
+  String label(String text) => text.toUpperCase();
 
-  for (final lang in ['fr', 'en']) {
-    testWidgets('[$lang] no entries: tabs, empty state and add button', (
-      tester,
-    ) async {
-      await pumpPeriod(tester, lang: lang);
+  group('who tracks', () {
+    for (final lang in ['fr', 'en']) {
+      testWidgets('[$lang] asks once, then becomes my tracker', (tester) async {
+        final deps = await pumpRegles(tester, tracks: null, lang: lang);
 
-      expect(find.text(periodScreenTitle(lang)), findsOneWidget);
-      expect(find.text(periodTabLogs(lang)), findsOneWidget);
-      expect(find.text(periodTabGuide(lang)), findsOneWidget);
-      expect(find.text(periodEmptyMessage(lang)), findsOneWidget);
-      expect(find.text(periodEmptySecondary(lang)), findsOneWidget);
-      expect(find.byType(FloatingActionButton), findsOneWidget);
-      expect(find.byType(FilterChip), findsNothing, reason: 'no partner');
+        expect(find.text(cycleAskTitle(lang)), findsOneWidget);
+        await tester.tap(find.text(cycleAskYes(lang)));
+        await tester.pumpAndSettle();
+
+        expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isTrue);
+        expect(find.text(cycleAskTitle(lang)), findsNothing);
+        expect(find.text(cycleNoDataTitle(lang)), findsOneWidget);
+        expect(find.text(cycleStarted(lang)), findsOneWidget);
+      });
+    }
+
+    testWidgets('"No" shows my partner\'s side instead', (tester) async {
+      final deps = await pumpRegles(tester, tracks: null);
+
+      await tester.tap(find.text(cycleAskNo('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isFalse);
+      expect(find.text(cyclePartnerNothingYet('fr', 'Alex')), findsOneWidget);
     });
-  }
-
-  group('the log list', () {
-    testWidgets('shows date ranges, owner and details', (tester) async {
-      await pumpPeriod(
-        tester,
-        withPartner: true,
-        logs: [
-          periodLog(
-            id: 'mine',
-            start: DateTime(2026, 3, 1),
-            end: DateTime(2026, 3, 5),
-            mood: 'tired',
-            symptoms: ['cramps', 'headache'],
-            notes: 'Canapé',
-          ),
-          periodLog(
-            id: 'theirs',
-            userId: partnerId,
-            start: DateTime(2026, 2, 3),
-          ),
-        ],
-      );
-
-      expect(find.text('1 mars 2026 – 5 mars 2026'), findsOneWidget);
-      expect(
-        find.text('Fatigué(e) · Crampes, Maux de tête · Canapé'),
-        findsOneWidget,
-      );
-      expect(find.text(periodMe('fr')), findsOneWidget);
-      expect(find.text('3 févr. 2026'), findsOneWidget);
-      expect(find.text('Alex'), findsOneWidget);
-      expect(find.text(periodEmptyMessage('fr')), findsNothing);
-    });
-
-    testWidgets('English dates and labels', (tester) async {
-      await pumpPeriod(
-        tester,
-        lang: 'en',
-        logs: [
-          periodLog(
-            start: DateTime(2026, 3, 1),
-            end: DateTime(2026, 3, 5),
-            mood: 'anxious',
-            symptoms: ['acne'],
-          ),
-        ],
-      );
-
-      expect(find.text('Mar 1, 2026 – Mar 5, 2026'), findsOneWidget);
-      expect(find.text('Anxious · Acne'), findsOneWidget);
-      expect(find.text(periodMe('en')), findsOneWidget);
-    });
-
-    testWidgets('an end on the start day shows a single date', (tester) async {
-      await pumpPeriod(
-        tester,
-        logs: [
-          periodLog(
-            start: DateTime(2026, 3, 1, 8),
-            end: DateTime(2026, 3, 1, 20),
-          ),
-        ],
-      );
-      expect(find.text('1 mars 2026'), findsOneWidget);
-    });
-
-    testWidgets('long notes are cut at 40 characters', (tester) async {
-      const notes = 'Une journée très fatigante avec beaucoup de douleurs';
-      await pumpPeriod(
-        tester,
-        logs: [periodLog(start: DateTime(2026, 3, 1), notes: notes)],
-      );
-      expect(find.text('${notes.substring(0, 40)}…'), findsOneWidget);
-    });
-
-    testWidgets('an unnamed partner is "Partner"', (tester) async {
-      await pumpPeriod(
-        tester,
-        lang: 'en',
-        withPartner: true,
-        partnerName: null,
-        logs: [periodLog(userId: partnerId, start: DateTime(2026, 3, 1))],
-      );
-      expect(find.text(periodPartner('en')), findsWidgets);
-    });
-
-    testWidgets(
-      'shows the stored calendar day whatever the device timezone',
-      (tester) async {
-        // Regression: DATE columns used to be parsed as UTC midnight and
-        // shown after .toLocal(), i.e. the previous day west of UTC.
-        await pumpPeriod(
-          tester,
-          logs: [periodLog(start: DateTime.utc(2026, 3, 1))],
-        );
-        expect(find.text('1 mars 2026'), findsOneWidget);
-      },
-    );
   });
 
-  group('my entries vs the partner\'s', () {
-    final mine = periodLog(id: 'mine', start: DateTime(2026, 3, 1));
-    final theirs = periodLog(
-      id: 'theirs',
-      userId: partnerId,
-      start: DateTime(2026, 2, 3),
-    );
+  group('my cycle (R1)', () {
+    final lastPeriod = [periodLog(start: day(11, 1), end: day(11, 5))];
 
-    testWidgets('tapping mine opens it for editing', (tester) async {
-      await pumpPeriod(tester, withPartner: true, logs: [mine, theirs]);
+    testWidgets('shows the day, the phase and when the next one comes', (
+      tester,
+    ) async {
+      await pumpRegles(tester, logs: lastPeriod);
 
-      await tester.tap(find.text('1 mars 2026'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(PeriodLogFormScreen), findsOneWidget);
-      expect(find.text(periodLogEdit('fr')), findsOneWidget);
+      expect(find.text('10'), findsOneWidget);
+      expect(find.text(cycleOfAbout('fr', 28)), findsOneWidget);
+      expect(
+        find.text(label(cyclePhaseLabel('fr', CyclePhase.follicular))),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          cycleHeadline('fr', ongoing: false, dayOfCycle: 10, daysUntil: 19),
+        ),
+        findsOneWidget,
+      );
+      expect(find.text(cycleBasis('fr', day(11, 29), 0)), findsOneWidget);
+      expect(
+        find.text(cycleSelfTip('fr', CyclePhase.follicular)),
+        findsOneWidget,
+      );
     });
 
-    testWidgets('the partner\'s entries are read-only', (tester) async {
-      final deps = await pumpPeriod(
+    testWidgets('one tap notes a start today, and can be undone', (
+      tester,
+    ) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+
+      await tester.tap(find.text(cycleStarted('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.period.createCalls.single.startDate, today);
+      expect(find.text(cycleLoggedStart('fr', today)), findsOneWidget);
+      // The new period is on: the button now offers to end it.
+      expect(find.text(cycleEnded('fr')), findsOneWidget);
+
+      await tester.tap(find.text(cycleUndo('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.period.deletedIds, ['log-2']);
+      expect(find.text(cycleStarted('fr')), findsOneWidget);
+    });
+
+    testWidgets('while a period is on, the button ends it today', (
+      tester,
+    ) async {
+      final deps = await pumpRegles(
         tester,
-        withPartner: true,
-        logs: [mine, theirs],
+        logs: [periodLog(id: 'now', start: day(11, 9))],
       );
 
-      await tester.tap(find.text('3 févr. 2026'));
+      expect(
+        find.text(
+          cycleHeadline('fr', ongoing: true, dayOfCycle: 2, daysUntil: 26),
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(cycleEnded('fr')));
       await tester.pumpAndSettle();
-      expect(find.byType(PeriodLogFormScreen), findsNothing);
 
-      await tester.longPress(find.text('3 févr. 2026'));
-      await tester.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
-      expect(deps.period.deletedIds, isEmpty);
+      final call = deps.period.updateCalls.single;
+      expect(call.id, 'now');
+      expect(call.startDate, day(11, 9));
+      expect(call.endDate, today);
+      expect(find.text(cycleLoggedEnd('fr', today)), findsOneWidget);
     });
 
-    testWidgets('long-pressing mine asks before deleting', (tester) async {
-      final deps = await pumpPeriod(tester, logs: [mine]);
+    testWidgets('"another day" notes the day picked in the sheet', (
+      tester,
+    ) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
 
-      await tester.longPress(find.text('1 mars 2026'));
+      await tester.tap(find.text('${cycleOtherDay('fr')} ›'));
       await tester.pumpAndSettle();
-      expect(find.text(periodDeleteConfirmTitle('fr')), findsOneWidget);
-
-      await tester.tap(find.text(periodCancel('fr')));
+      expect(find.text(cycleSheetStarted('fr')), findsOneWidget);
+      // Yesterday is picked first: that is what "another day" usually means.
+      await tester.tap(find.text(cycleSave('fr')));
       await tester.pumpAndSettle();
-      expect(deps.period.deletedIds, isEmpty);
 
-      await tester.longPress(find.text('1 mars 2026'));
+      expect(deps.period.createCalls.single.startDate, day(11, 9));
+    });
+
+    testWidgets('how today feels is saved as soon as a word is tapped', (
+      tester,
+    ) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+
+      expect(find.text(cycleSeenBy('fr', 'Alex')), findsOneWidget);
+      await tester.tap(find.text(periodSymptomOptionLabel('cramps', 'fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(periodMoodOptionLabel('tired', 'fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.cycle.checkinCalls, hasLength(2));
+      final last = deps.cycle.checkinCalls.last;
+      expect(last.day, today);
+      expect(last.symptoms, ['cramps']);
+      expect(last.mood, 'tired');
+    });
+
+    testWidgets('a failed check-in is undone on screen', (tester) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+      deps.cycle.nextFailure = const ServerFailure('down');
+
+      await tester.tap(find.text(periodSymptomOptionLabel('cramps', 'fr')));
+      await tester.pumpAndSettle();
+
+      final chip = tester.widget<FilterChip>(
+        find.widgetWithText(
+          FilterChip,
+          periodSymptomOptionLabel('cramps', 'fr'),
+        ),
+      );
+      expect(chip.selected, isFalse);
+      expect(find.text(cycleSaveFailed('fr')), findsOneWidget);
+    });
+
+    testWidgets('the private note is written in a sheet', (tester) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+
+      await tester.tap(find.text(cycleNoteLabel('fr')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Bouillotte ce soir');
+      await tester.tap(find.text(cycleSave('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.cycle.noteCalls.single.day, today);
+      expect(deps.cycle.noteCalls.single.note, 'Bouillotte ce soir');
+      expect(find.text('Bouillotte ce soir'), findsOneWidget);
+    });
+
+    testWidgets('without a couple there is nowhere to save yet', (
+      tester,
+    ) async {
+      await pumpRegles(tester, paired: false);
+
+      expect(find.text(cycleNeedsCouple('fr')), findsOneWidget);
+      expect(find.text(cycleStarted('fr')), findsNothing);
+    });
+  });
+
+  group('my partner\'s cycle (R3)', () {
+    final partnerPeriod = [
+      periodLog(userId: partnerId, start: day(10, 21), end: day(10, 25)),
+    ];
+
+    testWidgets('says where they are and what tends to help', (tester) async {
+      await pumpRegles(
+        tester,
+        tracks: false,
+        logs: partnerPeriod,
+        checkins: [
+          checkin(
+            userId: partnerId,
+            day: today,
+            symptoms: ['headache'],
+            mood: 'tired',
+          ),
+        ],
+      );
+
+      expect(
+        find.text(cyclePartnerHeadline('fr', 'Alex', ongoing: false, day: 21)),
+        findsOneWidget,
+      );
+      for (final tip in cyclePartnerTips('fr', CyclePhase.luteal)) {
+        expect(find.text(tip), findsOneWidget);
+      }
+      expect(find.text(label(cyclePartnerNoted('fr', 'Alex'))), findsOneWidget);
+      expect(find.text('Maux de tête · Fatigué(e)'), findsOneWidget);
+      expect(find.text(cycleRemindMe('fr')), findsOneWidget);
+      expect(find.text(cycleRemindOn('fr', day(11, 17))), findsOneWidget);
+    });
+
+    testWidgets('a little note goes straight to them', (tester) async {
+      final deps = await pumpRegles(tester, tracks: false, logs: partnerPeriod);
+
+      await tester.tap(find.text(pingLabel('fr', PingKind.kiss)));
+      await tester.pumpAndSettle();
+
+      expect(deps.pings.sent, [PingKind.kiss]);
+    });
+
+    testWidgets('says so when they don\'t share, without the reminder', (
+      tester,
+    ) async {
+      await pumpRegles(tester, tracks: false, partnerShares: false);
+
+      expect(find.text(cyclePartnerNotShared('fr', 'Alex')), findsOneWidget);
+      expect(find.text(cycleRemindMe('fr')), findsNothing);
+    });
+
+    testWidgets('a tracker reaches their partner\'s cycle from a link', (
+      tester,
+    ) async {
+      await pumpRegles(tester, logs: partnerPeriod);
+
+      await tester.tap(find.text('${cyclePartnerLink('fr', 'Alex')} ›'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(cyclePartnerHeadline('fr', 'Alex', ongoing: false, day: 21)),
+        findsOneWidget,
+      );
+    });
+  });
+
+  group('sharing', () {
+    testWidgets('two switches; notes stay private', (tester) async {
+      final deps = await pumpRegles(tester);
+
+      await tester.tap(find.text('${cycleSharingLink('fr', 'Alex')} ›'));
+      await tester.pumpAndSettle();
+      expect(find.text(cycleNotesAlwaysPrivate('fr')), findsOneWidget);
+
+      await tester.tap(find.text(cycleShareCycle('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.profiles.cycleSettingsCalls.single.shareCycle, isFalse);
+      expect(deps.profiles.mine!.shareCycle, isFalse);
+
+      await tester.tap(find.text(cycleStopSharing('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.profiles.mine!.shareCheckins, isFalse);
+      expect(find.text(cycleStopSharing('fr')), findsNothing);
+    });
+  });
+
+  group('history', () {
+    testWidgets('averages, one row per cycle, delete on long press', (
+      tester,
+    ) async {
+      final deps = await pumpRegles(
+        tester,
+        logs: [
+          periodLog(id: 'oct', start: day(10, 4), end: day(10, 8)),
+          periodLog(id: 'nov', start: day(11, 1), end: day(11, 5)),
+        ],
+      );
+
+      await tester.tap(find.text('${cycleHistoryLink('fr')} ›'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(label(cycleAverage('fr'))), findsOneWidget);
+      expect(find.text(cycleCurrentRow('fr', 10)), findsOneWidget);
+      expect(find.text(cycleSpanRow('fr', 28, 5)), findsOneWidget);
+      expect(find.text(cycleNeedTwo('fr')), findsOneWidget);
+
+      await tester.longPress(find.text(cycleShortDate('fr', day(10, 4))));
       await tester.pumpAndSettle();
       await tester.tap(find.text(periodDelete('fr')));
       await tester.pumpAndSettle();
 
-      expect(deps.period.deletedIds, ['mine']);
-      expect(find.text(periodEmptyMessage('fr')), findsOneWidget);
+      expect(deps.period.deletedIds, ['oct']);
+      expect(find.text(cycleSpanRow('fr', 28, 5)), findsNothing);
     });
   });
 
-  testWidgets('the add button opens a new entry form', (tester) async {
-    await pumpPeriod(tester);
-
-    await tester.tap(find.byType(FloatingActionButton));
-    await tester.pumpAndSettle();
-
-    expect(find.text(periodLogNew('fr')), findsOneWidget);
-  });
-
-  group('partner mode', () {
-    testWidgets('the chip shows the partner banner', (tester) async {
-      await pumpPeriod(tester, withPartner: true);
-
-      expect(find.text('Journal de Alex'), findsNothing);
-      await tester.tap(find.text(periodPartnerModeLabel('fr')));
-      await tester.pumpAndSettle();
-      expect(find.text('Journal de Alex'), findsOneWidget);
-    });
-
-    testWidgets('turns on by itself when most entries are the partner\'s', (
-      tester,
-    ) async {
-      await pumpPeriod(
+  group('guide (R4)', () {
+    testWidgets('chapters, what matters now, and reading on', (tester) async {
+      await pumpRegles(
         tester,
-        lang: 'en',
-        withPartner: true,
-        logs: [
-          periodLog(id: 'p1', userId: partnerId, start: DateTime(2026, 2, 3)),
-          periodLog(id: 'p2', userId: partnerId, start: DateTime(2026, 3, 3)),
-          periodLog(id: 'm1', start: DateTime(2026, 1, 3)),
-        ],
+        logs: [periodLog(start: day(11, 1), end: day(11, 5))],
       );
 
-      expect(find.text("Alex's log"), findsOneWidget);
-      expect(tabs(tester).index, 0, reason: 'guide already visited');
-    });
-
-    testWidgets('a first visit as the partner jumps to the Guide, once', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      await pumpPeriod(
-        tester,
-        withPartner: true,
-        logs: [periodLog(userId: partnerId, start: DateTime(2026, 3, 3))],
-      );
-
-      // The switch is a post-frame callback scheduled once prefs load; in the
-      // app the next frame comes on its own, here we ask for one.
-      tester.binding.scheduleFrame();
+      await tester.tap(find.text('${guideLabel('fr')} ›'));
       await tester.pumpAndSettle();
 
-      expect(tabs(tester).index, 1);
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool(_guideVisitedKey), isTrue);
-    });
-  });
+      expect(find.text(guideTitle('fr')), findsOneWidget);
+      expect(find.text(label(guideForYouNow('fr', 10))), findsOneWidget);
+      for (final c in GuideChapter.values) {
+        expect(find.text(guideChapterTitle(c, 'fr')), findsOneWidget);
+      }
+      expect(find.byIcon(Icons.check), findsNothing);
 
-  group('guide tab', () {
-    testWidgets('initialTab 1 opens on the guide with the phase tip', (
-      tester,
-    ) async {
-      await pumpPeriod(
-        tester,
-        initialTab: 1,
-        logs: [periodLog(start: utcDaysAgo(0))], // day 1: menstrual
-      );
-
-      expect(tabs(tester).index, 1);
-      expect(find.text(tipOfTheDayTitle('fr')), findsWidgets); // card + TOC
+      await tester.tap(find.text(guideChapterTitle(GuideChapter.cycle, 'fr')));
+      await tester.pumpAndSettle();
+      expect(find.text(label(guideChapter('fr', 1))), findsOneWidget);
       expect(
-        find.text(phaseTipFor(CyclePhase.menstrual).get('fr')),
+        find.textContaining(guideYouAreHere('fr')),
+        findsOneWidget,
+        reason: 'the follicular phase is marked',
+      );
+
+      final next = guideNext(
+        'fr',
+        guideChapterTitle(GuideChapter.bodyMind, 'fr'),
+      );
+      await tester.tap(find.text('$next ›'));
+      await tester.pumpAndSettle();
+      expect(find.text(label(guideChapter('fr', 2))), findsOneWidget);
+
+      await tester.tap(find.text('‹ ${guideContents('fr')}'));
+      await tester.pumpAndSettle();
+      expect(find.byIcon(Icons.check), findsNWidgets(2));
+    });
+
+    testWidgets('search keeps the chapters that mention the words', (
+      tester,
+    ) async {
+      await pumpRegles(tester, openGuide: true);
+
+      await tester.enterText(find.byType(TextField), 'PMDD');
+      await tester.pumpAndSettle();
+      expect(
+        find.text(guideChapterTitle(GuideChapter.bodyMind, 'fr')),
         findsOneWidget,
       );
-      expect(find.byType(FloatingActionButton), findsNothing);
-    });
+      expect(
+        find.text(guideChapterTitle(GuideChapter.myths, 'fr')),
+        findsNothing,
+      );
 
-    testWidgets('without entries the tip falls back to the generic one', (
-      tester,
-    ) async {
-      await pumpPeriod(tester, lang: 'en');
-
-      await tester.tap(find.text(periodTabGuide('en')));
+      await tester.enterText(find.byType(TextField), 'zzqxw');
       await tester.pumpAndSettle();
-
-      expect(find.text(tipFallback('en')), findsOneWidget);
+      expect(find.text(guideNoMatch('fr', 'zzqxw')), findsOneWidget);
     });
-  });
 
-  testWidgets('a load error shows the error state', (tester) async {
-    await pumpPeriod(
-      tester,
-      overrides: [
-        periodLogsProvider.overrideWith(
-          (ref) => Stream.error(Exception('offline')),
-        ),
-      ],
-    );
+    testWidgets('"for your partner now" speaks about them', (tester) async {
+      await pumpRegles(
+        tester,
+        tracks: false,
+        logs: [
+          periodLog(userId: partnerId, start: day(10, 21), end: day(10, 25)),
+        ],
+        openGuide: true,
+      );
 
-    expect(find.text(periodErrorLoad('fr')), findsOneWidget);
-    expect(find.text('Exception: offline'), findsOneWidget);
+      final now = guideForPartnerNow('fr', 'Alex', 21);
+      expect(find.text(label(now)), findsOneWidget);
+      await tester.tap(
+        find.text('${guideNowTitle('fr', CyclePhase.luteal)} ›'),
+      );
+      await tester.pumpAndSettle();
+      for (final tip in cyclePartnerTips('fr', CyclePhase.luteal)) {
+        expect(find.text('· $tip'), findsOneWidget);
+      }
+    });
   });
 }

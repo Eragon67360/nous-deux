@@ -15,8 +15,8 @@ String settingsPermissions(String lang) => lang == 'fr' ? 'Autorisations' : 'Per
 String settingsOpenAppSettings(String lang) => lang == 'fr' ? 'Ouvrir les réglages' : 'Open app settings';
 String settingsNotifications(String lang) => lang == 'fr' ? 'Notifications' : 'Notifications';
 String settingsPeriodReminder(String lang) => lang == 'fr'
-    ? 'Rappel SPM de votre partenaire'
-    : "Reminder for your partner's PMS";
+    ? 'Prévenir la veille des règles de votre partenaire'
+    : "Remind me the day before my partner's period";
 String settingsCalendarReminders(String lang) => lang == 'fr' ? 'Rappels calendrier' : 'Calendar reminders';
 String settingsCalendarRemindersSubtitle(String lang) =>
     lang == 'fr' ? 'Bientôt disponible' : 'Coming soon';

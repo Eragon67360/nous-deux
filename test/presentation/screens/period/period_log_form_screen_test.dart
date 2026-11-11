@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart';
 
+import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
@@ -54,22 +54,13 @@ void main() {
     for (final lang in ['fr', 'en']) {
       testWidgets('[$lang] starts today with no end date', (tester) async {
         await _openForm(tester, lang: lang);
-        final fmt = lang == 'fr'
-            ? DateFormat('d MMM y', 'fr_FR')
-            : DateFormat('MMM d, y', 'en_US');
+        final now = DateTime.now();
 
         expect(find.text(periodLogNew(lang)), findsOneWidget);
         expect(find.text(periodStartDate(lang)), findsOneWidget);
-        expect(find.text(fmt.format(DateTime.now())), findsOneWidget);
+        expect(find.text(cycleShortDate(lang, now)), findsOneWidget);
         expect(find.text(periodEndDate(lang)), findsOneWidget);
-        expect(find.text('—'), findsWidgets); // end date + empty mood
-        expect(find.text(periodMoodLabelForm(lang)), findsOneWidget);
-        expect(find.text(periodSymptomsLabel(lang)), findsOneWidget);
-        expect(
-          find.text(periodSymptomOptionLabel('cramps', lang)),
-          findsOneWidget,
-        );
-        expect(find.text(periodNotesLabel(lang)), findsOneWidget);
+        expect(find.text('—'), findsOneWidget);
       });
     }
 
@@ -77,49 +68,14 @@ void main() {
       tester,
     ) async {
       final deps = await _openForm(tester);
-      final before = DateTime.now();
+      final now = DateTime.now();
 
       await _save(tester, 'fr');
 
       final call = deps.period.createCalls.single;
-      expect(call.startDate.year, before.year);
-      expect(call.startDate.month, before.month);
-      expect(call.startDate.day, before.day);
+      expect(call.startDate, DateTime(now.year, now.month, now.day));
       expect(call.endDate, isNull);
-      expect(call.mood, isNull);
-      expect(call.symptoms, isNull);
-      expect(call.notes, isNull);
       expect(find.byType(PeriodLogFormScreen), findsNothing);
-    });
-
-    testWidgets('sends the mood, sorted symptoms and trimmed notes', (
-      tester,
-    ) async {
-      final deps = await _openForm(tester);
-
-      await tester.tap(find.byType(DropdownButtonFormField<String>));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(periodMoodOptionLabel('tired', 'fr')).last);
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.text(periodSymptomOptionLabel('headache', 'fr')));
-      await tester.tap(find.text(periodSymptomOptionLabel('bloating', 'fr')));
-      await tester.tap(find.text(periodSymptomOptionLabel('acne', 'fr')));
-      await tester.pump();
-      // Tapping a selected chip again unselects it.
-      await tester.tap(find.text(periodSymptomOptionLabel('acne', 'fr')));
-      await tester.pump();
-
-      await tester.enterText(
-        find.widgetWithText(TextFormField, periodNotesLabel('fr')),
-        '  Bouillotte  ',
-      );
-      await _save(tester, 'fr');
-
-      final call = deps.period.createCalls.single;
-      expect(call.mood, 'tired');
-      expect(call.symptoms, ['bloating', 'headache']);
-      expect(call.notes, 'Bouillotte');
     });
 
     testWidgets('a failure shows its message and keeps the form open', (
@@ -135,44 +91,30 @@ void main() {
     });
   });
 
-  group('editing an entry', () {
+  group('fixing a period', () {
     final existing = periodLog(
       id: 'l1',
       start: DateTime(2026, 3, 1),
       end: DateTime(2026, 3, 5),
-      mood: 'irritable',
-      symptoms: ['pain', 'cramps'],
-      notes: 'Canapé',
     );
 
-    testWidgets('is prefilled from the entry', (tester) async {
+    testWidgets('is prefilled with its dates, and only dates', (tester) async {
       await _openForm(tester, editing: existing);
 
       expect(find.text(periodLogEdit('fr')), findsOneWidget);
-      expect(find.text('1 mars 2026'), findsOneWidget);
-      expect(find.text('5 mars 2026'), findsOneWidget);
       expect(
-        find.text(periodMoodOptionLabel('irritable', 'fr')),
+        find.text(cycleShortDate('fr', DateTime(2026, 3, 1))),
         findsOneWidget,
       );
-      expect(find.widgetWithText(TextFormField, 'Canapé'), findsOneWidget);
-
-      bool selected(String value) => tester
-          .widget<FilterChip>(
-            find.widgetWithText(
-              FilterChip,
-              periodSymptomOptionLabel(value, 'fr'),
-            ),
-          )
-          .selected;
-      expect(selected('pain'), isTrue);
-      expect(selected('cramps'), isTrue);
-      expect(selected('acne'), isFalse);
+      expect(
+        find.text(cycleShortDate('fr', DateTime(2026, 3, 5))),
+        findsOneWidget,
+      );
+      expect(find.byType(TextField), findsNothing);
+      expect(find.byType(FilterChip), findsNothing);
     });
 
-    testWidgets('saving updates the entry with sorted symptoms', (
-      tester,
-    ) async {
+    testWidgets('saving updates the dates', (tester) async {
       final deps = await _openForm(tester, editing: existing);
 
       await _save(tester, 'fr');
@@ -182,21 +124,17 @@ void main() {
       expect(call.id, 'l1');
       expect(call.startDate, DateTime(2026, 3, 1));
       expect(call.endDate, DateTime(2026, 3, 5));
-      expect(call.mood, 'irritable');
-      expect(call.symptoms, ['cramps', 'pain']);
-      expect(call.notes, 'Canapé');
       expect(find.byType(PeriodLogFormScreen), findsNothing);
     });
 
-    testWidgets('clearing every symptom sends an empty list', (tester) async {
+    testWidgets('the end date can be cleared', (tester) async {
       final deps = await _openForm(tester, editing: existing);
 
-      await tester.tap(find.text(periodSymptomOptionLabel('pain', 'fr')));
-      await tester.tap(find.text(periodSymptomOptionLabel('cramps', 'fr')));
+      await tester.tap(find.byIcon(Icons.close));
       await tester.pump();
       await _save(tester, 'fr');
 
-      expect(deps.period.updateCalls.single.symptoms, isEmpty);
+      expect(deps.period.updateCalls.single.endDate, isNull);
     });
   });
 }

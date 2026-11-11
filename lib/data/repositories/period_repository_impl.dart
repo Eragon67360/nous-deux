@@ -57,9 +57,6 @@ class PeriodRepositoryImpl implements PeriodRepository {
   Future<PeriodLogResult> createLog({
     required DateTime startDate,
     DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
   }) async {
     final uid = Supabase.instance.client.auth.currentUser?.id;
     if (uid == null) {
@@ -75,9 +72,6 @@ class PeriodRepositoryImpl implements PeriodRepository {
         coupleId: coupleId,
         startDate: startDate,
         endDate: endDate,
-        mood: mood,
-        symptoms: symptoms,
-        notes: notes,
       );
       return (log: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {
@@ -92,18 +86,12 @@ class PeriodRepositoryImpl implements PeriodRepository {
     required String id,
     required DateTime startDate,
     required DateTime? endDate,
-    required String? mood,
-    required List<String> symptoms,
-    required String? notes,
   }) async {
     try {
       final model = await _period.update(
         id,
         startDate: startDate,
         endDate: endDate,
-        mood: mood,
-        symptoms: symptoms,
-        notes: notes,
       );
       return (log: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {

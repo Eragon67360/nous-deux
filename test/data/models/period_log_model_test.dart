@@ -6,16 +6,12 @@ void main() {
   Map<String, dynamic> row({
     Object? start = '2026-03-01',
     Object? end = '2026-03-05',
-    Object? symptoms = const ['cramps', 'headache'],
   }) => {
     'id': 'l1',
     'user_id': 'u1',
     'couple_id': 'c1',
     'start_date': start,
     'end_date': end,
-    'mood': 'tired',
-    'symptoms': symptoms,
-    'notes': 'Couch day',
     'created_at': '2026-03-01T08:00:00.000Z',
     'updated_at': '2026-03-02T08:00:00.000Z',
   };
@@ -26,9 +22,6 @@ void main() {
       expect(m.startDate, DateTime(2026, 3, 1));
       expect(m.startDate.isUtc, isFalse);
       expect(m.endDate, DateTime(2026, 3, 5));
-      expect(m.mood, 'tired');
-      expect(m.symptoms, ['cramps', 'headache']);
-      expect(m.notes, 'Couch day');
       expect(m.createdAt, DateTime.utc(2026, 3, 1, 8));
       expect(m.updatedAt, DateTime.utc(2026, 3, 2, 8));
     });
@@ -41,10 +34,9 @@ void main() {
       expect(m.endDate, DateTime(2026, 3, 5));
     });
 
-    test('accepts a null end date and null symptoms', () {
-      final m = PeriodLogModel.fromJson(row(end: null, symptoms: null));
+    test('accepts a null end date', () {
+      final m = PeriodLogModel.fromJson(row(end: null));
       expect(m.endDate, isNull);
-      expect(m.symptoms, isEmpty);
     });
   });
 
@@ -57,9 +49,6 @@ void main() {
         'couple_id': 'c1',
         'start_date': '2026-03-01',
         'end_date': '2026-03-05',
-        'mood': 'tired',
-        'symptoms': ['cramps', 'headache'],
-        'notes': 'Couch day',
         'created_at': '2026-03-01T08:00:00.000Z',
         'updated_at': '2026-03-02T08:00:00.000Z',
       });
@@ -77,7 +66,6 @@ void main() {
         ).toJson();
         expect(json['start_date'], '2026-01-09');
         expect(json['end_date'], isNull);
-        expect(json['symptoms'], isEmpty);
       },
     );
 
@@ -87,14 +75,12 @@ void main() {
     });
   });
 
-  test('toEntity copies fields and freezes the symptom list', () {
+  test('toEntity copies the fields', () {
     final e = PeriodLogModel.fromJson(row()).toEntity();
     expect(e.id, 'l1');
     expect(e.userId, 'u1');
     expect(e.coupleId, 'c1');
     expect(e.startDate, DateTime(2026, 3, 1));
     expect(e.endDate, DateTime(2026, 3, 5));
-    expect(e.symptoms, ['cramps', 'headache']);
-    expect(() => e.symptoms.add('acne'), throwsUnsupportedError);
   });
 }

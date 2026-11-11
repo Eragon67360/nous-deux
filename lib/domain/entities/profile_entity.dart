@@ -9,6 +9,9 @@ class ProfileEntity extends Equatable {
     this.language = 'fr',
     this.avatarUrl,
     this.onboardingCompletedAt,
+    this.tracksCycle,
+    this.shareCycle = true,
+    this.shareCheckins = true,
     this.createdAt,
     this.updatedAt,
   });
@@ -20,6 +23,16 @@ class ProfileEntity extends Equatable {
   final String language;
   final String? avatarUrl;
   final DateTime? onboardingCompletedAt;
+
+  /// Whether this person tracks a cycle in the app; null until asked.
+  final bool? tracksCycle;
+
+  /// The partner may see this person's period dates (day, phase, expected
+  /// date) and get the reminder.
+  final bool shareCycle;
+
+  /// The partner may see this person's daily check-ins.
+  final bool shareCheckins;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -36,6 +49,9 @@ class ProfileEntity extends Equatable {
     language,
     avatarUrl,
     onboardingCompletedAt,
+    tracksCycle,
+    shareCycle,
+    shareCheckins,
     createdAt,
     updatedAt,
   ];

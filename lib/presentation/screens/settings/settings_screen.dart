@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
+import 'package:nousdeux/core/constants/period_education.dart' show periodScreenTitle;
+import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
-import 'package:nousdeux/presentation/providers/period_provider.dart';
+import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -110,6 +112,13 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsGroup(
                 title: settingsLocation(lang),
                 children: const [_LocationSharingSwitchBody()],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // Règles: whether the tab is my tracker or my partner's cycle.
+              _SettingsGroup(
+                title: periodScreenTitle(lang),
+                children: const [_TracksCycleSwitch()],
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -635,6 +644,38 @@ class _PermissionsListBody extends ConsumerWidget {
   }
 }
 
+class _TracksCycleSwitch extends ConsumerWidget {
+  const _TracksCycleSwitch();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(myProfileProvider).valueOrNull;
+    final lang = profile?.language ?? 'fr';
+    final theme = Theme.of(context);
+    return SwitchListTile.adaptive(
+      title: Text(settingsTracksCycle(lang), softWrap: true),
+      value: profile?.tracksCycle ?? false,
+      activeThumbColor: theme.colorScheme.primary,
+      onChanged: profile == null
+          ? null
+          : (v) async {
+              final result = await ref
+                  .read(profileRepositoryProvider)
+                  .updateCycleSettings(tracksCycle: v);
+              if (result.failure != null) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(cycleSaveFailed(lang))),
+                  );
+                }
+                return;
+              }
+              ref.invalidate(myProfileProvider);
+            },
+    );
+  }
+}
+
 class _LocationSharingSwitchBody extends ConsumerWidget {
   const _LocationSharingSwitchBody();
 
@@ -844,8 +885,7 @@ class _NotificationSwitchesBody extends ConsumerWidget {
             title: Text(settingsPeriodReminder(lang), softWrap: true),
             value: enabled,
             activeThumbColor: theme.colorScheme.primary,
-            onChanged: (v) =>
-                setPartnerReminderEnabled(ref, enabled: v, lang: lang),
+            onChanged: (v) => setPartnerReminderEnabled(ref, enabled: v),
           ),
           loading: () => const Padding(
             padding: EdgeInsets.all(16),

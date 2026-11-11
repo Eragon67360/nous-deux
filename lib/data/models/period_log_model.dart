@@ -8,9 +8,6 @@ class PeriodLogModel {
     required this.coupleId,
     required this.startDate,
     this.endDate,
-    this.mood,
-    this.symptoms = const [],
-    this.notes,
     this.createdAt,
     this.updatedAt,
   });
@@ -20,9 +17,6 @@ class PeriodLogModel {
   final String coupleId;
   final DateTime startDate;
   final DateTime? endDate;
-  final String? mood;
-  final List<String> symptoms;
-  final String? notes;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -35,11 +29,6 @@ class PeriodLogModel {
       coupleId: json['couple_id'] as String,
       startDate: parseDay(startRaw),
       endDate: endRaw == null ? null : parseDay(endRaw),
-      mood: json['mood'] as String?,
-      symptoms: json['symptoms'] != null
-          ? List<String>.from(json['symptoms'] as List)
-          : [],
-      notes: json['notes'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -56,14 +45,10 @@ class PeriodLogModel {
       'couple_id': coupleId,
       'start_date': formatDay(startDate),
       'end_date': endDate != null ? formatDay(endDate!) : null,
-      'mood': mood,
-      'symptoms': symptoms,
-      'notes': notes,
       'created_at': createdAt?.toUtc().toIso8601String(),
       'updated_at': updatedAt?.toUtc().toIso8601String(),
     };
   }
-
 
   PeriodLogEntity toEntity() {
     return PeriodLogEntity(
@@ -72,9 +57,6 @@ class PeriodLogModel {
       coupleId: coupleId,
       startDate: startDate,
       endDate: endDate,
-      mood: mood,
-      symptoms: List.unmodifiable(symptoms),
-      notes: notes,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

@@ -57,10 +57,12 @@ Deno.serve(async (req) => {
 
     const { data: people } = await supabase
       .from("profiles")
-      .select("id, username, language, fcm_token")
+      .select("id, username, language, fcm_token, share_cycle")
       .in("id", [log.user_id, partnerId]);
     const author = people?.find((p) => p.id === log.user_id);
     const partner = people?.find((p) => p.id === partnerId);
+    // The author chose not to share their cycle: the partner hears nothing.
+    if (author?.share_cycle === false) return json({ ok: true, skipped: "cycle not shared" });
     if (!partner?.fcm_token) return json({ ok: true, skipped: "partner has no fcm_token" });
 
     const sa = readServiceAccount();

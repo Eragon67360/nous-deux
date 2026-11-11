@@ -10,6 +10,9 @@ class ProfileModel {
     this.avatarUrl,
     this.fcmToken,
     this.onboardingCompletedAt,
+    this.tracksCycle,
+    this.shareCycle = true,
+    this.shareCheckins = true,
     this.createdAt,
     this.updatedAt,
   });
@@ -22,6 +25,9 @@ class ProfileModel {
   final String? avatarUrl;
   final String? fcmToken;
   final DateTime? onboardingCompletedAt;
+  final bool? tracksCycle;
+  final bool shareCycle;
+  final bool shareCheckins;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -37,6 +43,9 @@ class ProfileModel {
       onboardingCompletedAt: json['onboarding_completed_at'] != null
           ? DateTime.parse(json['onboarding_completed_at'] as String)
           : null,
+      tracksCycle: json['tracks_cycle'] as bool?,
+      shareCycle: json['share_cycle'] as bool? ?? true,
+      shareCheckins: json['share_checkins'] as bool? ?? true,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -70,6 +79,9 @@ class ProfileModel {
       language: language,
       avatarUrl: avatarUrl,
       onboardingCompletedAt: onboardingCompletedAt,
+      tracksCycle: tracksCycle,
+      shareCycle: shareCycle,
+      shareCheckins: shareCheckins,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -84,6 +96,9 @@ class ProfileModel {
       language: e.language,
       avatarUrl: e.avatarUrl,
       onboardingCompletedAt: e.onboardingCompletedAt,
+      tracksCycle: e.tracksCycle,
+      shareCycle: e.shareCycle,
+      shareCheckins: e.shareCheckins,
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,
     );

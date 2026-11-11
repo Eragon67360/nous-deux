@@ -1,60 +1,59 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/period_education.dart';
-import 'package:nousdeux/core/constants/period_guide_sections.dart';
+import 'package:nousdeux/core/constants/cycle_strings.dart';
+import 'package:nousdeux/core/constants/guide_chapters.dart';
 import 'package:nousdeux/core/constants/period_options.dart';
 import 'package:nousdeux/core/constants/period_verified_sources.dart';
 
 void main() {
-  group('periodGuideSectionsMatchingQuery', () {
-    test('an empty or blank query matches every section', () {
+  group('guideChaptersMatching', () {
+    test('an empty or blank query matches every chapter, in order', () {
+      expect(guideChaptersMatching('', 'fr'), GuideChapter.values);
+      expect(guideChaptersMatching('   ', 'en'), GuideChapter.values);
+    });
+
+    test('matches chapter titles, ignoring case and surrounding spaces', () {
+      final title = guideChapterTitle(GuideChapter.faq, 'en');
       expect(
-        periodGuideSectionsMatchingQuery('', 'fr'),
-        periodGuideSectionOrder.toSet(),
-      );
-      expect(
-        periodGuideSectionsMatchingQuery('   ', 'en'),
-        periodGuideSectionOrder.toSet(),
+        guideChaptersMatching('  ${title.toUpperCase()} ', 'en'),
+        contains(GuideChapter.faq),
       );
     });
 
-    test('matches section titles, ignoring case and surrounding spaces', () {
-      final title = periodGuideSectionTitle(PeriodGuideSection.faq, 'en');
+    test('matches what a chapter says, not only its title', () {
       expect(
-        periodGuideSectionsMatchingQuery('  ${title.toUpperCase()} ', 'en'),
-        contains(PeriodGuideSection.faq),
-      );
-    });
-
-    test('matches key phrases beyond the title', () {
-      expect(
-        periodGuideSectionsMatchingQuery('PMDD', 'fr'),
-        contains(PeriodGuideSection.bodyMind),
+        guideChaptersMatching('PMDD', 'fr'),
+        contains(GuideChapter.bodyMind),
       );
       expect(
-        periodGuideSectionsMatchingQuery('ovulation', 'en'),
-        contains(PeriodGuideSection.cycle),
+        guideChaptersMatching('ovulation', 'en'),
+        contains(GuideChapter.cycle),
+      );
+      expect(
+        guideChaptersMatching('bouillotte', 'fr'),
+        contains(GuideChapter.support),
       );
     });
 
     test('returns nothing for gibberish', () {
-      expect(periodGuideSectionsMatchingQuery('zzqxw', 'fr'), isEmpty);
+      expect(guideChaptersMatching('zzqxw', 'fr'), isEmpty);
     });
   });
 
-  test('every guide section has a title in both languages', () {
-    for (final section in periodGuideSectionOrder) {
-      expect(periodGuideSectionTitle(section, 'fr'), isNotEmpty);
-      expect(periodGuideSectionTitle(section, 'en'), isNotEmpty);
+  test('every chapter has a title in both languages', () {
+    for (final chapter in GuideChapter.values) {
+      expect(guideChapterTitle(chapter, 'fr'), isNotEmpty);
+      expect(guideChapterTitle(chapter, 'en'), isNotEmpty);
     }
-    expect(periodGuideSectionOrder.toSet(), PeriodGuideSection.values.toSet());
   });
 
-  test('the partner path is a subset of the guide', () {
-    expect(
-      periodGuideSectionOrder.toSet().containsAll(partnerPathSections),
-      isTrue,
-    );
+  test('the FAQ says notes stay private and sharing is a choice', () {
+    final answer = faqList
+        .firstWhere((f) => f.question('fr').contains('partenaire'))
+        .answer('fr');
+    expect(answer, contains('privées'));
+    expect(answer, isNot(contains('sont partagées au sein du couple')));
   });
 
   group('mood and symptom labels', () {
@@ -68,33 +67,29 @@ void main() {
     test('fall back to the raw value when unknown', () {
       expect(periodMoodOptionLabel('ecstatic', 'en'), 'ecstatic');
       expect(periodSymptomOptionLabel('hiccups', 'fr'), 'hiccups');
-      expect(periodMoodLabel('ecstatic'), 'ecstatic');
-      expect(periodSymptomLabel('hiccups'), 'hiccups');
-    });
-
-    test('legacy French-only helpers', () {
-      expect(periodMoodLabel(null), '');
-      expect(periodMoodLabel(''), '');
-      expect(periodMoodLabel('good'), 'Bien');
-      expect(periodSymptomLabel('cramps'), 'Crampes');
     });
 
     test('every option has a label in both languages', () {
-      for (final o in periodMoodOptions) {
-        expect(periodMoodOptionLabel(o.value, 'en'), isNot(o.value));
-        expect(periodMoodOptionLabel(o.value, 'fr'), o.label);
-      }
-      for (final o in periodSymptomOptions) {
-        expect(periodSymptomOptionLabel(o.value, 'en'), isNot(o.value));
-        expect(periodSymptomOptionLabel(o.value, 'fr'), o.label);
+      for (final value in [...periodMoods, ...periodSymptoms]) {
+        final fr = periodMoods.contains(value)
+            ? periodMoodOptionLabel(value, 'fr')
+            : periodSymptomOptionLabel(value, 'fr');
+        final en = periodMoods.contains(value)
+            ? periodMoodOptionLabel(value, 'en')
+            : periodSymptomOptionLabel(value, 'en');
+        expect(fr, isNot(value));
+        expect(en, isNot(value));
       }
     });
   });
 
-  test('every cycle phase has a tip in both languages', () {
+  test('every cycle phase has a label and tips in both languages', () {
     for (final phase in CyclePhase.values) {
-      expect(phaseTipFor(phase).get('fr'), isNotEmpty);
-      expect(phaseTipFor(phase).get('en'), isNotEmpty);
+      for (final lang in ['fr', 'en']) {
+        expect(cyclePhaseLabel(lang, phase), isNotEmpty);
+        expect(cycleSelfTip(lang, phase), isNotEmpty);
+        expect(cyclePartnerTips(lang, phase), hasLength(3));
+      }
     }
     expect(cyclePhasesData, hasLength(CyclePhase.values.length));
   });

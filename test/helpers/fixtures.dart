@@ -1,5 +1,6 @@
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
@@ -20,6 +21,9 @@ ProfileEntity profile({
   String language = 'fr',
   String? avatarUrl,
   bool onboarded = true,
+  bool? tracksCycle,
+  bool shareCycle = true,
+  bool shareCheckins = true,
 }) {
   return ProfileEntity(
     id: id,
@@ -29,12 +33,18 @@ ProfileEntity profile({
     language: language,
     avatarUrl: avatarUrl,
     onboardingCompletedAt: onboarded ? DateTime.utc(2026, 1, 1) : null,
+    tracksCycle: tracksCycle,
+    shareCycle: shareCycle,
+    shareCheckins: shareCheckins,
   );
 }
 
 ProfileEntity partnerProfile({
   String? username = 'Alex',
   String language = 'fr',
+  bool? tracksCycle,
+  bool shareCycle = true,
+  bool shareCheckins = true,
 }) {
   return profile(
     id: partnerId,
@@ -42,6 +52,9 @@ ProfileEntity partnerProfile({
     gender: 'man',
     partner: meId,
     language: language,
+    tracksCycle: tracksCycle,
+    shareCycle: shareCycle,
+    shareCheckins: shareCheckins,
   );
 }
 
@@ -87,9 +100,6 @@ PeriodLogEntity periodLog({
   String userId = meId,
   required DateTime start,
   DateTime? end,
-  String? mood,
-  List<String> symptoms = const [],
-  String? notes,
 }) {
   return PeriodLogEntity(
     id: id,
@@ -97,9 +107,20 @@ PeriodLogEntity periodLog({
     coupleId: coupleId,
     startDate: start,
     endDate: end,
-    mood: mood,
+  );
+}
+
+CycleCheckinEntity checkin({
+  String userId = meId,
+  required DateTime day,
+  List<String> symptoms = const [],
+  String? mood,
+}) {
+  return CycleCheckinEntity(
+    userId: userId,
+    day: day,
     symptoms: symptoms,
-    notes: notes,
+    mood: mood,
   );
 }
 

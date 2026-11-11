@@ -118,7 +118,7 @@ void main() {
   });
 
   group('PeriodRemoteDatasource', () {
-    test('create sends date-only columns and an empty symptom list', () async {
+    test('create sends only the date columns', () async {
       final requests = <http.Request>[];
       final ds = PeriodRemoteDatasource(_client(_logRow, requests));
 
@@ -135,9 +135,6 @@ void main() {
         'user_id': 'u1',
         'couple_id': 'c1',
         'start_date': '2026-03-01',
-        'mood': null,
-        'symptoms': <String>[],
-        'notes': null,
       });
       expect(created.startDate, DateTime(2026, 3, 1));
     });
@@ -151,9 +148,6 @@ void main() {
         coupleId: 'c1',
         startDate: DateTime(2026, 3, 1),
         endDate: DateTime(2026, 3, 5),
-        mood: 'tired',
-        symptoms: ['cramps'],
-        notes: 'Canapé',
       );
 
       expect(_body(requests.single), {
@@ -161,13 +155,12 @@ void main() {
         'couple_id': 'c1',
         'start_date': '2026-03-01',
         'end_date': '2026-03-05',
-        'mood': 'tired',
-        'symptoms': ['cramps'],
-        'notes': 'Canapé',
       });
     });
 
-    test('update sends every editable field, dates as YYYY-MM-DD', () async {
+    test('update sends only the dates, as YYYY-MM-DD', () async {
+      // Mood, symptoms and notes moved to check-ins and private notes; the
+      // partner may read period_logs, so nothing else is written there.
       final requests = <http.Request>[];
       final ds = PeriodRemoteDatasource(_client(_logRow, requests));
 
@@ -175,42 +168,21 @@ void main() {
         'l1',
         startDate: DateTime(2026, 3, 2),
         endDate: DateTime(2026, 3, 6),
-        mood: 'tired',
-        symptoms: const [],
-        notes: 'Canapé',
       );
 
       final r = requests.single;
       expect(r.method, 'PATCH');
       expect(r.url.queryParameters['id'], 'eq.l1');
-      expect(_body(r), {
-        'start_date': '2026-03-02',
-        'end_date': '2026-03-06',
-        'mood': 'tired',
-        'symptoms': <String>[],
-        'notes': 'Canapé',
-      });
+      expect(_body(r), {'start_date': '2026-03-02', 'end_date': '2026-03-06'});
     });
 
-    test('clearing the end date, mood or notes on edit clears them', () async {
-      // Regression: update() used to drop null fields, so a saved mood or
-      // note could never be removed.
+    test('clearing the end date on edit clears it', () async {
       final requests = <http.Request>[];
       final ds = PeriodRemoteDatasource(_client(_logRow, requests));
 
-      await ds.update(
-        'l1',
-        startDate: DateTime(2026, 3, 1),
-        endDate: null,
-        mood: null,
-        symptoms: const ['cramps'],
-        notes: null,
-      );
+      await ds.update('l1', startDate: DateTime(2026, 3, 1), endDate: null);
 
-      final body = _body(requests.single);
-      expect(body, containsPair('end_date', null));
-      expect(body, containsPair('mood', null));
-      expect(body, containsPair('notes', null));
+      expect(_body(requests.single), containsPair('end_date', null));
     });
   });
 

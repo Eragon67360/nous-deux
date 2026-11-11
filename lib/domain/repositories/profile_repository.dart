@@ -25,6 +25,14 @@ abstract class ProfileRepository {
     required String language,
   });
 
+  /// Règles settings: whether I track a cycle, and what my partner may see.
+  /// Null leaves a setting as it is.
+  Future<ProfileResult> updateCycleSettings({
+    bool? tracksCycle,
+    bool? shareCycle,
+    bool? shareCheckins,
+  });
+
   /// Update FCM token for push notifications.
   Future<ProfileResult> updateFcmToken(String? token);
 }

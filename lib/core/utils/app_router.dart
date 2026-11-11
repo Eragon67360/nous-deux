@@ -294,9 +294,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 pageBuilder: (_, state) => _fadePage(
                   state,
                   PeriodScreen(
-                    initialTab: state.uri.queryParameters['tab'] == 'guide'
-                        ? 1
-                        : null,
+                    openGuide: state.uri.queryParameters['tab'] == 'guide',
                   ),
                 ),
               ),

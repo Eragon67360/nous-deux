@@ -7,12 +7,14 @@ import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/domain/entities/couple_entity.dart';
+import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/domain/entities/user_entity.dart';
 import 'package:nousdeux/domain/repositories/auth_repository.dart';
 import 'package:nousdeux/domain/repositories/calendar_repository.dart';
+import 'package:nousdeux/domain/repositories/cycle_repository.dart';
 import 'package:nousdeux/domain/repositories/location_repository.dart';
 import 'package:nousdeux/domain/repositories/pairing_repository.dart';
 import 'package:nousdeux/domain/repositories/period_repository.dart';
@@ -131,6 +133,9 @@ class FakeProfileRepository implements ProfileRepository {
     String? language,
     String? avatarUrl,
     DateTime? onboardingCompletedAt,
+    bool? tracksCycle,
+    bool? shareCycle,
+    bool? shareCheckins,
   }) {
     return ProfileEntity(
       id: p.id,
@@ -140,6 +145,9 @@ class FakeProfileRepository implements ProfileRepository {
       language: language ?? p.language,
       avatarUrl: avatarUrl ?? p.avatarUrl,
       onboardingCompletedAt: onboardingCompletedAt ?? p.onboardingCompletedAt,
+      tracksCycle: tracksCycle ?? p.tracksCycle,
+      shareCycle: shareCycle ?? p.shareCycle,
+      shareCheckins: shareCheckins ?? p.shareCheckins,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     );
@@ -180,6 +188,31 @@ class FakeProfileRepository implements ProfileRepository {
       gender: gender,
       language: language,
       avatarUrl: avatarUrl,
+    );
+    return (profile: mine, failure: null);
+  }
+
+  final cycleSettingsCalls =
+      <({bool? tracksCycle, bool? shareCycle, bool? shareCheckins})>[];
+
+  @override
+  Future<ProfileResult> updateCycleSettings({
+    bool? tracksCycle,
+    bool? shareCycle,
+    bool? shareCheckins,
+  }) async {
+    cycleSettingsCalls.add((
+      tracksCycle: tracksCycle,
+      shareCycle: shareCycle,
+      shareCheckins: shareCheckins,
+    ));
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _copy(
+      mine!,
+      tracksCycle: tracksCycle,
+      shareCycle: shareCycle,
+      shareCheckins: shareCheckins,
     );
     return (profile: mine, failure: null);
   }
@@ -403,29 +436,13 @@ class FakePeriodRepository implements PeriodRepository {
   FakePeriodRepository([List<PeriodLogEntity>? logs]) : logs = [...?logs];
 
   final List<PeriodLogEntity> logs;
+  final _changes = StreamController<List<PeriodLogEntity>>.broadcast();
   Failure? nextFailure;
 
-  final createCalls =
-      <
-        ({
-          DateTime startDate,
-          DateTime? endDate,
-          String? mood,
-          List<String>? symptoms,
-          String? notes,
-        })
-      >[];
-  final updateCalls =
-      <
-        ({
-          String id,
-          DateTime? startDate,
-          DateTime? endDate,
-          String? mood,
-          List<String>? symptoms,
-          String? notes,
-        })
-      >[];
+  /// How many times the logs were (re)loaded.
+  int watchCalls = 0;
+  final createCalls = <({DateTime startDate, DateTime? endDate})>[];
+  final updateCalls = <({String id, DateTime startDate, DateTime? endDate})>[];
   final deletedIds = <String>[];
 
   Failure? _takeFailure() {
@@ -434,9 +451,14 @@ class FakePeriodRepository implements PeriodRepository {
     return f;
   }
 
+  void _changed() => _changes.add(List.unmodifiable(logs));
+
   @override
-  Stream<List<PeriodLogEntity>> watchLogs() =>
-      Stream.value(List.unmodifiable(logs));
+  Stream<List<PeriodLogEntity>> watchLogs() async* {
+    watchCalls++;
+    yield List.unmodifiable(logs);
+    yield* _changes.stream;
+  }
 
   @override
   Future<PeriodLogsResult> getLogs({DateTime? start, DateTime? end}) async {
@@ -447,28 +469,17 @@ class FakePeriodRepository implements PeriodRepository {
   Future<PeriodLogResult> createLog({
     required DateTime startDate,
     DateTime? endDate,
-    String? mood,
-    List<String>? symptoms,
-    String? notes,
   }) async {
-    createCalls.add((
-      startDate: startDate,
-      endDate: endDate,
-      mood: mood,
-      symptoms: symptoms,
-      notes: notes,
-    ));
+    createCalls.add((startDate: startDate, endDate: endDate));
     final failure = _takeFailure();
     if (failure != null) return (log: null, failure: failure);
     final created = periodLog(
       id: 'log-${logs.length + 1}',
       start: startDate,
       end: endDate,
-      mood: mood,
-      symptoms: symptoms ?? const [],
-      notes: notes,
     );
     logs.add(created);
+    _changed();
     return (log: created, failure: null);
   }
 
@@ -477,29 +488,92 @@ class FakePeriodRepository implements PeriodRepository {
     required String id,
     required DateTime startDate,
     required DateTime? endDate,
-    required String? mood,
-    required List<String> symptoms,
-    required String? notes,
   }) async {
-    updateCalls.add((
-      id: id,
-      startDate: startDate,
-      endDate: endDate,
-      mood: mood,
-      symptoms: symptoms,
-      notes: notes,
-    ));
+    updateCalls.add((id: id, startDate: startDate, endDate: endDate));
     final failure = _takeFailure();
     if (failure != null) return (log: null, failure: failure);
-    return (log: logs.firstWhere((l) => l.id == id), failure: null);
+    final i = logs.indexWhere((l) => l.id == id);
+    final updated = periodLog(
+      id: id,
+      userId: logs[i].userId,
+      start: startDate,
+      end: endDate,
+    );
+    logs[i] = updated;
+    _changed();
+    return (log: updated, failure: null);
   }
 
   @override
   Future<Failure?> deleteLog(String id) async {
     deletedIds.add(id);
     final failure = _takeFailure();
-    if (failure == null) logs.removeWhere((l) => l.id == id);
+    if (failure == null) {
+      logs.removeWhere((l) => l.id == id);
+      _changed();
+    }
     return failure;
+  }
+}
+
+class FakeCycleRepository implements CycleRepository {
+  FakeCycleRepository({
+    List<CycleCheckinEntity>? checkins,
+    Map<DateTime, String>? notes,
+  }) : checkins = [...?checkins],
+       notes = {...?notes};
+
+  final List<CycleCheckinEntity> checkins;
+  final Map<DateTime, String> notes;
+  final _changes = StreamController<List<CycleCheckinEntity>>.broadcast();
+  Failure? nextFailure;
+
+  final checkinCalls =
+      <({DateTime day, List<String> symptoms, String? mood})>[];
+  final noteCalls = <({DateTime day, String note})>[];
+
+  Failure? _takeFailure() {
+    final f = nextFailure;
+    nextFailure = null;
+    return f;
+  }
+
+  @override
+  Stream<List<CycleCheckinEntity>> watchCheckins() async* {
+    yield List.unmodifiable(checkins);
+    yield* _changes.stream;
+  }
+
+  @override
+  Future<Failure?> saveCheckin({
+    required DateTime day,
+    required List<String> symptoms,
+    String? mood,
+  }) async {
+    checkinCalls.add((day: day, symptoms: symptoms, mood: mood));
+    final failure = _takeFailure();
+    if (failure != null) return failure;
+    checkins.removeWhere((c) => c.userId == meId && c.day == day);
+    final saved = checkin(day: day, symptoms: symptoms, mood: mood);
+    if (!saved.isEmpty) checkins.add(saved);
+    _changes.add(List.unmodifiable(checkins));
+    return null;
+  }
+
+  @override
+  Future<String?> noteFor(DateTime day) async => notes[day];
+
+  @override
+  Future<Failure?> saveNote(DateTime day, String note) async {
+    noteCalls.add((day: day, note: note));
+    final failure = _takeFailure();
+    if (failure != null) return failure;
+    if (note.trim().isEmpty) {
+      notes.remove(day);
+    } else {
+      notes[day] = note.trim();
+    }
+    return null;
   }
 }
 
