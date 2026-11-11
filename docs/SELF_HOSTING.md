@@ -54,7 +54,7 @@ At the `nous-deux.app` registrar, point `api` at the server with an `A` record (
    | `GOOGLE_ENABLED` | `true` | no |
    | `GOOGLE_CLIENT_IDS` | Web client id first, then iOS and Android, comma-separated (step 4) | no |
    | `APPLE_ENABLED` | `true` | no |
-   | `APPLE_CLIENT_IDS` | `com.nousdeux.android` (the iOS bundle id) | no |
+   | `APPLE_CLIENT_IDS` | `app.nous-deux` (the iOS bundle id) | no |
 
    Optional, with defaults:
    - `SITE_URL`: `https://nous-deux.app`.
@@ -72,10 +72,10 @@ At the `nous-deux.app` registrar, point `api` at the server with an `A` record (
 ### 4. Google Cloud (Thomas)
 In the Google Cloud project behind Firebase `nous-deux-7bf2f`, go to **APIs & Services → Credentials** and create three OAuth client ids:
 - **Web application.** Its id is the `serverClientId` the auth server checks, so it goes first in `GOOGLE_CLIENT_IDS`.
-- **iOS**, with bundle id `com.nousdeux.android`.
+- **iOS**, with bundle id `app.nous-deux` and team id `2Y57C77BK4`.
 - **Android**, with package `com.nousdeux.android` and the SHA-1 of the debug key and the release key.
 
-Done on 2026-11-10:
+Done on 2026-11-10 (the iOS client moved to `app.nous-deux` on 2026-11-11):
 - Consent screen: External, in production, basic scopes only (no review needed), authorized domain `nous-deux.app`.
 - Client ids: web `836600962251-ujn657…`, iOS `836600962251-gev8n6…`, Android `836600962251-74i064…` (debug key SHA-1 only for now).
 - They're public identifiers. The web and iOS ids are the defaults in `lib/core/constants/app_constants.dart`; `ios/Runner/Info.plist` holds `GIDClientID` and the reversed iOS id as a URL scheme.
@@ -83,10 +83,15 @@ Done on 2026-11-10:
 Still to do: add the Play app-signing SHA-1 to the Android client before a Play release. Play Console → Test and release → App integrity.
 
 ### 5. Apple Developer (Thomas)
-Under **Certificates, IDs & Profiles → Identifiers → `com.nousdeux.android`**, enable **Sign in with Apple**. The app already declares it in `ios/Runner/Runner.entitlements`.
+The iOS app is `app.nous-deux` (the domain reversed) in the paid team `2Y57C77BK4`; Android keeps `com.nousdeux.android`. Registered on 2026-11-11 with **Sign in with Apple** on. The app declares it in `ios/Runner/Runner.entitlements`.
+
+Why not `com.nousdeux.app`: Apple answers "not available". The project was first signed with the free Personal Team `2YPH2XA7AZ`, which most likely registered it in February. Only Apple Developer Support can release an ID from a free team.
+
+To build for a device or use Sign in with Apple, Xcode needs the Apple ID that owns team `2Y57C77BK4` (**Xcode → Settings → Accounts**).
 
 ### 6. Firebase (Thomas)
-In **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
+- **iOS app:** "Nous Deux iOS" (`app.nous-deux`, app id `1:836600962251:ios:e48ad19409b909f70f4f4e`), added on 2026-11-11. The older iOS app "nousdeux (ios)" is registered for `com.nousdeux.app` and no longer used.
+- **Service account:** in **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
 
 ### 7. Database and functions (Claude or Thomas, over SSH)
 ```bash

@@ -59,10 +59,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBFP8MGEscgi2tFWQOPXp5kVFa6pMl8Wf8',
-    appId: '1:836600962251:ios:7d26ebd1c0b4f9580f4f4e',
+    appId: '1:836600962251:ios:e48ad19409b909f70f4f4e',
     messagingSenderId: '836600962251',
     projectId: 'nous-deux-7bf2f',
     storageBucket: 'nous-deux-7bf2f.firebasestorage.app',
-    iosBundleId: 'com.nousdeux.android',
+    iosBundleId: 'app.nous-deux',
   );
 }
