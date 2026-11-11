@@ -15,13 +15,16 @@ abstract class AppConstants {
   // Google sign-in OAuth client ids (public identifiers, not secrets). The
   // web client id is the token audience the auth server checks; iOS also
   // needs its own client id.
+  // Google Cloud project nous-deux-7bf2f; --dart-define can override them.
   static const String googleWebClientId = String.fromEnvironment(
     'GOOGLE_WEB_CLIENT_ID',
-    defaultValue: '',
+    defaultValue:
+        '836600962251-ujn657ltoii9ofj3u4098afidd1li9ni.apps.googleusercontent.com',
   );
   static const String googleIosClientId = String.fromEnvironment(
     'GOOGLE_IOS_CLIENT_ID',
-    defaultValue: '',
+    defaultValue:
+        '836600962251-gev8n6ko7l11f78hka962jv8lje7pq41.apps.googleusercontent.com',
   );
 
   // Pairing

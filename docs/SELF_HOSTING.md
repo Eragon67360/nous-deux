@@ -75,10 +75,12 @@ In the Google Cloud project behind Firebase `nous-deux-7bf2f`, go to **APIs & Se
 - **iOS**, with bundle id `com.nousdeux.android`.
 - **Android**, with package `com.nousdeux.android` and the SHA-1 of the debug key and the release key.
 
-Then, in the app repo:
-- `ios/Runner/Info.plist` gains `GIDClientID` (the iOS id) and a URL scheme with the iOS id reversed (`com.googleusercontent.apps.…`).
-- Builds pass `--dart-define=GOOGLE_WEB_CLIENT_ID=… --dart-define=GOOGLE_IOS_CLIENT_ID=…`.
-- CI reads the GitHub secret `GOOGLE_WEB_CLIENT_ID`.
+Done on 2026-11-10:
+- Consent screen: External, in production, basic scopes only (no review needed), authorized domain `nous-deux.app`.
+- Client ids: web `836600962251-ujn657…`, iOS `836600962251-gev8n6…`, Android `836600962251-74i064…` (debug key SHA-1 only for now).
+- They're public identifiers. The web and iOS ids are the defaults in `lib/core/constants/app_constants.dart`; `ios/Runner/Info.plist` holds `GIDClientID` and the reversed iOS id as a URL scheme.
+
+Still to do: add the Play app-signing SHA-1 to the Android client before a Play release. Play Console → Test and release → App integrity.
 
 ### 5. Apple Developer (Thomas)
 Under **Certificates, IDs & Profiles → Identifiers → `com.nousdeux.android`**, enable **Sign in with Apple**. The app already declares it in `ios/Runner/Runner.entitlements`.
