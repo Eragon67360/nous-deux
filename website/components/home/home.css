@@ -96,7 +96,7 @@
   align-self: center;
   margin: 0;
   font-family: var(--sc-font-display);
-  font-weight: 400;
+  font-weight: 200;
   font-size: clamp(5.5rem, 22vw, 21rem);
   line-height: 0.84;
   letter-spacing: -0.045em;
@@ -105,7 +105,7 @@
 .nd-title__word--deux {
   margin-top: -0.04em;
   text-align: right;
-  font-style: italic;
+  color: var(--sc-accent);
 }
 .nd-title__foot {
   display: flex;
@@ -155,7 +155,7 @@
   align-items: center;
   gap: var(--sc-8);
 }
-.nd-quote { max-width: 13ch; font-style: italic; }
+.nd-quote { max-width: 13ch; }
 .nd-spread__media { justify-self: end; width: min(100%, 300px); margin: 0; }
 .nd-caption {
   margin-top: var(--sc-4);
@@ -184,7 +184,7 @@
 }
 .nd-merge__title { display: grid; }
 .nd-merge__title > span { grid-area: 1 / 1; }
-.nd-merge__after { font-style: italic; }
+.nd-merge__after { color: var(--sc-accent); }
 .nd-merge__phones { position: relative; width: 100%; min-height: 0; }
 .nd-merge__phone {
   position: absolute;
@@ -260,7 +260,7 @@
   color: var(--sc-ink-soft);
 }
 .nd-rail__note { align-self: center; width: min(78vw, 22rem); }
-.nd-rail__note .sc-lede { font-family: var(--sc-font-display); font-size: var(--sc-t-xl); font-style: italic; }
+.nd-rail__note .sc-lede { font-family: var(--sc-font-display); font-size: var(--sc-t-xl); font-weight: 300; }
 /* Items settle one after another as the drawer is pulled. */
 @media (prefers-reduced-motion: no-preference) {
   .nd-rail__item {

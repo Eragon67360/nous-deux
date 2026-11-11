@@ -81,7 +81,7 @@ export default async function PolitiqueDeConfidentialitePage({
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
         <header className="mb-10">
           <Breadcrumbs items={breadcrumbItems} />
-          <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.02] tracking-tight text-on-surface sm:text-6xl">
+          <h1 className="mt-6 font-display text-5xl font-light leading-[1.02] tracking-tight text-on-surface sm:text-6xl">
             {p.meta.title}
           </h1>
           <p className="mt-2 text-on-surface-variant">
@@ -92,7 +92,7 @@ export default async function PolitiqueDeConfidentialitePage({
 
         <article className="space-y-8 text-on-surface-variant leading-relaxed">
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.editor.title}
             </h2>
             <p>
@@ -110,7 +110,7 @@ export default async function PolitiqueDeConfidentialitePage({
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.dataCollected.title}
             </h2>
             <p className="mb-4">{p.sections.dataCollected.intro}</p>
@@ -125,21 +125,21 @@ export default async function PolitiqueDeConfidentialitePage({
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.purposes.title}
             </h2>
             <p>{p.sections.purposes.body}</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.legalBasis.title}
             </h2>
             <p>{p.sections.legalBasis.body}</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.hosting.title}
             </h2>
             <p className="mb-4">{p.sections.hosting.intro}</p>
@@ -154,14 +154,14 @@ export default async function PolitiqueDeConfidentialitePage({
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.retention.title}
             </h2>
             <p>{p.sections.retention.body}</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.rights.title}
             </h2>
             <p className="mb-4">{p.sections.rights.intro}</p>
@@ -196,14 +196,14 @@ export default async function PolitiqueDeConfidentialitePage({
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.changes.title}
             </h2>
             <p>{p.sections.changes.body}</p>
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {p.sections.effective.title}
             </h2>
             <p>

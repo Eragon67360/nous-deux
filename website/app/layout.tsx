@@ -1,19 +1,11 @@
-import { DM_Sans, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Geist_Mono, Manrope } from "next/font/google";
 import "../vendor/scrollcraft/scrollcraft.css";
 import "./globals.css";
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+// The app's one font: light weights for display, regular for text.
+const manrope = Manrope({
+  variable: "--font-manrope",
   subsets: ["latin"],
-  display: "swap",
-});
-
-// Shared with the app's headlines.
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -30,7 +22,7 @@ export default function RootLayout({
   return (
     // Font variables live on <html> so the :root design tokens can use them.
     <html
-      className={`${dmSans.variable} ${instrumentSerif.variable} ${geistMono.variable}`}
+      className={`${manrope.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">{children}</body>
     </html>

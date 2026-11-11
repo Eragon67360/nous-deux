@@ -16,7 +16,7 @@ export default function SiteHeader({
         <LocaleLink
           href="/"
           locale={lang}
-          className="font-serif text-2xl leading-none text-on-surface no-underline"
+          className="font-display text-2xl leading-none text-on-surface no-underline"
         >
           {siteName}
         </LocaleLink>

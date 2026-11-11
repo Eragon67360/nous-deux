@@ -94,7 +94,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
       <div className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
         <header className="mb-10">
           <Breadcrumbs items={breadcrumbItems} />
-          <h1 className="mt-6 font-serif text-5xl font-normal leading-[1.02] tracking-tight text-on-surface sm:text-6xl">
+          <h1 className="mt-6 font-display text-5xl font-light leading-[1.02] tracking-tight text-on-surface sm:text-6xl">
             {s.title}
           </h1>
           <hr className="mt-6 border-outline/50" />
@@ -104,7 +104,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
           <p>{s.intro}</p>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {s.howToTitle}
             </h2>
             <p className="mb-4">{s.howToIntro}</p>
@@ -134,7 +134,7 @@ export default async function SuppressionComptePage({ params }: PageProps) {
           </section>
 
           <section>
-            <h2 className="mb-3 text-3xl font-normal font-serif text-on-surface">
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {s.noteTitle}
             </h2>
             <p>{s.noteBody}</p>
