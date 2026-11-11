@@ -5,6 +5,7 @@ import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
@@ -119,6 +120,20 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsGroup(
                 title: settingsNotifications(lang),
                 children: const [_NotificationSwitchesBody()],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+
+              // 7. Account: sign out
+              _SettingsGroup(
+                title: settingsAccountGroup(lang),
+                children: [
+                  _SettingsTile(
+                    icon: Icons.logout,
+                    title: settingsSignOut(lang),
+                    showChevron: false,
+                    onTap: () => _confirmSignOut(context, ref, lang),
+                  ),
+                ],
               ),
 
               // Bottom spacing
@@ -785,6 +800,34 @@ Future<void> _showLeaveCoupleDialog(
       ),
     );
   }
+}
+
+/// Asks first, then signs out. The router sends the app to the sign-in
+/// screen once the session is gone.
+Future<void> _confirmSignOut(
+  BuildContext context,
+  WidgetRef ref,
+  String lang,
+) async {
+  final confirmed = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(settingsSignOutConfirmTitle(lang)),
+      content: Text(settingsSignOutConfirmMessage(lang)),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(false),
+          child: Text(settingsCancel(lang)),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.of(ctx).pop(true),
+          child: Text(settingsSignOut(lang)),
+        ),
+      ],
+    ),
+  );
+  if (confirmed != true) return;
+  await ref.read(authRepositoryProvider).signOut();
 }
 
 class _NotificationSwitchesBody extends ConsumerWidget {

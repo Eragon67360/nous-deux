@@ -137,6 +137,39 @@ void main() {
     expect(router.state.uri.path, '/settings/info');
   });
 
+  group('sign out', () {
+    testWidgets('cancelling the confirmation keeps you signed in', (
+      tester,
+    ) async {
+      final (deps, _) = await _pumpSettings(tester);
+
+      await tester.ensureVisible(find.text(settingsSignOut('fr')));
+      await tester.tap(find.text(settingsSignOut('fr')));
+      await tester.pumpAndSettle();
+      expect(find.text(settingsSignOutConfirmTitle('fr')), findsOneWidget);
+      expect(find.text(settingsSignOutConfirmMessage('fr')), findsOneWidget);
+
+      await tester.tap(find.text(settingsCancel('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.auth.signOutCalls, 0);
+    });
+
+    testWidgets('confirming signs out through the repository', (tester) async {
+      final (deps, _) = await _pumpSettings(tester, lang: 'en');
+
+      await tester.ensureVisible(find.text(settingsSignOut('en')));
+      await tester.tap(find.text(settingsSignOut('en')));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.widgetWithText(FilledButton, settingsSignOut('en')),
+      );
+      await tester.pumpAndSettle();
+
+      expect(deps.auth.signOutCalls, 1);
+    });
+  });
+
   group('leave couple', () {
     testWidgets('is hidden until the couple is complete', (tester) async {
       await _pumpSettings(tester);

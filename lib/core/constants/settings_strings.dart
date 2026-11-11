@@ -61,6 +61,16 @@ String settingsLeaveCoupleConfirm(String lang) => lang == 'fr' ? 'Quitter' : 'Le
 String settingsLeaveCoupleSuccess(String lang) =>
     lang == 'fr' ? 'Vous avez quitté le couple.' : "You've left the couple.";
 
+// Sign out
+String settingsAccountGroup(String lang) => lang == 'fr' ? 'Compte' : 'Account';
+String settingsSignOut(String lang) => lang == 'fr' ? 'Se déconnecter' : 'Sign out';
+String settingsSignOutConfirmTitle(String lang) =>
+    lang == 'fr' ? 'Se déconnecter ?' : 'Sign out?';
+String settingsSignOutConfirmMessage(String lang) =>
+    lang == 'fr'
+        ? 'Votre couple et ce que vous partagez restent en place. Reconnectez-vous avec le même compte pour les retrouver.'
+        : 'Your couple and what you share stay as they are. Sign in with the same account to find them again.';
+
 // App info
 String appInfoTitle(String lang) => lang == 'fr' ? 'À propos de l\'app' : 'About the app';
 String appInfoDescription(String lang) =>
