@@ -89,6 +89,8 @@ Why not `com.nousdeux.app`: Apple answers "not available". The project was first
 
 To build for a device or use Sign in with Apple, Xcode needs the Apple ID that owns team `2Y57C77BK4` (**Xcode → Settings → Accounts**).
 
+Still to do: one real Sign in with Apple, on an iPhone signed in to an Apple Account (a TestFlight build works). On 2026-11-11 the simulator couldn't sign in to an Apple Account: Apple took the password, then failed at the two-factor step. The App ID, the server setting and the app's nonce code are in place.
+
 ### 6. Firebase (Thomas)
 - **iOS app:** "Nous Deux iOS" (`app.nous-deux`, app id `1:836600962251:ios:e48ad19409b909f70f4f4e`), added on 2026-11-11. The older iOS app "nousdeux (ios)" is registered for `com.nousdeux.app` and no longer used.
 - **Service account:** in **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
