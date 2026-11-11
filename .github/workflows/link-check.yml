@@ -4,17 +4,17 @@ on:
   push:
     branches: [main]
     paths:
-      - 'lib/core/constants/period_verified_sources.dart'
-      - 'lib/presentation/screens/settings/app_info_screen.dart'
-      - 'scripts/check_period_links.dart'
-      - 'scripts/linkcheck-allowlist.txt'
+      - 'app/lib/core/constants/period_verified_sources.dart'
+      - 'app/lib/presentation/screens/settings/app_info_screen.dart'
+      - 'app/scripts/check_period_links.dart'
+      - 'app/scripts/linkcheck-allowlist.txt'
       - '.github/workflows/link-check.yml'
   pull_request:
     paths:
-      - 'lib/core/constants/period_verified_sources.dart'
-      - 'lib/presentation/screens/settings/app_info_screen.dart'
-      - 'scripts/check_period_links.dart'
-      - 'scripts/linkcheck-allowlist.txt'
+      - 'app/lib/core/constants/period_verified_sources.dart'
+      - 'app/lib/presentation/screens/settings/app_info_screen.dart'
+      - 'app/scripts/check_period_links.dart'
+      - 'app/scripts/linkcheck-allowlist.txt'
       - '.github/workflows/link-check.yml'
   schedule:
     # Weekly on Monday 06:00 UTC
@@ -34,4 +34,5 @@ jobs:
           sdk: stable
 
       - name: Check links
+        working-directory: app
         run: dart run scripts/check_period_links.dart

@@ -4,7 +4,7 @@ A privacy-focused couple's app (shared calendar, period tracking, optional locat
 
 ## Supabase setup
 
-The backend is a self-hosted Supabase at `https://api.nous-deux.app` (Hetzner, managed with Coolify). [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) covers the server, migrations, push functions, backups and upgrades.
+The backend is a self-hosted Supabase at `https://api.nous-deux.app` (Hetzner, managed with Coolify). [docs/SELF_HOSTING.md](../docs/SELF_HOSTING.md) covers the server, migrations, push functions, backups and upgrades.
 
 The app needs the **URL** and **anon (publishable) key** only. The **service_role (secret) key** must never be used in the app.
 

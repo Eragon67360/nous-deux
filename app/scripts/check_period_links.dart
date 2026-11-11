@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print
 // Link-check script for period verified sources and app info URLs.
-// Run from repo root: dart run scripts/check_period_links.dart
+// Run from app/: dart run scripts/check_period_links.dart
 // Exit code 0 = all non-allowlisted URLs OK; 1 = at least one broken.
 
 import 'dart:io';

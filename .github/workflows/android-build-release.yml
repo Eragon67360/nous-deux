@@ -5,10 +5,11 @@ on:
     branches:
       - main
     paths:
-      - "lib/**"
-      - "android/**"
-      - "pubspec.yaml"
-      - "pubspec.lock"
+      - "app/lib/**"
+      - "app/android/**"
+      - "app/assets/**"
+      - "app/pubspec.yaml"
+      - "app/pubspec.lock"
       - ".github/workflows/android-build-release.yml"
 
 permissions:
@@ -19,6 +20,11 @@ jobs:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: Android Release
     runs-on: ubuntu-latest
+    # The Flutter app lives in app/; `uses:` steps and step-level
+    # working-directory are still relative to the repo root.
+    defaults:
+      run:
+        working-directory: app
 
     steps:
       - name: Checkout
@@ -61,10 +67,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: false
-          build-root-directory: android
+          build-root-directory: app/android
 
       - name: Create Keystore
-        working-directory: android
+        working-directory: app/android
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -130,8 +136,9 @@ jobs:
           APK_NEW="build/app/outputs/flutter-apk/NousDeux-App-v${VERSION}.apk"
           mv $AAB_OLD $AAB_NEW
           mv $APK_OLD $APK_NEW
-          echo "aab_path=$AAB_NEW" >> $GITHUB_OUTPUT
-          echo "apk_path=$APK_NEW" >> $GITHUB_OUTPUT
+          # Read by `uses:` steps, which run from the repo root.
+          echo "aab_path=app/$AAB_NEW" >> $GITHUB_OUTPUT
+          echo "apk_path=app/$APK_NEW" >> $GITHUB_OUTPUT
 
       # 4. CREATE GITHUB RELEASE (Happens BEFORE Play Store upload)
       - name: Create GitHub Release

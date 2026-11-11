@@ -2,7 +2,7 @@
 
 ## Keys in Supabase
 
-The server is self-hosted ([SELF_HOSTING.md](SELF_HOSTING.md)): Coolify generates the keys, and they're kept in Proton Pass (`Nous Deux / Supabase`). There are three values:
+The server is self-hosted ([SELF_HOSTING.md](../../docs/SELF_HOSTING.md)): Coolify generates the keys, and they're kept in Proton Pass (`Nous Deux / Supabase`). There are three values:
 
 | Key                           | Use in Flutter? | Where to use                                                                      |
 | ----------------------------- | --------------- | --------------------------------------------------------------------------------- |
