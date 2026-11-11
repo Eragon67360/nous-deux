@@ -795,7 +795,6 @@ class _PhaseExpandable extends StatelessWidget {
               Text(
                 phase.hormoneHint(language),
                 style: theme.textTheme.bodySmall?.copyWith(
-                  fontStyle: FontStyle.italic,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),

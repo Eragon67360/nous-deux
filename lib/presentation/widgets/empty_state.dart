@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/presentation/widgets/entrance.dart';
 
-/// Empty or error state: a soft icon disc, a short serif line, optional
+/// Empty or error state: a soft icon disc, a short headline, optional
 /// secondary text and an optional action. Fades in gently.
 class EmptyState extends StatelessWidget {
   const EmptyState({

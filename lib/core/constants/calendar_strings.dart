@@ -14,22 +14,17 @@ String calendarDeleteEventConfirm(String lang, String title) => lang == 'fr'
     : '"$title" will be deleted for both of you.';
 String calendarCancel(String lang) => lang == 'fr' ? 'Annuler' : 'Cancel';
 String calendarDelete(String lang) => lang == 'fr' ? 'Supprimer' : 'Delete';
-String calendarNothingToday(String lang) =>
-    lang == 'fr' ? 'Rien de prévu aujourd\'hui' : 'Nothing planned for today';
-String calendarNoEventsOn(String lang, String dateStr) =>
-    lang == 'fr' ? 'Rien de prévu le $dateStr' : 'Nothing planned on $dateStr';
+String calendarNothingInMonth(String lang, String month) =>
+    lang == 'fr' ? 'Rien de prévu en $month' : 'Nothing planned in $month';
 String calendarCreateEvent(String lang) =>
     lang == 'fr' ? 'Ajouter un événement' : 'Add an event';
 String calendarImportTooltip(String lang) =>
     lang == 'fr' ? 'Importer' : 'Import';
 
-// TableCalendar format labels
-String calendarFormatMonth(String lang) =>
-    lang == 'fr' ? 'Mois' : 'Month';
-String calendarFormatTwoWeeks(String lang) =>
-    lang == 'fr' ? '2 sem.' : '2 wks';
-String calendarFormatWeek(String lang) =>
-    lang == 'fr' ? 'Semaine' : 'Week';
+String calendarPreviousMonth(String lang) =>
+    lang == 'fr' ? 'Mois précédent' : 'Previous month';
+String calendarNextMonth(String lang) =>
+    lang == 'fr' ? 'Mois suivant' : 'Next month';
 
 // Import screen
 String calendarImportTitle(String lang) =>

@@ -8,18 +8,30 @@ import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
-import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
 
-DateTime _today({int hour = 0, int minute = 0, int addDays = 0}) {
+DateTime _today({int hour = 0, int minute = 0}) {
   final now = DateTime.now();
-  return DateTime(now.year, now.month, now.day + addDays, hour, minute);
+  return DateTime(now.year, now.month, now.day, hour, minute);
 }
 
-/// The day cell of [day] in the two-week TableCalendar.
-Finder _dayCell(DateTime day) => find.text('${day.day}');
+/// Another day of the current month (the 1st, or the 2nd on the 1st).
+DateTime _otherDayThisMonth({int hour = 0}) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day == 1 ? 2 : 1, hour);
+}
+
+DateTime _nextMonth({int hour = 0}) {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month + 1, 10, hour);
+}
+
+String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
+
+Finder _ownerDots({required bool mine}) =>
+    find.byWidgetPredicate((w) => w is OwnerDot && w.isMine == mine);
 
 void main() {
   Future<TestDeps> pumpCalendar(
@@ -44,42 +56,59 @@ void main() {
   }
 
   for (final lang in ['fr', 'en']) {
-    testWidgets('[$lang] header shows the title and today\'s date', (
-      tester,
-    ) async {
+    testWidgets('[$lang] header shows the month and the title', (tester) async {
       await pumpCalendar(tester, lang: lang);
-      final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
 
       expect(find.text(calendarTitle(lang)), findsOneWidget);
       expect(
-        find.text(DateFormat.yMMMMd(locale).format(DateTime.now())),
+        find.text(
+          DateFormat(
+            'MMMM y',
+            _locale(lang),
+          ).format(DateTime.now()).toUpperCase(),
+        ),
         findsOneWidget,
       );
-      expect(find.text(calendarAdd(lang)), findsOneWidget);
-      expect(find.text(calendarFormatTwoWeeks(lang)), findsOneWidget);
+      expect(find.byTooltip(calendarAdd(lang)), findsOneWidget);
     });
 
-    testWidgets('[$lang] an empty day says nothing is planned today', (
+    testWidgets('[$lang] an empty month says nothing is planned', (
       tester,
     ) async {
       await pumpCalendar(tester, lang: lang);
+      final month = DateFormat.MMMM(_locale(lang)).format(DateTime.now());
 
-      expect(find.text(calendarNothingToday(lang)), findsOneWidget);
+      expect(find.text(calendarNothingInMonth(lang, month)), findsOneWidget);
       expect(find.text(calendarCreateEvent(lang)), findsOneWidget);
     });
   }
 
-  testWidgets('another empty day names the date', (tester) async {
+  testWidgets('the arrows move between months, "today" comes back', (
+    tester,
+  ) async {
     await pumpCalendar(tester);
-    final tomorrow = _today(addDays: 1);
+    final next = DateTime(DateTime.now().year, DateTime.now().month + 1);
+    String label(DateTime m) =>
+        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
 
-    await tester.tap(_dayCell(tomorrow));
+    await tester.tap(find.byTooltip(calendarNextMonth('fr')));
     await tester.pumpAndSettle();
-
+    expect(find.text(label(next)), findsOneWidget);
     expect(
       find.text(
-        calendarNoEventsOn('fr', DateFormat.MMMMd('fr_FR').format(tomorrow)),
+        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(next)),
       ),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.byTooltip(calendarToday('fr')));
+    await tester.pumpAndSettle();
+    expect(find.text(label(DateTime.now())), findsOneWidget);
+
+    await tester.tap(find.byTooltip(calendarPreviousMonth('fr')));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(label(DateTime(DateTime.now().year, DateTime.now().month - 1))),
       findsOneWidget,
     );
   });
@@ -94,16 +123,16 @@ void main() {
     expect(find.text(calendarEventNew('fr')), findsOneWidget);
   });
 
-  testWidgets('the Add button opens a new event form too', (tester) async {
+  testWidgets('the add button opens a new event form too', (tester) async {
     await pumpCalendar(tester, lang: 'en');
 
-    await tester.tap(find.text(calendarAdd('en')));
+    await tester.tap(find.byTooltip(calendarAdd('en')));
     await tester.pumpAndSettle();
 
     expect(find.text(calendarEventNew('en')), findsOneWidget);
   });
 
-  group('events of the selected day', () {
+  group("the month's events", () {
     final mine = event(
       id: 'mine',
       title: 'Cinéma',
@@ -116,36 +145,52 @@ void main() {
       start: _today(hour: 9, minute: 5),
       createdBy: partnerId,
     );
-    final tomorrow = event(
-      id: 'tomorrow',
+    final otherDay = event(
+      id: 'other-day',
       title: 'Brunch',
-      start: _today(hour: 11, addDays: 1),
+      start: _otherDayThisMonth(hour: 11),
     );
+    final later = event(id: 'later', title: 'Ski', start: _nextMonth(hour: 8));
 
-    testWidgets('only today\'s events are listed, with time and details', (
+    testWidgets('are listed by day and time, with their details', (
       tester,
     ) async {
-      await pumpCalendar(tester, events: [mine, theirs, tomorrow]);
+      await pumpCalendar(tester, events: [mine, theirs, otherDay, later]);
 
       expect(find.text('Cinéma'), findsOneWidget);
       expect(find.text('Séance de 20h'), findsOneWidget);
       expect(find.text('19:45'), findsOneWidget);
       expect(find.text('Dentiste'), findsOneWidget);
       expect(find.text('09:05'), findsOneWidget);
-      expect(find.text('Brunch'), findsNothing);
-      expect(find.text(calendarNothingToday('fr')), findsNothing);
+      expect(find.text('Brunch'), findsOneWidget);
+      expect(find.text('Ski'), findsNothing);
+      // The morning appointment comes before the evening one.
+      expect(
+        tester.getTopLeft(find.text('Dentiste')).dy,
+        lessThan(tester.getTopLeft(find.text('Cinéma')).dy),
+      );
     });
 
-    testWidgets('mine are labelled "Me", the partner\'s with their name', (
+    testWidgets('the next month shows its own events', (tester) async {
+      await pumpCalendar(tester, events: [mine, later]);
+
+      await tester.tap(find.byTooltip(calendarNextMonth('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ski'), findsOneWidget);
+      expect(find.text('Cinéma'), findsNothing);
+    });
+
+    testWidgets('mine are marked "Me", the partner\'s with their name', (
       tester,
     ) async {
       await pumpCalendar(tester, events: [mine, theirs]);
 
-      final meLabel = tester.widget<Text>(find.text(calendarMe('fr')));
-      final partnerLabel = tester.widget<Text>(find.text('Alex'));
-      final colors = testTheme.extension<CoupleColors>()!;
-      expect(meLabel.style?.color, colors.mine);
-      expect(partnerLabel.style?.color, colors.partner);
+      // Once on the event, once in the legend.
+      expect(find.text(calendarMe('fr')), findsNWidgets(2));
+      expect(find.text('Alex'), findsNWidgets(2));
+      expect(_ownerDots(mine: true), findsNWidgets(2));
+      expect(_ownerDots(mine: false), findsNWidgets(2));
     });
 
     testWidgets('a partner without a name is "Partner"', (tester) async {
@@ -156,19 +201,23 @@ void main() {
         partnerName: '  ',
       );
 
-      expect(find.text(calendarPartner('en')), findsOneWidget);
+      expect(find.text(calendarPartner('en')), findsNWidgets(2));
     });
 
-    testWidgets('selecting another day shows that day\'s events', (
-      tester,
-    ) async {
-      await pumpCalendar(tester, events: [mine, tomorrow]);
+    testWidgets('a countdown says so', (tester) async {
+      await pumpCalendar(
+        tester,
+        events: [
+          event(
+            id: 'trip',
+            title: 'Annecy',
+            start: _today(hour: 18),
+            isCountdown: true,
+          ),
+        ],
+      );
 
-      await tester.tap(_dayCell(tomorrow.startTime));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Brunch'), findsOneWidget);
-      expect(find.text('Cinéma'), findsNothing);
+      expect(find.text(calendarEventCountdown('fr')), findsOneWidget);
     });
 
     testWidgets('tapping an event opens it for editing', (tester) async {
@@ -209,18 +258,6 @@ void main() {
     });
   });
 
-  testWidgets('the format button switches from two weeks to one week', (
-    tester,
-  ) async {
-    await pumpCalendar(tester);
-
-    await tester.tap(find.text(calendarFormatTwoWeeks('fr')));
-    await tester.pumpAndSettle();
-    // Two weeks -> week (the order of availableCalendarFormats).
-    expect(find.text(calendarFormatTwoWeeks('fr')), findsNothing);
-    expect(find.text(calendarFormatWeek('fr')), findsOneWidget);
-  });
-
   testWidgets('a stream error is shown in place of the list', (tester) async {
     await pumpCalendar(
       tester,
@@ -232,6 +269,6 @@ void main() {
     );
 
     expect(find.text('Exception: offline'), findsOneWidget);
-    expect(find.text(calendarNothingToday('fr')), findsNothing);
+    expect(find.text(calendarCreateEvent('fr')), findsNothing);
   });
 }

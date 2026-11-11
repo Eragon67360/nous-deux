@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:nousdeux/core/constants/app_radius.dart';
 
@@ -30,9 +29,14 @@ class CoupleColors extends ThemeExtension<CoupleColors> {
 
 /// Warm dark theme for Nous Deux. Single theme used globally.
 ///
-/// Type pairing: Instrument Serif for display and headline styles (shared with
-/// the website), DM Sans for everything else.
+/// Type: Manrope only, bundled in `assets/fonts` (nothing is fetched at
+/// runtime). Large numbers and titles use its light weights; labels and
+/// buttons its medium and semibold ones. Manrope has no italic, so no style
+/// asks for one.
 abstract final class AppTheme {
+  /// The app's one font family (see pubspec.yaml).
+  static const String fontFamily = 'Manrope';
+
   AppTheme._();
 
   // Warm dark palette
@@ -75,35 +79,76 @@ abstract final class AppTheme {
       onSurfaceVariant: _onSurfaceVariant,
     );
 
-    final base = GoogleFonts.dmSansTextTheme(
-      ThemeData.dark().textTheme,
-    ).apply(bodyColor: _onSurface, displayColor: _onSurface);
+    final base = ThemeData.dark().textTheme.apply(
+      fontFamily: fontFamily,
+      bodyColor: _onSurface,
+      displayColor: _onSurface,
+    );
 
-    // Instrument Serif ships a single regular weight: never ask it for bold.
-    TextStyle? serif(TextStyle? style, {double letterSpacing = -0.4}) =>
-        GoogleFonts.instrumentSerif(
-          textStyle: style?.copyWith(
-            fontWeight: FontWeight.w400,
-            letterSpacing: letterSpacing,
-            height: 1.1,
-          ),
-        );
+    // Big type goes light and tight; Material's defaults are too loose for it.
+    TextStyle? display(
+      TextStyle? style,
+      FontWeight weight, {
+      required double letterSpacing,
+    }) => style?.copyWith(
+      fontWeight: weight,
+      letterSpacing: letterSpacing,
+      height: 1.1,
+    );
 
     final textTheme = base.copyWith(
-      displayLarge: serif(base.displayLarge, letterSpacing: -1),
-      displayMedium: serif(base.displayMedium, letterSpacing: -0.8),
-      displaySmall: serif(base.displaySmall, letterSpacing: -0.6),
-      headlineLarge: serif(base.headlineLarge),
-      headlineMedium: serif(base.headlineMedium),
-      headlineSmall: serif(base.headlineSmall, letterSpacing: -0.2),
-      // Material's default body tracking (0.5) reads loose in DM Sans.
+      displayLarge: display(
+        base.displayLarge,
+        FontWeight.w200,
+        letterSpacing: -2,
+      ),
+      displayMedium: display(
+        base.displayMedium,
+        FontWeight.w200,
+        letterSpacing: -1.5,
+      ),
+      displaySmall: display(
+        base.displaySmall,
+        FontWeight.w300,
+        letterSpacing: -1,
+      ),
+      headlineLarge: display(
+        base.headlineLarge,
+        FontWeight.w300,
+        letterSpacing: -0.8,
+      ),
+      headlineMedium: display(
+        base.headlineMedium,
+        FontWeight.w400,
+        letterSpacing: -0.6,
+      ),
+      headlineSmall: display(
+        base.headlineSmall,
+        FontWeight.w500,
+        letterSpacing: -0.4,
+      ),
+      titleLarge: base.titleLarge?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.2,
+      ),
+      titleMedium: base.titleMedium?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+      titleSmall: base.titleSmall?.copyWith(fontWeight: FontWeight.w600),
       bodyLarge: base.bodyLarge?.copyWith(
         color: _onSurfaceVariant,
-        letterSpacing: 0.1,
+        letterSpacing: 0,
         height: 1.45,
       ),
-      bodyMedium: base.bodyMedium?.copyWith(letterSpacing: 0.1, height: 1.45),
-      bodySmall: base.bodySmall?.copyWith(letterSpacing: 0.2),
+      bodyMedium: base.bodyMedium?.copyWith(letterSpacing: 0, height: 1.45),
+      bodySmall: base.bodySmall?.copyWith(letterSpacing: 0.1),
+      labelLarge: base.labelLarge?.copyWith(
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0,
+      ),
+      labelMedium: base.labelMedium?.copyWith(fontWeight: FontWeight.w600),
+      labelSmall: base.labelSmall?.copyWith(fontWeight: FontWeight.w600),
     );
 
     return ThemeData(

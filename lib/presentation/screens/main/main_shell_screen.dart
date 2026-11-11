@@ -16,9 +16,9 @@ import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/realtime_provider.dart';
-import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
+import 'package:nousdeux/presentation/widgets/text_tab_bar.dart';
 
 class MainShellScreen extends ConsumerStatefulWidget {
   const MainShellScreen({super.key, required this.navigationShell});
@@ -228,45 +228,23 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        bottom: true,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Theme.of(context).colorScheme.outlineVariant,
-              ),
-            ),
-          ),
-          child: NavigationBar(
+      bottomNavigationBar: ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: SafeArea(
+          top: false,
+          child: TextTabBar(
             selectedIndex: widget.navigationShell.currentIndex,
-            onDestinationSelected: (i) {
+            onSelected: (i) {
               final current = widget.navigationShell.currentIndex;
               if (i != current) HapticFeedback.selectionClick();
               // Tapping the current tab again returns to its first screen.
               widget.navigationShell.goBranch(i, initialLocation: i == current);
             },
-            destinations: [
-              NavigationDestination(
-                icon: const RingsIcon(),
-                label: nousTitle(lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.calendar_today_outlined),
-                selectedIcon: const Icon(Icons.calendar_today),
-                label: mainNavCalendar(lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.favorite_border),
-                selectedIcon: const Icon(Icons.favorite),
-                label: mainNavPeriod(lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.location_on_outlined),
-                selectedIcon: const Icon(Icons.location_on),
-                label: mainNavPosition(lang),
-              ),
+            labels: [
+              nousTitle(lang),
+              mainNavCalendar(lang),
+              mainNavPeriod(lang),
+              mainNavPosition(lang),
             ],
           ),
         ),

@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:nousdeux/core/constants/app_radius.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/lists_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
@@ -19,16 +18,15 @@ import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/entrance.dart';
-import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 
-/// The home tab: how long you have been together, a little note to send,
-/// and what is coming up.
+/// The home tab, laid out like a notebook page: how long you have been
+/// together, a little note to send, what is coming up and your lists,
+/// separated by thin lines rather than cards.
 class NousScreen extends ConsumerWidget {
   const NousScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
     final profile = ref.watch(myProfileProvider).valueOrNull;
     final lang = profile?.language ?? 'fr';
     final since = ref.watch(togetherSinceProvider);
@@ -39,20 +37,15 @@ class NousScreen extends ConsumerWidget {
         bottom: false,
         child: ListView(
           padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md - 4,
+            28,
             AppSpacing.sm,
-            AppSpacing.md - 4,
+            28,
             AppSpacing.lg,
           ),
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(
-                    nousTitle(lang),
-                    style: theme.textTheme.displaySmall,
-                  ),
-                ),
+                Expanded(child: _SectionLabel(nousTitle(lang))),
                 _AvatarButton(
                   initial: _initial(profile?.username),
                   tooltip: nousSettingsTooltip(lang),
@@ -60,7 +53,6 @@ class NousScreen extends ConsumerWidget {
                 ),
               ],
             ),
-            const SizedBox(height: AppSpacing.md),
             if (!paired || since == null)
               Padding(
                 padding: const EdgeInsets.only(top: AppSpacing.xl),
@@ -74,20 +66,21 @@ class NousScreen extends ConsumerWidget {
                 ),
               )
             else ...[
+              const SizedBox(height: 28),
               Entrance(
-                child: _DaysCard(lang: lang, since: since),
+                child: _DaysBlock(lang: lang, since: since),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const _Rule(),
               Entrance(
                 delay: const Duration(milliseconds: 60),
                 child: _PingSection(lang: lang),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const _Rule(),
               Entrance(
                 delay: const Duration(milliseconds: 120),
-                child: _UpcomingRow(lang: lang, since: since),
+                child: _UpcomingSection(lang: lang, since: since),
               ),
-              const SizedBox(height: AppSpacing.md),
+              const _Rule(),
               Entrance(
                 delay: const Duration(milliseconds: 180),
                 child: _ListsPreview(lang: lang),
@@ -102,6 +95,45 @@ class NousScreen extends ConsumerWidget {
   static String _initial(String? name) {
     final trimmed = name?.trim() ?? '';
     return trimmed.isEmpty ? '·' : trimmed.characters.first.toUpperCase();
+  }
+}
+
+/// Small gold capitals that open each part of the page.
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      header: true,
+      child: Text(
+        text.toUpperCase(),
+        style: theme.textTheme.labelSmall?.copyWith(
+          fontSize: 11,
+          letterSpacing: 2,
+          color: theme.colorScheme.primary,
+        ),
+      ),
+    );
+  }
+}
+
+/// The thin line between two parts of the page.
+class _Rule extends StatelessWidget {
+  const _Rule();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 22),
+      child: Divider(
+        height: 1,
+        color: Theme.of(context).colorScheme.outlineVariant,
+      ),
+    );
   }
 }
 
@@ -122,7 +154,7 @@ class _AvatarButton extends StatelessWidget {
     return Tooltip(
       message: tooltip,
       child: Material(
-        color: scheme.surfaceContainer,
+        color: Colors.transparent,
         shape: CircleBorder(side: BorderSide(color: scheme.outlineVariant)),
         child: InkWell(
           customBorder: const CircleBorder(),
@@ -135,8 +167,8 @@ class _AvatarButton extends StatelessWidget {
                 initial,
                 semanticsLabel: tooltip,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: scheme.primary,
-                  fontWeight: FontWeight.w600,
+                  color: scheme.onSurface,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
@@ -147,8 +179,8 @@ class _AvatarButton extends StatelessWidget {
   }
 }
 
-class _DaysCard extends ConsumerWidget {
-  const _DaysCard({required this.lang, required this.since});
+class _DaysBlock extends ConsumerWidget {
+  const _DaysBlock({required this.lang, required this.since});
 
   final String lang;
   final DateTime since;
@@ -188,93 +220,67 @@ class _DaysCard extends ConsumerWidget {
     final days = daysTogether(since, ref.watch(clockProvider)());
     final reduced = AppMotion.reduced(context);
 
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-      ),
-      child: Stack(
-        children: [
-          const Positioned(
-            right: -36,
-            top: -20,
-            child: Opacity(
-              opacity: 0.16,
-              child: ExcludeSemantics(child: MergingRings(size: 220)),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                nousSinceDate(lang, since),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
             ),
+            TextButton(
+              onPressed: () => _edit(context, ref),
+              child: Text(nousEdit(lang)),
+            ),
+          ],
+        ),
+        TweenAnimationBuilder<double>(
+          tween: Tween(
+            begin: reduced ? days.toDouble() : 0,
+            end: days.toDouble(),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(22, 22, 22, 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          duration: reduced ? Duration.zero : const Duration(milliseconds: 900),
+          curve: AppMotion.enter,
+          // Scales down instead of overflowing at large text sizes.
+          builder: (context, value, _) => FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
-                  nousTogetherSince(lang).toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    letterSpacing: 1.4,
-                    color: scheme.onSurfaceVariant,
+                  '${value.round()}',
+                  semanticsLabel: '$days ${nousDaysUnit(lang, days)}',
+                  style: theme.textTheme.displayLarge?.copyWith(
+                    fontSize: 104,
+                    fontWeight: FontWeight.w200,
+                    letterSpacing: -5,
+                    height: 0.95,
                   ),
                 ),
-                const SizedBox(height: 6),
-                TweenAnimationBuilder<double>(
-                  tween: Tween(
-                    begin: reduced ? days.toDouble() : 0,
-                    end: days.toDouble(),
-                  ),
-                  duration: reduced
-                      ? Duration.zero
-                      : const Duration(milliseconds: 900),
-                  curve: AppMotion.enter,
-                  // Scales down instead of overflowing at large text sizes.
-                  builder: (context, value, _) => FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '${value.round()}',
-                          semanticsLabel: '$days ${nousDaysUnit(lang, days)}',
-                          style: theme.textTheme.displayLarge?.copyWith(
-                            fontSize: 88,
-                            height: 0.95,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        ExcludeSemantics(
-                          child: Text(
-                            nousDaysUnit(lang, days),
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        ),
-                      ],
+                const SizedBox(width: 12),
+                ExcludeSemantics(
+                  child: Text(
+                    nousDaysUnit(lang, days),
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w300,
+                      color: scheme.primary,
                     ),
                   ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Wrap(
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Text(
-                      nousSinceDate(lang, since),
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    TextButton(
-                      onPressed: () => _edit(context, ref),
-                      child: Text(nousEdit(lang)),
-                    ),
-                  ],
                 ),
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -316,223 +322,184 @@ class _PingSectionState extends ConsumerState<_PingSection> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                nousSendNote(lang),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            if (partnerPing != null)
-              Flexible(
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        nousReceivedLine(
-                          lang,
-                          (partnerName?.trim().isNotEmpty ?? false)
-                              ? partnerName!.trim()
-                              : nousPartnerFallback(lang),
-                          partnerPing.sentAt,
-                          now,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    Container(
-                      width: 7,
-                      height: 7,
-                      decoration: BoxDecoration(
-                        color: CoupleColors.of(context).partner,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.xs + 2),
+        _SectionLabel(nousSendNote(lang)),
+        const SizedBox(height: 6),
         Wrap(
-          spacing: 8,
-          runSpacing: 8,
+          spacing: 18,
           children: [
             for (final kind in PingKind.values)
-              _PingChip(
+              _NoteWord(
                 label: pingLabel(lang, kind),
-                primary: kind == PingKind.thinkingOfYou,
                 busy: _sending == kind,
                 onPressed: _sending == null ? () => _send(kind) : null,
               ),
           ],
         ),
+        if (partnerPing != null) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: CoupleColors.of(context).partner,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Flexible(
+                child: Text(
+                  nousReceivedLine(
+                    lang,
+                    (partnerName?.trim().isNotEmpty ?? false)
+                        ? partnerName!.trim()
+                        : nousPartnerFallback(lang),
+                    partnerPing.sentAt,
+                    now,
+                  ),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }
 }
 
-class _PingChip extends StatelessWidget {
-  const _PingChip({
+/// One of the five notes, written as an underlined word you tap.
+class _NoteWord extends StatelessWidget {
+  const _NoteWord({
     required this.label,
-    required this.primary,
     required this.busy,
     required this.onPressed,
   });
 
   final String label;
-  final bool primary;
   final bool busy;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    const shape = StadiumBorder();
-    const padding = EdgeInsets.symmetric(horizontal: 16);
-    final child = busy
-        ? const SizedBox(
-            width: 16,
-            height: 16,
-            child: CircularProgressIndicator(strokeWidth: 2),
-          )
-        : Text(label);
-    return SizedBox(
-      height: 44,
-      child: primary
-          ? FilledButton(
-              onPressed: onPressed,
-              style: FilledButton.styleFrom(shape: shape, padding: padding),
-              child: child,
-            )
-          : OutlinedButton(
-              onPressed: onPressed,
-              style: OutlinedButton.styleFrom(
-                shape: shape,
-                padding: padding,
-                foregroundColor: Theme.of(context).colorScheme.onSurface,
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant,
-                ),
-              ),
-              child: child,
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: scheme.onSurface,
+        disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.45),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        minimumSize: const Size(0, 48),
+        shape: const RoundedRectangleBorder(),
+      ),
+      child: AnimatedOpacity(
+        opacity: busy ? 0.45 : 1,
+        duration: AppMotion.fast,
+        child: Container(
+          padding: const EdgeInsets.only(bottom: 3),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: scheme.outline)),
+          ),
+          child: Text(
+            label,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontSize: 20,
+              fontWeight: FontWeight.w400,
+              letterSpacing: -0.2,
             ),
+          ),
+        ),
+      ),
     );
   }
 }
 
-class _UpcomingRow extends ConsumerWidget {
-  const _UpcomingRow({required this.lang, required this.since});
+class _UpcomingSection extends ConsumerWidget {
+  const _UpcomingSection({required this.lang, required this.since});
 
   final String lang;
   final DateTime since;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     ref.watch(minuteTickProvider);
     final now = ref.watch(clockProvider)();
     final next = ref.watch(upcomingCountdownsProvider).firstOrNull;
     final anniversary = nextAnniversary(since, now);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final quiet = theme.textTheme.bodyMedium?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Expanded(
-          child: next == null
-              ? _SmallCard(
-                  label: nousNextPlan(lang),
-                  title: nousNoCountdown(lang),
-                  footnote: nousNoCountdownHint(lang),
-                  onTap: () => context.go(AppRoutes.calendar),
-                )
-              : _SmallCard(
-                  label: nousNextPlan(lang),
-                  title: next.title,
-                  big: nousInDays(lang, daysUntil(next.startTime, now)),
-                  onTap: () => context.go(AppRoutes.calendar),
-                ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: _SmallCard(
-            label: nousAnniversary(lang),
-            title: nousYearsTogether(lang, anniversary.years),
-            big: nousInDays(lang, anniversary.inDays),
+        _SectionLabel(nousNextPlan(lang)),
+        InkWell(
+          onTap: () => context.go(AppRoutes.calendar),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: next == null
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        nousNoCountdown(lang),
+                        style: theme.textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(nousNoCountdownHint(lang), style: quiet),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          next.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.headlineSmall,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        nousInDays(lang, daysUntil(next.startTime, now)),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: scheme.primary,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
+        ),
+        Row(
+          children: [
+            Text('${nousAnniversary(lang)} · ', style: quiet),
+            Expanded(
+              child: Text(
+                nousYearsTogether(lang, anniversary.years),
+                overflow: TextOverflow.ellipsis,
+                style: quiet,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              nousInDays(lang, anniversary.inDays),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
       ],
-    );
-  }
-}
-
-class _SmallCard extends StatelessWidget {
-  const _SmallCard({
-    required this.label,
-    required this.title,
-    this.big,
-    this.footnote,
-    this.onTap,
-  });
-
-  final String label;
-  final String title;
-  final String? big;
-  final String? footnote;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    return Material(
-      color: scheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(AppRadius.md + 2),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppRadius.md + 2),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.sm),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (big != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(big!, style: theme.textTheme.headlineMedium),
-              ],
-              if (footnote != null) ...[
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  footnote!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
     );
   }
 }
@@ -546,38 +513,26 @@ class _ListsPreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final lists = ref.watch(sharedListsProvider).valueOrNull ?? const [];
-    final divider = BorderSide(color: theme.colorScheme.surfaceContainerHigh);
 
-    Widget row(
-      String title,
-      String trailing,
-      VoidCallback onTap, {
-      bool last = false,
-    }) {
+    Widget row(String title, String trailing, VoidCallback onTap) {
       return InkWell(
         onTap: onTap,
-        child: Container(
+        child: ConstrainedBox(
           constraints: const BoxConstraints(minHeight: 48),
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-            border: Border(
-              top: divider,
-              bottom: last ? divider : BorderSide.none,
-            ),
-          ),
           child: Row(
             children: [
               Expanded(
                 child: Text(
                   title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 18,
                   ),
                 ),
               ),
               Text(
                 trailing,
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -593,14 +548,7 @@ class _ListsPreview extends ConsumerWidget {
       children: [
         Row(
           children: [
-            Expanded(
-              child: Text(
-                listsTitle(lang),
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
+            Expanded(child: _SectionLabel(listsTitle(lang))),
             TextButton(
               onPressed: () => context.push(AppRoutes.lists),
               child: Text(listsSeeAll(lang)),
@@ -608,14 +556,9 @@ class _ListsPreview extends ConsumerWidget {
           ],
         ),
         if (shown.isEmpty)
-          row(
-            listsNew(lang),
-            '+',
-            () => context.push(AppRoutes.lists),
-            last: true,
-          )
+          row(listsNew(lang), '+', () => context.push(AppRoutes.lists))
         else
-          for (final (i, list) in shown.indexed)
+          for (final list in shown)
             Consumer(
               builder: (context, ref, _) {
                 final counts = ref.watch(listCountsProvider(list.id));
@@ -623,7 +566,6 @@ class _ListsPreview extends ConsumerWidget {
                   list.name,
                   listsCounts(lang, counts.open, counts.total),
                   () => context.push(AppRoutes.listDetail(list.id)),
-                  last: i == shown.length - 1,
                 );
               },
             ),

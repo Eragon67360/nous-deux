@@ -33,16 +33,7 @@ import 'fixtures.dart';
 ThemeData? _theme;
 
 /// [AppTheme.dark], built once per test file.
-///
-/// google_fonts cannot find DM Sans / Instrument Serif in the test bundle
-/// (runtime fetching is off, see flutter_test_config.dart) and reports that
-/// asynchronously. Those errors and the matching log lines are swallowed here
-/// so they do not fail whichever test happens to be running.
-ThemeData get testTheme => _theme ??= runZonedGuarded(
-  () => AppTheme.dark,
-  (error, stack) {},
-  zoneSpecification: ZoneSpecification(print: (self, parent, zone, line) {}),
-)!;
+ThemeData get testTheme => _theme ??= AppTheme.dark;
 
 /// Every repository a screen can reach, backed by in-memory fakes, plus the
 /// device language. Defaults describe a signed-in, onboarded user with no

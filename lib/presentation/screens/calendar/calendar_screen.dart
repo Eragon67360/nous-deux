@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
 
-import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/utils/date_only.dart';
+import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -15,6 +15,8 @@ import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
 
+/// The calendar as a diary: one month at a time, each day that has something
+/// planned written as a large number with its events beside it.
 class CalendarHomeScreen extends ConsumerStatefulWidget {
   const CalendarHomeScreen({super.key});
 
@@ -23,116 +25,107 @@ class CalendarHomeScreen extends ConsumerStatefulWidget {
 }
 
 class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
-  DateTime _focusedDay = DateTime.now();
-  DateTime? _selectedDay;
-  CalendarFormat _calendarFormat =
-      CalendarFormat.twoWeeks; // Format par défaut pour l'accueil
+  DateTime _month = _monthOf(DateTime.now());
 
-  @override
-  void initState() {
-    super.initState();
-    _selectedDay = _focusedDay;
-  }
+  static DateTime _monthOf(DateTime day) => DateTime(day.year, day.month);
 
-  void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    if (!isSameDay(_selectedDay, selectedDay)) {
-      setState(() {
-        _selectedDay = selectedDay;
-        _focusedDay = focusedDay;
-      });
+  bool get _isCurrentMonth => _month == _monthOf(DateTime.now());
+
+  void _shiftMonth(int delta) =>
+      setState(() => _month = DateTime(_month.year, _month.month + delta));
+
+  /// The viewed month's events, grouped by the day they start, in order.
+  static List<(DateTime, List<CalendarEventEntity>)> _diary(
+    List<CalendarEventEntity> events,
+    DateTime month,
+  ) {
+    final inMonth =
+        events
+            .where(
+              (e) =>
+                  e.startTime.year == month.year &&
+                  e.startTime.month == month.month,
+            )
+            .toList()
+          ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    final days = <(DateTime, List<CalendarEventEntity>)>[];
+    for (final event in inMonth) {
+      final day = dayOf(event.startTime);
+      if (days.isNotEmpty && days.last.$1 == day) {
+        days.last.$2.add(event);
+      } else {
+        days.add((day, [event]));
+      }
     }
+    return days;
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final eventsAsync = ref.watch(calendarEventsProvider);
-    final currentUser = ref.watch(currentUserProvider).valueOrNull;
+    final currentUserId = ref.watch(currentUserProvider).valueOrNull?.id;
     final partnerProfile = ref.watch(partnerProfileProvider).valueOrNull;
     final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-
     final partnerName = partnerProfile?.username?.trim().isNotEmpty == true
-        ? partnerProfile!.username!
+        ? partnerProfile!.username!.trim()
         : calendarPartner(lang);
 
-    final currentUserId = currentUser?.id;
-
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. En-tête (Date & Actions)
-            _HomeHeader(
+            _DiaryHeader(
               lang: lang,
-              onTodayTap: () {
-                setState(() {
-                  _focusedDay = DateTime.now();
-                  _selectedDay = DateTime.now();
-                });
-              },
-              onImportTap: () => Navigator.of(context).push(
+              month: _month,
+              onPrevious: () => _shiftMonth(-1),
+              onNext: () => _shiftMonth(1),
+              onToday: () => setState(() => _month = _monthOf(DateTime.now())),
+              onImport: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const CalendarImportScreen()),
               ),
+              onAdd: () => _openEventForm(context),
             ),
-
-            // 2. Widget Calendrier
-            eventsAsync.when(
-              data: (allEvents) {
-                return _CalendarSection(
-                  language: lang,
-                  focusedDay: _focusedDay,
-                  selectedDay: _selectedDay,
-                  calendarFormat: _calendarFormat,
-                  events: allEvents,
-                  currentUserId: currentUserId,
-                  onDaySelected: _onDaySelected,
-                  onFormatChanged: (format) =>
-                      setState(() => _calendarFormat = format),
-                  onPageChanged: (focused) => _focusedDay = focused,
-                );
-              },
-              loading: () =>
-                  const SizedBox(height: 140, child: LoadingContent()),
-              error: (_, _) => const SizedBox.shrink(),
-            ),
-
-            const Divider(height: 1, thickness: 1),
-
-            // 3. Liste des événements
             Expanded(
               child: eventsAsync.when(
                 data: (allEvents) {
-                  final dayEvents = _getEventsForDay(
-                    allEvents,
-                    _selectedDay ?? _focusedDay,
-                  );
-
-                  if (dayEvents.isEmpty) {
-                    return _EmptyDayState(
-                      lang: lang,
-                      date: _selectedDay ?? _focusedDay,
-                      onAddPressed: () => _openEventForm(context),
+                  final days = _diary(allEvents, _month);
+                  if (days.isEmpty) {
+                    return EmptyState(
+                      icon: Icons.event_note_outlined,
+                      message: calendarNothingInMonth(
+                        lang,
+                        DateFormat.MMMM(_locale(lang)).format(_month),
+                      ),
+                      actionLabel: calendarCreateEvent(lang),
+                      onAction: () => _openEventForm(context),
                     );
                   }
-
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.md,
-                      horizontal: AppSpacing.md,
+                  final today = dayOf(DateTime.now());
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(
+                      28,
+                      0,
+                      28,
+                      AppSpacing.lg,
                     ),
-                    itemCount: dayEvents.length,
-                    itemBuilder: (context, index) {
-                      final event = dayEvents[index];
-                      return _EventCard(
-                        lang: lang,
-                        event: event,
-                        currentUserId: currentUserId,
-                        partnerName: partnerName,
-                        onTap: () => _openEventForm(context, event: event),
-                        onLongPress: () => _confirmDelete(context, event),
-                      );
-                    },
+                    children: [
+                      for (final (i, (day, events)) in days.indexed)
+                        _DiaryDay(
+                          lang: lang,
+                          day: day,
+                          today: today,
+                          events: events,
+                          last: i == days.length - 1,
+                          currentUserId: currentUserId,
+                          partnerName: partnerName,
+                          onOpen: (event) =>
+                              _openEventForm(context, event: event),
+                          onDelete: (event) => _confirmDelete(context, event),
+                        ),
+                      const SizedBox(height: AppSpacing.sm),
+                      _Legend(lang: lang, partnerName: partnerName),
+                    ],
                   );
                 },
                 loading: () => const LoadingContent(),
@@ -143,34 +136,19 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openEventForm(context),
-        icon: const Icon(Icons.add),
-        label: Text(calendarAdd(lang)),
-        elevation: 2,
-      ),
     );
   }
 
-  // --- Helpers Logiques ---
-
-  List<CalendarEventEntity> _getEventsForDay(
-    List<CalendarEventEntity> events,
-    DateTime day,
-  ) {
-    return events.where((event) {
-      return isSameDay(event.startTime, day);
-    }).toList();
-  }
+  static String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
 
   void _openEventForm(BuildContext context, {CalendarEventEntity? event}) {
+    // A new event starts today in the current month, else on the 1st.
+    final initialDate = _isCurrentMonth ? DateTime.now() : _month;
     Navigator.of(context)
         .push(
           MaterialPageRoute(
-            builder: (_) => CalendarEventFormScreen(
-              event: event,
-              initialDate: _selectedDay ?? _focusedDay,
-            ),
+            builder: (_) =>
+                CalendarEventFormScreen(event: event, initialDate: initialDate),
           ),
         )
         .then((_) => ref.invalidate(calendarEventsProvider));
@@ -208,69 +186,98 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
   }
 }
 
-// -----------------------------------------------------------------------------
-// SOUS-WIDGETS (UI)
-// -----------------------------------------------------------------------------
-
-class _HomeHeader extends StatelessWidget {
-  final String lang;
-  final VoidCallback onTodayTap;
-  final VoidCallback onImportTap;
-
-  const _HomeHeader({
+class _DiaryHeader extends StatelessWidget {
+  const _DiaryHeader({
     required this.lang,
-    required this.onTodayTap,
-    required this.onImportTap,
+    required this.month,
+    required this.onPrevious,
+    required this.onNext,
+    required this.onToday,
+    required this.onImport,
+    required this.onAdd,
   });
+
+  final String lang;
+  final DateTime month;
+  final VoidCallback onPrevious;
+  final VoidCallback onNext;
+  final VoidCallback onToday;
+  final VoidCallback onImport;
+  final VoidCallback onAdd;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final today = DateTime.now();
+    final scheme = theme.colorScheme;
     final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
-    final dateString = DateFormat.yMMMMd(locale).format(today);
+    final outlined = IconButton.styleFrom(
+      side: BorderSide(color: scheme.outlineVariant),
+    );
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.sm,
-        AppSpacing.xs,
-      ),
-      child: Row(
+      padding: const EdgeInsets.fromLTRB(28, AppSpacing.xs, 16, AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    DateFormat('MMMM y', locale).format(month).toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontSize: 11,
+                      letterSpacing: 2,
+                      color: scheme.primary,
+                    ),
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: onPrevious,
+                tooltip: calendarPreviousMonth(lang),
+                icon: const Icon(Icons.chevron_left),
+              ),
+              IconButton(
+                onPressed: onNext,
+                tooltip: calendarNextMonth(lang),
+                icon: const Icon(Icons.chevron_right),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   calendarTitle(lang),
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                  softWrap: true,
+                  style: theme.textTheme.headlineLarge?.copyWith(fontSize: 36),
                 ),
-                Text(
-                  dateString,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  softWrap: true,
+              ),
+              IconButton(
+                onPressed: onToday,
+                tooltip: calendarToday(lang),
+                style: outlined,
+                icon: const Icon(Icons.today_outlined, size: 20),
+              ),
+              const SizedBox(width: 6),
+              IconButton(
+                onPressed: onImport,
+                tooltip: calendarImportTooltip(lang),
+                style: outlined,
+                icon: const Icon(Icons.upload_file_outlined, size: 20),
+              ),
+              const SizedBox(width: 6),
+              IconButton(
+                onPressed: onAdd,
+                tooltip: calendarAdd(lang),
+                style: IconButton.styleFrom(
+                  backgroundColor: scheme.primary,
+                  foregroundColor: scheme.onPrimary,
                 ),
-              ],
-            ),
-          ),
-          IconButton.filledTonal(
-            onPressed: onTodayTap,
-            icon: const Icon(Icons.today),
-            tooltip: calendarToday(lang),
-          ),
-          const SizedBox(width: 8),
-          IconButton.outlined(
-            onPressed: onImportTap,
-            icon: const Icon(Icons.upload_file),
-            tooltip: calendarImportTooltip(lang),
+                icon: const Icon(Icons.add),
+              ),
+            ],
           ),
         ],
       ),
@@ -278,297 +285,234 @@ class _HomeHeader extends StatelessWidget {
   }
 }
 
-class _CalendarSection extends StatelessWidget {
-  final String language;
-  final DateTime focusedDay;
-  final DateTime? selectedDay;
-  final CalendarFormat calendarFormat;
-  final List<CalendarEventEntity> events;
-  final String? currentUserId;
-  final void Function(DateTime, DateTime) onDaySelected;
-  final void Function(CalendarFormat) onFormatChanged;
-  final void Function(DateTime) onPageChanged;
-
-  const _CalendarSection({
-    required this.language,
-    required this.focusedDay,
-    required this.selectedDay,
-    required this.calendarFormat,
+class _DiaryDay extends StatelessWidget {
+  const _DiaryDay({
+    required this.lang,
+    required this.day,
+    required this.today,
     required this.events,
+    required this.last,
     required this.currentUserId,
-    required this.onDaySelected,
-    required this.onFormatChanged,
-    required this.onPageChanged,
+    required this.partnerName,
+    required this.onOpen,
+    required this.onDelete,
   });
+
+  final String lang;
+  final DateTime day;
+  final DateTime today;
+  final List<CalendarEventEntity> events;
+  final bool last;
+  final String? currentUserId;
+  final String partnerName;
+  final void Function(CalendarEventEntity) onOpen;
+  final void Function(CalendarEventEntity) onDelete;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
+    final scheme = theme.colorScheme;
+    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final isToday = day == today;
 
-    return TableCalendar<CalendarEventEntity>(
-      firstDay: DateTime(2020),
-      lastDay: DateTime(2030),
-      focusedDay: focusedDay,
-      selectedDayPredicate: (day) => isSameDay(selectedDay, day),
-      calendarFormat: calendarFormat,
-      startingDayOfWeek: StartingDayOfWeek.monday,
-      locale: locale,
-      // Styles visuels
-      calendarStyle: CalendarStyle(
-        markersMaxCount: 1,
-        outsideDaysVisible: true,
-        defaultTextStyle: theme.textTheme.bodyMedium!,
-        weekendTextStyle: theme.textTheme.bodyMedium!.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
+    return Opacity(
+      // Days already gone this month stay readable but step back.
+      opacity: day.isBefore(today) ? 0.55 : 1,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(color: scheme.outlineVariant),
+            bottom: last
+                ? BorderSide(color: scheme.outlineVariant)
+                : BorderSide.none,
+          ),
         ),
-        selectedDecoration: BoxDecoration(
-          color: theme.colorScheme.primary,
-          shape: BoxShape.circle,
-        ),
-        todayDecoration: BoxDecoration(
-          color: theme.colorScheme.primaryContainer,
-          shape: BoxShape.circle,
-        ),
-        todayTextStyle: TextStyle(
-          color: theme.colorScheme.onPrimaryContainer,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-
-      headerStyle: HeaderStyle(
-        formatButtonVisible: true,
-        titleCentered: true,
-        formatButtonShowsNext: false,
-        decoration: const BoxDecoration(),
-        titleTextStyle: theme.textTheme.titleMedium!.copyWith(
-          fontWeight: FontWeight.bold,
-        ),
-        formatButtonDecoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        formatButtonTextStyle: theme.textTheme.labelSmall!,
-      ),
-
-      availableCalendarFormats: {
-        CalendarFormat.month: calendarFormatMonth(language),
-        CalendarFormat.twoWeeks: calendarFormatTwoWeeks(language),
-        CalendarFormat.week: calendarFormatWeek(language),
-      },
-
-      // Logique
-      onDaySelected: onDaySelected,
-      onFormatChanged: onFormatChanged,
-      onPageChanged: onPageChanged,
-      eventLoader: (day) =>
-          events.where((e) => isSameDay(e.startTime, day)).toList(),
-
-      // Marqueurs personnalisés (Points sous les dates)
-      calendarBuilders: CalendarBuilders(
-        markerBuilder: (context, day, dayEvents) {
-          if (dayEvents.isEmpty) return null;
-
-          final hasMine =
-              currentUserId != null &&
-              dayEvents.any((e) => e.createdBy == currentUserId);
-          final hasPartner =
-              currentUserId != null &&
-              dayEvents.any((e) => e.createdBy != currentUserId);
-
-          // Si l'utilisateur n'est pas connecté, on met une couleur générique
-          if (currentUserId == null) {
-            return _buildDot(theme.colorScheme.primary);
-          }
-
-          return Positioned(
-            bottom: 5,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (hasMine) _buildDot(CoupleColors.of(context).mine),
-                if (hasMine && hasPartner) const SizedBox(width: 2),
-                if (hasPartner) _buildDot(CoupleColors.of(context).partner),
-              ],
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 64,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${day.day}',
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w300,
+                      height: 1,
+                      color: isToday ? scheme.primary : scheme.onSurface,
+                    ),
+                  ),
+                  Text(
+                    DateFormat.E(locale).format(day),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          );
-        },
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final event in events)
+                    _DiaryEvent(
+                      lang: lang,
+                      event: event,
+                      isMine:
+                          currentUserId != null &&
+                          event.createdBy == currentUserId,
+                      partnerName: partnerName,
+                      onTap: () => onOpen(event),
+                      onLongPress: () => onDelete(event),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    );
-  }
-
-  Widget _buildDot(Color color) {
-    return Container(
-      width: 6,
-      height: 6,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color),
     );
   }
 }
 
-class _EventCard extends StatelessWidget {
-  final String lang;
-  final CalendarEventEntity event;
-  final String? currentUserId;
-  final String partnerName;
-  final VoidCallback onTap;
-  final VoidCallback onLongPress;
-
-  const _EventCard({
+class _DiaryEvent extends StatelessWidget {
+  const _DiaryEvent({
     required this.lang,
     required this.event,
-    required this.currentUserId,
+    required this.isMine,
     required this.partnerName,
     required this.onTap,
     required this.onLongPress,
   });
 
+  final String lang;
+  final CalendarEventEntity event;
+  final bool isMine;
+  final String partnerName;
+  final VoidCallback onTap;
+  final VoidCallback onLongPress;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isMine = currentUserId != null && event.createdBy == currentUserId;
-
-    final couple = CoupleColors.of(context);
-    final accentColor = isMine ? couple.mine : couple.partner;
-    final creatorLabel = isMine ? calendarMe(lang) : partnerName;
-
+    final scheme = theme.colorScheme;
     final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
-    final startTime = DateFormat.Hm(locale).format(event.startTime);
+    final quiet = theme.textTheme.bodyMedium?.copyWith(
+      color: scheme.onSurfaceVariant,
+    );
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: AppSpacing.md),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+    return InkWell(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              event.title,
+              softWrap: true,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontSize: 19,
+                fontWeight: FontWeight.w500,
+                color: event.isCountdown ? scheme.primary : scheme.onSurface,
+              ),
+            ),
+            if (event.description?.isNotEmpty == true) ...[
+              const SizedBox(height: 2),
+              Text(event.description!, softWrap: true, style: quiet),
+            ],
+            const SizedBox(height: 6),
+            Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
               children: [
-                // 1. Bande latérale de couleur
-                Container(width: 6, color: accentColor),
-
-                // 2. Contenu
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Titre
-                        Text(
-                          event.title,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                          softWrap: true, // JAMAIS d'ellipse
-                        ),
-
-                        // Description (si existante)
-                        if (event.description?.isNotEmpty == true) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            event.description!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                            softWrap: true, // JAMAIS d'ellipse
-                          ),
-                        ],
-
-                        const SizedBox(height: 8),
-
-                        // Métadonnées (Heure & Propriétaire)
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time_rounded,
-                              size: 14,
-                              color: theme.colorScheme.primary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              startTime,
-                              style: theme.textTheme.labelMedium?.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                              softWrap: true,
-                            ),
-                            const SizedBox(width: 12),
-
-                            // Badge Propriétaire
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: accentColor.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Text(
-                                creatorLabel,
-                                style: theme.textTheme.labelSmall?.copyWith(
-                                  color: accentColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                softWrap: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                OwnerDot(isMine: isMine),
+                Text(
+                  DateFormat.Hm(locale).format(event.startTime),
+                  style: quiet,
+                ),
+                Text(isMine ? calendarMe(lang) : partnerName, style: quiet),
+                if (event.isCountdown)
+                  Text(
+                    calendarEventCountdown(lang),
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: scheme.primary,
                     ),
                   ),
-                ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class _EmptyDayState extends StatelessWidget {
-  final String lang;
-  final DateTime date;
-  final VoidCallback onAddPressed;
+/// Whose event it is: a cream dot ringed in wine for mine, a pink dot for my
+/// partner's. Wine alone is too dark to see on the dark ground.
+class OwnerDot extends StatelessWidget {
+  const OwnerDot({super.key, required this.isMine});
 
-  const _EmptyDayState({
-    required this.lang,
-    required this.date,
-    required this.onAddPressed,
-  });
+  final bool isMine;
 
   @override
   Widget build(BuildContext context) {
-    final isToday = isSameDay(date, DateTime.now());
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
-    final dateStr = DateFormat.MMMMd(locale).format(date);
-    final message = isToday
-        ? calendarNothingToday(lang)
-        : calendarNoEventsOn(lang, dateStr);
+    final couple = CoupleColors.of(context);
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isMine
+            ? Theme.of(context).colorScheme.onSurface
+            : couple.partner,
+        border: isMine ? Border.all(color: couple.mine, width: 2.5) : null,
+      ),
+    );
+  }
+}
 
-    return EmptyState(
-      icon: Icons.event_note_outlined,
-      message: message,
-      actionLabel: calendarCreateEvent(lang),
-      onAction: onAddPressed,
+class _Legend extends StatelessWidget {
+  const _Legend({required this.lang, required this.partnerName});
+
+  final String lang;
+  final String partnerName;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.bodySmall?.copyWith(
+      color: Theme.of(context).colorScheme.onSurfaceVariant,
+    );
+    return ExcludeSemantics(
+      child: Wrap(
+        spacing: 18,
+        runSpacing: 6,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const OwnerDot(isMine: true),
+              const SizedBox(width: 6),
+              Text(calendarMe(lang), style: style),
+            ],
+          ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const OwnerDot(isMine: false),
+              const SizedBox(width: 6),
+              Text(partnerName, style: style),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

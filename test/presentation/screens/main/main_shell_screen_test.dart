@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,6 +11,7 @@ import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
+import 'package:nousdeux/presentation/widgets/text_tab_bar.dart';
 
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
@@ -59,7 +59,7 @@ void main() {
     expect(router.state.uri.path, '/main/period');
     expect(find.text('stub:/main/period'), findsOneWidget);
     expect(
-      tester.widget<NavigationBar>(find.byType(NavigationBar)).selectedIndex,
+      tester.widget<TextTabBar>(find.byType(TextTabBar)).selectedIndex,
       2,
     );
 

@@ -115,7 +115,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                             splashTagline(lang),
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
-                              fontStyle: FontStyle.italic,
                             ),
                           ),
                         ],
