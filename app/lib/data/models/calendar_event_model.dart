@@ -27,23 +27,26 @@ class CalendarEventModel {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
+  /// Postgres sends timestamptz with an offset, which `DateTime.parse` reads
+  /// as UTC. The calendar formats and groups by the fields, so keep them in
+  /// the device's local time.
   factory CalendarEventModel.fromJson(Map<String, dynamic> json) {
     return CalendarEventModel(
       id: json['id'] as String,
       coupleId: json['couple_id'] as String,
       title: json['title'] as String,
       description: json['description'] as String?,
-      startTime: DateTime.parse(json['start_time'] as String),
+      startTime: DateTime.parse(json['start_time'] as String).toLocal(),
       endTime: json['end_time'] != null
-          ? DateTime.parse(json['end_time'] as String)
+          ? DateTime.parse(json['end_time'] as String).toLocal()
           : null,
       createdBy: json['created_by'] as String,
       isCountdown: json['is_countdown'] as bool? ?? false,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.parse(json['created_at'] as String).toLocal()
           : null,
       updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
+          ? DateTime.parse(json['updated_at'] as String).toLocal()
           : null,
     );
   }
@@ -54,12 +57,12 @@ class CalendarEventModel {
       'couple_id': coupleId,
       'title': title,
       'description': description,
-      'start_time': startTime.toIso8601String(),
-      'end_time': endTime?.toIso8601String(),
+      'start_time': startTime.toUtc().toIso8601String(),
+      'end_time': endTime?.toUtc().toIso8601String(),
       'created_by': createdBy,
       'is_countdown': isCountdown,
-      'created_at': createdAt?.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
+      'created_at': createdAt?.toUtc().toIso8601String(),
+      'updated_at': updatedAt?.toUtc().toIso8601String(),
     };
   }
 
