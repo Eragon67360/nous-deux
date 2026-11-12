@@ -5,6 +5,7 @@ import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/screens/period/cycle_consent.dart';
 import 'package:nousdeux/presentation/screens/period/cycle_today_view.dart';
 import 'package:nousdeux/presentation/screens/period/guide/guide_screen.dart';
 import 'package:nousdeux/presentation/screens/period/partner_cycle_view.dart';
@@ -113,7 +114,10 @@ class _AskWhoTracksState extends ConsumerState<_AskWhoTracks> {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 20),
+        // Tapping "Yes" right under this is the explicit consent.
+        CycleConsentText(lang: lang),
+        const SizedBox(height: 20),
         FilledButton(
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
           onPressed: _saving ? null : () => _answer(true),

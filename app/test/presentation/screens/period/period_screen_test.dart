@@ -56,6 +56,9 @@ void main() {
         final deps = await pumpRegles(tester, tracks: null, lang: lang);
 
         expect(find.text(cycleAskTitle(lang)), findsOneWidget);
+        // Cycle data is health data: what "yes" means is said right there.
+        expect(find.text(cycleConsent(lang)), findsOneWidget);
+        expect(find.text(cyclePrivacyPolicy(lang)), findsOneWidget);
         await tester.tap(find.text(cycleAskYes(lang)));
         await tester.pumpAndSettle();
 

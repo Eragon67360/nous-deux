@@ -11,8 +11,10 @@ import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
+import 'package:nousdeux/presentation/providers/period_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
+import 'package:nousdeux/presentation/screens/period/cycle_consent.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -656,23 +658,47 @@ class _TracksCycleSwitch extends ConsumerWidget {
       title: Text(settingsTracksCycle(lang), softWrap: true),
       value: profile?.tracksCycle ?? false,
       activeThumbColor: theme.colorScheme.primary,
-      onChanged: profile == null
-          ? null
-          : (v) async {
-              final result = await ref
-                  .read(profileRepositoryProvider)
-                  .updateCycleSettings(tracksCycle: v);
-              if (result.failure != null) {
-                if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(cycleSaveFailed(lang))),
-                  );
-                }
-                return;
-              }
-              ref.invalidate(myProfileProvider);
-            },
+      onChanged: profile == null ? null : (v) => _change(context, ref, v, lang),
     );
+  }
+
+  /// Turning tracking on asks for consent (cycle data is health data);
+  /// turning it off offers to delete that data.
+  Future<void> _change(
+    BuildContext context,
+    WidgetRef ref,
+    bool track,
+    String lang,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    void say(String text) => messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(text)));
+
+    var deleted = false;
+    if (track) {
+      if (!await confirmCycleConsent(context, lang)) return;
+    } else {
+      final choice = await askStopTracking(context, lang);
+      if (choice == null) return;
+      if (choice == StopTracking.deleteData) {
+        final failure = await ref
+            .read(cycleRepositoryProvider)
+            .deleteAllMyData();
+        if (failure != null) return say(cycleSaveFailed(lang));
+        deleted = true;
+        ref
+          ..invalidate(cycleNoteProvider)
+          ..invalidate(cycleCheckinsProvider)
+          ..invalidate(periodLogsProvider);
+      }
+    }
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .updateCycleSettings(tracksCycle: track);
+    if (result.failure != null) return say(cycleSaveFailed(lang));
+    ref.invalidate(myProfileProvider);
+    if (deleted) say(cycleDataDeleted(lang));
   }
 }
 

@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:nousdeux/core/constants/cycle_strings.dart';
+import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
@@ -54,6 +56,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
   bool paired = false,
   bool sharing = false,
   bool inCouple = true,
+  bool? tracksCycle,
 }) async {
   useTallSurface(tester);
   final deps = TestDeps(
@@ -61,6 +64,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
       username: 'Camille',
       language: lang,
       partner: paired ? partnerId : null,
+      tracksCycle: tracksCycle,
     ),
     partner: paired ? partnerProfile() : null,
     couple: inCouple ? couple(user2Id: paired ? partnerId : null) : null,
@@ -407,6 +411,69 @@ void main() {
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getBool(calendarNotificationsEnabledKey), isTrue);
+    });
+  });
+
+  group('cycle tracking (health data)', () {
+    Finder inDialog(String text) => find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.text(text),
+    );
+
+    testWidgets('turning it on asks for consent first', (tester) async {
+      final (deps, _) = await _pumpSettings(tester, tracksCycle: false);
+
+      await tester.tap(find.text(settingsTracksCycle('fr')));
+      await tester.pumpAndSettle();
+      expect(inDialog(cycleConsent('fr')), findsOneWidget);
+      expect(inDialog(cyclePrivacyPolicy('fr')), findsOneWidget);
+      await tester.tap(inDialog(periodCancel('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.profiles.cycleSettingsCalls, isEmpty);
+
+      await tester.tap(find.text(settingsTracksCycle('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(inDialog(cycleConsentAccept('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isTrue);
+    });
+
+    testWidgets('turning it off can keep the data', (tester) async {
+      final (deps, _) = await _pumpSettings(tester, tracksCycle: true);
+
+      await tester.tap(find.text(settingsTracksCycle('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(inDialog(cycleStopKeep('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.cycle.deleteAllCalls, 0);
+      expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isFalse);
+    });
+
+    testWidgets('or delete all of it: consent withdrawn', (tester) async {
+      final (deps, _) = await _pumpSettings(tester, tracksCycle: true);
+
+      await tester.tap(find.text(settingsTracksCycle('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(inDialog(cycleStopDelete('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.cycle.deleteAllCalls, 1);
+      expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isFalse);
+      expect(find.text(cycleDataDeleted('fr')), findsOneWidget);
+    });
+
+    testWidgets('a failed deletion keeps tracking on', (tester) async {
+      final (deps, _) = await _pumpSettings(tester, tracksCycle: true);
+      deps.cycle.nextFailure = const ServerFailure('down');
+
+      await tester.tap(find.text(settingsTracksCycle('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(inDialog(cycleStopDelete('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.profiles.cycleSettingsCalls, isEmpty);
+      expect(find.text(cycleSaveFailed('fr')), findsOneWidget);
     });
   });
 

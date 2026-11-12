@@ -80,4 +80,18 @@ class CycleRepositoryImpl implements CycleRepository {
       return UnknownFailure(e.toString());
     }
   }
+
+  @override
+  Future<Failure?> deleteAllMyData() async {
+    final uid = _userId;
+    if (uid == null) return const AuthFailure('Not signed in');
+    try {
+      await _cycle.deleteAllFor(uid);
+      return null;
+    } on PostgrestException catch (e) {
+      return ServerFailure(e.message);
+    } catch (e) {
+      return UnknownFailure(e.toString());
+    }
+  }
 }

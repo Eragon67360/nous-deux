@@ -170,8 +170,8 @@
       "description": "Privacy policy for the Nous Deux application."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "10 November 2026",
-    "effectiveDateISO": "2026-11-10",
+    "effectiveDate": "12 November 2026",
+    "effectiveDateISO": "2026-11-12",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -196,7 +196,7 @@
           },
           {
             "label": "Period tracking",
-            "text": "cycle dates, mood, symptoms, notes. This data is shared with your partner to support and coordinate."
+            "text": "if you choose to track your cycle: the start and end dates of your periods, how you feel each day if you note it (symptoms, mood) and your notes. This is health data. Your partner sees your dates and how you feel for as long as you share them: two switches in the Period tab, on by default, that you can turn off at any time. Your notes are never shared: nobody but you can read them."
           },
           {
             "label": "Location (optional)",
@@ -216,7 +216,7 @@
           },
           {
             "label": "Notifications",
-            "text": "notification token (FCM) to send you the reminders you turn on (for example your partner's PMS reminder) and your partner's little notes."
+            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, and word that their period started when they share their cycle."
           },
           {
             "label": "Technical data",
@@ -230,7 +230,7 @@
       },
       "legalBasis": {
         "title": "Legal basis",
-        "body": "Processing of data related to your account, profile, calendar and period tracking is necessary for the performance of the contract (use of the app). Location sharing and push notifications are optional and based on your consent; you can turn them off at any time in the app or device settings."
+        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings."
       },
       "hosting": {
         "title": "Hosting and processors",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period tracking, location, lists, little notes and start date) is deleted for both of you. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays."
       },
       "rights": {
         "title": "Your rights",
@@ -267,7 +267,8 @@
           "Right to erasure (subject to legal obligations)",
           "Right to restriction of processing",
           "Right to object to certain processing",
-          "Right to data portability"
+          "Right to data portability",
+          "Right to withdraw your consent at any time, without affecting what was done before"
         ],
         "deletionText": "To request deletion of your account and data, see the dedicated page:",
         "deletionLink": "Account deletion",

@@ -170,8 +170,8 @@
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "10 novembre 2026",
-    "effectiveDateISO": "2026-11-10",
+    "effectiveDate": "12 novembre 2026",
+    "effectiveDateISO": "2026-11-12",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
@@ -196,7 +196,7 @@
           },
           {
             "label": "Suivi des règles",
-            "text": "dates de cycle, humeur, symptômes, notes. Ces données sont partagées avec votre partenaire pour faciliter la coordination et l'entraide."
+            "text": "si vous choisissez de suivre votre cycle : les dates de début et de fin de vos règles, votre ressenti du jour si vous le notez (symptômes, humeur) et vos notes. Ce sont des données de santé. Votre partenaire voit vos dates et votre ressenti tant que vous les partagez : deux interrupteurs dans l'onglet Règles, activés par défaut, que vous pouvez couper à tout moment. Vos notes ne sont jamais partagées : personne d'autre que vous ne peut les lire."
           },
           {
             "label": "Position (optionnelle)",
@@ -216,7 +216,7 @@
           },
           {
             "label": "Notifications",
-            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel SPM de votre partenaire) et les petits mots de votre partenaire."
+            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, et l'annonce de ses règles lorsque votre partenaire partage son cycle."
           },
           {
             "label": "Données techniques",
@@ -230,7 +230,7 @@
       },
       "legalBasis": {
         "title": "Base légale",
-        "body": "Le traitement des données liées à votre compte, profil, calendrier et suivi des règles est nécessaire à l'exécution du contrat (utilisation de l'application). Le partage de position et les notifications push sont optionnels et reposent sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
+        "body": "Le traitement des données liées à votre compte, votre profil, le calendrier, les listes et les petits mots est nécessaire à l'exécution du contrat (utilisation de l'application). Les données de cycle sont des données de santé : nous ne les traitons qu'avec votre consentement explicite (article 9.2.a du RGPD), que vous donnez en choisissant de suivre votre cycle dans l'application. Vous pouvez le retirer à tout moment dans Paramètres › Règles : vous arrêtez le suivi et pouvez supprimer toutes vos données de cycle. Le partage de position et les notifications push sont optionnels et reposent aussi sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
       },
       "hosting": {
         "title": "Hébergement et sous-traitants",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, suivi des règles, position, listes, petits mots et date de début) sont supprimées pour vous deux. En cas de suppression du compte, les données vous concernant sont effacées selon nos procédures et les délais techniques de nos sous-traitants."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. En cas de suppression du compte, les données vous concernant sont effacées selon nos procédures et les délais techniques de nos sous-traitants."
       },
       "rights": {
         "title": "Vos droits",
@@ -267,7 +267,8 @@
           "Droit à l'effacement (sous réserve des obligations légales)",
           "Droit à la limitation du traitement",
           "Droit d'opposition à certains traitements",
-          "Droit à la portabilité de vos données"
+          "Droit à la portabilité de vos données",
+          "Droit de retirer votre consentement à tout moment, sans remettre en cause ce qui a été fait avant"
         ],
         "deletionText": "Pour demander la suppression de votre compte et de vos données, consultez la page dédiée :",
         "deletionLink": "Suppression du compte",

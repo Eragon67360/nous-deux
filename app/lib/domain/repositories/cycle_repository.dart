@@ -19,4 +19,8 @@ abstract class CycleRepository {
 
   /// Saves the caller's private note for [day]; blank removes it.
   Future<Failure?> saveNote(DateTime day, String note);
+
+  /// Deletes all of the caller's cycle data (period dates, check-ins,
+  /// notes): withdrawing consent.
+  Future<Failure?> deleteAllMyData();
 }

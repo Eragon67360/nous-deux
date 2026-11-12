@@ -563,6 +563,19 @@ class FakeCycleRepository implements CycleRepository {
   @override
   Future<String?> noteFor(DateTime day) async => notes[day];
 
+  int deleteAllCalls = 0;
+
+  @override
+  Future<Failure?> deleteAllMyData() async {
+    deleteAllCalls++;
+    final failure = _takeFailure();
+    if (failure != null) return failure;
+    checkins.removeWhere((c) => c.userId == meId);
+    notes.clear();
+    _changes.add(List.unmodifiable(checkins));
+    return null;
+  }
+
   @override
   Future<Failure?> saveNote(DateTime day, String note) async {
     noteCalls.add((day: day, note: note));

@@ -89,4 +89,12 @@ class CycleRemoteDatasource {
       'note': text,
     }, onConflict: 'user_id,day');
   }
+
+  /// Deletes everything the caller noted about their cycle: check-ins,
+  /// notes and period dates. Each person may only delete their own rows.
+  Future<void> deleteAllFor(String userId) async {
+    for (final table in [_checkins, _notes, 'period_logs']) {
+      await _client.from(table).delete().eq('user_id', userId);
+    }
+  }
 }

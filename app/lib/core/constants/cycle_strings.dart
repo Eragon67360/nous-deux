@@ -22,8 +22,35 @@ String cycleAskTitle(String lang) => lang == 'fr'
     ? 'Suivez-vous votre cycle dans l\'app ?'
     : 'Do you track your cycle in the app?';
 String cycleAskBody(String lang) => lang == 'fr'
-    ? 'Si oui, cet onglet devient votre suivi. Sinon, il vous montre le cycle de votre partenaire quand il est partagé. Vous pourrez changer d\'avis dans les réglages.'
-    : 'If you do, this tab becomes your tracker. If not, it shows your partner\'s cycle when they share it. You can change this in Settings.';
+    ? 'Si oui, cet onglet devient votre suivi. Sinon, il vous montre le cycle de votre partenaire quand il est partagé.'
+    : 'If you do, this tab becomes your tracker. If not, it shows your partner\'s cycle when they share it.';
+
+// --- Consent (cycle data is health data) ---
+String cycleConsent(String lang) => lang == 'fr'
+    ? 'En suivant votre cycle, vous acceptez que l\'app enregistre vos dates de règles, votre ressenti du jour et vos notes sur nos serveurs en Allemagne. Ce sont des données de santé. Votre partenaire voit vos dates et votre ressenti tant que vous les partagez ; vos notes restent privées. Vous pouvez arrêter et tout supprimer à tout moment dans les paramètres.'
+    : 'By tracking your cycle, you agree that the app stores your period dates, how you feel each day and your notes on our servers in Germany. This is health data. Your partner sees your dates and how you feel while you share them; your notes stay private. You can stop and delete everything at any time in Settings.';
+String cycleConsentTitle(String lang) => lang == 'fr'
+    ? 'Suivre votre cycle dans l\'app ?'
+    : 'Track your cycle in the app?';
+String cycleConsentAccept(String lang) =>
+    lang == 'fr' ? 'J\'accepte' : 'I agree';
+String cyclePrivacyPolicy(String lang) =>
+    lang == 'fr' ? 'Politique de confidentialité' : 'Privacy policy';
+String cyclePrivacyUrl(String lang) =>
+    'https://nous-deux.app/${lang == 'fr' ? 'fr' : 'en'}/politique-de-confidentialite';
+String cycleStopTitle(String lang) => lang == 'fr'
+    ? 'Arrêter le suivi de votre cycle ?'
+    : 'Stop tracking your cycle?';
+String cycleStopBody(String lang) => lang == 'fr'
+    ? 'Vous pouvez garder vos données de cycle au cas où vous reprendriez, ou les supprimer maintenant : dates, ressenti et notes. La suppression est définitive.'
+    : 'You can keep your cycle data in case you start again, or delete it now: dates, check-ins and notes. Deleting can\'t be undone.';
+String cycleStopKeep(String lang) =>
+    lang == 'fr' ? 'Garder mes données' : 'Keep my data';
+String cycleStopDelete(String lang) =>
+    lang == 'fr' ? 'Tout supprimer' : 'Delete everything';
+String cycleDataDeleted(String lang) => lang == 'fr'
+    ? 'Vos données de cycle sont supprimées.'
+    : 'Your cycle data is deleted.';
 String cycleAskYes(String lang) =>
     lang == 'fr' ? 'Oui, je le suis' : 'Yes, I do';
 String cycleAskNo(String lang) => lang == 'fr' ? 'Non' : 'No';
