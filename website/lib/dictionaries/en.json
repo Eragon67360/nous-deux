@@ -230,7 +230,7 @@
       },
       "legalBasis": {
         "title": "Legal basis",
-        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings."
+        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. We record when you gave it, and clear that record when you withdraw it. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings."
       },
       "hosting": {
         "title": "Hosting and processors",
