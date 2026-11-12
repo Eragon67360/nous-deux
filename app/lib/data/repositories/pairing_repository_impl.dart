@@ -1,0 +1,84 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/datasources/pairing_remote_datasource.dart';
+import 'package:nousdeux/domain/repositories/pairing_repository.dart';
+
+class PairingRepositoryImpl implements PairingRepository {
+  PairingRepositoryImpl({PairingRemoteDatasource? datasource})
+    : _datasource = datasource ?? PairingRemoteDatasource();
+
+  final PairingRemoteDatasource _datasource;
+
+  @override
+  Future<PairingResult> getMyCouple() async {
+    try {
+      final couple = await _datasource.getMyCouple();
+      return (couple: couple?.toEntity(), failure: null);
+    } on AuthException catch (e) {
+      return (couple: null, failure: AuthFailure(e.message));
+    } on PostgrestException catch (e) {
+      return (couple: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (couple: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<PairingResult> createCoupleAndGetCode() async {
+    try {
+      final couple = await _datasource.createCouple();
+      return (couple: couple.toEntity(), failure: null);
+    } on AuthException catch (e) {
+      return (couple: null, failure: AuthFailure(e.message));
+    } on PostgrestException catch (e) {
+      return (couple: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (couple: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<PairingResult> joinByCode(String code) async {
+    try {
+      final couple = await _datasource.joinByCode(code);
+      return (couple: couple.toEntity(), failure: null);
+    } on PairingException catch (e) {
+      return (couple: null, failure: PairingFailure(e.problem));
+    } on AuthException catch (e) {
+      return (couple: null, failure: AuthFailure(e.message));
+    } on PostgrestException catch (e) {
+      return (couple: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (couple: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Failure?> updateTogetherSince(DateTime day) async {
+    try {
+      final couple = await _datasource.getMyCouple();
+      if (couple == null) return const NotFoundFailure('No couple');
+      await _datasource.updateTogetherSince(couple.id, day);
+      return null;
+    } on PostgrestException catch (e) {
+      return ServerFailure(e.message);
+    } catch (e) {
+      return UnknownFailure(e.toString());
+    }
+  }
+
+  @override
+  Future<PairingResult> leaveCouple() async {
+    try {
+      await _datasource.leaveCouple();
+      return (couple: null, failure: null);
+    } on AuthException catch (e) {
+      return (couple: null, failure: AuthFailure(e.message));
+    } on PostgrestException catch (e) {
+      return (couple: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (couple: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+}

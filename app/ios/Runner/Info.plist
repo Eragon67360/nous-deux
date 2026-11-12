@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Nous Deux</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>nous_deux</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(FLUTTER_BUILD_NAME)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+	</array>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
+	<key>GIDClientID</key>
+	<string>836600962251-gev8n6ko7l11f78hka962jv8lje7pq41.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nousdeux</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.836600962251-gev8n6ko7l11f78hka962jv8lje7pq41</string>
+			</array>
+		</dict>
+	</array>
+	
+	<!-- Permissions -->
+	
+	<!-- Corresponds to android.permission.CAMERA -->
+	<key>NSCameraUsageDescription</key>
+	<string>Nous Deux utilise la caméra pour scanner le QR code d'invitation de votre partenaire.</string>
+	
+	<!-- Corresponds to android.permission.ACCESS_FINE_LOCATION -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel).</string>
+	
+	<!-- Required for iOS gallery access (Android uses intents, but iOS needs this key) -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Nous Deux utilise la photo pour définir votre photo de profil.</string>
+
+	<!-- Corresponds to android.permission.READ_CALENDAR & WRITE_CALENDAR -->
+	<!-- Added to match Android capabilities -->
+	<key>NSCalendarsUsageDescription</key>
+	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
+	<!-- Required for iOS 17+ if full access is needed -->
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneClassName</key>
+					<string>UIWindowScene</string>
+					<key>UISceneConfigurationName</key>
+					<string>flutter</string>
+					<key>UISceneDelegateClassName</key>
+					<string>FlutterSceneDelegate</string>
+					<key>UISceneStoryboardFile</key>
+					<string>Main</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+</dict>
+</plist>

@@ -1,209 +1,86 @@
-// Notify partner when a period log is created (Database Webhook → this function).
-// Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (auto), FIREBASE_SERVICE_ACCOUNT_JSON (FCM v1).
+// Tell the partner that a period log was added. Called by the database on each
+// period_logs insert (migration 20261111100000_push_webhooks.sql).
+// Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUSH_WEBHOOK_SECRET,
+// FIREBASE_SERVICE_ACCOUNT_JSON.
+//
+// The text stays vague on purpose: it goes through Apple's and Google's push
+// services, and period data is health data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import * as jose from "https://esm.sh/jose@5";
-
-interface FirebaseServiceAccount {
-  type: string;
-  project_id: string;
-  private_key_id: string;
-  private_key: string;
-  client_email: string;
-  client_id: string;
-  auth_uri: string;
-  token_uri: string;
-  auth_provider_x509_cert_url: string;
-  client_x509_cert_url: string;
-}
-
-interface PeriodLogRecord {
-  id: string;
-  user_id: string;
-  couple_id: string;
-  start_date: string;
-  end_date?: string;
-  mood?: string;
-  symptoms?: string[];
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
+import { fromDatabase, json, readServiceAccount, sendPush } from "../_shared/fcm.ts";
 
 interface WebhookPayload {
   type: "INSERT" | "UPDATE" | "DELETE";
   table: string;
-  record: PeriodLogRecord;
-  schema: string;
-  old_record: PeriodLogRecord | null;
+  record: { id: string } | null;
 }
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
+const BODIES: Record<"fr" | "en", (name: string) => string> = {
+  fr: (n) => `${n} a mis à jour son suivi`,
+  en: (n) => `${n} updated their tracking`,
 };
 
-async function getAccessToken(sa: FirebaseServiceAccount): Promise<string> {
-  const key = await jose.importPKCS8(sa.private_key, "RS256");
-  const jwt = await new jose.SignJWT({})
-    .setProtectedHeader({ alg: "RS256", typ: "JWT" })
-    .setIssuer(sa.client_email)
-    .setSubject(sa.client_email)
-    .setAudience("https://oauth2.googleapis.com/token")
-    .setIssuedAt()
-    .setExpirationTime("1h")
-    .sign(key);
-  const res = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
-    }),
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`OAuth2 token failed: ${res.status} ${text}`);
-  }
-  const data = await res.json();
-  return data.access_token;
-}
-
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (!fromDatabase(req)) return new Response("forbidden", { status: 403 });
 
   try {
     const payload: WebhookPayload = await req.json();
-    if (payload.type !== "INSERT" || payload.table !== "period_logs") {
-      return new Response(
-        JSON.stringify({ ok: true, skipped: "not an INSERT on period_logs" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
+    if (payload.type !== "INSERT" || payload.table !== "period_logs" || !payload.record) {
+      return json({ ok: true, skipped: "not a period_logs insert" });
     }
 
-    const record = payload.record;
-    const userId = record.user_id;
-    const coupleId = record.couple_id;
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    // Trust the database, not the request body.
+    const { data: log } = await supabase
+      .from("period_logs")
+      .select("user_id, couple_id")
+      .eq("id", payload.record.id)
+      .maybeSingle();
+    if (!log) return json({ ok: true, skipped: "no such log" });
 
-    const { data: couple, error: coupleError } = await supabase
+    const { data: couple } = await supabase
       .from("couples")
       .select("user1_id, user2_id")
-      .eq("id", coupleId)
+      .eq("id", log.couple_id)
       .single();
+    if (!couple) return json({ ok: true, skipped: "couple not found" });
 
-    if (coupleError || !couple) {
-      return new Response(
-        JSON.stringify({ ok: false, error: "couple not found" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
+    const isUser1 = couple.user1_id === log.user_id;
+    const isUser2 = couple.user2_id === log.user_id;
+    if (!isUser1 && !isUser2) return json({ ok: true, skipped: "author not in couple" });
+    const partnerId = isUser1 ? couple.user2_id : couple.user1_id;
+    if (!partnerId) return json({ ok: true, skipped: "no partner" });
 
-    const partnerId =
-      couple.user1_id === userId ? couple.user2_id : couple.user1_id;
-    if (!partnerId) {
-      return new Response(
-        JSON.stringify({ ok: true, skipped: "no partner in couple" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    const { data: profile, error: profileError } = await supabase
+    const { data: people } = await supabase
       .from("profiles")
-      .select("fcm_token")
-      .eq("id", partnerId)
-      .single();
+      .select("id, username, language, fcm_token, share_cycle")
+      .in("id", [log.user_id, partnerId]);
+    const author = people?.find((p) => p.id === log.user_id);
+    const partner = people?.find((p) => p.id === partnerId);
+    // The author chose not to share their cycle: the partner hears nothing.
+    if (author?.share_cycle === false) return json({ ok: true, skipped: "cycle not shared" });
+    if (!partner?.fcm_token) return json({ ok: true, skipped: "partner has no fcm_token" });
 
-    if (profileError || !profile?.fcm_token) {
-      return new Response(
-        JSON.stringify({ ok: true, skipped: "partner has no fcm_token" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
+    const sa = readServiceAccount();
+    if (!sa) return json({ ok: true, skipped: "FIREBASE_SERVICE_ACCOUNT_JSON not set" });
 
-    const saJson = Deno.env.get("FIREBASE_SERVICE_ACCOUNT_JSON");
-    if (!saJson) {
-      return new Response(
-        JSON.stringify({
-          ok: true,
-          skipped: "FIREBASE_SERVICE_ACCOUNT_JSON not set",
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    let sa: FirebaseServiceAccount;
-    try {
-      sa = JSON.parse(saJson) as FirebaseServiceAccount;
-    } catch {
-      return new Response(
-        JSON.stringify({
-          ok: false,
-          error: "FIREBASE_SERVICE_ACCOUNT_JSON is invalid JSON",
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        }
-      );
-    }
-
-    const accessToken = await getAccessToken(sa);
-    const fcmUrl = `https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`;
-    const fcmRes = await fetch(fcmUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        message: {
-          token: profile.fcm_token,
-          notification: {
-            title: "Règles",
-            body: "Votre partenaire a enregistré un suivi de règles.",
-          },
-        },
-      }),
+    const lang = partner.language === "en" ? "en" : "fr";
+    const name = author?.username?.trim() ||
+      (lang === "fr" ? "Votre partenaire" : "Your partner");
+    const result = await sendPush(sa, {
+      token: partner.fcm_token,
+      title: "Nous Deux",
+      body: BODIES[lang](name),
+      data: { type: "period" },
     });
-
-    if (!fcmRes.ok) {
-      const text = await fcmRes.text();
-      return new Response(JSON.stringify({ ok: false, fcm: text }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
-    }
-
-    return new Response(JSON.stringify({ ok: true }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    if (!result.ok) console.error("FCM error", result.detail);
+    return json({ ok: result.ok });
   } catch (e) {
-    return new Response(JSON.stringify({ ok: false, error: String(e) }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
+    console.error("notify-partner-period failed", e);
+    return json({ ok: false });
   }
 });

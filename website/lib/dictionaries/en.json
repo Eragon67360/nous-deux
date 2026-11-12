@@ -1,0 +1,308 @@
+{
+  "common": {
+    "siteName": "Nous Deux"
+  },
+  "home": {
+    "meta": {
+      "title": "The private app for couples",
+      "description": "Nous Deux puts a couple's calendar, cycle, location and lists in one private space. Free, no ads, coming soon to the App Store and Google Play."
+    },
+    "folio": {
+      "label": "Contents",
+      "titlePage": "Cover"
+    },
+    "hero": {
+      "word1": "Nous",
+      "word2": "Deux",
+      "line": "An app for just the two of you. What you put in it stays between you.",
+      "storesLabel": "Availability",
+      "appStore": "App Store",
+      "googlePlay": "Google Play",
+      "soon": "Coming soon"
+    },
+    "chapters": {
+      "agendas": {
+        "folio": "Two calendars",
+        "heading": "\"What time are you home?\"",
+        "body": "Dinner at their parents' is in their calendar, the dentist is in yours, and in between there are a lot of texts to line things up.",
+        "body2": "Nous Deux puts both lives on the same screen, and all it asks for is a six-character code.",
+        "caption": "The shared calendar. Each event keeps the colour of whoever added it.",
+        "imageAlt": "The Nous Deux shared calendar screen"
+      },
+      "merge": {
+        "folio": "One space",
+        "before": "Two phones.",
+        "after": "One shared space.",
+        "body": "One of you generates a code, the other scans it. From then on, whatever one of you adds, the other sees.",
+        "leftAlt": "The calendar on your phone",
+        "rightAlt": "Cycle tracking on your partner's phone",
+        "mergedAlt": "The same calendar, shared by two",
+        "labelMe": "Me",
+        "labelYou": "You"
+      },
+      "share": {
+        "folio": "What you share",
+        "heading": "What you share",
+        "intro": "Six things, and nothing more.",
+        "outro": "No feed, no ads, no strangers.",
+        "items": [
+          {
+            "id": "calendar",
+            "name": "Calendar",
+            "facts": [
+              "One calendar for two.",
+              "Imports from your phone's calendar."
+            ]
+          },
+          {
+            "id": "cycle",
+            "name": "Cycle",
+            "facts": [
+              "Log, mood, symptoms.",
+              "A guide for each of you."
+            ]
+          },
+          {
+            "id": "position",
+            "name": "Location",
+            "facts": [
+              "Live, when you turn it on.",
+              "No history."
+            ]
+          },
+          {
+            "id": "together",
+            "name": "Your days",
+            "facts": [
+              "How many days you've been together.",
+              "A countdown to the next plan."
+            ]
+          },
+          {
+            "id": "pings",
+            "name": "Little notes",
+            "facts": [
+              "Thinking of you, good night, on my way.",
+              "Sent with one tap."
+            ]
+          },
+          {
+            "id": "lists",
+            "name": "Lists",
+            "facts": [
+              "Groceries, to-dos, ideas.",
+              "Ticked off on both phones, live."
+            ]
+          }
+        ]
+      },
+      "trust": {
+        "folio": "Between you",
+        "heading": "Nobody else reads it.",
+        "points": [
+          "There are no ads, and there never will be.",
+          "Your data isn't sold or used to target you.",
+          "Location has no history: only the latest one is kept.",
+          "If one of you leaves the couple, everything you shared is deleted."
+        ],
+        "more": "The details are in the",
+        "privacyLink": "privacy policy",
+        "and": "and on the",
+        "deletionLink": "account deletion page",
+        "suffix": "."
+      },
+      "faq": {
+        "folio": "Questions",
+        "heading": "Questions",
+        "items": [
+          {
+            "question": "Is it free?",
+            "answer": "Yes, and there are no ads. If the app is useful to you, you can support the project with a coffee."
+          },
+          {
+            "question": "How do I invite my partner?",
+            "answer": "In the app, generate a code and show it. Your partner scans it or types it, and you're linked straight away."
+          },
+          {
+            "question": "Who sees my data?",
+            "answer": "Your partner, and nobody else in the app. It isn't sold or used for advertising. The privacy policy explains where it's hosted."
+          },
+          {
+            "question": "How do I delete my account?",
+            "answer": "Email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
+          },
+          {
+            "question": "When does the app come out?",
+            "answer": "It's coming soon to the App Store and Google Play. The source code is already public on GitHub."
+          }
+        ]
+      },
+      "close": {
+        "folio": "Colophon",
+        "heading": "Coming soon to the App Store and Google Play.",
+        "support": "Until then, if you like the project, you can",
+        "supportLink": "buy its developer a coffee",
+        "supportSuffix": ".",
+        "source": "Source code"
+      }
+    }
+  },
+  "footer": {
+    "ariaLabel": "Footer",
+    "privacy": "Privacy policy",
+    "accountDeletion": "Account deletion",
+    "github": "GitHub",
+    "support": "Support the project"
+  },
+  "breadcrumbs": {
+    "home": "Home",
+    "privacy": "Privacy policy",
+    "accountDeletion": "Account deletion"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "policy": {
+    "meta": {
+      "title": "Privacy policy",
+      "description": "Privacy policy for the Nous Deux application."
+    },
+    "lastUpdated": "Last updated:",
+    "effectiveDate": "12 November 2026",
+    "effectiveDateISO": "2026-11-12",
+    "backHome": "Back to home",
+    "sections": {
+      "editor": {
+        "title": "Publisher and contact",
+        "body": "Nous Deux is a free, ad-free app for couples: a shared calendar, period tracking, location sharing if you turn it on, lists and little notes. For any question about this policy or your data, contact us through the project repository:"
+      },
+      "dataCollected": {
+        "title": "Data we collect",
+        "intro": "We only process the data the app needs to work and to share things with your partner.",
+        "items": [
+          {
+            "label": "Account and authentication",
+            "text": "sign-in identifier (sign in with Google, with Apple or with a text-message code), the email address Google or Apple provides if any, and your phone number if you sign in by text message."
+          },
+          {
+            "label": "Profile",
+            "text": "display name, gender, app language, profile picture (avatar), link to your partner when you form a couple."
+          },
+          {
+            "label": "Shared calendar",
+            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. Visible only within the couple."
+          },
+          {
+            "label": "Period tracking",
+            "text": "if you choose to track your cycle: the start and end dates of your periods, how you feel each day if you note it (symptoms, mood) and your notes. This is health data. Your partner sees your dates and how you feel for as long as you share them: two switches in the Period tab, on by default, that you can turn off at any time. Your notes are never shared: nobody but you can read them."
+          },
+          {
+            "label": "Location (optional)",
+            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored."
+          },
+          {
+            "label": "Shared lists",
+            "text": "list names, items, who added them and whether they are ticked. Visible only within the couple."
+          },
+          {
+            "label": "Little notes",
+            "text": "the last little note each of you sent (its type and time), so your partner can see it. No history is kept."
+          },
+          {
+            "label": "Days together",
+            "text": "the date your relationship started, which either of you can change."
+          },
+          {
+            "label": "Notifications",
+            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, and word that their period started when they share their cycle."
+          },
+          {
+            "label": "Technical data",
+            "text": "requested permissions (calendar, notifications, location, camera for profile photo) and information needed for the app to work on your device."
+          }
+        ]
+      },
+      "purposes": {
+        "title": "Purposes of processing",
+        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through Mapbox) when location sharing is on."
+      },
+      "legalBasis": {
+        "title": "Legal basis",
+        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings."
+      },
+      "hosting": {
+        "title": "Hosting and processors",
+        "intro": "Data is hosted and processed by the following services, in line with their privacy policies and applicable rules (including GDPR where relevant):",
+        "items": [
+          {
+            "label": "Hetzner (Germany)",
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU. For text-message sign-in, the code is sent through an SMS provider."
+          },
+          {
+            "label": "Firebase (Google)",
+            "text": "sending push notifications (FCM)."
+          },
+          {
+            "label": "Mapbox",
+            "text": "map display when location sharing is enabled."
+          },
+          {
+            "label": "Google and Apple",
+            "text": "sign-in (Sign in with Google / Sign in with Apple); data processed by these services is governed by their own policies."
+          }
+        ]
+      },
+      "retention": {
+        "title": "Retention",
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
+      },
+      "rights": {
+        "title": "Your rights",
+        "intro": "Under the GDPR and applicable data protection law, you have the following rights:",
+        "rightsList": [
+          "Right of access to your personal data",
+          "Right to rectification of inaccurate or incomplete data",
+          "Right to erasure (subject to legal obligations)",
+          "Right to restriction of processing",
+          "Right to object to certain processing",
+          "Right to data portability",
+          "Right to withdraw your consent at any time, without affecting what was done before"
+        ],
+        "deletionText": "To request deletion of your account and data, see the dedicated page:",
+        "deletionLink": "Account deletion",
+        "otherRightsText": "To exercise your other rights, contact us via the GitHub link at the start of this document. You may also lodge a complaint with the CNIL (",
+        "cnilUrl": "www.cnil.fr",
+        "otherRightsSuffix": ") or the supervisory authority in your country of residence."
+      },
+      "changes": {
+        "title": "Policy changes",
+        "body": "We may change this policy. The version in force is the one published on this page, with its last-updated date shown at the top."
+      },
+      "effective": {
+        "title": "Effective date",
+        "body": "This privacy policy took effect on"
+      }
+    }
+  },
+  "suppression": {
+    "meta": {
+      "title": "Account deletion",
+      "description": "How to request deletion of your account and data in the Nous Deux app."
+    },
+    "title": "Account deletion",
+    "intro": "You can't delete your account from the app yet. Until you can, request it by email: we delete the account and the data linked to it.",
+    "howToTitle": "How do I request account deletion?",
+    "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
+    "phoneNote": "In your message, include the phone number or the email address (Google or Apple)",
+    "phoneNoteSuffix": "you sign in with. That's how we find your account.",
+    "processingNote": "We handle the request as soon as we can. Once the account is deleted, the associated data is erased as described in our",
+    "privacyLink": "privacy policy",
+    "noteTitle": "Note",
+    "noteBody": "This is a temporary process. Deleting your account from within the app is coming in a later version.",
+    "footerPrivacy": "Privacy policy",
+    "backHome": "Back to home",
+    "emailSubject": "Account deletion request - Nous Deux"
+  }
+}

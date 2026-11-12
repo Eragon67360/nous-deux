@@ -1,0 +1,1054 @@
+# Nous Deux: self-hosted Supabase for Coolify ("Docker Compose" service).
+#
+# Derived from Coolify's Supabase template (coollabsio/coolify,
+# templates/compose/supabase.yaml, 2026-11-03) with image versions from
+# upstream self-hosted Supabase v0.8.4 (supabase/supabase docker/). Changes:
+# - Postgres 17 and current GoTrue, PostgREST, Realtime, Storage, meta,
+#   edge-runtime and Studio.
+# - No Logflare, Vector, imgproxy, Supavisor or MinIO: storage writes to disk,
+#   no request logs are kept, nothing connects to Postgres from outside.
+# - No public route to Edge Functions; the database calls them internally.
+# - Auth: phone code (test numbers until an SMS provider is set), Google and
+#   Apple ID tokens; no email sign-in.
+# Coolify generates every SERVICE_* value. The runbook (docs/SELF_HOSTING.md)
+# lists the values to set by hand and how to deploy, back up and upgrade.
+
+services:
+  supabase-kong:
+    image: kong/kong:3.9.1
+    entrypoint: /home/kong/kong-entrypoint.sh
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    environment:
+      - SERVICE_URL_SUPABASEKONG_8000
+      - KONG_PORT_MAPS=443:8000
+      - JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - KONG_DATABASE=off
+      - KONG_DECLARATIVE_CONFIG=/usr/local/kong/kong.yml
+      # https://github.com/supabase/cli/issues/14
+      - KONG_DNS_ORDER=LAST,A,CNAME
+      - KONG_DNS_NOT_FOUND_TTL=1
+      - KONG_PLUGINS=request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction,post-function
+      - KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=160k
+      - KONG_NGINX_PROXY_PROXY_BUFFERS=64 160k
+      - 'KONG_PROXY_ACCESS_LOG=/dev/stdout combined'
+      - SUPABASE_ANON_KEY=${SERVICE_SUPABASEANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - SUPABASE_PUBLISHABLE_KEY=${SUPABASE_PUBLISHABLE_KEY:-}
+      - SUPABASE_SECRET_KEY=${SUPABASE_SECRET_KEY:-}
+      - ANON_KEY_ASYMMETRIC=${ANON_KEY_ASYMMETRIC:-}
+      - SERVICE_ROLE_KEY_ASYMMETRIC=${SERVICE_ROLE_KEY_ASYMMETRIC:-}
+      - DASHBOARD_USERNAME=${SERVICE_USER_ADMIN}
+      - DASHBOARD_PASSWORD=${SERVICE_PASSWORD_ADMIN}
+      - 'KONG_STORAGE_CONNECT_TIMEOUT=${KONG_STORAGE_CONNECT_TIMEOUT:-60}'
+      - 'KONG_STORAGE_WRITE_TIMEOUT=${KONG_STORAGE_WRITE_TIMEOUT:-3600}'
+      - 'KONG_STORAGE_READ_TIMEOUT=${KONG_STORAGE_READ_TIMEOUT:-3600}'
+      - 'KONG_STORAGE_REQUEST_BUFFERING=${KONG_STORAGE_REQUEST_BUFFERING:-false}'
+      - 'KONG_STORAGE_RESPONSE_BUFFERING=${KONG_STORAGE_RESPONSE_BUFFERING:-false}'
+    volumes:
+      - type: bind
+        source: ./volumes/api/kong-entrypoint.sh
+        target: /home/kong/kong-entrypoint.sh
+        content: |
+          #!/bin/bash
+          # Custom entrypoint for Kong that builds Lua expressions for request-transformer
+          # and performs environment variable substitution in the declarative config.
+
+          if [ -n "$SUPABASE_SECRET_KEY" ] && [ -n "$SUPABASE_PUBLISHABLE_KEY" ]; then
+              export LUA_AUTH_EXPR="\$((headers.authorization ~= nil and headers.authorization:sub(1, 10) ~= 'Bearer sb_' and headers.authorization) or (headers.apikey == '$SUPABASE_SECRET_KEY' and 'Bearer $SERVICE_ROLE_KEY_ASYMMETRIC') or (headers.apikey == '$SUPABASE_PUBLISHABLE_KEY' and 'Bearer $ANON_KEY_ASYMMETRIC') or headers.apikey)"
+              export LUA_RT_WS_EXPR="\$((query_params.apikey == '$SUPABASE_SECRET_KEY' and '$SERVICE_ROLE_KEY_ASYMMETRIC') or (query_params.apikey == '$SUPABASE_PUBLISHABLE_KEY' and '$ANON_KEY_ASYMMETRIC') or query_params.apikey)"
+          else
+              export LUA_AUTH_EXPR="\$((headers.authorization ~= nil and headers.authorization:sub(1, 10) ~= 'Bearer sb_' and headers.authorization) or headers.apikey)"
+              export LUA_RT_WS_EXPR="\$(query_params.apikey)"
+          fi
+
+          awk '{
+            result = ""
+            rest = $0
+            while (match(rest, /\$[A-Za-z_][A-Za-z_0-9]*/)) {
+              varname = substr(rest, RSTART + 1, RLENGTH - 1)
+              if (varname in ENVIRON) {
+                result = result substr(rest, 1, RSTART - 1) ENVIRON[varname]
+              } else {
+                result = result substr(rest, 1, RSTART + RLENGTH - 1)
+              }
+              rest = substr(rest, RSTART + RLENGTH)
+            }
+            print result rest
+          }' /home/kong/temp.yml > "$KONG_DECLARATIVE_CONFIG"
+
+          sed -i '/^[[:space:]]*- key:[[:space:]]*$/d' "$KONG_DECLARATIVE_CONFIG"
+
+          exec /entrypoint.sh kong docker-start
+      # https://github.com/supabase/supabase/issues/12661
+      - type: bind
+        source: ./volumes/api/kong.yml
+        target: /home/kong/temp.yml
+        content: |
+          _format_version: '2.1'
+          _transform: true
+
+          ###
+          ### Consumers / Users
+          ###
+          consumers:
+            - username: DASHBOARD
+            - username: anon
+              keyauth_credentials:
+                - key: $SUPABASE_ANON_KEY
+                - key: $SUPABASE_PUBLISHABLE_KEY
+            - username: service_role
+              keyauth_credentials:
+                - key: $SUPABASE_SERVICE_KEY
+                - key: $SUPABASE_SECRET_KEY
+
+          ###
+          ### Access Control List
+          ###
+          acls:
+            - consumer: anon
+              group: anon
+            - consumer: service_role
+              group: admin
+
+          ###
+          ### Dashboard credentials
+          ###
+          basicauth_credentials:
+          - consumer: DASHBOARD
+            username: '$DASHBOARD_USERNAME'
+            password: '$DASHBOARD_PASSWORD'
+
+
+          ###
+          ### API Routes
+          ###
+          services:
+
+            ## Open Auth routes
+            - name: auth-v1-open
+              url: http://supabase-auth:9999/verify
+              routes:
+                - name: auth-v1-open
+                  strip_path: true
+                  paths:
+                    - /auth/v1/verify
+              plugins:
+                - name: cors
+            - name: auth-v1-open-callback
+              url: http://supabase-auth:9999/callback
+              routes:
+                - name: auth-v1-open-callback
+                  strip_path: true
+                  paths:
+                    - /auth/v1/callback
+              plugins:
+                - name: cors
+            - name: auth-v1-open-authorize
+              url: http://supabase-auth:9999/authorize
+              routes:
+                - name: auth-v1-open-authorize
+                  strip_path: true
+                  paths:
+                    - /auth/v1/authorize
+              plugins:
+                - name: cors
+            - name: auth-v1-open-jwks
+              _comment: 'Auth: /auth/v1/.well-known/jwks.json -> http://supabase-auth:9999/.well-known/jwks.json'
+              url: http://supabase-auth:9999/.well-known/jwks.json
+              routes:
+                - name: auth-v1-open-jwks
+                  strip_path: true
+                  paths:
+                    - /auth/v1/.well-known/jwks.json
+              plugins:
+                - name: cors
+
+            - name: auth-v1-open-sso-acs
+              url: "http://supabase-auth:9999/sso/saml/acs"
+              routes:
+                - name: auth-v1-open-sso-acs
+                  strip_path: true
+                  paths:
+                  - /sso/saml/acs
+              plugins:
+                - name: cors
+
+            - name: auth-v1-open-sso-metadata
+              url: "http://supabase-auth:9999/sso/saml/metadata"
+              routes:
+                - name: auth-v1-open-sso-metadata
+                  strip_path: true
+                  paths:
+                  - /sso/saml/metadata
+              plugins:
+                - name: cors
+
+            ## Secure Auth routes
+            - name: auth-v1
+              _comment: 'GoTrue: /auth/v1/* -> http://supabase-auth:9999/*'
+              url: http://supabase-auth:9999/
+              routes:
+                - name: auth-v1-all
+                  strip_path: true
+                  paths:
+                    - /auth/v1/
+              plugins:
+                - name: cors
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: request-transformer
+                  config:
+                    add:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                    replace:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+                      - anon
+
+            ## Secure REST routes
+            - name: rest-v1
+              _comment: 'PostgREST: /rest/v1/* -> http://supabase-rest:3000/*'
+              url: http://supabase-rest:3000/
+              routes:
+                - name: rest-v1-all
+                  strip_path: true
+                  paths:
+                    - /rest/v1/
+              plugins:
+                - name: cors
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: request-transformer
+                  config:
+                    add:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                    replace:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+                      - anon
+
+            ## Secure GraphQL routes
+            - name: graphql-v1
+              _comment: 'PostgREST: /graphql/v1/* -> http://supabase-rest:3000/rpc/graphql'
+              url: http://supabase-rest:3000/rpc/graphql
+              routes:
+                - name: graphql-v1-all
+                  strip_path: true
+                  paths:
+                    - /graphql/v1
+              plugins:
+                - name: cors
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: request-transformer
+                  config:
+                    add:
+                      headers:
+                        - "Content-Profile: graphql_public"
+                        - "Authorization: $LUA_AUTH_EXPR"
+                    replace:
+                      headers:
+                        - "Content-Profile: graphql_public"
+                        - "Authorization: $LUA_AUTH_EXPR"
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+                      - anon
+
+            ## Secure Realtime routes
+            - name: realtime-v1-ws
+              _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
+              url: http://realtime-dev:4000/socket
+              protocol: ws
+              routes:
+                - name: realtime-v1-ws
+                  strip_path: true
+                  paths:
+                    - /realtime/v1/
+              plugins:
+                - name: cors
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: request-transformer
+                  config:
+                    add:
+                      querystring:
+                        - "apikey: $LUA_RT_WS_EXPR"
+                    replace:
+                      querystring:
+                        - "apikey: $LUA_RT_WS_EXPR"
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+                      - anon
+            - name: realtime-v1-rest
+              _comment: 'Realtime: /realtime/v1/api/* -> http://realtime:4000/api/*'
+              url: http://realtime-dev:4000/api
+              protocol: http
+              routes:
+                - name: realtime-v1-rest
+                  strip_path: true
+                  paths:
+                    - /realtime/v1/api
+              plugins:
+                - name: cors
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: request-transformer
+                  config:
+                    add:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                    replace:
+                      headers:
+                        - "Authorization: $LUA_AUTH_EXPR"
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+                      - anon
+
+            ## Storage API endpoint
+            ## No key-auth - S3 protocol requests don't carry an apikey header.
+            - name: storage-v1
+              _comment: 'Storage: /storage/v1/* -> http://supabase-storage:5000/*'
+              connect_timeout: $KONG_STORAGE_CONNECT_TIMEOUT
+              write_timeout: $KONG_STORAGE_WRITE_TIMEOUT
+              read_timeout: $KONG_STORAGE_READ_TIMEOUT
+              url: http://supabase-storage:5000/
+              routes:
+                - name: storage-v1-all
+                  strip_path: true
+                  paths:
+                    - /storage/v1/
+                  request_buffering: $KONG_STORAGE_REQUEST_BUFFERING
+                  response_buffering: $KONG_STORAGE_RESPONSE_BUFFERING
+              plugins:
+                - name: cors
+                - name: post-function
+                  config:
+                    access:
+                      - |
+                        local auth = kong.request.get_header("authorization")
+                        if auth == nil or auth == "" or auth:find("^%s*$") then
+                          kong.service.request.clear_header("authorization")
+                        end
+
+            ## Edge Functions: no public route. Only the database calls them,
+            ## on the internal network (see the push_webhooks migration).
+
+            ## OAuth 2.0 Authorization Server Metadata (RFC 8414)
+            - name: well-known-oauth
+              _comment: 'Auth: /.well-known/oauth-authorization-server -> http://supabase-auth:9999/.well-known/oauth-authorization-server'
+              url: http://supabase-auth:9999/.well-known/oauth-authorization-server
+              routes:
+                - name: well-known-oauth
+                  strip_path: true
+                  paths:
+                    - /.well-known/oauth-authorization-server
+              plugins:
+                - name: cors
+
+            ## Analytics routes
+            ## Not used - Studio and Vector talk directly to analytics via Docker networking.
+            # - name: analytics-v1
+            #   _comment: 'Analytics: /analytics/v1/* -> http://logflare:4000/*'
+            #   url: http://supabase-analytics:4000/
+            #   routes:
+            #     - name: analytics-v1-all
+            #       strip_path: true
+            #       paths:
+            #         - /analytics/v1/
+
+            ## Secure Database routes
+            - name: meta
+              _comment: 'pg-meta: /pg/* -> http://supabase-meta:8080/*'
+              url: http://supabase-meta:8080/
+              routes:
+                - name: meta-all
+                  strip_path: true
+                  paths:
+                    - /pg/
+              plugins:
+                - name: key-auth
+                  config:
+                    hide_credentials: false
+                - name: acl
+                  config:
+                    hide_groups_header: true
+                    allow:
+                      - admin
+
+            ## Block access to /api/mcp
+            - name: mcp-blocker
+              _comment: 'Block direct access to /api/mcp'
+              url: http://supabase-studio:3000/api/mcp
+              routes:
+                - name: mcp-blocker-route
+                  strip_path: true
+                  paths:
+                    - /api/mcp
+              plugins:
+                - name: request-termination
+                  config:
+                    status_code: 403
+                    message: "Access is forbidden."
+
+            ## MCP endpoint - local access
+            - name: mcp
+              _comment: 'MCP: /mcp -> http://supabase-studio:3000/api/mcp (local access)'
+              url: http://supabase-studio:3000/api/mcp
+              routes:
+                - name: mcp
+                  strip_path: true
+                  paths:
+                    - /mcp
+              plugins:
+                # Block access to /mcp by default
+                - name: request-termination
+                  config:
+                    status_code: 403
+                    message: "Access is forbidden."
+                # Enable local access (danger zone!)
+                # 1. Comment out the 'request-termination' section above
+                # 2. Uncomment the entire section below, including 'deny'
+                # 3. Add your local IPs to the 'allow' list
+                #- name: cors
+                #- name: ip-restriction
+                #  config:
+                #    allow:
+                #      - 127.0.0.1
+                #      - ::1
+                #    deny: []
+
+            ## Protected Dashboard - catch all remaining routes
+            - name: dashboard
+              _comment: 'Studio: /* -> http://studio:3000/*'
+              url: http://supabase-studio:3000/
+              routes:
+                - name: dashboard-all
+                  strip_path: true
+                  paths:
+                    - /
+              plugins:
+                - name: cors
+                - name: basic-auth
+                  config:
+                    hide_credentials: true
+
+  supabase-studio:
+    image: supabase/studio:2026.11.02-sha-a05e7ec
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/platform/profile').then((r) => {if (r.status !== 200) throw new Error(r.status)})"
+        ]
+      timeout: 10s
+      interval: 5s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      - HOSTNAME=0.0.0.0
+      - STUDIO_PG_META_URL=http://supabase-meta:8080
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_HOST=supabase-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=postgres
+      # Studio writes as postgres, so objects it creates keep the same owner
+      # as the migrations. See supabase.com/docs/guides/self-hosting/remove-superuser-access
+      - POSTGRES_USER_READ_WRITE=postgres
+      - PG_META_CRYPTO_KEY=${SERVICE_PASSWORD_PGMETACRYPTO}
+      - 'PGRST_DB_SCHEMAS=public,storage,graphql_public'
+      - PGRST_DB_MAX_ROWS=1000
+      - PGRST_DB_EXTRA_SEARCH_PATH=public
+      - DEFAULT_ORGANIZATION_NAME=Nous Deux
+      - DEFAULT_PROJECT_NAME=Nous Deux
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_PUBLIC_URL=${SERVICE_URL_SUPABASEKONG}
+      - SUPABASE_ANON_KEY=${SERVICE_SUPABASEANON_KEY}
+      - SUPABASE_SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - AUTH_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      # No log collector in this stack (no Logflare/Vector).
+      - ENABLED_FEATURES_LOGS_ALL=false
+      - SNIPPETS_MANAGEMENT_FOLDER=/app/snippets
+      - EDGE_FUNCTIONS_MANAGEMENT_FOLDER=/app/edge-functions
+    volumes:
+      - ./volumes/snippets:/app/snippets
+      - ./volumes/functions:/app/edge-functions:ro
+
+  supabase-db:
+    image: supabase/postgres:17.6.1.136
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    command:
+      - postgres
+      - -c
+      - config_file=/etc/postgresql/postgresql.conf
+      - -c
+      - log_min_messages=fatal
+    environment:
+      - POSTGRES_HOST=/var/run/postgresql
+      - PGPORT=5432
+      - POSTGRES_PORT=5432
+      - PGPASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - PGDATABASE=postgres
+      - POSTGRES_DB=postgres
+      - JWT_EXP=${JWT_EXPIRY:-3600}
+      - PUSH_WEBHOOK_SECRET=${SERVICE_PASSWORD_64_PUSHWEBHOOK}
+    volumes:
+      - supabase-db-data:/var/lib/postgresql/data
+      # Keeps the pgsodium/vault key between restarts
+      - supabase-db-config:/etc/postgresql-custom
+      - type: bind
+        source: ./volumes/db/realtime.sql
+        target: /docker-entrypoint-initdb.d/migrations/99-realtime.sql
+        content: |
+          \set pguser `echo "$POSTGRES_USER"`
+
+          create schema if not exists _realtime;
+          alter schema _realtime owner to :pguser;
+
+      - type: bind
+        source: ./volumes/db/_supabase.sql
+        target: /docker-entrypoint-initdb.d/migrations/97-_supabase.sql
+        content: |
+          \set pguser `echo "$POSTGRES_USER"`
+
+          CREATE DATABASE _supabase WITH OWNER :pguser;
+
+      - type: bind
+        source: ./volumes/db/webhooks.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql
+        content: |
+          BEGIN;
+            -- Create pg_net extension
+            CREATE EXTENSION IF NOT EXISTS pg_net SCHEMA extensions;
+            -- Create supabase_functions schema
+            CREATE SCHEMA supabase_functions AUTHORIZATION supabase_admin;
+            GRANT USAGE ON SCHEMA supabase_functions TO postgres, anon, authenticated, service_role;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA supabase_functions GRANT ALL ON TABLES TO postgres, anon, authenticated, service_role;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA supabase_functions GRANT ALL ON FUNCTIONS TO postgres, anon, authenticated, service_role;
+            ALTER DEFAULT PRIVILEGES IN SCHEMA supabase_functions GRANT ALL ON SEQUENCES TO postgres, anon, authenticated, service_role;
+            -- supabase_functions.migrations definition
+            CREATE TABLE supabase_functions.migrations (
+              version text PRIMARY KEY,
+              inserted_at timestamptz NOT NULL DEFAULT NOW()
+            );
+            -- Initial supabase_functions migration
+            INSERT INTO supabase_functions.migrations (version) VALUES ('initial');
+            -- supabase_functions.hooks definition
+            CREATE TABLE supabase_functions.hooks (
+              id bigserial PRIMARY KEY,
+              hook_table_id integer NOT NULL,
+              hook_name text NOT NULL,
+              created_at timestamptz NOT NULL DEFAULT NOW(),
+              request_id bigint
+            );
+            CREATE INDEX supabase_functions_hooks_request_id_idx ON supabase_functions.hooks USING btree (request_id);
+            CREATE INDEX supabase_functions_hooks_h_table_id_h_name_idx ON supabase_functions.hooks USING btree (hook_table_id, hook_name);
+            COMMENT ON TABLE supabase_functions.hooks IS 'Supabase Functions Hooks: Audit trail for triggered hooks.';
+            CREATE FUNCTION supabase_functions.http_request()
+              RETURNS trigger
+              LANGUAGE plpgsql
+              AS $function$
+              DECLARE
+                request_id bigint;
+                payload jsonb;
+                url text := TG_ARGV[0]::text;
+                method text := TG_ARGV[1]::text;
+                headers jsonb DEFAULT '{}'::jsonb;
+                params jsonb DEFAULT '{}'::jsonb;
+                timeout_ms integer DEFAULT 1000;
+              BEGIN
+                IF url IS NULL OR url = 'null' THEN
+                  RAISE EXCEPTION 'url argument is missing';
+                END IF;
+
+                IF method IS NULL OR method = 'null' THEN
+                  RAISE EXCEPTION 'method argument is missing';
+                END IF;
+
+                IF TG_ARGV[2] IS NULL OR TG_ARGV[2] = 'null' THEN
+                  headers = '{"Content-Type": "application/json"}'::jsonb;
+                ELSE
+                  headers = TG_ARGV[2]::jsonb;
+                END IF;
+
+                IF TG_ARGV[3] IS NULL OR TG_ARGV[3] = 'null' THEN
+                  params = '{}'::jsonb;
+                ELSE
+                  params = TG_ARGV[3]::jsonb;
+                END IF;
+
+                IF TG_ARGV[4] IS NULL OR TG_ARGV[4] = 'null' THEN
+                  timeout_ms = 1000;
+                ELSE
+                  timeout_ms = TG_ARGV[4]::integer;
+                END IF;
+
+                CASE
+                  WHEN method = 'GET' THEN
+                    SELECT http_get INTO request_id FROM net.http_get(
+                      url,
+                      params,
+                      headers,
+                      timeout_ms
+                    );
+                  WHEN method = 'POST' THEN
+                    payload = jsonb_build_object(
+                      'old_record', OLD,
+                      'record', NEW,
+                      'type', TG_OP,
+                      'table', TG_TABLE_NAME,
+                      'schema', TG_TABLE_SCHEMA
+                    );
+
+                    SELECT http_post INTO request_id FROM net.http_post(
+                      url,
+                      payload,
+                      params,
+                      headers,
+                      timeout_ms
+                    );
+                  ELSE
+                    RAISE EXCEPTION 'method argument % is invalid', method;
+                END CASE;
+
+                INSERT INTO supabase_functions.hooks
+                  (hook_table_id, hook_name, request_id)
+                VALUES
+                  (TG_RELID, TG_NAME, request_id);
+
+                RETURN NEW;
+              END
+            $function$;
+            -- Supabase super admin
+            DO
+            $$
+            BEGIN
+              IF NOT EXISTS (
+                SELECT 1
+                FROM pg_roles
+                WHERE rolname = 'supabase_functions_admin'
+              )
+              THEN
+                CREATE USER supabase_functions_admin NOINHERIT CREATEROLE LOGIN NOREPLICATION;
+              END IF;
+            END
+            $$;
+            GRANT ALL PRIVILEGES ON SCHEMA supabase_functions TO supabase_functions_admin;
+            GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA supabase_functions TO supabase_functions_admin;
+            GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA supabase_functions TO supabase_functions_admin;
+            ALTER USER supabase_functions_admin SET search_path = "supabase_functions";
+            ALTER table "supabase_functions".migrations OWNER TO supabase_functions_admin;
+            ALTER table "supabase_functions".hooks OWNER TO supabase_functions_admin;
+            ALTER function "supabase_functions".http_request() OWNER TO supabase_functions_admin;
+            GRANT supabase_functions_admin TO postgres;
+            -- http_request() is SECURITY DEFINER and runs as supabase_functions_admin. Serializing
+            -- NEW/OLD can touch objects in the extensions schema (PostGIS geometry reads
+            -- extensions.spatial_ref_sys), so the role needs USAGE on it.
+            GRANT USAGE ON SCHEMA extensions TO supabase_functions_admin;
+            -- Remove unused supabase_pg_net_admin role
+            DO
+            $$
+            BEGIN
+              IF EXISTS (
+                SELECT 1
+                FROM pg_roles
+                WHERE rolname = 'supabase_pg_net_admin'
+              )
+              THEN
+                REASSIGN OWNED BY supabase_pg_net_admin TO supabase_admin;
+                DROP OWNED BY supabase_pg_net_admin;
+                DROP ROLE supabase_pg_net_admin;
+              END IF;
+            END
+            $$;
+            -- pg_net grants when extension is already enabled
+            DO
+            $$
+            BEGIN
+              IF EXISTS (
+                SELECT 1
+                FROM pg_extension
+                WHERE extname = 'pg_net'
+              )
+              THEN
+                GRANT USAGE ON SCHEMA net TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+                ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+                ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+                ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+                ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+                REVOKE ALL ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+                REVOKE ALL ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+                GRANT EXECUTE ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+                GRANT EXECUTE ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+              END IF;
+            END
+            $$;
+            -- Event trigger for pg_net
+            CREATE OR REPLACE FUNCTION extensions.grant_pg_net_access()
+            RETURNS event_trigger
+            LANGUAGE plpgsql
+            AS $$
+            BEGIN
+              IF EXISTS (
+                SELECT 1
+                FROM pg_event_trigger_ddl_commands() AS ev
+                JOIN pg_extension AS ext
+                ON ev.objid = ext.oid
+                WHERE ext.extname = 'pg_net'
+              )
+              THEN
+                GRANT USAGE ON SCHEMA net TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+                ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+                ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SECURITY DEFINER;
+                ALTER function net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+                ALTER function net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) SET search_path = net;
+                REVOKE ALL ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+                REVOKE ALL ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) FROM PUBLIC;
+                GRANT EXECUTE ON FUNCTION net.http_get(url text, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+                GRANT EXECUTE ON FUNCTION net.http_post(url text, body jsonb, params jsonb, headers jsonb, timeout_milliseconds integer) TO supabase_functions_admin, postgres, anon, authenticated, service_role;
+              END IF;
+            END;
+            $$;
+            COMMENT ON FUNCTION extensions.grant_pg_net_access IS 'Grants access to pg_net';
+            DO
+            $$
+            BEGIN
+              IF NOT EXISTS (
+                SELECT 1
+                FROM pg_event_trigger
+                WHERE evtname = 'issue_pg_net_access'
+              ) THEN
+                CREATE EVENT TRIGGER issue_pg_net_access ON ddl_command_end WHEN TAG IN ('CREATE EXTENSION')
+                EXECUTE PROCEDURE extensions.grant_pg_net_access();
+              END IF;
+            END
+            $$;
+            INSERT INTO supabase_functions.migrations (version) VALUES ('20210809183423_update_grants');
+            ALTER function supabase_functions.http_request() SECURITY DEFINER;
+            ALTER function supabase_functions.http_request() SET search_path = supabase_functions;
+            REVOKE ALL ON FUNCTION supabase_functions.http_request() FROM PUBLIC;
+            GRANT EXECUTE ON FUNCTION supabase_functions.http_request() TO postgres, anon, authenticated, service_role;
+          COMMIT;
+
+      - type: bind
+        source: ./volumes/db/roles.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/99-roles.sql
+        content: |
+          -- NOTE: change to your own passwords for production environments
+          \set pgpass `echo "$POSTGRES_PASSWORD"`
+
+          ALTER USER authenticator WITH PASSWORD :'pgpass';
+          ALTER USER pgbouncer WITH PASSWORD :'pgpass';
+          ALTER USER supabase_auth_admin WITH PASSWORD :'pgpass';
+          ALTER USER supabase_functions_admin WITH PASSWORD :'pgpass';
+          ALTER USER supabase_storage_admin WITH PASSWORD :'pgpass';
+
+      - type: bind
+        source: ./volumes/db/jwt.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/99-jwt.sql
+        content: |
+          \set jwt_exp `echo "$JWT_EXP"`
+
+          ALTER DATABASE postgres SET "app.settings.jwt_exp" TO :'jwt_exp';
+
+      - type: bind
+        source: ./volumes/db/pg-net-access.sql
+        # migrations/ runs after the image's own setup (which grants pg_net to
+        # PUBLIC), as supabase_admin; "99-" sorts after its dated files.
+        target: /docker-entrypoint-initdb.d/migrations/99-pg-net-access.sql
+        content: |
+          -- The image lets every role (PUBLIC) call pg_net directly. The API
+          -- doesn't expose the net schema and only the push trigger needs it (it
+          -- runs as its owner, postgres), so keep it to the roles that need it.
+          -- Re-check after a pg_net upgrade.
+          REVOKE EXECUTE ON FUNCTION net.http_post(text, jsonb, jsonb, jsonb, integer) FROM PUBLIC, anon, authenticated;
+          REVOKE EXECUTE ON FUNCTION net.http_get(text, jsonb, jsonb, integer) FROM PUBLIC, anon, authenticated;
+          GRANT EXECUTE ON FUNCTION net.http_post(text, jsonb, jsonb, jsonb, integer) TO postgres, supabase_functions_admin, service_role;
+          GRANT EXECUTE ON FUNCTION net.http_get(text, jsonb, jsonb, integer) TO postgres, supabase_functions_admin, service_role;
+      - type: bind
+        source: ./volumes/db/push-webhook.sql
+        target: /docker-entrypoint-initdb.d/init-scripts/99-push-webhook.sql
+        content: |
+          -- Lets the push triggers authenticate to the push functions (see the
+          -- push_webhooks migration). Runs once, at first boot. To rotate: change the
+          -- variable in Coolify, then ALTER DATABASE postgres SET ... with the new value.
+          \set push_secret `echo "$PUSH_WEBHOOK_SECRET"`
+          ALTER DATABASE postgres SET "app.settings.push_webhook_secret" TO :'push_secret';
+
+
+  supabase-rest:
+    image: postgrest/postgrest:v14.18
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "postgrest", "--ready"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      - PGRST_DB_URI=postgres://authenticator:${SERVICE_PASSWORD_POSTGRES}@supabase-db:5432/postgres
+      - 'PGRST_DB_SCHEMAS=public,storage,graphql_public'
+      - PGRST_DB_MAX_ROWS=1000
+      - PGRST_DB_EXTRA_SEARCH_PATH=public
+      - PGRST_DB_ANON_ROLE=anon
+      - PGRST_ADMIN_SERVER_PORT=3001
+      - PGRST_ADMIN_SERVER_HOST=localhost
+      - PGRST_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - PGRST_DB_USE_LEGACY_GUCS=false
+      - PGRST_APP_SETTINGS_JWT_EXP=${JWT_EXPIRY:-3600}
+    command: "postgrest"
+
+  supabase-auth:
+    image: supabase/gotrue:v2.197.0
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:9999/health"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+    environment:
+      - GOTRUE_API_HOST=0.0.0.0
+      - GOTRUE_API_PORT=9999
+      - API_EXTERNAL_URL=${SERVICE_URL_SUPABASEKONG}/auth/v1
+      - GOTRUE_DB_DRIVER=postgres
+      - GOTRUE_DB_DATABASE_URL=postgres://supabase_auth_admin:${SERVICE_PASSWORD_POSTGRES}@supabase-db:5432/postgres
+      - GOTRUE_SITE_URL=${SITE_URL:-https://nous-deux.app}
+      - GOTRUE_URI_ALLOW_LIST=${ADDITIONAL_REDIRECT_URLS:-nousdeux://login-callback}
+      - GOTRUE_DISABLE_SIGNUP=false
+      - GOTRUE_JWT_ADMIN_ROLES=service_role
+      - GOTRUE_JWT_AUD=authenticated
+      # Logs a deprecation notice, but still sets new users' role: keep it.
+      - GOTRUE_JWT_DEFAULT_GROUP_NAME=authenticated
+      - GOTRUE_JWT_EXP=${JWT_EXPIRY:-3600}
+      - GOTRUE_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - GOTRUE_JWT_ISSUER=${SERVICE_URL_SUPABASEKONG}/auth/v1
+      # Sign-in: phone code, Google, Apple. No email, no anonymous users.
+      - GOTRUE_EXTERNAL_EMAIL_ENABLED=false
+      - GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED=false
+      - GOTRUE_MAILER_AUTOCONFIRM=false
+      - GOTRUE_EXTERNAL_PHONE_ENABLED=true
+      # Off, so the SMS rate limiter applies.
+      - GOTRUE_SMS_AUTOCONFIRM=false
+      - GOTRUE_SMS_OTP_EXP=300
+      - GOTRUE_SMS_OTP_LENGTH=6
+      - GOTRUE_SMS_PROVIDER=${SMS_PROVIDER:-twilio}
+      # Fixed codes for test numbers ("447700900001:123456,..."); no SMS is
+      # sent to them. Other numbers need a real provider (not set up yet).
+      - GOTRUE_SMS_TEST_OTP=${SMS_TEST_OTP:-}
+      - GOTRUE_SMS_TEST_OTP_VALID_UNTIL=${SMS_TEST_OTP_VALID_UNTIL:-}
+      # Native sign-in with ID tokens: only ENABLED and CLIENT_ID matter.
+      # Google: web client id first, then iOS and Android, comma-separated.
+      - GOTRUE_EXTERNAL_GOOGLE_ENABLED=${GOOGLE_ENABLED:-false}
+      - GOTRUE_EXTERNAL_GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_IDS:-}
+      - GOTRUE_EXTERNAL_GOOGLE_SKIP_NONCE_CHECK=true
+      # Apple: the iOS bundle id.
+      - GOTRUE_EXTERNAL_APPLE_ENABLED=${APPLE_ENABLED:-false}
+      - GOTRUE_EXTERNAL_APPLE_CLIENT_ID=${APPLE_CLIENT_IDS:-app.nous-deux}
+
+  realtime-dev:
+    # Realtime reads its tenant id from this container name: keep it.
+    image: supabase/realtime:v2.148.3
+    container_name: realtime-dev.supabase-realtime
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sSfL",
+          "--head",
+          "-o",
+          "/dev/null",
+          "-H",
+          "Authorization: Bearer ${SERVICE_SUPABASEANON_KEY}",
+          "http://127.0.0.1:4000/api/tenants/realtime-dev/health",
+        ]
+      timeout: 5s
+      interval: 30s
+      retries: 3
+      start_period: 10s
+    environment:
+      - PORT=4000
+      - DB_HOST=supabase-db
+      - DB_PORT=5432
+      - DB_USER=supabase_admin
+      - DB_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - DB_NAME=postgres
+      - DB_AFTER_CONNECT_QUERY=SET search_path TO _realtime
+      - DB_ENC_KEY=supabaserealtime
+      - API_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - SECRET_KEY_BASE=${SERVICE_PASSWORD_64_REALTIME}
+      - METRICS_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - ERL_AFLAGS=-proto_dist inet_tcp
+      - DNS_NODES=''
+      - RLIMIT_NOFILE=10000
+      - APP_NAME=realtime
+      - SEED_SELF_HOST=true
+      - RUN_JANITOR=true
+      - DISABLE_HEALTHCHECK_LOGGING=true
+
+  supabase-storage:
+    image: supabase/storage-api:v1.89.12
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+      supabase-rest:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:5000/status"]
+      timeout: 5s
+      interval: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      - ANON_KEY=${SERVICE_SUPABASEANON_KEY}
+      - SERVICE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - POSTGREST_URL=http://supabase-rest:3000
+      - AUTH_JWT_SECRET=${SERVICE_PASSWORD_JWT}
+      - DATABASE_URL=postgres://supabase_storage_admin:${SERVICE_PASSWORD_POSTGRES}@supabase-db:5432/postgres
+      - STORAGE_PUBLIC_URL=${SERVICE_URL_SUPABASEKONG}
+      - REQUEST_ALLOW_X_FORWARDED_PATH=true
+      - FILE_SIZE_LIMIT=52428800
+      # Files on the server's disk (backed up with the volume, see the runbook).
+      - STORAGE_BACKEND=file
+      - GLOBAL_S3_BUCKET=stub
+      - FILE_STORAGE_BACKEND_PATH=/var/lib/storage
+      - TENANT_ID=stub
+      - REGION=stub
+      # Avatars don't need resizing: no imgproxy in this stack.
+      - ENABLE_IMAGE_TRANSFORMATION=false
+      # The S3-compatible endpoint is reachable through /storage/v1/s3, so it
+      # gets strong generated keys.
+      - S3_PROTOCOL_ACCESS_KEY_ID=${SERVICE_USER_S3}
+      - S3_PROTOCOL_ACCESS_KEY_SECRET=${SERVICE_PASSWORD_64_S3}
+    volumes:
+      - ./volumes/storage:/var/lib/storage
+
+  supabase-meta:
+    image: supabase/postgres-meta:v0.100.0
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      - PG_META_PORT=8080
+      - PG_META_DB_HOST=supabase-db
+      - PG_META_DB_PORT=5432
+      - PG_META_DB_NAME=postgres
+      - PG_META_DB_USER=postgres
+      - PG_META_DB_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - CRYPTO_KEY=${SERVICE_PASSWORD_PGMETACRYPTO}
+
+  supabase-edge-functions:
+    image: supabase/edge-runtime:v1.77.9
+    depends_on:
+      supabase-kong:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/9000'"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+    environment:
+      - SUPABASE_URL=http://supabase-kong:8000
+      - SUPABASE_SERVICE_ROLE_KEY=${SERVICE_SUPABASESERVICE_KEY}
+      - PUSH_WEBHOOK_SECRET=${SERVICE_PASSWORD_64_PUSHWEBHOOK}
+      # The Firebase service account JSON, on one line (from Proton Pass).
+      - FIREBASE_SERVICE_ACCOUNT_JSON=${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+    volumes:
+      # The push functions are copied here by scripts/deploy-functions.sh.
+      - ./volumes/functions:/home/deno/functions
+      - deno-cache:/root/.cache/deno
+      - type: bind
+        source: ./volumes/functions/main/index.ts
+        target: /home/deno/functions/main/index.ts
+        content: |
+          // Routes the database's push requests to the two push functions. There is
+          // no public route to this service; each function also checks the shared
+          // secret. Workers only get the settings they need.
+          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping'])
+          const PASSED_ENV = [
+            'SUPABASE_URL',
+            'SUPABASE_SERVICE_ROLE_KEY',
+            'PUSH_WEBHOOK_SECRET',
+            'FIREBASE_SERVICE_ACCOUNT_JSON',
+          ]
+
+          function reply(status: number, msg: string): Response {
+            return new Response(JSON.stringify({ msg }), {
+              status,
+              headers: { 'Content-Type': 'application/json' },
+            })
+          }
+
+          Deno.serve(async (req: Request) => {
+            const name = new URL(req.url).pathname.split('/')[1] ?? ''
+            if (!FUNCTIONS.has(name)) return reply(404, 'not found')
+            try {
+              const worker = await EdgeRuntime.userWorkers.create({
+                servicePath: '/home/deno/functions/' + name,
+                memoryLimitMb: 150,
+                workerTimeoutMs: 60_000,
+                noModuleCache: false,
+                importMapPath: null,
+                envVars: PASSED_ENV.map((k) => [k, Deno.env.get(k) ?? '']),
+              })
+              return await worker.fetch(req)
+            } catch (e) {
+              console.error(name + ' failed to start', e)
+              return reply(500, 'function error')
+            }
+          })
+
+    command:
+      - start
+      - --main-service
+      - /home/deno/functions/main
+
+volumes:
+  supabase-db-data:
+  supabase-db-config:
+  deno-cache:

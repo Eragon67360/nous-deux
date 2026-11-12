@@ -1,0 +1,102 @@
+name: nousdeux
+description: "Nous Deux - A privacy-focused couple's app."
+publish_to: "none"
+version: 0.2.0+17
+
+environment:
+  sdk: ^3.10.8
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Icons library
+  cupertino_icons: ^1.0.8
+
+  # Core
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  supabase_flutter: ^2.8.4
+
+  # Auth
+  google_sign_in: ^6.2.2
+  crypto: ^3.0.7
+  sign_in_with_apple: ^6.1.3
+
+  # Calendar
+  device_calendar: ^4.3.3
+
+  # Ambient brightness (Android; iOS uses time-of-day fallback)
+  light: ^4.1.0
+
+  # Location
+  geolocator: ^13.0.2
+  latlong2: ^0.9.1
+  mapbox_maps_flutter: ^2.0.0
+
+  # Notifications
+  firebase_core: ^3.8.1
+  firebase_messaging: ^15.1.6
+  flutter_local_notifications: ^18.0.1
+
+  # Navigation
+  go_router: ^14.6.2
+
+  # UI/UX
+  flutter_svg: ^2.0.14+1
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^7.0.0
+
+  # Utilities
+  http: ^1.2.2
+  intl: ^0.20.2
+  timezone: ^0.9.4
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.3.3
+  url_launcher: ^6.3.0
+  image_picker: ^1.0.7
+  flutter_secure_storage: ^9.2.4
+  uuid: ^4.5.1
+  equatable: ^2.0.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  riverpod_generator: ^2.6.3
+  build_runner: ^2.4.14
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/icon/
+    - assets/fonts/OFL.txt
+  # Manrope (SIL Open Font License, assets/fonts/OFL.txt), bundled so the app
+  # never fetches fonts at runtime.
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-ExtraLight.ttf
+          weight: 200
+        - asset: assets/fonts/Manrope-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Manrope-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/icon/app_icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#1C1917"
+  adaptive_icon_foreground: assets/icon/app_icon_foreground.png

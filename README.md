@@ -1,12 +1,9 @@
 # Nous Deux
 
-A privacy-focused couple's app (shared calendar, period tracking, optional location).
+A couples app: days together, little notes, a shared calendar, lists, the cycle and its guide, and optional location sharing. FR/EN.
 
-## Supabase setup
-
-The app needs your Supabase **Project URL** and **anon (publishable) key** only. The **service_role (secret) key** must never be used in the app.
-
-- **Local dev:** edit `lib/core/config/supabase_keys.dart` and set `supabaseUrlLocal` and `supabaseAnonKeyLocal`.
-- **CI / production:** the pipeline provides a keys file from the stub and supplies `SUPABASE_URL` and `SUPABASE_ANON_KEY` via `--dart-define`; no local `supabase_keys.dart` is required in the repo.
-
-See [docs/SUPABASE_KEYS.md](docs/SUPABASE_KEYS.md) for details.
+| Folder | What | Start here |
+| --- | --- | --- |
+| [`app/`](app/) | Flutter app (iOS, Android) | [app/README.md](app/README.md) |
+| [`website/`](website/) | Next.js site, nous-deux.app | [website/README.md](website/README.md) |
+| [`supabase/`](supabase/), [`infra/`](infra/) | Self-hosted Supabase (Hetzner, Coolify): migrations, push functions, server stack | [docs/SELF_HOSTING.md](docs/SELF_HOSTING.md) |

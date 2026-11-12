@@ -1,0 +1,391 @@
+/* Nous Deux homepage. Chaptered editorial grammar on the scroll-craft engine.
+   The engine owns [data-sc-*] and .sc-*; everything here is page markup. */
+
+/* --------------------------------------------------------------- shared -- */
+.nd-link {
+  color: var(--sc-ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--sc-accent) 70%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: color var(--sc-d-fast) var(--sc-ease-out);
+}
+@media (hover: hover) and (pointer: fine) {
+  .nd-link:hover { color: var(--sc-accent); }
+}
+
+.nd-phone {
+  --bezel: clamp(5px, 0.55vw, 8px);
+  --radius: clamp(1.5rem, 2.4vw, 2.5rem);
+  padding: var(--bezel);
+  border-radius: var(--radius);
+  background: #0e0c0b;
+  box-shadow:
+    var(--sc-e3),
+    inset 0 0 0 1px color-mix(in oklab, var(--sc-ink) 14%, transparent);
+}
+.nd-phone__screen {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: calc(var(--radius) - var(--bezel));
+}
+
+/* ---------------------------------------------------------------- folio -- */
+.nd-folio {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: var(--sc-z-chrome);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--sc-5) var(--sc-gutter) var(--sc-4);
+  pointer-events: none;
+}
+/* A band of ground only where the folio sits. */
+.nd-folio::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -2rem;
+  z-index: -1;
+  background: linear-gradient(var(--sc-canvas) 62%, transparent);
+}
+.nd-folio > * { pointer-events: auto; }
+.nd-folio__mark {
+  font-family: var(--sc-font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--sc-ink);
+  text-decoration: none;
+}
+.nd-folio__chapter {
+  margin: 0.45rem 0 0;
+  font-size: var(--sc-t-xs);
+  letter-spacing: var(--sc-track-wide);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--sc-ink-soft);
+}
+
+/* ----------------------------------------------------------- title page -- */
+.nd-title {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: calc(var(--sc-9) + 0.5rem) var(--sc-gutter) var(--sc-7);
+}
+.nd-title__glow {
+  position: absolute;
+  inset: -25% -15% -10%;
+  z-index: -2;
+  background: radial-gradient(55% 45% at 64% 40%, var(--nd-glow), transparent 72%);
+}
+.nd-title__rings {
+  position: absolute;
+  z-index: -1;
+  top: 10svh;
+  right: -8vw;
+  width: min(82vw, 1040px);
+  opacity: 0.14;
+}
+.nd-title__rings svg { width: 100%; height: auto; }
+.nd-title__h1 {
+  align-self: center;
+  margin: 0;
+  font-family: var(--sc-font-display);
+  font-weight: 200;
+  font-size: clamp(5.5rem, 22vw, 21rem);
+  line-height: 0.84;
+  letter-spacing: -0.045em;
+}
+.nd-title__word { display: block; }
+.nd-title__word--deux {
+  margin-top: -0.04em;
+  text-align: right;
+  color: var(--sc-accent);
+}
+.nd-title__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sc-5) var(--sc-7);
+}
+.nd-title__line {
+  margin: 0;
+  max-width: 34ch;
+  font-size: var(--sc-t-lg);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+.nd-stores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sc-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nd-store {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 9.5rem;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid var(--sc-hairline-strong);
+  border-radius: var(--sc-r-md);
+  color: var(--sc-ink-soft);
+  cursor: not-allowed;
+}
+.nd-store__name { color: var(--sc-ink); font-weight: 500; }
+.nd-store__soon {
+  font-size: var(--sc-t-xs);
+  letter-spacing: var(--sc-track-wide);
+  text-transform: uppercase;
+  color: var(--sc-accent);
+}
+
+/* -------------------------------------------------------- 1 · agendas -- */
+.nd-spread {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+  align-items: center;
+  gap: var(--sc-8);
+}
+.nd-quote { max-width: 13ch; }
+.nd-spread__media { justify-self: end; width: min(100%, 300px); margin: 0; }
+.nd-caption {
+  margin-top: var(--sc-4);
+  max-width: 32ch;
+  font-size: var(--sc-t-sm);
+  line-height: 1.5;
+  color: var(--sc-ink-soft);
+}
+
+/* ----------------------------------------------- 2 · the merge (peak) --
+   --m   travel 0→1 across the first half of the pin, eased with smoothstep
+   --lock 0→1 just after the rings meet: the two phones become one        */
+.nd-merge {
+  --m: clamp(0, calc((var(--sc-p, 0) - 0.06) / 0.5), 1);
+  --e: calc(var(--m) * var(--m) * (3 - 2 * var(--m)));
+  --lock: clamp(0, calc((var(--sc-p, 0) - 0.56) / 0.1), 1);
+  --travel: 44vw;
+}
+.nd-merge__stage {
+  overflow: clip; /* see .nd-share__stage: no pre-mount overflow on phones */
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  padding: calc(var(--sc-9) + 0.5rem) var(--sc-gutter) var(--sc-7);
+  text-align: center;
+}
+.nd-merge__title { display: grid; }
+.nd-merge__title > span { grid-area: 1 / 1; }
+.nd-merge__after { color: var(--sc-accent); }
+.nd-merge__phones { position: relative; width: 100%; min-height: 0; }
+.nd-merge__phone {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(140px, 17vw, 250px);
+  translate: -50% -50%;
+}
+.nd-merge__phone--left {
+  transform: translateX(calc((1 - var(--e)) * var(--travel) * -1)) rotate(calc((1 - var(--e)) * -8deg));
+  opacity: calc(1 - var(--lock));
+}
+.nd-merge__phone--right {
+  transform: translateX(calc((1 - var(--e)) * var(--travel))) rotate(calc((1 - var(--e)) * 8deg));
+  opacity: calc(1 - var(--lock));
+}
+.nd-merge__phone--merged {
+  opacity: var(--lock);
+  transform: scale(calc(1.06 - 0.06 * var(--lock)));
+}
+.nd-merge__who {
+  position: absolute;
+  left: 50%;
+  bottom: -2.2rem;
+  translate: -50% 0;
+  font-size: var(--sc-t-xs);
+  letter-spacing: var(--sc-track-wide);
+  text-transform: uppercase;
+  color: var(--sc-ink-soft);
+}
+.nd-merge__dot {
+  position: absolute;
+  left: 50%;
+  top: -1.6rem;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 50%;
+  background: var(--nd-rose);
+  translate: -50% 0;
+  transform: scale(var(--lock));
+}
+.nd-merge__body { max-width: 40ch; margin-top: var(--sc-5); }
+
+/* ------------------------------------------------------- 3 · the rail -- */
+/* Clip from first paint: before the engine mounts, the 2000px-wide rail
+   would make phone browsers zoom out to fit it, then snap back (CLS 1.0). */
+.nd-share__stage { display: flex; align-items: center; overflow: clip; }
+.nd-rail {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sc-7);
+  width: max-content;
+  margin: 0;
+  padding: calc(var(--sc-9) + 0.5rem) var(--sc-gutter) var(--sc-7);
+  list-style: none;
+}
+.nd-rail__lead { align-self: center; width: min(80vw, 26rem); }
+.nd-rail__lead .sc-lede { margin-top: var(--sc-4); color: var(--sc-ink-soft); }
+.nd-rail__item { width: clamp(11rem, 16vw, 15rem); }
+.nd-rail__name {
+  margin: var(--sc-4) 0 var(--sc-2);
+  font-family: var(--sc-font-display);
+  font-weight: 400;
+  font-size: var(--sc-t-xl);
+  line-height: 1.05;
+}
+.nd-rail__facts {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: var(--sc-t-sm);
+  line-height: 1.45;
+  color: var(--sc-ink-soft);
+}
+.nd-rail__note { align-self: center; width: min(78vw, 22rem); }
+.nd-rail__note .sc-lede { font-family: var(--sc-font-display); font-size: var(--sc-t-xl); font-weight: 300; }
+/* Items settle one after another as the drawer is pulled. */
+@media (prefers-reduced-motion: no-preference) {
+  .nd-rail__item {
+    --s: clamp(0, calc(var(--sc-p, 0) * 7.5 - var(--i) * 1 + 0.4), 1);
+    opacity: calc(0.55 + 0.45 * var(--s));
+    transform: translateY(calc((1 - var(--s)) * 1.5rem));
+  }
+}
+
+/* ------------------------------------------------------ 4 · between you -- */
+.nd-trust { padding-top: calc(var(--sc-section) * 1.7); }
+.nd-trust__wrap { max-width: 66rem; }
+.nd-trust__points {
+  display: grid;
+  gap: var(--sc-7);
+  margin: var(--sc-8) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.nd-trust__point {
+  max-width: 22ch;
+  padding-block: 0.14em;
+  font-family: var(--sc-font-display);
+  font-size: var(--sc-t-2xl);
+  line-height: 1.12;
+  letter-spacing: var(--sc-track-snug);
+  text-wrap: balance;
+}
+.nd-trust__point:nth-child(even) { margin-left: auto; text-align: right; }
+.nd-trust__more { margin-top: var(--sc-8); }
+
+/* ---------------------------------------------------------- 5 · faq -- */
+.nd-faq__wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+  align-items: start;
+  gap: var(--sc-7);
+}
+.nd-faq__wrap > h2 { position: sticky; top: 7.5rem; }
+.nd-faq__item { border-top: 1px solid var(--sc-hairline); }
+.nd-faq__item:last-child { border-bottom: 1px solid var(--sc-hairline); }
+.nd-faq__q {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sc-4);
+  padding: var(--sc-5) 0;
+  font-size: var(--sc-t-lg);
+  line-height: 1.35;
+  cursor: pointer;
+  list-style: none;
+}
+.nd-faq__q::-webkit-details-marker { display: none; }
+.nd-faq__q::after {
+  content: "+";
+  flex: none;
+  color: var(--sc-accent);
+  transition: transform var(--sc-d-fast) var(--sc-ease-out);
+}
+.nd-faq__item[open] > .nd-faq__q::after { transform: rotate(45deg); }
+.nd-faq__a { padding-bottom: var(--sc-5); }
+
+/* ------------------------------------------------------- colophon -- */
+.nd-close__stage {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: calc(var(--sc-9) + 0.5rem) var(--sc-gutter) var(--sc-6);
+}
+.nd-close__inner { align-self: center; max-width: 40rem; }
+/* The cover's rings return, so the page ends where it began. */
+.nd-close__rings {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  right: -10vw;
+  width: min(70vw, 900px);
+  translate: 0 -50%;
+  opacity: 0.1;
+}
+.nd-close__rings svg { width: 100%; height: auto; }
+.nd-close__mark { width: 5.5rem; height: auto; margin-bottom: var(--sc-6); }
+.nd-close__support { margin-top: var(--sc-5); color: var(--sc-ink-soft); }
+.nd-close__foot nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sc-3) var(--sc-6);
+  padding-top: var(--sc-5);
+  border-top: 1px solid var(--sc-hairline);
+  font-size: var(--sc-t-sm);
+}
+
+/* ------------------------------------------------------------- phone -- */
+@media (max-width: 760px) {
+  .nd-spread { grid-template-columns: 1fr; gap: var(--sc-7); }
+  .nd-spread__media { justify-self: center; width: min(70vw, 280px); }
+  .nd-merge { --travel: 40vw; }
+  .nd-merge__phone { width: clamp(130px, 40vw, 190px); }
+  .nd-faq__wrap { grid-template-columns: 1fr; gap: var(--sc-5); }
+  .nd-trust__point:nth-child(even) { margin-left: 0; text-align: left; }
+  .nd-title__h1 { font-size: clamp(5rem, 30vw, 9rem); }
+  .nd-title__rings { top: 18svh; right: -30vw; width: 130vw; }
+  .nd-faq__wrap > h2 { position: static; }
+  .nd-close__rings { right: -40vw; width: 120vw; }
+}
+
+/* ----------------------------------------------------- reduced motion --
+   Keep the opacity that carries the meaning, drop every position change:
+   the phones sit side by side, then cross-fade into the shared one. */
+@media (prefers-reduced-motion: reduce) {
+  /* The rail stops being a pinned drawer and becomes a plain grid, so there
+     is no held scroll with nothing moving. */
+  .nd-share { height: auto !important; }
+  .nd-share__stage { position: static; height: auto; overflow: visible; }
+  .nd-rail {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    flex: 1;
+    width: 100%;
+    transform: none !important;
+  }
+  .nd-rail__lead, .nd-rail__note { grid-column: 1 / -1; width: auto; }
+  .nd-rail__item { width: auto; }
+  .nd-merge__phone--left { transform: translateX(-58%); }
+  .nd-merge__phone--right { transform: translateX(58%); }
+  .nd-merge__phone--merged { transform: none; }
+}
