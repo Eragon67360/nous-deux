@@ -9,6 +9,8 @@ cannot be forged; signed-out callers get nothing; a list outlives its
 creator's deleted account, minus what they wrote). Nothing here touches the
 real project.
 
+`40_cycle_scenario.sql` checks the Règles data: the partner reads period dates and check-ins only while they are shared, notes stay with their author, and nobody writes as the other. `50_cycle_consent_scenario.sql` checks that the database, not the app, records when cycle tracking was agreed to, and clears it when tracking stops.
+
 `30_push_webhooks_scenario.sql` checks the push triggers: each write calls the
 right internal function with the shared secret, nothing is sent without it,
 and signed-in users can't call pg_net themselves. `00_supabase_stubs.sql`

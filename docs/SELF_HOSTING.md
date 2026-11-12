@@ -73,7 +73,11 @@ At the `nous-deux.app` registrar, point `api` at the server with an `A` record (
 In the Google Cloud project behind Firebase `nous-deux-7bf2f`, go to **APIs & Services → Credentials** and create three OAuth client ids:
 - **Web application.** Its id is the `serverClientId` the auth server checks, so it goes first in `GOOGLE_CLIENT_IDS`.
 - **iOS**, with bundle id `app.nous-deux` and team id `2Y57C77BK4`.
-- **Android**, with package `com.nousdeux.android` and the SHA-1 of the debug key and the release key.
+- **Android**, package `com.nousdeux.android`: one client per signing certificate, since each holds one SHA-1.
+  - "Nous Deux Android (debug key)": local `flutter run` builds.
+  - "Nous Deux Android (Play signing)": installs from Google Play, signed by Play App Signing (SHA-1 `CB:21:B5:E1:97:CB:61:C7:1F:E8:54:99:7C:52:A1:DC:5E:4E:14:50`). Added 2026-11-12.
+  - "Nous Deux Android (upload key, GitHub APKs)": the APKs CI attaches to GitHub Releases, signed with the upload key (SHA-1 `1A:55:D4:4C:8D:E0:DE:47:6B:9F:DD:E7:AB:6A:5B:2E:A0:5B:3C:7E`). Added 2026-11-12.
+  - Both fingerprints come from Play Console › Nous Deux › Test and release › App integrity › App signing.
 
 Done on 2026-11-10 (the iOS client moved to `app.nous-deux` on 2026-11-11):
 - Consent screen: External, in production, basic scopes only (no review needed), authorized domain `nous-deux.app`.
@@ -103,7 +107,7 @@ scripts/deploy-functions.sh root@<server> # copies the push functions, restarts 
 
 ### 8. App configuration
 - **Local:** in the gitignored `app/lib/core/config/supabase_keys.dart`, set `supabaseUrlLocal = 'https://api.nous-deux.app'` and the anon key.
-- **CI:** set these GitHub secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`.
+- **CI:** set these GitHub secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`. The Google client ids are public and built into `app/lib/core/constants/app_constants.dart`.
 
 ### 9. Check
 ```bash

@@ -9,5 +9,7 @@ instagram.com
 nhsinform.scot
 unicef.org
 plannedparenthood.org
+# Resets scripted requests; the page loads in a browser (checked 2026-11-12).
+sante.gouv.fr
 
 # ameli.fr

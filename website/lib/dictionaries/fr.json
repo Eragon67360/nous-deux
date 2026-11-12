@@ -230,7 +230,7 @@
       },
       "legalBasis": {
         "title": "Base légale",
-        "body": "Le traitement des données liées à votre compte, votre profil, le calendrier, les listes et les petits mots est nécessaire à l'exécution du contrat (utilisation de l'application). Les données de cycle sont des données de santé : nous ne les traitons qu'avec votre consentement explicite (article 9.2.a du RGPD), que vous donnez en choisissant de suivre votre cycle dans l'application. Vous pouvez le retirer à tout moment dans Paramètres › Règles : vous arrêtez le suivi et pouvez supprimer toutes vos données de cycle. Le partage de position et les notifications push sont optionnels et reposent aussi sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
+        "body": "Le traitement des données liées à votre compte, votre profil, le calendrier, les listes et les petits mots est nécessaire à l'exécution du contrat (utilisation de l'application). Les données de cycle sont des données de santé : nous ne les traitons qu'avec votre consentement explicite (article 9.2.a du RGPD), que vous donnez en choisissant de suivre votre cycle dans l'application. Nous enregistrons la date de ce consentement, et l'effaçons quand vous le retirez. Vous pouvez le retirer à tout moment dans Paramètres › Règles : vous arrêtez le suivi et pouvez supprimer toutes vos données de cycle. Le partage de position et les notifications push sont optionnels et reposent aussi sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
       },
       "hosting": {
         "title": "Hébergement et sous-traitants",

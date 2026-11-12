@@ -129,18 +129,6 @@ List<VerifiedSource> get periodVerifiedSources => [
     summaryFr: 'Info officielle sur la santé sexuelle et reproductive.',
   ),
   VerifiedSource(
-    platform: VerifiedSourcePlatform.web,
-    nameEn: 'Le Fil Rouge – Menstrual cycle',
-    nameFr: 'Le Fil Rouge – Cycle menstruel',
-    url: 'https://rqasf.qc.ca/lefilrouge/menstrual-cycle/',
-    topic: VerifiedSourceTopic.cycleBasics,
-    locales: ['en'],
-    credentialEn: 'RQASF (Quebec)',
-    credentialFr: 'RQASF (Québec)',
-    summaryEn: 'Phases of the menstrual cycle and lifestyle tips.',
-    summaryFr: 'Phases du cycle et conseils pour le quotidien.',
-  ),
-  VerifiedSource(
     platform: VerifiedSourcePlatform.youtube,
     nameEn: 'Dr. Jen Gunter – Science of menstruation',
     nameFr: 'Dr. Jen Gunter – Science des règles',
