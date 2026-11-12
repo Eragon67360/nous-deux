@@ -78,12 +78,12 @@ In the Google Cloud project behind Firebase `nous-deux-7bf2f`, go to **APIs & Se
 Done on 2026-11-10 (the iOS client moved to `app.nous-deux` on 2026-11-11):
 - Consent screen: External, in production, basic scopes only (no review needed), authorized domain `nous-deux.app`.
 - Client ids: web `836600962251-ujn657…`, iOS `836600962251-gev8n6…`, Android `836600962251-74i064…` (debug key SHA-1 only for now).
-- They're public identifiers. The web and iOS ids are the defaults in `lib/core/constants/app_constants.dart`; `ios/Runner/Info.plist` holds `GIDClientID` and the reversed iOS id as a URL scheme.
+- They're public identifiers. The web and iOS ids are the defaults in `app/lib/core/constants/app_constants.dart`; `app/ios/Runner/Info.plist` holds `GIDClientID` and the reversed iOS id as a URL scheme.
 
 Still to do: add the Play app-signing SHA-1 to the Android client before a Play release. Play Console → Test and release → App integrity.
 
 ### 5. Apple Developer (Thomas)
-The iOS app is `app.nous-deux` (the domain reversed) in the paid team `2Y57C77BK4`; Android keeps `com.nousdeux.android`. Registered on 2026-11-11 with **Sign in with Apple** on. The app declares it in `ios/Runner/Runner.entitlements`.
+The iOS app is `app.nous-deux` (the domain reversed) in the paid team `2Y57C77BK4`; Android keeps `com.nousdeux.android`. Registered on 2026-11-11 with **Sign in with Apple** on. The app declares it in `app/ios/Runner/Runner.entitlements`.
 
 Why not `com.nousdeux.app`: Apple answers "not available". The project was first signed with the free Personal Team `2YPH2XA7AZ`, which most likely registered it in February. Only Apple Developer Support can release an ID from a free team.
 
@@ -102,7 +102,7 @@ scripts/deploy-functions.sh root@<server> # copies the push functions, restarts 
 ```
 
 ### 8. App configuration
-- **Local:** in the gitignored `lib/core/config/supabase_keys.dart`, set `supabaseUrlLocal = 'https://api.nous-deux.app'` and the anon key.
+- **Local:** in the gitignored `app/lib/core/config/supabase_keys.dart`, set `supabaseUrlLocal = 'https://api.nous-deux.app'` and the anon key.
 - **CI:** set these GitHub secrets: `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `GOOGLE_WEB_CLIENT_ID`.
 
 ### 9. Check
@@ -142,13 +142,96 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 
 ## Backups
 
-- **Database.** In Coolify, open the `supabase-db` component, then **Backups**:
-  - S3 destination: the Hetzner bucket, endpoint `https://<location>.your-objectstorage.com`.
-  - Schedule: daily at 03:17.
-  - Keep 14.
-  - Run one by hand, then check its size: an open Coolify issue reports empty Supabase dumps.
-- **Avatars.** Back up the storage volume (`volumes/storage` in the service folder) to the same bucket, as a Coolify volume backup.
-- **Restore test** (do it once now, then after every upgrade): download the latest dump, restore it into a throwaway `supabase/postgres` container, and compare row counts of `profiles`, `couples` and `calendar_events` with the server.
+Set up on 2026-11-12 with Coolify 4.7.5. Both schedules live on the `supabase` service under **Backups**, and upload to the Hetzner bucket `nous-deux-backups` in Helsinki (`hel1`). The server is in `nbg1`, so losing one site doesn't lose both.
+
+| What | Schedule (UTC) | File | Kept |
+|---|---|---|---|
+| Database `postgres` | `17 3 * * *` | `pg_dump --format=custom`, about 0.5 MB | 7 on the server, 14 in the bucket |
+| Avatars (`volumes/storage`) | `27 3 * * *`, containers keep running | `.tar.gz` of the folder | 7 on the server, 14 in the bucket |
+
+- **S3 access:** Coolify's S3 storage `hetzner-hel1-nous-deux-backups` (endpoint `https://hel1.your-objectstorage.com`, region `hel1`). The key is in Proton Pass, `Nous Deux / Backups S3`.
+- **On the server:** `/data/coolify/backups/databases/…/pg-dump-postgres-<time>-<id>.dmp` and `/data/coolify/backups/volumes/…/directory-…storage-<time>.tar.gz`. **Executions** in Coolify lists every run with its size and a download button.
+- **Checks:** Coolify fails a run only when the file is empty. The empty Supabase dumps reported upstream don't happen here: the image sets `POSTGRES_USER=supabase_admin`, which logs in on the local socket without a password. A good dump starts with `PGDMP`.
+- **Retention:** after changing it, reopen the schedule to check. On 2026-11-12 the first save on the database schedule didn't stick (0 means keep everything).
+- **Deleted accounts** stay in the backups for up to 14 days.
+- **Not in a dump:**
+  - `app.settings.jwt_exp` and `app.settings.push_webhook_secret`. A fresh deploy sets both at first boot from its environment.
+  - `net._http_response`, pg_net's short-lived reply log.
+  - The Vault key, `pgsodium_root.key` in the `supabase-db-config` volume. Vault is unused (`vault.secrets` is empty); before storing anything in it, copy that key to Proton Pass.
+
+### Restore the database
+
+This works on the same server or on a fresh deploy. For a fresh deploy, do One-time setup 1 to 3 with the values from Proton Pass, run `scripts/deploy-functions.sh`, and skip `db-migrate.sh`: the dump holds the schema. Let the new stack come up healthy once before restoring, because Realtime creates its database role when it starts.
+
+1. Put the dump on the server as `/root/restore.dmp`, from Coolify's download button or from `/data/coolify/backups`.
+2. Stop the services that use the database:
+   ```bash
+   docker ps --format '{{.Names}}' | grep -E '^(supabase-(kong|auth|rest|storage|meta|studio|edge-functions)|realtime-dev)-' > /root/stopped.txt
+   xargs docker stop < /root/stopped.txt
+   ```
+3. Restore. It should finish without errors.
+   ```bash
+   db=$(docker ps --format '{{.Names}}' | grep ^supabase-db)
+   docker cp /root/restore.dmp $db:/tmp/restore.dmp
+   docker exec $db pg_restore -U supabase_admin -d postgres --clean --if-exists /tmp/restore.dmp
+   ```
+4. Put the grants back. `pg_restore` recreates every table, Supabase's default privileges then give `anon` everything on it, and the dump only adds grants back: the migrations' `REVOKE`s are lost. Reset our two schemas, then replay the dump's own grants:
+   ```bash
+   docker exec $db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "
+     REVOKE ALL ON ALL TABLES    IN SCHEMA public, private FROM anon, authenticated, service_role;
+     REVOKE ALL ON ALL SEQUENCES IN SCHEMA public, private FROM anon, authenticated, service_role;
+     REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public, private FROM anon, authenticated, service_role;"
+   docker exec $db sh -c 'pg_restore -l /tmp/restore.dmp | grep -E "^[0-9]+; [0-9]+ [0-9]+ ACL (public|private) " > /tmp/acl.list \
+     && pg_restore -U supabase_admin -d postgres -L /tmp/acl.list /tmp/restore.dmp'
+   docker exec $db psql -U supabase_admin -d postgres -tAc "select relacl from pg_class where oid = 'public.cycle_notes'::regclass"
+   ```
+   The last command's output must not mention `anon`.
+5. Clean up, start the services, then run the smoke test ([step 9](#9-check)):
+   ```bash
+   docker exec $db rm /tmp/restore.dmp /tmp/acl.list && rm /root/restore.dmp
+   xargs docker start < /root/stopped.txt
+   ```
+
+On the same server, objects created after the dump (a newer migration, say) aren't dropped. If that matters, restore onto a fresh deploy.
+
+### Restore the avatars
+
+Restore the database first, since `storage.objects` lists the files. Then, with the archive at `/root/storage.tar.gz`:
+```bash
+dir=$(ls -d /data/coolify/services/*/volumes/storage)
+st=$(docker ps --format '{{.Names}}' | grep ^supabase-storage)
+docker stop $st && tar -xzf /root/storage.tar.gz -C "$dir" && docker start $st
+```
+Paths in the archive are relative to the folder (`./stub/…`). Not yet tried with real files: the folder was empty on 2026-11-12.
+
+### Restore test
+
+Run it after every Postgres or Supabase upgrade, and once there are real avatars. Always on the Mac, never on the server.
+
+1. Fetch the latest dump and start a throwaway database. The plain image lacks two roles that the server gets from the compose file and from Realtime, so create them first:
+   ```bash
+   mkdir -m 700 ~/restore-test
+   scp "root@<server>:$(ssh root@<server> 'ls -t /data/coolify/backups/databases/*/*/*.dmp | head -1')" ~/restore-test/restore.dmp
+   docker run -d --name nd-restore-check -e POSTGRES_PASSWORD=$(openssl rand -hex 16) \
+     supabase/postgres:17.6.1.136 postgres -c config_file=/etc/postgresql/postgresql.conf
+   # Wait until this says "accepting connections" twice in a row (it restarts once after init):
+   docker exec nd-restore-check pg_isready -h 127.0.0.1
+   docker exec nd-restore-check psql -U supabase_admin -d postgres -c "
+     create role supabase_functions_admin noinherit createrole login noreplication;
+     create role supabase_realtime_admin noinherit nologin noreplication;"
+   ```
+2. Run steps 3 and 4 of [Restore the database](#restore-the-database) with `db=nd-restore-check` and `docker cp ~/restore-test/restore.dmp`.
+3. Count the rows of every table, locally and on the server (add `-e PGOPTIONS='-c default_transaction_read_only=on'` to the server's `docker exec`), and compare. Only `net._http_response` may differ.
+   ```sql
+   select n.nspname || '.' || c.relname,
+          (xpath('/row/c/text()', query_to_xml(format('select count(*) as c from %I.%I', n.nspname, c.relname), false, true, '')))[1]::text::int
+   from pg_class c join pg_namespace n on n.oid = c.relnamespace
+   where c.relkind in ('r', 'p') and n.nspname not in ('pg_catalog', 'information_schema') and n.nspname !~ '^pg_'
+   order by 1;
+   ```
+4. Delete everything, since the dump holds real health data: `docker rm -f nd-restore-check && rm -rf ~/restore-test`.
+
+Last run: 2026-11-12, on the first Coolify dump. The restore had no errors, and all 68 tables had the server's row counts except `net._http_response`. Owners, grants, RLS flags and the 24 policies matched the server. Without step 4, `anon` had every right on `cycle_notes`, `cycle_checkins`, `shared_lists`, `shared_list_items` and `couple_pings`.
 
 ## Upgrades
 
