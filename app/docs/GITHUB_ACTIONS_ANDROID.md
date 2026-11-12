@@ -19,7 +19,6 @@ Add these in **Settings → Secrets and variables → Actions**:
 | ------------------------------ | ------------------------------------------------------------------ |
 | `SUPABASE_URL`                 | `https://api.nous-deux.app` (self-hosted, see `docs/SELF_HOSTING.md`). |
 | `SUPABASE_ANON_KEY`            | Supabase anon (public) key. Same as in `app/docs/SUPABASE_KEYS.md`.    |
-| `GOOGLE_WEB_CLIENT_ID`         | Optional: overrides the Google OAuth **web** client id built into `AppConstants`. |
 | `ANDROID_KEYSTORE_BASE64`      | Your upload keystore file, **base64-encoded** (see below).         |
 | `ANDROID_KEY_ALIAS`            | Key alias used when creating the keystore.                         |
 | `ANDROID_KEY_PASSWORD`         | Password for the key.                                              |
