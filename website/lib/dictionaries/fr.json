@@ -35,7 +35,7 @@
         "after": "Un seul espace.",
         "body": "L'un de vous génère un code, l'autre le scanne. À partir de là, ce que l'un ajoute, l'autre le voit.",
         "leftAlt": "Le calendrier sur votre téléphone",
-        "rightAlt": "Le suivi du cycle sur le téléphone de votre partenaire",
+        "rightAlt": "Le calendrier sur le téléphone de votre partenaire",
         "mergedAlt": "Le même calendrier, partagé à deux",
         "labelMe": "Moi",
         "labelYou": "Toi"
