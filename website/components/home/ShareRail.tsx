@@ -3,15 +3,15 @@ import PhoneFrame from "./PhoneFrame";
 
 type Share = Dictionary["home"]["chapters"]["share"];
 
-// Which real screen illustrates each item. New features reuse the closest
-// existing screen until fresh simulator captures replace them.
+// Which real screen illustrates each item: simulator captures of an invented
+// couple (Alex and Camille), taken on a local copy of the backend.
 const SCREENS: Record<string, string> = {
   calendar: "/screenshots/calendar.png",
-  cycle: "/screenshots/period.png",
+  cycle: "/screenshots/cycle.png",
   position: "/screenshots/position.png",
-  together: "/screenshots/calendar.png",
-  pings: "/screenshots/screenshot_5.png",
-  lists: "/screenshots/screenshot_3.png",
+  together: "/screenshots/nous.png",
+  pings: "/screenshots/ping.png",
+  lists: "/screenshots/lists.png",
 };
 
 /**
