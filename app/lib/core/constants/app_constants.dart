@@ -42,12 +42,6 @@ abstract class AppConstants {
   // Storage bucket for profile photos, one folder per user id.
   static const String avatarsBucket = 'avatars';
 
-  // Mapbox (optional; used only if integrating mapbox_maps_flutter)
-  static const String mapboxAccessToken = String.fromEnvironment(
-    'MAPBOX_ACCESS_TOKEN',
-    defaultValue: '',
-  );
-
   // Validation
   static const int eventTitleMaxLength = 200;
   static const int eventDescriptionMaxLength = 2000;
