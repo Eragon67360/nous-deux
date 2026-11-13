@@ -220,13 +220,13 @@
           },
           {
             "label": "Technical data",
-            "text": "requested permissions (calendar, notifications, location, camera for profile photo) and information needed for the app to work on your device."
+            "text": "requested permissions (calendar, notifications, location, camera to scan your partner's QR code) and information needed for the app to work on your device."
           }
         ]
       },
       "purposes": {
         "title": "Purposes of processing",
-        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through Mapbox) when location sharing is on."
+        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through OpenFreeMap) when location sharing is on."
       },
       "legalBasis": {
         "title": "Legal basis",
@@ -245,8 +245,8 @@
             "text": "sending push notifications (FCM)."
           },
           {
-            "label": "Mapbox",
-            "text": "map display when location sharing is enabled."
+            "label": "OpenFreeMap (Hyperknot Software, Hungary)",
+            "text": "map tiles, from OpenStreetMap, shown when location sharing is on. To draw the map, your phone asks its servers for the areas on screen: no account, no cookies, and its logs don't keep your IP address, except error logs, deleted after 7 days. The service may go through the Cloudflare network."
           },
           {
             "label": "Google and Apple",
