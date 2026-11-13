@@ -34,6 +34,9 @@ abstract class AppConstants {
   // Location
   static const int locationUpdateIntervalSeconds = 30;
 
+  // Storage bucket for profile photos, one folder per user id.
+  static const String avatarsBucket = 'avatars';
+
   // Mapbox (optional; used only if integrating mapbox_maps_flutter)
   static const String mapboxAccessToken = String.fromEnvironment(
     'MAPBOX_ACCESS_TOKEN',

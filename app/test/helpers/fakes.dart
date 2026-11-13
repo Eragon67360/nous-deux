@@ -94,6 +94,21 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     signOutCalls++;
   }
+
+  int deleteAccountCalls = 0;
+
+  /// Returned by [deleteAccount] instead of deleting.
+  Failure? deleteFailure;
+
+  /// Like the real one: on success the session ends, which signs out.
+  @override
+  Future<Failure?> deleteAccount() async {
+    deleteAccountCalls++;
+    if (gate != null) await gate!.future;
+    if (deleteFailure != null) return deleteFailure;
+    emit(null);
+    return null;
+  }
 }
 
 class FakeProfileRepository implements ProfileRepository {

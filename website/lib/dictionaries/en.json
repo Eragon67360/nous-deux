@@ -129,7 +129,7 @@
           },
           {
             "question": "How do I delete my account?",
-            "answer": "Email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
+            "answer": "In the app: Settings › Account › Delete my account. Without access to the app, email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
           },
           {
             "question": "When does the app come out?",
@@ -170,7 +170,7 @@
       "description": "Privacy policy for the Nous Deux application."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "12 November 2026",
+    "effectiveDate": "13 November 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Back to home",
     "sections": {
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
       },
       "rights": {
         "title": "Your rights",
@@ -289,18 +289,24 @@
   "suppression": {
     "meta": {
       "title": "Account deletion",
-      "description": "How to request deletion of your account and data in the Nous Deux app."
+      "description": "How to delete your Nous Deux account and data, from the app or by email."
     },
     "title": "Account deletion",
-    "intro": "You can't delete your account from the app yet. Until you can, request it by email: we delete the account and the data linked to it.",
-    "howToTitle": "How do I request account deletion?",
+    "intro": "You can delete your account yourself, from the app. It happens at once and can't be undone.",
+    "inAppTitle": "From the app",
+    "inAppSteps": [
+      "On the Us tab, tap your initial or photo at the top right to open Settings.",
+      "Under Account, tap Delete my account.",
+      "Confirm. The app goes back to the sign-in screen."
+    ],
+    "deletedTitle": "What gets deleted",
+    "deletedBody": "Your account, profile, photo and cycle notes are erased at once. If you're in a couple, you leave it: your calendar, cycle, location, lists and little notes are deleted for both of you, and your partner keeps their account. Backups are kept for 14 days; after that, they no longer contain anything about you.",
+    "howToTitle": "Without access to the app",
     "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
     "phoneNote": "In your message, include the phone number or the email address (Google or Apple)",
     "phoneNoteSuffix": "you sign in with. That's how we find your account.",
     "processingNote": "We handle the request as soon as we can. Once the account is deleted, the associated data is erased as described in our",
     "privacyLink": "privacy policy",
-    "noteTitle": "Note",
-    "noteBody": "This is a temporary process. Deleting your account from within the app is coming in a later version.",
     "footerPrivacy": "Privacy policy",
     "backHome": "Back to home",
     "emailSubject": "Account deletion request - Nous Deux"

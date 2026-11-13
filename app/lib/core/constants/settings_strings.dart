@@ -71,6 +71,34 @@ String settingsSignOutConfirmMessage(String lang) =>
         ? 'Votre couple et ce que vous partagez restent en place. Reconnectez-vous avec le même compte pour les retrouver.'
         : 'Your couple and what you share stay as they are. Sign in with the same account to find them again.';
 
+// Delete account
+String settingsDeleteAccount(String lang) =>
+    lang == 'fr' ? 'Supprimer mon compte' : 'Delete my account';
+String settingsDeleteAccountConfirmTitle(String lang) =>
+    lang == 'fr' ? 'Supprimer votre compte ?' : 'Delete your account?';
+String settingsDeleteAccountConfirmMessage(
+  String lang, {
+  required bool paired,
+}) {
+  if (lang == 'fr') {
+    return paired
+        ? "Votre compte, votre profil, votre photo et vos notes de cycle seront supprimés. Vous quitterez aussi le couple : le calendrier, le cycle, la position, les listes et les petits mots seront supprimés pour vous deux. Impossible de revenir en arrière."
+        : 'Votre compte, votre profil, votre photo et vos notes de cycle seront supprimés. Impossible de revenir en arrière.';
+  }
+  return paired
+      ? "Your account, profile, photo and cycle notes will be deleted. You'll also leave the couple: your calendar, cycle, location, lists and little notes will be deleted for both of you. This can't be undone."
+      : "Your account, profile, photo and cycle notes will be deleted. This can't be undone.";
+}
+
+String settingsDeleteAccountConfirm(String lang) =>
+    lang == 'fr' ? 'Supprimer' : 'Delete';
+String settingsDeleteAccountDone(String lang) => lang == 'fr'
+    ? 'Votre compte a été supprimé.'
+    : 'Your account has been deleted.';
+String settingsDeleteAccountFailed(String lang) => lang == 'fr'
+    ? "Le compte n'a pas pu être supprimé. Vérifiez votre connexion et réessayez."
+    : "Your account couldn't be deleted. Check your connection and try again.";
+
 // App info
 String appInfoTitle(String lang) => lang == 'fr' ? 'À propos de l\'app' : 'About the app';
 String appInfoDescription(String lang) =>

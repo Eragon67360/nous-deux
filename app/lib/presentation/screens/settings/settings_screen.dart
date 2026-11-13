@@ -145,6 +145,7 @@ class SettingsScreen extends ConsumerWidget {
                     showChevron: false,
                     onTap: () => _confirmSignOut(context, ref, lang),
                   ),
+                  _DeleteAccountTile(lang: lang),
                 ],
               ),
 
@@ -892,6 +893,86 @@ Future<void> _confirmSignOut(
   );
   if (confirmed != true) return;
   await ref.read(authRepositoryProvider).signOut();
+}
+
+/// Deletes the account after a confirmation that says what will be lost. The
+/// tile shows a spinner and ignores taps while it runs; on success the router
+/// leaves for the sign-in screen once the session is gone.
+class _DeleteAccountTile extends ConsumerStatefulWidget {
+  const _DeleteAccountTile({required this.lang});
+
+  final String lang;
+
+  @override
+  ConsumerState<_DeleteAccountTile> createState() => _DeleteAccountTileState();
+}
+
+class _DeleteAccountTileState extends ConsumerState<_DeleteAccountTile> {
+  bool _busy = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return _SettingsTile(
+      icon: Icons.delete_outline,
+      title: settingsDeleteAccount(widget.lang),
+      showChevron: false,
+      trailing: _busy
+          ? const SizedBox.square(
+              dimension: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : null,
+      onTap: _busy ? null : _confirmAndDelete,
+    );
+  }
+
+  Future<void> _confirmAndDelete() async {
+    final lang = widget.lang;
+    final paired = ref.read(myCoupleProvider).valueOrNull?.isPaired ?? false;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        final scheme = Theme.of(ctx).colorScheme;
+        return AlertDialog(
+          title: Text(settingsDeleteAccountConfirmTitle(lang)),
+          content: Text(
+            settingsDeleteAccountConfirmMessage(lang, paired: paired),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(settingsCancel(lang)),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: scheme.error,
+                foregroundColor: scheme.onError,
+              ),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: Text(settingsDeleteAccountConfirm(lang)),
+            ),
+          ],
+        );
+      },
+    );
+    if (confirmed != true || !mounted) return;
+
+    // The app-wide messenger outlives this screen, so the message still
+    // shows once the router has moved to the sign-in screen.
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    final failure = await deleteMyAccount(ref);
+    if (mounted) setState(() => _busy = false);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(
+          failure == null
+              ? settingsDeleteAccountDone(lang)
+              : settingsDeleteAccountFailed(lang),
+        ),
+      ),
+    );
+  }
 }
 
 class _NotificationSwitchesBody extends ConsumerWidget {

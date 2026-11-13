@@ -129,7 +129,7 @@
           },
           {
             "question": "Comment supprimer mon compte ?",
-            "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte, avec le numéro de téléphone ou l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
+            "answer": "Dans l'application : Paramètres › Compte › Supprimer mon compte. Sans accès à l'application, écrivez à l'adresse indiquée sur la page Suppression du compte, avec le numéro de téléphone ou l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
           },
           {
             "question": "Quand sort l'application ?",
@@ -170,7 +170,7 @@
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "12 novembre 2026",
+    "effectiveDate": "13 novembre 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Retour à l'accueil",
     "sections": {
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. En cas de suppression du compte, les données vous concernant sont effacées selon nos procédures et les délais techniques de nos sous-traitants. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
       },
       "rights": {
         "title": "Vos droits",
@@ -289,18 +289,24 @@
   "suppression": {
     "meta": {
       "title": "Suppression du compte",
-      "description": "Comment demander la suppression de votre compte et de vos données dans l'application Nous Deux."
+      "description": "Comment supprimer votre compte Nous Deux et vos données, depuis l'application ou par e-mail."
     },
     "title": "Suppression du compte",
-    "intro": "Vous ne pouvez pas encore supprimer votre compte depuis l'application. En attendant, faites la demande par e-mail : nous supprimons le compte et les données qui y sont liées.",
-    "howToTitle": "Comment demander la suppression de mon compte ?",
+    "intro": "Vous pouvez supprimer votre compte vous-même, depuis l'application. La suppression est immédiate et ne peut pas être annulée.",
+    "inAppTitle": "Depuis l'application",
+    "inAppSteps": [
+      "Dans l'onglet Nous, touchez votre initiale ou votre photo, en haut à droite, pour ouvrir les Paramètres.",
+      "Dans Compte, touchez Supprimer mon compte.",
+      "Confirmez. L'application revient à l'écran de connexion."
+    ],
+    "deletedTitle": "Ce qui est supprimé",
+    "deletedBody": "Votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite. Si vous êtes en couple, vous le quittez : le calendrier, le cycle, la position, les listes et les petits mots sont supprimés pour vous deux, et votre partenaire garde son compte. Les sauvegardes sont conservées 14 jours : passé ce délai, elles ne contiennent plus rien de vous.",
+    "howToTitle": "Sans accès à l'application",
     "howToIntro": "Écrivez à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
     "phoneNote": "Indiquez dans votre message le numéro de téléphone ou l'adresse e-mail (Google ou Apple)",
     "phoneNoteSuffix": "qui vous sert à vous connecter. C'est ce qui nous permet de retrouver votre compte.",
     "processingNote": "Nous traitons la demande dès que possible. Une fois le compte supprimé, les données associées sont effacées comme le prévoit notre",
     "privacyLink": "politique de confidentialité",
-    "noteTitle": "À noter",
-    "noteBody": "Cette procédure est provisoire. La suppression du compte depuis l'application arrivera dans une prochaine version.",
     "footerPrivacy": "Politique de confidentialité",
     "backHome": "Retour à l'accueil",
     "emailSubject": "Demande de suppression de compte - Nous Deux"

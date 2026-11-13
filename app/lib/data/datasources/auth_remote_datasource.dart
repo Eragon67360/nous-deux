@@ -95,4 +95,29 @@ class AuthRemoteDatasource {
     await _googleSignIn.signOut();
     await _client.auth.signOut();
   }
+
+  /// Removes the profile photo through Storage (which refuses direct deletes
+  /// from its tables), deletes the account and its data in one database call
+  /// (`delete_my_account`), then forgets the session on this phone.
+  Future<void> deleteAccount() async {
+    final userId = _client.auth.currentUser?.id;
+    if (userId == null) throw AuthException('Not signed in');
+
+    final avatars = _client.storage.from(AppConstants.avatarsBucket);
+    final files = await avatars.list(path: userId);
+    if (files.isNotEmpty) {
+      await avatars.remove([for (final f in files) '$userId/${f.name}']);
+    }
+
+    await _client.rpc<void>('delete_my_account');
+
+    // The account is gone: from here on, nothing may stop the sign-out.
+    try {
+      // Revokes the app's Google access, so a new sign-in asks again.
+      await _googleSignIn.disconnect();
+    } catch (_) {
+      // Not signed in with Google on this phone.
+    }
+    await _client.auth.signOut();
+  }
 }
