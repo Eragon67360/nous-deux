@@ -37,7 +37,6 @@ export default async function SuppressionComptePage({ params }: PageProps) {
   if (!hasLocale(lang)) notFound();
   const dict = await getDictionary(lang);
   const s = dict.suppression;
-  const basePath = `/${lang}/suppression-compte`;
 
   const suppressionPageStructuredData = {
     "@context": "https://schema.org",
@@ -47,26 +46,11 @@ export default async function SuppressionComptePage({ params }: PageProps) {
         name: s.meta.title,
         description: s.meta.description,
         inLanguage: lang,
-        step: [
-          {
-            "@type": "HowToStep",
-            position: 1,
-            name: s.howToTitle,
-            text: s.howToIntro,
-          },
-          {
-            "@type": "HowToStep",
-            position: 2,
-            name: s.phoneNote,
-            text: s.phoneNoteSuffix,
-          },
-          {
-            "@type": "HowToStep",
-            position: 3,
-            name: s.processingNote,
-            text: s.noteBody,
-          },
-        ],
+        step: s.inAppSteps.map((text, i) => ({
+          "@type": "HowToStep",
+          position: i + 1,
+          text,
+        })),
       },
     ],
   };
@@ -105,6 +89,24 @@ export default async function SuppressionComptePage({ params }: PageProps) {
 
           <section>
             <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
+              {s.inAppTitle}
+            </h2>
+            <ol className="list-decimal space-y-2 pl-6">
+              {s.inAppSteps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
+              {s.deletedTitle}
+            </h2>
+            <p>{s.deletedBody}</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {s.howToTitle}
             </h2>
             <p className="mb-4">{s.howToIntro}</p>
@@ -131,13 +133,6 @@ export default async function SuppressionComptePage({ params }: PageProps) {
               </LocaleLink>
               .
             </p>
-          </section>
-
-          <section>
-            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
-              {s.noteTitle}
-            </h2>
-            <p>{s.noteBody}</p>
           </section>
         </article>
 
