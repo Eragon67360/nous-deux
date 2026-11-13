@@ -129,7 +129,7 @@
           },
           {
             "question": "Comment supprimer mon compte ?",
-            "answer": "Dans l'application : Paramètres › Compte › Supprimer mon compte. Sans accès à l'application, écrivez à l'adresse indiquée sur la page Suppression du compte, avec le numéro de téléphone ou l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
+            "answer": "Dans l'application : Paramètres › Compte › Supprimer mon compte. Sans accès à l'application, écrivez à l'adresse indiquée sur la page Suppression du compte, avec l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
           },
           {
             "question": "Quand sort l'application ?",
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Compte et authentification",
-            "text": "identifiant de connexion (connexion avec Google, avec Apple ou par code SMS), adresse e-mail transmise par Google ou Apple le cas échéant, numéro de téléphone si vous vous connectez par SMS."
+            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant."
           },
           {
             "label": "Profil",
@@ -238,7 +238,7 @@
         "items": [
           {
             "label": "Hetzner (Allemagne)",
-            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne. Pour la connexion par SMS, le code est envoyé par un prestataire d'envoi de SMS."
+            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne."
           },
           {
             "label": "Firebase (Google)",
@@ -303,7 +303,7 @@
     "deletedBody": "Votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite. Si vous êtes en couple, vous le quittez : le calendrier, le cycle, la position, les listes et les petits mots sont supprimés pour vous deux, et votre partenaire garde son compte. Les sauvegardes sont conservées 14 jours : passé ce délai, elles ne contiennent plus rien de vous.",
     "howToTitle": "Sans accès à l'application",
     "howToIntro": "Écrivez à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
-    "phoneNote": "Indiquez dans votre message le numéro de téléphone ou l'adresse e-mail (Google ou Apple)",
+    "phoneNote": "Indiquez dans votre message l'adresse e-mail (Google ou Apple)",
     "phoneNoteSuffix": "qui vous sert à vous connecter. C'est ce qui nous permet de retrouver votre compte.",
     "processingNote": "Nous traitons la demande dès que possible. Une fois le compte supprimé, les données associées sont effacées comme le prévoit notre",
     "privacyLink": "politique de confidentialité",
