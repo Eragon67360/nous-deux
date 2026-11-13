@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
@@ -13,7 +14,10 @@ import 'package:nousdeux/presentation/widgets/entrance.dart';
 import 'package:nousdeux/presentation/widgets/merging_rings.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
-  const AuthScreen({super.key});
+  const AuthScreen({super.key, this.phoneSignIn = AppConstants.phoneSignIn});
+
+  /// Shows the phone number field. Off unless the build turns it on.
+  final bool phoneSignIn;
 
   @override
   ConsumerState<AuthScreen> createState() => _AuthScreenState();
@@ -132,35 +136,37 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    TextField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      autofillHints: const [AutofillHints.telephoneNumber],
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _loading ? null : _sendOtp(lang),
-                      decoration: InputDecoration(
-                        labelText: authPhoneLabel(lang),
-                        hintText: authPhoneHint(lang),
-                        errorText: _error,
+                    if (widget.phoneSignIn) ...[
+                      TextField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        autofillHints: const [AutofillHints.telephoneNumber],
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _loading ? null : _sendOtp(lang),
+                        decoration: InputDecoration(
+                          labelText: authPhoneLabel(lang),
+                          hintText: authPhoneHint(lang),
+                          errorText: _error,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    FilledButton(
-                      onPressed: _loading ? null : () => _sendOtp(lang),
-                      child: _loading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colorScheme.onPrimary,
-                              ),
-                            )
-                          : Text(authSendCode(lang)),
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    _OrDivider(label: authOr(lang)),
-                    const SizedBox(height: AppSpacing.md),
+                      const SizedBox(height: AppSpacing.sm),
+                      FilledButton(
+                        onPressed: _loading ? null : () => _sendOtp(lang),
+                        child: _loading
+                            ? SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colorScheme.onPrimary,
+                                ),
+                              )
+                            : Text(authSendCode(lang)),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      _OrDivider(label: authOr(lang)),
+                      const SizedBox(height: AppSpacing.md),
+                    ],
                     // Apple sign-in is native on iOS only (Android would
                     // need the web flow).
                     if (defaultTargetPlatform == TargetPlatform.iOS) ...[
@@ -180,6 +186,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       icon: const _GoogleMark(),
                       label: Text(authContinueWithGoogle(lang)),
                     ),
+                    // Without the phone field, errors show under the buttons.
+                    if (!widget.phoneSignIn && _error != null) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        _error!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colorScheme.error,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                    if (!widget.phoneSignIn && _loading) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      const Center(
+                        child: SizedBox.square(
+                          dimension: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

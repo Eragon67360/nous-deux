@@ -129,7 +129,7 @@
           },
           {
             "question": "How do I delete my account?",
-            "answer": "In the app: Settings › Account › Delete my account. Without access to the app, email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
+            "answer": "In the app: Settings › Account › Delete my account. Without access to the app, email the address on the Account deletion page, with the email address (Google or Apple) you sign in with."
           },
           {
             "question": "When does the app come out?",
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Account and authentication",
-            "text": "sign-in identifier (sign in with Google, with Apple or with a text-message code), the email address Google or Apple provides if any, and your phone number if you sign in by text message."
+            "text": "sign-in identifier (sign in with Google or with Apple) and the email address Google or Apple provides, if any."
           },
           {
             "label": "Profile",
@@ -238,7 +238,7 @@
         "items": [
           {
             "label": "Hetzner (Germany)",
-            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU. For text-message sign-in, the code is sent through an SMS provider."
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU."
           },
           {
             "label": "Firebase (Google)",
@@ -303,7 +303,7 @@
     "deletedBody": "Your account, profile, photo and cycle notes are erased at once. If you're in a couple, you leave it: your calendar, cycle, location, lists and little notes are deleted for both of you, and your partner keeps their account. Backups are kept for 14 days; after that, they no longer contain anything about you.",
     "howToTitle": "Without access to the app",
     "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
-    "phoneNote": "In your message, include the phone number or the email address (Google or Apple)",
+    "phoneNote": "In your message, include the email address (Google or Apple)",
     "phoneNoteSuffix": "you sign in with. That's how we find your account.",
     "processingNote": "We handle the request as soon as we can. Once the account is deleted, the associated data is erased as described in our",
     "privacyLink": "privacy policy",
