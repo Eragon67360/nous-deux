@@ -25,4 +25,9 @@ abstract class AuthRepository {
 
   /// Sign out.
   Future<void> signOut();
+
+  /// Deletes the account and its data on the server, then signs out. The
+  /// couple goes too, with everything shared, for both partners. Null on
+  /// success; on failure the account and the session are left as they were.
+  Future<Failure?> deleteAccount();
 }

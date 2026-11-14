@@ -35,7 +35,7 @@
         "after": "One shared space.",
         "body": "One of you generates a code, the other scans it. From then on, whatever one of you adds, the other sees.",
         "leftAlt": "The calendar on your phone",
-        "rightAlt": "Cycle tracking on your partner's phone",
+        "rightAlt": "The calendar on your partner's phone",
         "mergedAlt": "The same calendar, shared by two",
         "labelMe": "Me",
         "labelYou": "You"
@@ -129,7 +129,7 @@
           },
           {
             "question": "How do I delete my account?",
-            "answer": "Email the address on the Account deletion page, with the phone number or the email address (Google or Apple) you sign in with."
+            "answer": "In the app: Settings › Account › Delete my account. Without access to the app, email the address on the Account deletion page, with the email address (Google or Apple) you sign in with."
           },
           {
             "question": "When does the app come out?",
@@ -170,7 +170,7 @@
       "description": "Privacy policy for the Nous Deux application."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "12 November 2026",
+    "effectiveDate": "14 November 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Back to home",
     "sections": {
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Account and authentication",
-            "text": "sign-in identifier (sign in with Google, with Apple or with a text-message code), the email address Google or Apple provides if any, and your phone number if you sign in by text message."
+            "text": "sign-in identifier (sign in with Google or with Apple) and the email address Google or Apple provides, if any."
           },
           {
             "label": "Profile",
@@ -200,7 +200,7 @@
           },
           {
             "label": "Location (optional)",
-            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored."
+            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored, and when you turn sharing off, your last position is erased."
           },
           {
             "label": "Shared lists",
@@ -220,13 +220,13 @@
           },
           {
             "label": "Technical data",
-            "text": "requested permissions (calendar, notifications, location, camera for profile photo) and information needed for the app to work on your device."
+            "text": "requested permissions (calendar, notifications, location, camera to scan your partner's QR code) and information needed for the app to work on your device."
           }
         ]
       },
       "purposes": {
         "title": "Purposes of processing",
-        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through Mapbox) when location sharing is on."
+        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through OpenFreeMap) when location sharing is on."
       },
       "legalBasis": {
         "title": "Legal basis",
@@ -238,15 +238,15 @@
         "items": [
           {
             "label": "Hetzner (Germany)",
-            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU. For text-message sign-in, the code is sent through an SMS provider."
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU."
           },
           {
             "label": "Firebase (Google)",
             "text": "sending push notifications (FCM)."
           },
           {
-            "label": "Mapbox",
-            "text": "map display when location sharing is enabled."
+            "label": "OpenFreeMap (Hyperknot Software, Hungary)",
+            "text": "map tiles, from OpenStreetMap, shown when location sharing is on. To draw the map, your phone asks its servers for the areas on screen: no account, no cookies, and its logs don't keep your IP address, except error logs, deleted after 7 days. The service may go through the Cloudflare network."
           },
           {
             "label": "Google and Apple",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. If you delete your account, the data about you is erased according to our procedures and our processors' technical delays. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
       },
       "rights": {
         "title": "Your rights",
@@ -289,18 +289,53 @@
   "suppression": {
     "meta": {
       "title": "Account deletion",
-      "description": "How to request deletion of your account and data in the Nous Deux app."
+      "description": "How to delete your Nous Deux account and data, from the app or by email."
     },
     "title": "Account deletion",
-    "intro": "You can't delete your account from the app yet. Until you can, request it by email: we delete the account and the data linked to it.",
-    "howToTitle": "How do I request account deletion?",
+    "intro": "You can delete your account yourself, from the app. It happens at once and can't be undone.",
+    "inAppTitle": "From the app",
+    "inAppSteps": [
+      "On the Us tab, tap your initial or photo at the top right to open Settings.",
+      "Under Account, tap Delete my account.",
+      "Confirm. The app goes back to the sign-in screen."
+    ],
+    "deletedTitle": "What gets deleted",
+    "deletedBody": "Your account, profile, photo and cycle notes are erased at once. If you're in a couple, you leave it: your calendar, cycle, location, lists and little notes are deleted for both of you, and your partner keeps their account. Backups are kept for 14 days; after that, they no longer contain anything about you.",
+    "partialTitle": "Deleting only some of your data",
+    "partialIntro": "You can also erase some data from the app and keep your account:",
+    "partialItems": [
+      {
+        "label": "Your cycle",
+        "text": "in Settings › Period, turn off “I track my cycle in the app”, then choose Delete everything. Your period dates, daily check-ins and cycle notes are erased."
+      },
+      {
+        "label": "One cycle",
+        "text": "on the Period tab, open Your cycles and long-press the one to delete."
+      },
+      {
+        "label": "An event",
+        "text": "on the Calendar tab, long-press the event, then tap Delete."
+      },
+      {
+        "label": "Lists",
+        "text": "swipe an item to the left to delete it, tap Clear all to remove ticked items, or delete the whole list from its options."
+      },
+      {
+        "label": "Your location",
+        "text": "in Settings › Location, turn off “Share my location”. Your last position is erased."
+      },
+      {
+        "label": "Everything you share",
+        "text": "in Settings › Couple, tap Leave couple. Your calendar, period dates and daily check-ins, location, lists, little notes and start date are deleted for both of you. Your cycle notes, which are yours alone, stay until you delete them."
+      }
+    ],
+    "partialNote": "A deleted event or list item disappears for your partner too. Erased data leaves the backups within 14 days.",
+    "howToTitle": "Without access to the app",
     "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
-    "phoneNote": "In your message, include the phone number or the email address (Google or Apple)",
+    "phoneNote": "In your message, include the email address (Google or Apple)",
     "phoneNoteSuffix": "you sign in with. That's how we find your account.",
     "processingNote": "We handle the request as soon as we can. Once the account is deleted, the associated data is erased as described in our",
     "privacyLink": "privacy policy",
-    "noteTitle": "Note",
-    "noteBody": "This is a temporary process. Deleting your account from within the app is coming in a later version.",
     "footerPrivacy": "Privacy policy",
     "backHome": "Back to home",
     "emailSubject": "Account deletion request - Nous Deux"

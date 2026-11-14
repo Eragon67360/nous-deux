@@ -7,7 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Your existing imports for context
+import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
+import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/services/period_reminder_service.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
@@ -40,7 +43,7 @@ class AvatarController extends AutoDisposeAsyncNotifier<void> {
       if (!await file.exists()) return;
 
       final client = Supabase.instance.client;
-      const bucket = 'avatars';
+      const bucket = AppConstants.avatarsBucket;
       final path = '$userId/avatar.jpg';
 
       // Upload
@@ -119,3 +122,21 @@ final calendarPrefsProvider =
     AsyncNotifierProvider.autoDispose<CalendarPrefsController, bool>(
       CalendarPrefsController.new,
     );
+
+/// Deletes my account, then forgets it on this phone: the reminder about my
+/// partner's period and the local Règles and calendar preferences go too, so
+/// a next account here starts clean. Null on success.
+Future<Failure?> deleteMyAccount(WidgetRef ref) async {
+  final failure = await ref.read(authRepositoryProvider).deleteAccount();
+  if (failure != null) return failure;
+  await cancelPartnerPeriodReminder();
+  final prefs = await SharedPreferences.getInstance();
+  for (final key in const [
+    periodPartnerReminderEnabledKey,
+    calendarNotificationsEnabledKey,
+    guideReadChaptersKey,
+  ]) {
+    await prefs.remove(key);
+  }
+  return null;
+}

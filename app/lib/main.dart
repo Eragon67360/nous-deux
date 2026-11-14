@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/config/app_config.dart';
@@ -35,10 +34,6 @@ void main() async {
       url: AppConfig.supabaseUrl,
       anonKey: AppConfig.supabaseAnonKey,
     );
-  }
-
-  if (AppConfig.isMapboxConfigured) {
-    MapboxOptions.setAccessToken(AppConfig.mapboxAccessToken);
   }
 
   try {

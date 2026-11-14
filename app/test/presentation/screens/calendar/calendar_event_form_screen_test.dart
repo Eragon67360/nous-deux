@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/data/models/calendar_event_model.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 
@@ -223,6 +224,41 @@ void main() {
         ),
       ]);
       expect(find.byType(CalendarEventFormScreen), findsNothing);
+    });
+
+    // Server rows carry an offset. The pickers start from the event's fields,
+    // so confirming them unchanged must keep the event at the same instant.
+    testWidgets('confirming the pickers keeps a server event in place', (
+      tester,
+    ) async {
+      final fromServer = CalendarEventModel.fromJson({
+        'id': 'e4',
+        'couple_id': 'c1',
+        'title': 'Dîner',
+        'start_time': '2026-11-12T16:30:00+00:00',
+        'end_time': '2026-11-12T18:00:00+00:00',
+        'created_by': 'u1',
+      }).toEntity();
+      final deps = await _openForm(tester, editing: fromServer);
+
+      await tester.tap(find.text(calendarEventStart('fr')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK')); // date picker
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('OK')); // time picker
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(calendarEventSave('fr')));
+      await tester.pumpAndSettle();
+
+      final saved = deps.calendar.updateCalls.single;
+      expect(
+        saved.startTime!.isAtSameMomentAs(DateTime.utc(2026, 11, 12, 16, 30)),
+        isTrue,
+      );
+      expect(
+        saved.endTime!.isAtSameMomentAs(DateTime.utc(2026, 11, 12, 18)),
+        isTrue,
+      );
     });
 
     testWidgets('an event without an end gets start + 1 h', (tester) async {

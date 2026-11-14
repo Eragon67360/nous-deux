@@ -27,6 +27,11 @@ abstract class AppConstants {
         '836600962251-gev8n6ko7l11f78hka962jv8lje7pq41.apps.googleusercontent.com',
   );
 
+  // Phone sign-in needs an SMS provider, which the beta doesn't have, so it
+  // is off. Local builds can turn it on for the auth server's test numbers:
+  // --dart-define=PHONE_SIGN_IN=true.
+  static const bool phoneSignIn = bool.fromEnvironment('PHONE_SIGN_IN');
+
   // Pairing
   static const int pairingCodeLength = 6;
   static const String pairingCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -34,11 +39,8 @@ abstract class AppConstants {
   // Location
   static const int locationUpdateIntervalSeconds = 30;
 
-  // Mapbox (optional; used only if integrating mapbox_maps_flutter)
-  static const String mapboxAccessToken = String.fromEnvironment(
-    'MAPBOX_ACCESS_TOKEN',
-    defaultValue: '',
-  );
+  // Storage bucket for profile photos, one folder per user id.
+  static const String avatarsBucket = 'avatars';
 
   // Validation
   static const int eventTitleMaxLength = 200;
