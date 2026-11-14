@@ -16,9 +16,9 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 | App or game | App |
 | Free or paid | Free |
 | Category | Lifestyle |
-| Tags | Couples, Calendar, Lifestyle |
+| Tags | Calendar, Communication, Health & Fitness, Lifestyle (French Console: Agenda, Communication, Santé et remise en forme, Style de vie). Play has no Couples tag. |
 | Contact email | `thomas-moser@orange.fr` (the address on the site) |
-| Website | https://nous-deux.app |
+| Website | https://nous-deux.app (this field goes live as soon as it's saved, without review) |
 
 ## App content
 
@@ -79,7 +79,7 @@ None of the permissions with their own Play declaration are used: no background 
 | Is all of the user data collected by your app encrypted in transit? | Yes (HTTPS to `api.nous-deux.app`, Firebase and OpenFreeMap) |
 | Which account creation methods does your app support? | OAuth: Google and Apple |
 | Delete account URL | `https://nous-deux.app/fr/suppression-compte` |
-| Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, leave the couple (which deletes what it shared), and delete events and list items. |
+| Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, leave the couple (which deletes what it shared), and delete events and list items. The deletion page explains how, under "Deleting only some of your data". |
 
 ### Data collected
 Nothing is **shared** in Play's sense:
@@ -96,7 +96,7 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 | Personal info › User IDs | Required | App functionality, Account management | Account id |
 | Personal info › Other info | Required | App functionality | Gender, chosen at onboarding |
 | Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms and mood, private cycle notes |
-| Location › Precise location | Optional | App functionality | Latest position only, while sharing is on |
+| Location › Precise location | Optional | App functionality | Latest position only, no history |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
 | Messages › Other in-app messages | Optional | App functionality | Little notes (latest one per person) |
 | Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |
@@ -155,9 +155,17 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 The quoted note labels are the app's own, in both languages.
 
 ### Graphics
-- **App icon:** 512×512 PNG. `app/assets/icon/app_icon.png` is 1024×1024, so export a 512×512 copy (for example `sips -Z 512 app/assets/icon/app_icon.png --out icon-512.png`).
-- **Feature graphic:** 1024×500. Not made yet.
-- **Phone screenshots:** the eight captures in `website/public/screenshots/` are 1290×2796 (iPhone). Play accepts them, but Android captures look more natural.
+Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/render.py` (headless Chrome) from the HTML in `app/store/play/src/` and the app captures in `website/public/screenshots/`.
+
+| Asset | French (default) | English (en-US) |
+| --- | --- | --- |
+| App icon, 512×512 | `icon-512.png` | inherited from French |
+| Feature graphic, 1024×500 | `fr/feature.png` | `en/feature.png` |
+| Phone screenshots, 1080×1920, in this order | `fr/01-nous` … `fr/05-listes` | `en/01-us` … `en/05-lists` |
+
+- **Order:** uploading several screenshots at once lands them in a random order. Upload them one at a time, or reorder them in the asset panel.
+- **AI content declaration:** "Don't label". The graphics are app captures laid out in HTML and CSS, with no generated images.
+- **Later:** captures from an Android phone would look more natural than the iPhone ones inside the frames.
 
 ## Closed testing
 1. Create the closed testing track and add testers as an email list or a Google Group. A group is easier to share from social media: people join the group, then open the opt-in link.

@@ -301,6 +301,31 @@
     ],
     "deletedTitle": "Ce qui est supprimé",
     "deletedBody": "Votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite. Si vous êtes en couple, vous le quittez : le calendrier, le cycle, la position, les listes et les petits mots sont supprimés pour vous deux, et votre partenaire garde son compte. Les sauvegardes sont conservées 14 jours : passé ce délai, elles ne contiennent plus rien de vous.",
+    "partialTitle": "Supprimer une partie de vos données",
+    "partialIntro": "Vous pouvez aussi effacer certaines données depuis l'application et garder votre compte :",
+    "partialItems": [
+      {
+        "label": "Votre cycle",
+        "text": "dans Paramètres › Règles, désactivez « Je suis mon cycle dans l'app », puis choisissez Tout supprimer. Vos dates de règles, votre ressenti du jour et vos notes de cycle sont effacés."
+      },
+      {
+        "label": "Un cycle",
+        "text": "dans l'onglet Règles, ouvrez Vos cycles et restez appuyé sur celui à effacer."
+      },
+      {
+        "label": "Un événement",
+        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer."
+      },
+      {
+        "label": "Les listes",
+        "text": "faites glisser un élément vers la gauche pour l'effacer, touchez Tout effacer pour retirer les éléments cochés, ou supprimez la liste depuis ses options."
+      },
+      {
+        "label": "Tout ce que vous partagez",
+        "text": "dans Paramètres › Couple, touchez Quitter le couple. Le calendrier, les dates de règles et le ressenti du jour, la position, les listes, les petits mots et votre date de début sont supprimés pour vous deux. Vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez."
+      }
+    ],
+    "partialNote": "Un événement ou un élément de liste supprimé disparaît aussi chez votre partenaire. Les données effacées quittent les sauvegardes sous 14 jours.",
     "howToTitle": "Sans accès à l'application",
     "howToIntro": "Écrivez à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
     "phoneNote": "Indiquez dans votre message l'adresse e-mail (Google ou Apple)",

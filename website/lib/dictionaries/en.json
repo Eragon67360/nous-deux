@@ -301,6 +301,31 @@
     ],
     "deletedTitle": "What gets deleted",
     "deletedBody": "Your account, profile, photo and cycle notes are erased at once. If you're in a couple, you leave it: your calendar, cycle, location, lists and little notes are deleted for both of you, and your partner keeps their account. Backups are kept for 14 days; after that, they no longer contain anything about you.",
+    "partialTitle": "Deleting only some of your data",
+    "partialIntro": "You can also erase some data from the app and keep your account:",
+    "partialItems": [
+      {
+        "label": "Your cycle",
+        "text": "in Settings › Period, turn off “I track my cycle in the app”, then choose Delete everything. Your period dates, daily check-ins and cycle notes are erased."
+      },
+      {
+        "label": "One cycle",
+        "text": "on the Period tab, open Your cycles and long-press the one to delete."
+      },
+      {
+        "label": "An event",
+        "text": "on the Calendar tab, long-press the event, then tap Delete."
+      },
+      {
+        "label": "Lists",
+        "text": "swipe an item to the left to delete it, tap Clear all to remove ticked items, or delete the whole list from its options."
+      },
+      {
+        "label": "Everything you share",
+        "text": "in Settings › Couple, tap Leave couple. Your calendar, period dates and daily check-ins, location, lists, little notes and start date are deleted for both of you. Your cycle notes, which are yours alone, stay until you delete them."
+      }
+    ],
+    "partialNote": "A deleted event or list item disappears for your partner too. Erased data leaves the backups within 14 days.",
     "howToTitle": "Without access to the app",
     "howToIntro": "Write to the following address to ask for your account and personal data to be deleted:",
     "phoneNote": "In your message, include the email address (Google or Apple)",
