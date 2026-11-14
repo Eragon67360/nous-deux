@@ -107,6 +107,23 @@ export default async function SuppressionComptePage({ params }: PageProps) {
 
           <section>
             <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
+              {s.partialTitle}
+            </h2>
+            <p className="mb-4">{s.partialIntro}</p>
+            <ul className="mb-4 list-disc space-y-2 pl-6">
+              {s.partialItems.map((item) => (
+                <li key={item.label}>
+                  <strong className="text-on-surface">{item.label}</strong>
+                  {lang === "fr" ? " : " : ": "}
+                  {item.text}
+                </li>
+              ))}
+            </ul>
+            <p>{s.partialNote}</p>
+          </section>
+
+          <section>
+            <h2 className="mb-3 text-3xl font-normal font-display text-on-surface">
               {s.howToTitle}
             </h2>
             <p className="mb-4">{s.howToIntro}</p>
