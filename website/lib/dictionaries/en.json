@@ -170,7 +170,7 @@
       "description": "Privacy policy for the Nous Deux application."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "13 November 2026",
+    "effectiveDate": "14 November 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Back to home",
     "sections": {
@@ -200,7 +200,7 @@
           },
           {
             "label": "Location (optional)",
-            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored."
+            "text": "if you enable location sharing, your real-time position (latitude, longitude) is used for display on the map. No location history is stored, and when you turn sharing off, your last position is erased."
           },
           {
             "label": "Shared lists",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
       },
       "rights": {
         "title": "Your rights",
@@ -319,6 +319,10 @@
       {
         "label": "Lists",
         "text": "swipe an item to the left to delete it, tap Clear all to remove ticked items, or delete the whole list from its options."
+      },
+      {
+        "label": "Your location",
+        "text": "in Settings › Location, turn off “Share my location”. Your last position is erased."
       },
       {
         "label": "Everything you share",

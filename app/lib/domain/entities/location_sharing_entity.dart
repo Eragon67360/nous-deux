@@ -17,9 +17,22 @@ class LocationSharingEntity extends Equatable {
   final bool isSharing;
   final DateTime? updatedAt;
 
+  /// A row that stopped sharing has no position, even if a server without the
+  /// clearing trigger still holds the last coordinates.
   bool get hasPosition =>
-      latitude != null && longitude != null && latitude!.isFinite && longitude!.isFinite;
+      isSharing &&
+      latitude != null &&
+      longitude != null &&
+      latitude!.isFinite &&
+      longitude!.isFinite;
 
   @override
-  List<Object?> get props => [userId, coupleId, latitude, longitude, isSharing, updatedAt];
+  List<Object?> get props => [
+    userId,
+    coupleId,
+    latitude,
+    longitude,
+    isSharing,
+    updatedAt,
+  ];
 }
