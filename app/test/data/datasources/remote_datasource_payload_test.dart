@@ -6,6 +6,7 @@ import 'package:http/testing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/data/datasources/lists_remote_datasource.dart';
+import 'package:nousdeux/data/datasources/location_remote_datasource.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/data/datasources/ping_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/calendar_remote_datasource.dart';
@@ -87,23 +88,26 @@ void main() {
       expect(updated.id, 'e1');
     });
 
-    test('clearing the description on edit clears it in the database', () async {
-      // Regression: update() used to drop null fields, so an emptied
-      // description was never removed.
-      final requests = <http.Request>[];
-      final ds = CalendarRemoteDatasource(_client(_eventRow, requests));
+    test(
+      'clearing the description on edit clears it in the database',
+      () async {
+        // Regression: update() used to drop null fields, so an emptied
+        // description was never removed.
+        final requests = <http.Request>[];
+        final ds = CalendarRemoteDatasource(_client(_eventRow, requests));
 
-      await ds.update(
-        id: 'e1',
-        title: 'Dîner',
-        description: null,
-        startTime: DateTime.utc(2026, 3, 14, 19, 30),
-        endTime: DateTime.utc(2026, 3, 14, 21),
-        isCountdown: true,
-      );
+        await ds.update(
+          id: 'e1',
+          title: 'Dîner',
+          description: null,
+          startTime: DateTime.utc(2026, 3, 14, 19, 30),
+          endTime: DateTime.utc(2026, 3, 14, 21),
+          isCountdown: true,
+        );
 
-      expect(_body(requests.single), containsPair('description', null));
-    });
+        expect(_body(requests.single), containsPair('description', null));
+      },
+    );
 
     test('create refuses to run signed out, before any request', () async {
       final requests = <http.Request>[];
@@ -239,6 +243,27 @@ void main() {
       expect(r.method, 'DELETE');
       expect(r.url.queryParameters['list_id'], 'eq.l1');
       expect(r.url.queryParameters['checked'], 'eq.true');
+    });
+  });
+
+  group('LocationRemoteDatasource', () {
+    test('updateMyPosition only moves a row that is sharing', () async {
+      final requests = <http.Request>[];
+      final ds = LocationRemoteDatasource(_client(const {}, requests));
+
+      await ds.updateMyPosition(userId: 'u1', lat: 48.8566, lng: 2.3522);
+
+      final r = requests.single;
+      expect(r.method, 'PATCH');
+      expect(r.url.path, '/rest/v1/location_sharing');
+      expect(r.url.queryParameters['user_id'], 'eq.u1');
+      expect(r.url.queryParameters['is_sharing'], 'eq.true');
+      final body = _body(r);
+      expect(
+        body.keys,
+        unorderedEquals(['latitude', 'longitude', 'updated_at']),
+      );
+      expect((body['latitude'], body['longitude']), (48.8566, 2.3522));
     });
   });
 }
