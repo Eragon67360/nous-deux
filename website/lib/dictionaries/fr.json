@@ -170,7 +170,7 @@
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "13 novembre 2026",
+    "effectiveDate": "14 novembre 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Retour à l'accueil",
     "sections": {
@@ -200,7 +200,7 @@
           },
           {
             "label": "Position (optionnelle)",
-            "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé."
+            "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé, et quand vous désactivez le partage, votre dernière position est effacée."
           },
           {
             "label": "Listes partagées",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
       },
       "rights": {
         "title": "Vos droits",
@@ -319,6 +319,10 @@
       {
         "label": "Les listes",
         "text": "faites glisser un élément vers la gauche pour l'effacer, touchez Tout effacer pour retirer les éléments cochés, ou supprimez la liste depuis ses options."
+      },
+      {
+        "label": "Votre position",
+        "text": "dans Paramètres › Position, désactivez « Partager ma position ». Votre dernière position est effacée."
       },
       {
         "label": "Tout ce que vous partagez",

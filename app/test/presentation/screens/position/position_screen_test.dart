@@ -214,6 +214,24 @@ void main() {
       expect(_updates(tester).stopCalls, greaterThan(0), reason: 'not sharing');
     }, variant: _noMap);
 
+    positionTest('the partner stopped: their row has no position, only me', (
+      tester,
+    ) async {
+      // Turning sharing off clears the coordinates in the database.
+      await _pumpPosition(
+        tester,
+        mine: location(lat: _paris.lat, lng: _paris.lng),
+        theirs: location(userId: partnerId, isSharing: false),
+      );
+
+      expect(find.text("La carte s'affiche sur téléphone."), findsOneWidget);
+      expect(find.textContaining(' km'), findsNothing);
+      expect(find.textContaining(' m'), findsNothing);
+      expect(find.text('Moi'), findsOneWidget);
+      expect(find.text('Alex'), findsOneWidget);
+      expect(find.byTooltip('Voir tout'), findsNothing);
+    }, variant: _noMap);
+
     positionTest(
       'while sharing, updates start and refresh pushes a position',
       (tester) async {

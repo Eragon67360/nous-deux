@@ -79,7 +79,7 @@ None of the permissions with their own Play declaration are used: no background 
 | Is all of the user data collected by your app encrypted in transit? | Yes (HTTPS to `api.nous-deux.app`, Firebase and OpenFreeMap) |
 | Which account creation methods does your app support? | OAuth: Google and Apple |
 | Delete account URL | `https://nous-deux.app/fr/suppression-compte` |
-| Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, leave the couple (which deletes what it shared), and delete events and list items. The deletion page explains how, under "Deleting only some of your data". |
+| Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, turn off location sharing (which erases their last position), leave the couple (which deletes what it shared), and delete events and list items. The deletion page explains how, under "Deleting only some of your data". |
 
 ### Data collected
 Nothing is **shared** in Play's sense:
@@ -96,7 +96,7 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 | Personal info › User IDs | Required | App functionality, Account management | Account id |
 | Personal info › Other info | Required | App functionality | Gender, chosen at onboarding |
 | Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms and mood, private cycle notes |
-| Location › Precise location | Optional | App functionality | Latest position only, no history |
+| Location › Precise location | Optional | App functionality | Latest position only, no history; erased when sharing stops |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
 | Messages › Other in-app messages | Optional | App functionality | Little notes (latest one per person) |
 | Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |

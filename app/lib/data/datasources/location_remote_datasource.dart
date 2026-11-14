@@ -4,7 +4,7 @@ import 'package:nousdeux/data/models/location_sharing_model.dart';
 
 class LocationRemoteDatasource {
   LocationRemoteDatasource([SupabaseClient? client])
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
   static const String _table = 'location_sharing';
@@ -30,6 +30,25 @@ class LocationRemoteDatasource {
     return LocationSharingModel.fromJson(Map<String, dynamic>.from(res));
   }
 
+  /// Moves the current user's position, only while their row is sharing: a
+  /// position that lands after sharing was turned off matches no row, so it
+  /// can't turn sharing back on.
+  Future<void> updateMyPosition({
+    required String userId,
+    required double lat,
+    required double lng,
+  }) async {
+    await _client
+        .from(_table)
+        .update({
+          'latitude': lat,
+          'longitude': lng,
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        })
+        .eq('user_id', userId)
+        .eq('is_sharing', true);
+  }
+
   /// Upsert current user's row: insert if missing, else update.
   Future<LocationSharingModel> upsertMyLocation({
     required String userId,
@@ -51,11 +70,7 @@ class LocationRemoteDatasource {
     if (existing == null) {
       payload['user_id'] = userId;
       payload['couple_id'] = coupleId;
-      final res = await _client
-          .from(_table)
-          .insert(payload)
-          .select()
-          .single();
+      final res = await _client.from(_table).insert(payload).select().single();
       return LocationSharingModel.fromJson(Map<String, dynamic>.from(res));
     }
 
