@@ -1,0 +1,7 @@
+@font-face { font-family: Manrope; font-weight: 200; src: url(../../../assets/fonts/Manrope-ExtraLight.ttf); }
+@font-face { font-family: Manrope; font-weight: 300; src: url(../../../assets/fonts/Manrope-Light.ttf); }
+@font-face { font-family: Manrope; font-weight: 400; src: url(../../../assets/fonts/Manrope-Regular.ttf); }
+@font-face { font-family: Manrope; font-weight: 600; src: url(../../../assets/fonts/Manrope-SemiBold.ttf); }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { background: #1C1917; color: #F5F0EB; font-family: Manrope, sans-serif; overflow: hidden; }
+.label { color: #C4A77D; font-weight: 600; letter-spacing: .28em; text-transform: uppercase; }
