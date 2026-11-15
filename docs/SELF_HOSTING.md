@@ -313,6 +313,7 @@ Coolify never updates a compose service by itself. To upgrade:
 5. Commit.
 
 Watch for:
+- **Mounted files** (`content:` blocks such as Kong's `kong.yml` and its entrypoint, and the SQL init scripts): Coolify reads them from the compose only the first time. Later pastes keep the old copy. To change one, open the service's **Persistent Storage**, paste the new content into that file and save, which writes it to the server. Then redeploy. If you change `KONG_PLUGINS` without also changing `kong.yml`, or the other way round, Kong won't start.
 - **Postgres major versions:** follow upstream's upgrade guide; a tag change isn't enough.
 - **Storage:** some versions add one-way migrations.
 - **pg_net:** at first boot, `99-pg-net-access.sql` keeps `net.http_post` to `postgres`, `supabase_functions_admin` and `service_role`; the image grants it to every role. After a pg_net upgrade, check it still does:
