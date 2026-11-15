@@ -18,6 +18,12 @@ const routes = [
     priority: 0.5,
   },
   {
+    path: "beta",
+    lastModified: new Date("2026-11-15"),
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  },
+  {
     path: "suppression-compte",
     lastModified: new Date(),
     changeFrequency: "yearly" as const,

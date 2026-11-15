@@ -18,7 +18,8 @@
       "storesLabel": "Disponibilité",
       "appStore": "App Store",
       "googlePlay": "Google Play",
-      "soon": "Bientôt"
+      "soon": "Bientôt",
+      "join": "Rejoindre la bêta"
     },
     "chapters": {
       "agendas": {
@@ -133,13 +134,13 @@
           },
           {
             "question": "Quand sort l'application ?",
-            "answer": "Elle arrive bientôt sur l'App Store et Google Play. Le code source est déjà public sur GitHub."
+            "answer": "La bêta Android est ouverte : la page « Rejoindre la bêta » explique comment l'installer. La sortie sur l'App Store et Google Play suivra. Le code source est déjà public sur GitHub."
           }
         ]
       },
       "close": {
         "folio": "Colophon",
-        "heading": "Bientôt sur l'App Store et Google Play.",
+        "heading": "En bêta sur Android. Bientôt sur l'App Store et Google Play.",
         "support": "D'ici là, si le projet vous plaît, vous pouvez",
         "supportLink": "offrir un café à son développeur",
         "supportSuffix": ".",
@@ -152,12 +153,14 @@
     "privacy": "Politique de confidentialité",
     "accountDeletion": "Suppression du compte",
     "github": "GitHub",
-    "support": "Soutenir le projet"
+    "support": "Soutenir le projet",
+    "beta": "Rejoindre la bêta"
   },
   "breadcrumbs": {
     "home": "Accueil",
     "privacy": "Politique de confidentialité",
-    "accountDeletion": "Suppression du compte"
+    "accountDeletion": "Suppression du compte",
+    "beta": "Bêta"
   },
   "notFound": {
     "title": "Page introuvable",
@@ -339,5 +342,47 @@
     "footerPrivacy": "Politique de confidentialité",
     "backHome": "Retour à l'accueil",
     "emailSubject": "Demande de suppression de compte - Nous Deux"
+  },
+  "beta": {
+    "meta": {
+      "title": "Rejoindre la bêta",
+      "description": "Testez Nous Deux sur Android avant sa sortie : rejoignez le groupe des testeurs, puis installez l'application depuis Google Play."
+    },
+    "title": "Rejoindre la bêta",
+    "intro": "Nous Deux est en test sur Android avant sa sortie. C'est gratuit, sans publicité, et vos retours décident de la suite.",
+    "stepsTitle": "En quatre étapes",
+    "steps": [
+      {
+        "text": "Rejoignez le groupe des testeurs avec le compte Google de votre téléphone.",
+        "link": "Rejoindre le groupe"
+      },
+      {
+        "text": "Ouvrez le lien de test Google Play, avec le même compte, et acceptez l'invitation.",
+        "link": "Devenir testeur"
+      },
+      {
+        "text": "Installez Nous Deux depuis Google Play et connectez-vous avec Google.",
+        "link": ""
+      },
+      {
+        "text": "Votre partenaire fait de même avec son propre compte. Ensuite, l'un génère un code et l'autre le saisit : vous voilà reliés.",
+        "link": ""
+      }
+    ],
+    "stayTitle": "Restez 14 jours",
+    "stayBody": "Google ne publie une application qu'après un test de 14 jours d'affilée avec au moins 12 testeurs. Gardez Nous Deux installée et restez inscrit pendant 14 jours : c'est ce qui permettra de l'ouvrir à tout le monde.",
+    "languageTitle": "Français ou anglais",
+    "languageBody": "L'application existe en français et en anglais. Si votre téléphone n'est pas réglé en français, elle s'affiche en anglais.",
+    "iphoneTitle": "Et sur iPhone ?",
+    "iphoneBody": "Pour l'instant, la bêta est uniquement sur Android. La version iPhone viendra ensuite.",
+    "feedbackTitle": "Vos retours",
+    "feedbackBody": "Un bug, une idée, une question ? Écrivez-nous :",
+    "feedbackSubject": "Bêta Nous Deux",
+    "dataTitle": "Vos données",
+    "dataBody": "Pendant la bêta, l'application fonctionne comme la version finale : vos données sont sur nos propres serveurs en Allemagne et ne sont jamais revendues. Vous pouvez supprimer votre compte depuis l'application à tout moment. Le groupe des testeurs est géré sur Google Groups : seul son propriétaire voit votre adresse, et seulement pour gérer le test.",
+    "privacyLink": "Politique de confidentialité",
+    "leaveTitle": "Quitter la bêta",
+    "leaveBody": "Ouvrez le lien de test Google Play et choisissez « Quitter le programme ». Vous pouvez aussi quitter le groupe des testeurs.",
+    "backHome": "Retour à l'accueil"
   }
 }

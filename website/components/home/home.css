@@ -140,6 +140,14 @@
   color: var(--sc-ink-soft);
   cursor: not-allowed;
 }
+.nd-store--live {
+  border-color: var(--sc-accent);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+.nd-store--live:hover { background-color: color-mix(in srgb, var(--sc-accent) 12%, transparent); }
+.nd-store--live:focus-visible { outline: 2px solid var(--sc-accent); outline-offset: 3px; }
 .nd-store__name { color: var(--sc-ink); font-weight: 500; }
 .nd-store__soon {
   font-size: var(--sc-t-xs);
