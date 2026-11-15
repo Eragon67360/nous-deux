@@ -8,6 +8,8 @@
 # - No Logflare, Vector, imgproxy, Supavisor or MinIO: storage writes to disk,
 #   no request logs are kept, nothing connects to Postgres from outside.
 # - No public route to Edge Functions; the database calls them internally.
+# - No public route to Studio: it listens on the server's localhost only and
+#   is reached over an SSH tunnel (runbook, "Studio").
 # - Auth: phone code (test numbers until an SMS provider is set), Google and
 #   Apple ID tokens; no email sign-in.
 # Coolify generates every SERVICE_* value. The runbook (docs/SELF_HOSTING.md)
@@ -31,7 +33,7 @@ services:
       # https://github.com/supabase/cli/issues/14
       - KONG_DNS_ORDER=LAST,A,CNAME
       - KONG_DNS_NOT_FOUND_TTL=1
-      - KONG_PLUGINS=request-transformer,cors,key-auth,acl,basic-auth,request-termination,ip-restriction,post-function
+      - KONG_PLUGINS=request-transformer,cors,key-auth,acl,post-function
       - KONG_NGINX_PROXY_PROXY_BUFFER_SIZE=160k
       - KONG_NGINX_PROXY_PROXY_BUFFERS=64 160k
       - 'KONG_PROXY_ACCESS_LOG=/dev/stdout combined'
@@ -41,8 +43,6 @@ services:
       - SUPABASE_SECRET_KEY=${SUPABASE_SECRET_KEY:-}
       - ANON_KEY_ASYMMETRIC=${ANON_KEY_ASYMMETRIC:-}
       - SERVICE_ROLE_KEY_ASYMMETRIC=${SERVICE_ROLE_KEY_ASYMMETRIC:-}
-      - DASHBOARD_USERNAME=${SERVICE_USER_ADMIN}
-      - DASHBOARD_PASSWORD=${SERVICE_PASSWORD_ADMIN}
       - 'KONG_STORAGE_CONNECT_TIMEOUT=${KONG_STORAGE_CONNECT_TIMEOUT:-60}'
       - 'KONG_STORAGE_WRITE_TIMEOUT=${KONG_STORAGE_WRITE_TIMEOUT:-3600}'
       - 'KONG_STORAGE_READ_TIMEOUT=${KONG_STORAGE_READ_TIMEOUT:-3600}'
@@ -95,7 +95,6 @@ services:
           ### Consumers / Users
           ###
           consumers:
-            - username: DASHBOARD
             - username: anon
               keyauth_credentials:
                 - key: $SUPABASE_ANON_KEY
@@ -113,15 +112,6 @@ services:
               group: anon
             - consumer: service_role
               group: admin
-
-          ###
-          ### Dashboard credentials
-          ###
-          basicauth_credentials:
-          - consumer: DASHBOARD
-            username: '$DASHBOARD_USERNAME'
-            password: '$DASHBOARD_PASSWORD'
-
 
           ###
           ### API Routes
@@ -405,62 +395,8 @@ services:
                     allow:
                       - admin
 
-            ## Block access to /api/mcp
-            - name: mcp-blocker
-              _comment: 'Block direct access to /api/mcp'
-              url: http://supabase-studio:3000/api/mcp
-              routes:
-                - name: mcp-blocker-route
-                  strip_path: true
-                  paths:
-                    - /api/mcp
-              plugins:
-                - name: request-termination
-                  config:
-                    status_code: 403
-                    message: "Access is forbidden."
-
-            ## MCP endpoint - local access
-            - name: mcp
-              _comment: 'MCP: /mcp -> http://supabase-studio:3000/api/mcp (local access)'
-              url: http://supabase-studio:3000/api/mcp
-              routes:
-                - name: mcp
-                  strip_path: true
-                  paths:
-                    - /mcp
-              plugins:
-                # Block access to /mcp by default
-                - name: request-termination
-                  config:
-                    status_code: 403
-                    message: "Access is forbidden."
-                # Enable local access (danger zone!)
-                # 1. Comment out the 'request-termination' section above
-                # 2. Uncomment the entire section below, including 'deny'
-                # 3. Add your local IPs to the 'allow' list
-                #- name: cors
-                #- name: ip-restriction
-                #  config:
-                #    allow:
-                #      - 127.0.0.1
-                #      - ::1
-                #    deny: []
-
-            ## Protected Dashboard - catch all remaining routes
-            - name: dashboard
-              _comment: 'Studio: /* -> http://studio:3000/*'
-              url: http://supabase-studio:3000/
-              routes:
-                - name: dashboard-all
-                  strip_path: true
-                  paths:
-                    - /
-              plugins:
-                - name: cors
-                - name: basic-auth
-                  config:
-                    hide_credentials: true
+            ## Studio (and its /mcp endpoint): no route. Kong answers 404 for
+            ## any other path. Studio is reached over SSH; see supabase-studio.
 
   supabase-studio:
     image: supabase/studio:2026.11.02-sha-a05e7ec
@@ -476,6 +412,11 @@ services:
       interval: 5s
       retries: 3
       start_period: 20s
+    # Studio has no login of its own, so it is published on the server's
+    # loopback only and never on a public address. Open it through
+    # `ssh -N -L 3010:127.0.0.1:3010 nous-deux` (docs/SELF_HOSTING.md).
+    ports:
+      - '127.0.0.1:3010:3000'
     depends_on:
       supabase-db:
         condition: service_healthy
