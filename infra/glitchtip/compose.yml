@@ -1,0 +1,77 @@
+# Nous Deux: self-hosted GlitchTip (Sentry-compatible crash reports) for
+# Coolify ("Docker Compose" service), at https://errors.nous-deux.app.
+#
+# Derived from GlitchTip's compose.sample.yml (glitchtip.com, 2026-11-15)
+# rather than Coolify's template, which still runs 6.0 with Redis and a
+# separate worker that GlitchTip 7 removed. Changes from the sample:
+# - One process (GlitchTip 7 serves HTTP and runs its task queue in it), no
+#   Valkey: Postgres holds the queue and cache. Logs and uptime checks off.
+# - Memory caps so a spike can't push the Supabase containers next to it into
+#   the kernel's OOM killer (the server has 4 GB and no swap).
+# - Sign-up closes after the first account; events are deleted after 30 days.
+# Coolify generates every SERVICE_* value. The runbook (docs/SELF_HOSTING.md,
+# "Crash reports") lists the deploy steps and what reports contain.
+
+services:
+  glitchtip:
+    image: glitchtip/glitchtip:7.0.0
+    depends_on:
+      glitchtip-db:
+        condition: service_healthy
+    environment:
+      - SERVICE_URL_GLITCHTIP_8000
+      - GLITCHTIP_DOMAIN=${SERVICE_URL_GLITCHTIP}
+      - DATABASE_URL=postgres://${SERVICE_USER_POSTGRES}:${SERVICE_PASSWORD_POSTGRES}@glitchtip-db:5432/glitchtip
+      - SECRET_KEY=${SERVICE_PASSWORD_64_SECRETKEY}
+      # Empty: no Valkey, Postgres runs the task queue and cache.
+      - VALKEY_URL=
+      # No SMTP yet: mails (invites, password resets) only go to the log.
+      - EMAIL_URL=${EMAIL_URL:-consolemail://}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-errors@nous-deux.app}
+      # The first account can still sign up; nobody after it.
+      - ENABLE_USER_REGISTRATION=False
+      - ENABLE_ORGANIZATION_CREATION=False
+      # Scrubbed before anything is stored. GlitchTip adds the sender's IP
+      # address to every event (truncated, but still there), and native
+      # crash reports carry a random installation id as user and device
+      # "id" plus the phone's boot time; these keys become "[Filtered]".
+      # The app scrubs its own events too (app/lib/core/services/
+      # crash_reporting.dart).
+      - 'GLITCHTIP_PII_SCRUB_DEFAULT={"enabled": true, "scrub_emails": true, "sensitive_keys": ["ip_address", "id", "boot_time"]}'
+      # The privacy policy promises this retention.
+      - GLITCHTIP_RETENTION_DAYS=30
+      - GLITCHTIP_ENABLE_LOGS=False
+      - GLITCHTIP_ENABLE_UPTIME=False
+      - VTASKS_CONCURRENCY=4
+      - DATABASE_POOL_MAX_SIZE=5
+    volumes:
+      - glitchtip-uploads:/code/uploads
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "python3", "healthcheck.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  glitchtip-db:
+    image: postgres:18.7-alpine
+    # GlitchTip's partitioned tables need more locks than the default.
+    # https://glitchtip.com/documentation/install#postgresql-tuning
+    command: -c max_locks_per_transaction=512 -c shared_buffers=64MB
+    environment:
+      - POSTGRES_USER=${SERVICE_USER_POSTGRES}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
+      - POSTGRES_DB=glitchtip
+    volumes:
+      - glitchtip-db-data:/var/lib/postgresql
+    mem_limit: 256m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d glitchtip"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  glitchtip-db-data:
+  glitchtip-uploads:

@@ -238,6 +238,48 @@ Run it after every Postgres or Supabase upgrade, and once there are real avatars
 
 Last run: 2026-11-12, on the first Coolify dump. The restore had no errors, and all 68 tables had the server's row counts except `net._http_response`. Owners, grants, RLS flags and the 24 policies matched the server. Without step 4, `anon` had every right on `cycle_notes`, `cycle_checkins`, `shared_lists`, `shared_list_items` and `couple_pings`.
 
+## Crash reports (GlitchTip)
+
+The app sends crash and error reports to a self-hosted [GlitchTip](https://glitchtip.com) (open source, speaks the Sentry protocol) at `https://errors.nous-deux.app`. It's a second Coolify service (`glitchtip`, deployed 2026-11-15) on the same server, defined in [`infra/glitchtip/compose.yml`](../infra/glitchtip/compose.yml).
+
+| Container | What it does | Memory cap |
+|---|---|---|
+| glitchtip | GlitchTip 7: web, task queue and scheduler in one process. Public through Coolify's proxy | 512 MB |
+| glitchtip-db | Its own Postgres 18. Not Supabase's database | 256 MB |
+
+No Valkey: Postgres holds the queue and cache. Together they used about 230 MB idle in the local rehearsal (2026-11-15). The server has 4 GB and no swap, so the caps keep a GlitchTip spike from pushing the Supabase containers into the kernel's OOM killer. Reports aren't backed up; GlitchTip deletes them after 30 days.
+
+### What a report holds
+- **App side** ([`app/lib/core/services/crash_reporting.dart`](../app/lib/core/services/crash_reporting.dart)): the error, its stack trace, the app version, the phone's model and state, its language and time zone. No user, no IP (`sendDefaultPii: false`), no screenshots, no session tracking. Breadcrumbs: only `app.lifecycle`, so no debug logs, taps, screens or URLs. Error texts lose URL query strings, tokens, emails, UUIDs, phone numbers and coordinates. The SDK's random installation id and the device name are dropped.
+- **Native crashes** (Java/Kotlin, Objective-C, C) are sent by the native SDK and skip the app's scrubbing, so they arrive with the installation id and the phone's boot time.
+- **Server side**, before anything is stored: `GLITCHTIP_PII_SCRUB_DEFAULT` turns every `ip_address`, `id` and `boot_time` key into `[Filtered]`, and emails anywhere. This matters because GlitchTip writes the sender's IP into every event (truncated to /24 by default).
+- The privacy policy (`website/lib/dictionaries/{fr,en}.json`, "Crash reports") describes exactly this. Change both together.
+
+### Setup (Thomas)
+1. **DNS.** In Hetzner DNS, zone `nous-deux.app`: `A errors → 5.75.147.14` and `AAAA errors → 2a01:4f8:1c16:f769::1` (the same addresses as `api`).
+2. **Coolify.** Project "Nous Deux" → `production` → **+ New → Docker Compose (empty)** on the Nous Deux server. Paste `infra/glitchtip/compose.yml` and name the service `glitchtip`. Nothing to set by hand: Coolify generates every `SERVICE_*` value.
+3. **Domain:** the service's **Domains** page, edit the generated sslip.io address: protocol `https`, domain `errors.nous-deux.app`, port `8000`, search indexing `Noindex`.
+4. **Deploy.** The first start runs the migrations (about a minute) before the container reports healthy.
+5. **First account.** Open `https://errors.nous-deux.app` and sign up. Only the first account can, so do it right after the deploy: sign-up closes behind it. GlitchTip has no SMTP, so the verification email only lands in the container log, and two-factor needs a verified email. Mark it verified from the container (Coolify → glitchtip → Terminal):
+   ```bash
+   ./manage.py shell -c "from allauth.account.models import EmailAddress as E; print(E.objects.filter(verified=False).update(verified=True))"
+   ```
+   Then turn on two-factor authentication in the profile and save the login in Proton Pass as `Nous Deux / GlitchTip`. A password reset email would land in the log too.
+6. **Project.** Create the organization (slug `nous-deux`), then a project `app`, platform Flutter, in a team `nous-deux` (the form requires a team). Its DSN is under **Project settings → Client Keys**.
+7. **CI secret:** piped from the server, so the value is never printed:
+   ```bash
+   ssh nous-deux 'docker exec $(docker ps -qf "name=^glitchtip-[a-z0-9]+$") ./manage.py shell -c "from apps.projects.models import ProjectKey as K; print(\"DSN=\" + K.objects.get(project__slug=\"app\").get_dsn())" 2>/dev/null' \
+     | sed -n 's/^DSN=//p' | tr -d '\n' | gh secret set SENTRY_DSN -R Eragon67360/nous-deux
+   ```
+8. **Check** that the caps took: `ssh nous-deux 'docker stats --no-stream | grep glitchtip'` shows 512MiB and 256MiB limits.
+
+### App builds
+- Release builds get the DSN from the `SENTRY_DSN` secret (`.github/workflows/android-build-release.yml`). An empty or missing define turns reporting off, which is the default for local builds.
+- To test against the server: `flutter run --dart-define=SENTRY_DSN=<dsn> …`, throw an error, and look under **Issues**. Debug builds are tagged `environment: debug`.
+
+### Upgrading GlitchTip
+Change the image tag, paste the file into Coolify and redeploy; GlitchTip migrates when it starts. Read its CHANGELOG first: 7.0 renamed several variables and silently ignores the old names, which for retention means deleting data. A Postgres major version needs a dump and restore, not just a tag change.
+
 ## Upgrades
 
 Coolify never updates a compose service by itself. To upgrade:

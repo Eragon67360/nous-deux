@@ -1,6 +1,6 @@
 # Google Play Console answers
 
-What to enter in the Play Console for `com.nousdeux.android`, written from the app's code (version 0.3.2+20). Update this file, the privacy policy and the Console together whenever the app starts collecting something new.
+What to enter in the Play Console for `com.nousdeux.android`, written from the app's code (version 0.3.3+21). Update this file, the privacy policy and the Console together whenever the app starts collecting something new.
 
 ## Before you submit
 
@@ -76,7 +76,7 @@ None of the permissions with their own Play declaration are used: no background 
 | Question | Answer |
 | --- | --- |
 | Does your app collect or share any of the required user data types? | Yes |
-| Is all of the user data collected by your app encrypted in transit? | Yes (HTTPS to `api.nous-deux.app`, Firebase and OpenFreeMap) |
+| Is all of the user data collected by your app encrypted in transit? | Yes (HTTPS to `api.nous-deux.app`, `errors.nous-deux.app`, Firebase and OpenFreeMap) |
 | Which account creation methods does your app support? | OAuth: Google and Apple. Email and password accounts exist only for reviewers and testers, created by us; nobody can create one in the app. |
 | Delete account URL | `https://nous-deux.app/fr/suppression-compte` |
 | Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, turn off location sharing (which erases their last position), leave the couple (which deletes what it shared), and delete events and list items. The deletion page explains how, under "Deleting only some of your data". |
@@ -102,11 +102,13 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 | Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |
 | App activity › Other user-generated content | Optional | App functionality | Shared lists and items, the date the relationship started |
 | Device or other IDs | Optional | App functionality | Push notification token |
+| App info and performance › Crash logs | Required | Analytics | Crash and error reports to our GlitchTip (`errors.nous-deux.app`), kept 30 days: what failed and where in the code, the app version. No account, name, IP address or location; there's no setting to turn them off. |
+| App info and performance › Diagnostics | Required | Analytics | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 
 **Not collected:**
 - **Phone number:** phone sign-in is hidden in this build.
 - **Financial info, contacts, audio, files and documents, web browsing.**
-- **App activity › App interactions, and app info and performance:** there's no analytics and no crash reporting. Add crash logs and diagnostics here, and to the policy, if crash reporting is added later.
+- **App activity › App interactions, and app info and performance › Other app performance data:** there's no analytics; crash reports carry no device or install id (filtered before they're stored).
 
 ## Store listing
 
