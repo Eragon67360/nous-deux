@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -93,6 +94,16 @@ class _PingReceivedState extends State<PingReceived>
     final scheme = theme.colorScheme;
     final lang = widget.lang;
     final reduced = AppMotion.reduced(context);
+    final title = pingReceivedTitle(lang, widget.kind, widget.partnerName);
+    final titleStyle = _Rings.fitTitle(
+      title,
+      (theme.textTheme.headlineMedium ?? const TextStyle()).copyWith(
+        fontSize: 26,
+        fontWeight: FontWeight.w300,
+        height: 1.15,
+      ),
+      MediaQuery.textScalerOf(context),
+    );
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
@@ -125,19 +136,11 @@ class _PingReceivedState extends State<PingReceived>
                             above: Semantics(
                               liveRegion: true,
                               child: Text(
-                                pingReceivedTitle(
-                                  lang,
-                                  widget.kind,
-                                  widget.partnerName,
-                                ),
+                                title,
                                 textAlign: TextAlign.center,
                                 maxLines: 3,
                                 overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.headlineMedium?.copyWith(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.w300,
-                                  height: 1.15,
-                                ),
+                                style: titleStyle,
                               ),
                             ),
                             below: Text(
@@ -219,6 +222,60 @@ class _Rings extends StatelessWidget {
   static const double _maxGap = 80;
   static const double _frame = _ring + _maxGap;
 
+  /// The title's box: inset from both sides of the frame, its bottom this
+  /// far above the centre.
+  static const double _titleInset = 50;
+  static const double _titleGap = 22;
+
+  /// How far from a ring's centre the title may reach once the rings rest
+  /// 10 px apart: inside both, clear of their 1.5 px stroke.
+  static const double _restOffset = 5;
+  static const double _inner = _ring / 2 - 1.5 - 4;
+
+  /// [style] at the largest size, from its own down to 14, at which every
+  /// line of [title] stays inside both rings. Long titles and long names
+  /// ("Marie-Charlotte sends you a kiss.") would otherwise cross them.
+  static TextStyle fitTitle(String title, TextStyle style, TextScaler scaler) {
+    for (var size = style.fontSize ?? 26; size > 14; size -= 1) {
+      final candidate = style.copyWith(fontSize: size);
+      if (_fits(title, candidate, scaler)) return candidate;
+    }
+    return style.copyWith(fontSize: 14);
+  }
+
+  static bool _fits(String title, TextStyle style, TextScaler scaler) {
+    const width = _frame - 2 * _titleInset;
+    final painter = TextPainter(
+      text: TextSpan(text: title, style: style),
+      textAlign: TextAlign.center,
+      textDirection: TextDirection.ltr,
+      textScaler: scaler,
+      maxLines: 3,
+    )..layout(minWidth: width, maxWidth: width);
+    try {
+      if (painter.didExceedMaxLines) return false;
+      final lines = painter.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: title.length),
+      );
+      for (final line in lines) {
+        for (final x in [line.left, line.right]) {
+          for (final y in [line.top, line.bottom]) {
+            // From the frame's centre; the rings sit at ±_restOffset.
+            final dx = x - width / 2;
+            final dy = y - painter.height - _titleGap;
+            for (final ring in [-_restOffset, _restOffset]) {
+              final d = sqrt(pow(dx - ring, 2) + pow(dy - ring, 2));
+              if (d > _inner) return false;
+            }
+          }
+        }
+      }
+      return true;
+    } finally {
+      painter.dispose();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -263,7 +320,12 @@ class _Rings extends StatelessWidget {
               ),
             ),
           ),
-          Positioned(left: 50, right: 50, bottom: center + 22, child: above),
+          Positioned(
+            left: _titleInset,
+            right: _titleInset,
+            bottom: center + _titleGap,
+            child: above,
+          ),
           Positioned(left: 50, right: 50, top: center + 24, child: below),
         ],
       ),
