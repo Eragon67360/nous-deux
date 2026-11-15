@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:math' show Point, max, min;
+import 'dart:math' show Point, atan, exp, ln2, log, max, min, pi, pow, sin;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -111,24 +111,22 @@ class CoupleMapState extends State<CoupleMap> {
     await _move(update, animated, const Duration(milliseconds: 1200));
   }
 
+  /// Room kept around the two people, measured to their position (the
+  /// marker's centre): the distance chip ends ~126 pt from the top and a
+  /// marker is ~26 pt in radius; the names bar sits at the bottom.
+  static const fitPadding = EdgeInsets.fromLTRB(50, 160, 50, 180);
+
   /// Fits [a] and [b] on screen, clear of the distance chip and names bar.
+  ///
+  /// The camera is worked out here, flat and facing north, rather than with
+  /// MapLibre's bounds update, which keeps the current tilt: after "Me"
+  /// (tilted 45°) it framed the wrong place and left one person off screen.
   Future<void> fitBoth(ll.LatLng a, ll.LatLng b, {bool animated = true}) async {
-    final bounds = ml.LatLngBounds(
-      southwest: ml.LatLng(
-        min(a.latitude, b.latitude),
-        min(a.longitude, b.longitude),
-      ),
-      northeast: ml.LatLng(
-        max(a.latitude, b.latitude),
-        max(a.longitude, b.longitude),
-      ),
-    );
-    final update = ml.CameraUpdate.newLatLngBounds(
-      bounds,
-      left: 50,
-      top: 120,
-      right: 50,
-      bottom: 180,
+    final box = context.findRenderObject();
+    final size = box is RenderBox && box.hasSize ? box.size : null;
+    if (size == null || size.isEmpty) return;
+    final update = ml.CameraUpdate.newCameraPosition(
+      cameraToFit(a, b, size, fitPadding),
     );
     await _move(update, animated, const Duration(milliseconds: 1500));
   }
@@ -263,4 +261,64 @@ class CoupleMapState extends State<CoupleMap> {
       attributionButtonMargins: const Point(12, 112),
     );
   }
+}
+
+/// MapLibre's world size at zoom 0, in logical pixels.
+const double _worldTile = 512;
+
+double _mercatorX(double lng) => (lng + 180) / 360;
+
+double _mercatorY(double lat) {
+  final s = sin(lat * pi / 180);
+  return 0.5 - log((1 + s) / (1 - s)) / (4 * pi);
+}
+
+double _lngFromX(double x) => x * 360 - 180;
+
+double _latFromY(double y) {
+  final t = pi * (1 - 2 * y);
+  return atan((exp(t) - exp(-t)) / 2) * 180 / pi;
+}
+
+/// The flat, north-up camera that shows [a] and [b] inside a map of [size]
+/// minus [padding], as close as [maxZoom] allows.
+@visibleForTesting
+ml.CameraPosition cameraToFit(
+  ll.LatLng a,
+  ll.LatLng b,
+  Size size,
+  EdgeInsets padding, {
+  double maxZoom = 17,
+}) {
+  final ax = _mercatorX(a.longitude), bx = _mercatorX(b.longitude);
+  final ay = _mercatorY(a.latitude), by = _mercatorY(b.latitude);
+  final width = max(1.0, size.width - padding.horizontal);
+  final height = max(1.0, size.height - padding.vertical);
+  final dx = (ax - bx).abs(), dy = (ay - by).abs();
+  final zoomX = dx == 0 ? maxZoom : log(width / (dx * _worldTile)) / ln2;
+  final zoomY = dy == 0 ? maxZoom : log(height / (dy * _worldTile)) / ln2;
+  final zoom = min(maxZoom, min(zoomX, zoomY));
+  final scale = _worldTile * pow(2, zoom);
+  // The two people sit at the middle of the padded box, so the screen's
+  // centre is offset from them by half the padding difference.
+  final x = (ax + bx) / 2 + (padding.right - padding.left) / 2 / scale;
+  final y = (ay + by) / 2 + (padding.bottom - padding.top) / 2 / scale;
+  return ml.CameraPosition(
+    target: ml.LatLng(_latFromY(y), _lngFromX(x)),
+    zoom: zoom,
+    tilt: 0,
+    bearing: 0,
+  );
+}
+
+/// Where [p] lands on a map of [size] seen through [camera] (flat, north-up).
+@visibleForTesting
+Offset screenPoint(ll.LatLng p, ml.CameraPosition camera, Size size) {
+  final scale = _worldTile * pow(2, camera.zoom);
+  final cx = _mercatorX(camera.target.longitude);
+  final cy = _mercatorY(camera.target.latitude);
+  return Offset(
+    size.width / 2 + (_mercatorX(p.longitude) - cx) * scale,
+    size.height / 2 + (_mercatorY(p.latitude) - cy) * scale,
+  );
 }

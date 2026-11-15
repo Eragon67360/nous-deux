@@ -249,9 +249,19 @@ class _DiaryHeader extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  calendarTitle(lang),
-                  style: theme.textTheme.headlineLarge?.copyWith(fontSize: 36),
+                // One line that shrinks on narrow phones or with large text,
+                // instead of sending the last letters of "Calendrier" under.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    calendarTitle(lang),
+                    maxLines: 1,
+                    softWrap: false,
+                    style: theme.textTheme.headlineLarge?.copyWith(
+                      fontSize: 36,
+                    ),
+                  ),
                 ),
               ),
               IconButton(
