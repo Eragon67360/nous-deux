@@ -5,7 +5,7 @@
   "home": {
     "meta": {
       "title": "L'application privée des couples",
-      "description": "Nous Deux réunit l'agenda, le cycle, la position et les listes d'un couple dans un seul espace privé. Gratuit, sans publicité, bientôt sur l'App Store et Google Play."
+      "description": "Nous Deux réunit l'agenda, le cycle, la position et les listes du couple dans un espace privé. Gratuit, sans publicité, bientôt sur l'App Store et Google Play."
     },
     "folio": {
       "label": "Sommaire",
@@ -167,7 +167,7 @@
   "policy": {
     "meta": {
       "title": "Politique de confidentialité",
-      "description": "Politique de confidentialité de l'application Nous Deux."
+      "description": "Les données que collecte Nous Deux, à quoi elles servent, où elles sont hébergées (nos serveurs en Allemagne, dans l'UE) et comment exercer vos droits."
     },
     "lastUpdated": "Dernière mise à jour :",
     "effectiveDate": "15 novembre 2026",

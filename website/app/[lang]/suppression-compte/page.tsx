@@ -1,7 +1,7 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SiteHeader from "@/components/SiteHeader";
 import LocaleLink from "@/components/LocaleLink";
-import { SITE_URL } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
 import { localizedPath } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
@@ -18,18 +18,12 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  const basePath = `/${lang}/suppression-compte`;
-  return {
-    title: dict.suppression.meta.title,
+  return pageMetadata({
+    lang,
+    path: "/suppression-compte",
+    title: `${dict.suppression.meta.title} | ${dict.common.siteName}`,
     description: dict.suppression.meta.description,
-    alternates: {
-      canonical: `${SITE_URL}${basePath}`,
-      languages: {
-        fr: `${SITE_URL}/fr/suppression-compte`,
-        en: `${SITE_URL}/en/suppression-compte`,
-      },
-    },
-  };
+  });
 }
 
 export default async function SuppressionComptePage({ params }: PageProps) {

@@ -1,14 +1,13 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SiteHeader from "@/components/SiteHeader";
 import LocaleLink from "@/components/LocaleLink";
-import { SITE_URL } from "@/lib/seo";
+import { POLICY_LAST_UPDATED_ISO, SITE_URL, pageMetadata } from "@/lib/seo";
 import { localizedPath } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { notFound } from "next/navigation";
 
-const POLICY_LAST_UPDATED_ISO = "2026-11-15";
 const GITHUB_REPO = "https://github.com/Eragon67360/nous-deux";
 
 type PageProps = { params: Promise<{ lang: string }> };
@@ -19,18 +18,12 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  const basePath = `/${lang}/politique-de-confidentialite`;
-  return {
-    title: dict.policy.meta.title,
+  return pageMetadata({
+    lang,
+    path: "/politique-de-confidentialite",
+    title: `${dict.policy.meta.title} | ${dict.common.siteName}`,
     description: dict.policy.meta.description,
-    alternates: {
-      canonical: `${SITE_URL}${basePath}`,
-      languages: {
-        fr: `${SITE_URL}/fr/politique-de-confidentialite`,
-        en: `${SITE_URL}/en/politique-de-confidentialite`,
-      },
-    },
-  };
+  });
 }
 
 export default async function PolitiqueDeConfidentialitePage({

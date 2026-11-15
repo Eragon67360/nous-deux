@@ -9,6 +9,7 @@ import TitlePage from "@/components/home/TitlePage";
 import TrustChapter from "@/components/home/TrustChapter";
 import "@/components/home/home.css";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
+import { pageMetadata } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -19,9 +20,13 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
-  return {
-    alternates: { canonical: `/${lang}` },
-  };
+  const dict = await getDictionary(lang);
+  return pageMetadata({
+    lang,
+    path: "",
+    title: `${dict.common.siteName} · ${dict.home.meta.title}`,
+    description: dict.home.meta.description,
+  });
 }
 
 export default async function Home({ params }: PageProps) {
