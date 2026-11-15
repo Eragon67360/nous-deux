@@ -66,10 +66,7 @@
           {
             "id": "position",
             "name": "Position",
-            "facts": [
-              "En direct, quand vous l'activez.",
-              "Aucun historique."
-            ]
+            "facts": ["En direct, quand vous l'activez.", "Aucun historique."]
           },
           {
             "id": "together",
@@ -118,7 +115,7 @@
         "items": [
           {
             "question": "C'est gratuit ?",
-            "answer": "Oui, et sans publicité. Si l'application vous rend service, vous pouvez soutenir le projet avec un café."
+            "answer": "Oui, et sans publicité. Si l'application vous rend service, vous pouvez soutenir le projet sur Liberapay."
           },
           {
             "question": "Comment inviter mon ou ma partenaire ?",
@@ -142,7 +139,7 @@
         "folio": "Colophon",
         "heading": "En bêta sur Android. Bientôt sur l'App Store et Google Play.",
         "support": "D'ici là, si le projet vous plaît, vous pouvez",
-        "supportLink": "offrir un café à son développeur",
+        "supportLink": "soutenir son développeur sur Liberapay",
         "supportSuffix": ".",
         "source": "Code source"
       }
@@ -241,7 +238,7 @@
         "items": [
           {
             "label": "Hetzner (Allemagne)",
-            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne."
+            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Ce site y est hébergé aussi, sans mesure d'audience ni publicité ; son seul cookie retient votre langue. Les données restent dans l'Union européenne."
           },
           {
             "label": "Firebase (Google)",
@@ -254,6 +251,10 @@
           {
             "label": "Google et Apple",
             "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques."
+          },
+          {
+            "label": "Liberapay (France)",
+            "text": "dons, si vous choisissez de soutenir le projet : ils se font sur liberapay.com, selon sa propre politique, et nous ne voyons pas vos données de paiement."
           }
         ]
       },

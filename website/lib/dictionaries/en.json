@@ -58,18 +58,12 @@
           {
             "id": "cycle",
             "name": "Cycle",
-            "facts": [
-              "Log, mood, symptoms.",
-              "A guide for each of you."
-            ]
+            "facts": ["Log, mood, symptoms.", "A guide for each of you."]
           },
           {
             "id": "position",
             "name": "Location",
-            "facts": [
-              "Live, when you turn it on.",
-              "No history."
-            ]
+            "facts": ["Live, when you turn it on.", "No history."]
           },
           {
             "id": "together",
@@ -118,7 +112,7 @@
         "items": [
           {
             "question": "Is it free?",
-            "answer": "Yes, and there are no ads. If the app is useful to you, you can support the project with a coffee."
+            "answer": "Yes, and there are no ads. If the app is useful to you, you can support the project on Liberapay."
           },
           {
             "question": "How do I invite my partner?",
@@ -142,7 +136,7 @@
         "folio": "Colophon",
         "heading": "In beta on Android. Coming soon to the App Store and Google Play.",
         "support": "Until then, if you like the project, you can",
-        "supportLink": "buy its developer a coffee",
+        "supportLink": "support its developer on Liberapay",
         "supportSuffix": ".",
         "source": "Source code"
       }
@@ -241,7 +235,7 @@
         "items": [
           {
             "label": "Hetzner (Germany)",
-            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU."
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. This website is hosted there too, with no analytics or ads; its only cookie remembers your language. The data stays in the EU."
           },
           {
             "label": "Firebase (Google)",
@@ -254,6 +248,10 @@
           {
             "label": "Google and Apple",
             "text": "sign-in (Sign in with Google / Sign in with Apple); data processed by these services is governed by their own policies."
+          },
+          {
+            "label": "Liberapay (France)",
+            "text": "donations, if you choose to support the project: they happen on liberapay.com, under its own policy, and we never see your payment details."
           }
         ]
       },
