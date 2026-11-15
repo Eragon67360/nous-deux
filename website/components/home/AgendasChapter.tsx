@@ -1,10 +1,18 @@
 import type { Dictionary } from "@/lib/dictionaries";
+import type { Locale } from "@/lib/i18n";
+import { screenshot } from "@/lib/screenshots";
 import PhoneFrame from "./PhoneFrame";
 
 type Agendas = Dictionary["home"]["chapters"]["agendas"];
 
 /** Chapter 1, recognition: the everyday back-and-forth, one real screen in its own column. */
-export default function AgendasChapter({ dict }: { dict: Agendas }) {
+export default function AgendasChapter({
+  dict,
+  lang,
+}: {
+  dict: Agendas;
+  lang: Locale;
+}) {
   return (
     <section
       className="sc-section nd-agendas"
@@ -14,7 +22,11 @@ export default function AgendasChapter({ dict }: { dict: Agendas }) {
       aria-labelledby="ch-agendas"
     >
       <div className="sc-wrap nd-spread">
-        <div className="nd-spread__text sc-stack" data-sc-in data-sc-stagger="70">
+        <div
+          className="nd-spread__text sc-stack"
+          data-sc-in
+          data-sc-stagger="70"
+        >
           <h2 id="ch-agendas" className="sc-display sc-display--lg nd-quote">
             {dict.heading}
           </h2>
@@ -22,7 +34,7 @@ export default function AgendasChapter({ dict }: { dict: Agendas }) {
           <p className="sc-body">{dict.body2}</p>
         </div>
         <figure className="nd-spread__media" data-sc-in>
-          <PhoneFrame src="/screenshots/calendar.png" alt={dict.imageAlt} />
+          <PhoneFrame src={screenshot(lang, "calendar")} alt={dict.imageAlt} />
           <figcaption className="nd-caption">{dict.caption}</figcaption>
         </figure>
       </div>

@@ -1,4 +1,6 @@
 import type { Dictionary } from "@/lib/dictionaries";
+import type { Locale } from "@/lib/i18n";
+import { screenshot } from "@/lib/screenshots";
 import PhoneFrame from "./PhoneFrame";
 
 type Merge = Dictionary["home"]["chapters"]["merge"];
@@ -10,7 +12,13 @@ type Merge = Dictionary["home"]["chapters"]["merge"];
  * (.nd-merge). Under reduced motion the phones hold their merged position and
  * only the words cross-fade.
  */
-export default function MergeChapter({ dict }: { dict: Merge }) {
+export default function MergeChapter({
+  dict,
+  lang,
+}: {
+  dict: Merge;
+  lang: Locale;
+}) {
   return (
     <section
       className="nd-merge"
@@ -31,20 +39,26 @@ export default function MergeChapter({ dict }: { dict: Merge }) {
         </h2>
         <div className="nd-merge__phones">
           <div className="nd-merge__phone nd-merge__phone--left">
-            <PhoneFrame src="/screenshots/merge-me.png" alt={dict.leftAlt} />
+            <PhoneFrame src={screenshot(lang, "merge-me")} alt={dict.leftAlt} />
             <span className="nd-merge__who" aria-hidden="true">
               {dict.labelMe}
             </span>
           </div>
           <div className="nd-merge__phone nd-merge__phone--right">
-            <PhoneFrame src="/screenshots/merge-partner.png" alt={dict.rightAlt} />
+            <PhoneFrame
+              src={screenshot(lang, "merge-partner")}
+              alt={dict.rightAlt}
+            />
             <span className="nd-merge__who" aria-hidden="true">
               {dict.labelYou}
             </span>
           </div>
           <div className="nd-merge__phone nd-merge__phone--merged">
             <span className="nd-merge__dot" aria-hidden="true" />
-            <PhoneFrame src="/screenshots/calendar.png" alt={dict.mergedAlt} />
+            <PhoneFrame
+              src={screenshot(lang, "calendar")}
+              alt={dict.mergedAlt}
+            />
           </div>
         </div>
         <p className="sc-body nd-merge__body" data-sc-cue="0.66 1 0.1 0">

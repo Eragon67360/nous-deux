@@ -1,17 +1,19 @@
 import type { Dictionary } from "@/lib/dictionaries";
+import type { Locale } from "@/lib/i18n";
+import { type Screen, screenshot } from "@/lib/screenshots";
 import PhoneFrame from "./PhoneFrame";
 
 type Share = Dictionary["home"]["chapters"]["share"];
 
 // Which real screen illustrates each item: simulator captures of an invented
 // couple (Alex and Camille), taken on a local copy of the backend.
-const SCREENS: Record<string, string> = {
-  calendar: "/screenshots/calendar.png",
-  cycle: "/screenshots/cycle.png",
-  position: "/screenshots/position.png",
-  together: "/screenshots/nous.png",
-  pings: "/screenshots/ping.png",
-  lists: "/screenshots/lists.png",
+const SCREENS: Record<string, Screen> = {
+  calendar: "calendar",
+  cycle: "cycle",
+  position: "position",
+  together: "nous",
+  pings: "ping",
+  lists: "lists",
 };
 
 /**
@@ -19,7 +21,13 @@ const SCREENS: Record<string, string> = {
  * Every item uses the same label schema (name, then two plain facts) so the
  * rail reads as a collection, not a pitch.
  */
-export default function ShareRail({ dict }: { dict: Share }) {
+export default function ShareRail({
+  dict,
+  lang,
+}: {
+  dict: Share;
+  lang: Locale;
+}) {
   return (
     <section
       className="nd-share"
@@ -38,9 +46,13 @@ export default function ShareRail({ dict }: { dict: Share }) {
             <p className="sc-lede">{dict.intro}</p>
           </li>
           {dict.items.map((item, i) => (
-            <li key={item.id} className="nd-rail__item" style={{ ["--i" as string]: i }}>
+            <li
+              key={item.id}
+              className="nd-rail__item"
+              style={{ ["--i" as string]: i }}
+            >
               <PhoneFrame
-                src={SCREENS[item.id] ?? SCREENS.calendar}
+                src={screenshot(lang, SCREENS[item.id] ?? "calendar")}
                 alt=""
                 sizes="(max-width: 700px) 52vw, 240px"
               />

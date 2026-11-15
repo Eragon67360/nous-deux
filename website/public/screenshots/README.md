@@ -14,3 +14,7 @@ Captures réelles de l'app (iPhone 16 Plus, 1290×2796, app en français), utili
 | `lists.png` | Liste de courses partagée | Ce que vous partagez › Listes |
 
 Le couple (Alex et Camille), les lieux et les événements sont inventés. Les captures sont faites sur la copie locale du backend (pile Docker de répétition), jamais sur `api.nous-deux.app`, avec la barre d'état fixée à 9:41 (`xcrun simctl status_bar … override`).
+
+## English (`en/`)
+
+The same eight screens with the app and its data in English (British spelling, as on the site), used by the `/en` pages through `lib/screenshots.ts`. Taken on 15 November 2026 from the current build, so the calendars dim past days, the map is the MapLibre night style, and the received note fits inside the rings. Same invented couple, same local backend, status bar at 9:41.
