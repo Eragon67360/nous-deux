@@ -35,10 +35,13 @@ enabled = true
 [auth.external.phone]
 enabled = true
 
-# Only the database calls the push functions, with a shared secret
+# Only the database calls these functions, with a shared secret
 # (PUSH_WEBHOOK_SECRET) instead of a JWT.
 [functions.notify-partner-ping]
 verify_jwt = false
 
 [functions.notify-partner-period]
+verify_jwt = false
+
+[functions.apple-tokens]
 verify_jwt = false

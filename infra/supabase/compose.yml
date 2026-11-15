@@ -1005,23 +1005,29 @@ services:
       - PUSH_WEBHOOK_SECRET=${SERVICE_PASSWORD_64_PUSHWEBHOOK}
       # The Firebase service account JSON, on one line (from Proton Pass).
       - FIREBASE_SERVICE_ACCOUNT_JSON=${FIREBASE_SERVICE_ACCOUNT_JSON:-}
+      # Sign in with Apple key, for revoking Apple tokens (apple-tokens):
+      # its key id, and the .p8 file's contents (from Proton Pass).
+      - APPLE_SIGN_IN_KEY_ID=${APPLE_SIGN_IN_KEY_ID:-}
+      - APPLE_SIGN_IN_KEY=${APPLE_SIGN_IN_KEY:-}
     volumes:
-      # The push functions are copied here by scripts/deploy-functions.sh.
+      # The functions are copied here by scripts/deploy-functions.sh.
       - ./volumes/functions:/home/deno/functions
       - deno-cache:/root/.cache/deno
       - type: bind
         source: ./volumes/functions/main/index.ts
         target: /home/deno/functions/main/index.ts
         content: |
-          // Routes the database's push requests to the two push functions. There is
-          // no public route to this service; each function also checks the shared
-          // secret. Workers only get the settings they need.
-          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping'])
+          // Routes the database's requests to the push functions and apple-tokens.
+          // There is no public route to this service; each function also checks
+          // the shared secret.
+          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping', 'apple-tokens'])
           const PASSED_ENV = [
             'SUPABASE_URL',
             'SUPABASE_SERVICE_ROLE_KEY',
             'PUSH_WEBHOOK_SECRET',
             'FIREBASE_SERVICE_ACCOUNT_JSON',
+            'APPLE_SIGN_IN_KEY_ID',
+            'APPLE_SIGN_IN_KEY',
           ]
 
           function reply(status: number, msg: string): Response {
