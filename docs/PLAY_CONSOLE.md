@@ -30,9 +30,11 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 **No**, the app doesn't contain ads.
 
 ### App access
-**All or some functionality is restricted.** Give the reviewer these instructions:
+**All or some functionality is restricted.** Add two credentials, `review1@nous-deux.app` and `review2@nous-deux.app`, each with its password from Proton Pass (create them with `scripts/create-email-account.sh`, see `docs/SELF_HOSTING.md`). Both accounts need no 2-step verification. Give the reviewer these instructions:
 
-> Sign in with any Google account. After entering a name, the app asks to pair with a partner: most features (calendar, cycle sharing, location, lists, little notes) only appear inside a couple. To see them, sign in on a second device with another Google account. On the first device choose "Generate a code"; on the second choose "I have a code" and type the 6 characters, or scan the QR code. No password or test account is needed.
+> On the sign-in screen, tap "Sign in with email" (in French: "Se connecter avec un e-mail") and use the first account. After entering a name, the app asks to pair with a partner: most features (calendar, cycle sharing, location, lists, little notes) only appear inside a couple. To see them, sign in on a second device with the second account. On the first device choose "Generate a code"; on the second choose "I have a code" and type the 6 characters, or scan the QR code.
+
+If a review leaves the two accounts paired, the next reviewer can use them as they are, or leave the couple from Settings to pair again.
 
 ### Content rating (IARC questionnaire)
 - **Category:** Utility, Productivity, Communication, or Other.
@@ -77,7 +79,7 @@ None of the permissions with their own Play declaration are used: no background 
 | --- | --- |
 | Does your app collect or share any of the required user data types? | Yes |
 | Is all of the user data collected by your app encrypted in transit? | Yes (HTTPS to `api.nous-deux.app`, Firebase and OpenFreeMap) |
-| Which account creation methods does your app support? | OAuth: Google and Apple |
+| Which account creation methods does your app support? | OAuth: Google and Apple. Email and password accounts exist only for reviewers and testers, created by us; nobody can create one in the app. |
 | Delete account URL | `https://nous-deux.app/fr/suppression-compte` |
 | Can users request that some data is deleted without deleting their account? | Yes. They can delete all their cycle data, turn off location sharing (which erases their last position), leave the couple (which deletes what it shared), and delete events and list items. The deletion page explains how, under "Deleting only some of your data". |
 

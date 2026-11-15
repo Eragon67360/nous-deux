@@ -170,7 +170,7 @@
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "14 novembre 2026",
+    "effectiveDate": "15 novembre 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Retour à l'accueil",
     "sections": {
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Compte et authentification",
-            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant."
+            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant. Pour les quelques comptes que nous créons nous-mêmes (vérification par les magasins d'applications, tests) : une adresse e-mail et un mot de passe, conservé uniquement sous forme hachée."
           },
           {
             "label": "Profil",

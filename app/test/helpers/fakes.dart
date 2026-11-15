@@ -90,6 +90,17 @@ class FakeAuthRepository implements AuthRepository {
     return _result();
   }
 
+  final emailSignIns = <({String email, String password})>[];
+
+  @override
+  Future<AuthResult> signInWithEmail({
+    required String email,
+    required String password,
+  }) {
+    emailSignIns.add((email: email, password: password));
+    return _result();
+  }
+
   @override
   Future<void> signOut() async {
     signOutCalls++;

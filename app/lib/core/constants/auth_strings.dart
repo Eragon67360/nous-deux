@@ -15,6 +15,8 @@ String authContinueWithGoogle(String lang) =>
     lang == 'fr' ? 'Continuer avec Google' : 'Continue with Google';
 String authContinueWithApple(String lang) =>
     lang == 'fr' ? 'Continuer avec Apple' : 'Continue with Apple';
+String authWithEmail(String lang) =>
+    lang == 'fr' ? 'Se connecter avec un e-mail' : 'Sign in with email';
 String authErrorEnterPhone(String lang) => lang == 'fr'
     ? 'Indiquez votre numéro de téléphone.'
     : 'Enter your phone number.';
@@ -36,3 +38,21 @@ String authVerifyErrorEnterCode(String lang) => lang == 'fr'
 String authVerifyErrorInvalid(String lang) => lang == 'fr'
     ? 'Ce code ne fonctionne pas. Vérifiez-le, ou revenez en arrière pour en recevoir un autre.'
     : "That code didn't work. Check it, or go back to get a new one.";
+
+String authEmailTitle(String lang) =>
+    lang == 'fr' ? 'Connexion par e-mail' : 'Sign in with email';
+String authEmailIntro(String lang) => lang == 'fr'
+    ? "Pour les comptes que Nous Deux vous a créés, par exemple pour tester l'application."
+    : 'For accounts Nous Deux set up for you, for example to test the app.';
+String authEmailLabel(String lang) =>
+    lang == 'fr' ? 'Adresse e-mail' : 'Email address';
+String authPasswordLabel(String lang) =>
+    lang == 'fr' ? 'Mot de passe' : 'Password';
+String authEmailButton(String lang) =>
+    lang == 'fr' ? 'Se connecter' : 'Sign in';
+String authEmailErrorEmpty(String lang) => lang == 'fr'
+    ? 'Saisissez votre adresse e-mail et votre mot de passe.'
+    : 'Enter your email address and password.';
+String authEmailErrorWrong(String lang) => lang == 'fr'
+    ? 'Adresse e-mail ou mot de passe incorrect.'
+    : 'Wrong email address or password.';

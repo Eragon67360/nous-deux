@@ -5,6 +5,7 @@ abstract final class AppRoutes {
   static const splash = '/';
   static const auth = '/auth';
   static const authVerify = '/auth/verify';
+  static const authEmail = '/auth/email';
   static const onboarding = '/onboarding';
   static const pairing = '/pairing';
   static const pairingJoin = '/pairing/join';

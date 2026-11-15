@@ -25,7 +25,7 @@ Future<GoRouter> _pumpAuth(
       screenRoute(
         '/auth',
         AuthScreen(phoneSignIn: phoneSignIn),
-        routes: [stubRoute('verify')],
+        routes: [stubRoute('verify'), stubRoute('email')],
       ),
     ],
   );
@@ -50,6 +50,39 @@ void main() {
       },
       variant: TargetPlatformVariant.only(TargetPlatform.iOS),
     );
+
+    testWidgets('the email link opens the email sign-in', (tester) async {
+      final deps = TestDeps(user: null);
+      final router = await _pumpAuth(tester, deps, phoneSignIn: false);
+
+      await tester.tap(find.text(authWithEmail('fr')));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, '/auth/email');
+      expect(deps.auth.googleCalls, 0);
+    });
+
+    testWidgets('the email link waits while another sign-in runs', (
+      tester,
+    ) async {
+      final deps = TestDeps(user: null);
+      final gate = deps.auth.gate = Completer<void>();
+      await _pumpAuth(tester, deps, phoneSignIn: false);
+
+      await tester.tap(find.text(authContinueWithGoogle('fr')));
+      await tester.pump();
+
+      final link = tester.widget<TextButton>(
+        find.ancestor(
+          of: find.text(authWithEmail('fr')),
+          matching: find.byType(TextButton),
+        ),
+      );
+      expect(link.onPressed, isNull);
+
+      gate.complete();
+      await tester.pumpAndSettle();
+    });
 
     testWidgets('a sign-in failure still shows its error', (tester) async {
       final deps = TestDeps(user: null)..auth.nextFailure = const AuthFailure();

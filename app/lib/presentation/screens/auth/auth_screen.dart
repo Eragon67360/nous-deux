@@ -206,6 +206,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                       ),
                     ],
+                    // For accounts created for people (store reviewers,
+                    // testers); nobody can sign up with an email.
+                    const SizedBox(height: AppSpacing.sm),
+                    TextButton(
+                      onPressed: _loading
+                          ? null
+                          : () => context.push(AppRoutes.authEmail),
+                      child: Text(authWithEmail(lang)),
+                    ),
                   ],
                 ),
               ),

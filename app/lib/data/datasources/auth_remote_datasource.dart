@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/utils/apple_nonce.dart';
 
-/// Remote data source for Supabase Auth (phone OTP, Google, Apple).
+/// Remote data source for Supabase Auth (phone OTP, Google, Apple, email).
 class AuthRemoteDatasource {
   AuthRemoteDatasource({SupabaseClient? client, GoogleSignIn? googleSignIn})
     : _client = client ?? Supabase.instance.client,
@@ -88,6 +88,18 @@ class AuthRemoteDatasource {
       provider: OAuthProvider.apple,
       idToken: idToken,
       nonce: nonce.raw,
+    );
+  }
+
+  /// Sign in with an email and password (accounts created with the auth
+  /// admin API; the server refuses email sign-ups).
+  Future<AuthResponse> signInWithEmail({
+    required String email,
+    required String password,
+  }) {
+    return _client.auth.signInWithPassword(
+      email: email.trim(),
+      password: password,
     );
   }
 

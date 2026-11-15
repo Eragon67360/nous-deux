@@ -11,6 +11,7 @@ import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
 import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
+import 'package:nousdeux/presentation/screens/auth/email_sign_in_screen.dart';
 import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
 import 'package:nousdeux/presentation/screens/lists/list_detail_screen.dart';
@@ -225,6 +226,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 '',
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.authEmail,
+        pageBuilder: (_, state) => _fadePage(state, const EmailSignInScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboarding,
