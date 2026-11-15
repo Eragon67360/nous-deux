@@ -54,7 +54,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17"
+          # maplibre_gl compiles with Java 21 (the app itself targets 17).
+          java-version: "21"
 
       # Pinned to the Flutter used locally: newer releases require Gradle
       # 9.3.1, and the app is on Gradle 8.14. Move both together.
