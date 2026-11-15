@@ -50,6 +50,9 @@ export default function Colophon({
         </div>
         <footer className="nd-close__foot">
           <nav aria-label={footer.ariaLabel}>
+            <LocaleLink href="/beta" locale={lang} className="nd-link">
+              {footer.beta}
+            </LocaleLink>
             <LocaleLink href="/politique-de-confidentialite" locale={lang} className="nd-link">
               {footer.privacy}
             </LocaleLink>

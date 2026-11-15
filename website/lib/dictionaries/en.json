@@ -18,7 +18,8 @@
       "storesLabel": "Availability",
       "appStore": "App Store",
       "googlePlay": "Google Play",
-      "soon": "Coming soon"
+      "soon": "Coming soon",
+      "join": "Join the beta"
     },
     "chapters": {
       "agendas": {
@@ -133,13 +134,13 @@
           },
           {
             "question": "When does the app come out?",
-            "answer": "It's coming soon to the App Store and Google Play. The source code is already public on GitHub."
+            "answer": "The Android beta is open: the \"Join the beta\" page explains how to install it. The App Store and Google Play launch will follow. The source code is already public on GitHub."
           }
         ]
       },
       "close": {
         "folio": "Colophon",
-        "heading": "Coming soon to the App Store and Google Play.",
+        "heading": "In beta on Android. Coming soon to the App Store and Google Play.",
         "support": "Until then, if you like the project, you can",
         "supportLink": "buy its developer a coffee",
         "supportSuffix": ".",
@@ -152,12 +153,14 @@
     "privacy": "Privacy policy",
     "accountDeletion": "Account deletion",
     "github": "GitHub",
-    "support": "Support the project"
+    "support": "Support the project",
+    "beta": "Join the beta"
   },
   "breadcrumbs": {
     "home": "Home",
     "privacy": "Privacy policy",
-    "accountDeletion": "Account deletion"
+    "accountDeletion": "Account deletion",
+    "beta": "Beta"
   },
   "notFound": {
     "title": "Page not found",
@@ -339,5 +342,47 @@
     "footerPrivacy": "Privacy policy",
     "backHome": "Back to home",
     "emailSubject": "Account deletion request - Nous Deux"
+  },
+  "beta": {
+    "meta": {
+      "title": "Join the beta",
+      "description": "Try Nous Deux on Android before it launches: join the testers' group, then install the app from Google Play."
+    },
+    "title": "Join the beta",
+    "intro": "Nous Deux is being tested on Android before its launch. It's free, with no ads, and your feedback shapes what comes next.",
+    "stepsTitle": "In four steps",
+    "steps": [
+      {
+        "text": "Join the testers' group with the Google account on your phone.",
+        "link": "Join the group"
+      },
+      {
+        "text": "Open the Google Play testing link with the same account and accept the invitation.",
+        "link": "Become a tester"
+      },
+      {
+        "text": "Install Nous Deux from Google Play and sign in with Google.",
+        "link": ""
+      },
+      {
+        "text": "Your partner does the same with their own account. Then one of you generates a code and the other types it in, and you're paired.",
+        "link": ""
+      }
+    ],
+    "stayTitle": "Stay for 14 days",
+    "stayBody": "Google only releases an app after a test of 14 days in a row with at least 12 testers. Keep Nous Deux installed and stay in the test for 14 days: that's what will let it open to everyone.",
+    "languageTitle": "French or English",
+    "languageBody": "The app is in French and English only. If your phone isn't set to French, it shows in English.",
+    "iphoneTitle": "What about iPhone?",
+    "iphoneBody": "For now, the beta is Android only. The iPhone version will come later.",
+    "feedbackTitle": "Your feedback",
+    "feedbackBody": "A bug, an idea, a question? Write to us:",
+    "feedbackSubject": "Nous Deux beta",
+    "dataTitle": "Your data",
+    "dataBody": "During the beta, the app works like the final version: your data is on our own servers in Germany and is never sold. You can delete your account from the app at any time. The testers' group runs on Google Groups: only its owner sees your address, and only to run the test.",
+    "privacyLink": "Privacy policy",
+    "leaveTitle": "Leaving the beta",
+    "leaveBody": "Open the Google Play testing link and choose \"Leave the program\". You can also leave the testers' group.",
+    "backHome": "Back to home"
   }
 }
