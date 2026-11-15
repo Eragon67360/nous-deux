@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
-import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -44,16 +43,7 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
     setState(() => _loading = false);
     if (result.failure != null) {
       final failure = result.failure!;
-      setState(
-        () => _error = switch (failure) {
-          PairingFailure(problem: PairingProblem.codeUsed) =>
-            pairingJoinErrorUsed(lang),
-          PairingFailure(problem: PairingProblem.ownCode) =>
-            pairingJoinErrorOwnCode(lang),
-          PairingFailure() => pairingJoinErrorInvalid(lang),
-          _ => failure.message ?? pairingJoinErrorInvalid(lang),
-        },
-      );
+      setState(() => _error = pairingJoinError(failure, lang));
       return;
     }
     ref.invalidate(myCoupleProvider);
@@ -63,7 +53,8 @@ class _PairingJoinScreenState extends ConsumerState<PairingJoinScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final lang = ref.watch(myProfileProvider).valueOrNull?.language ??
+    final lang =
+        ref.watch(myProfileProvider).valueOrNull?.language ??
         ref.watch(deviceLanguageProvider) ??
         'fr';
     return Scaffold(

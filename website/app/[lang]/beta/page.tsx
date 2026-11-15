@@ -1,7 +1,7 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SiteHeader from "@/components/SiteHeader";
 import LocaleLink from "@/components/LocaleLink";
-import { SITE_URL } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
 import { localizedPath } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
@@ -23,17 +23,12 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  return {
-    title: dict.beta.meta.title,
+  return pageMetadata({
+    lang,
+    path: "/beta",
+    title: `${dict.beta.meta.title} | ${dict.common.siteName}`,
     description: dict.beta.meta.description,
-    alternates: {
-      canonical: `${SITE_URL}/${lang}/beta`,
-      languages: {
-        fr: `${SITE_URL}/fr/beta`,
-        en: `${SITE_URL}/en/beta`,
-      },
-    },
-  };
+  });
 }
 
 export default async function BetaPage({ params }: PageProps) {

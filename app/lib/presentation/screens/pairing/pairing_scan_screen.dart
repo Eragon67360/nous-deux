@@ -38,10 +38,15 @@ class _PairingScanScreenState extends ConsumerState<PairingScanScreen> {
     final repo = ref.read(pairingRepositoryProvider);
     final result = await repo.joinByCode(code);
     if (!mounted) return;
+    final lang =
+        ref.read(myProfileProvider).valueOrNull?.language ??
+        ref.read(deviceLanguageProvider) ??
+        'fr';
+    final failure = result.failure;
     setState(() {
       _loading = false;
-      _joined = result.failure == null;
-      _error = result.failure?.message;
+      _joined = failure == null;
+      _error = failure == null ? null : pairingJoinError(failure, lang);
     });
     if (result.failure == null) {
       ref.invalidate(myCoupleProvider);

@@ -8,14 +8,14 @@ The stack is defined in [`infra/supabase/compose.yml`](../infra/supabase/compose
 
 | Container | What it does | Public? |
 |---|---|---|
-| supabase-kong | Gateway. Routes `/auth/v1`, `/rest/v1`, `/realtime/v1`, `/storage/v1`, and Studio behind a password at `/` | yes, through Coolify's proxy |
+| supabase-kong | Gateway. Routes `/auth/v1`, `/rest/v1`, `/realtime/v1` and `/storage/v1`; any other path gets 404 | yes, through Coolify's proxy |
 | supabase-db | Postgres 17 | no |
 | supabase-auth | Sign-in: phone code, Google and Apple ID tokens | via Kong |
 | supabase-rest | PostgREST | via Kong |
 | realtime-dev | Live changes | via Kong |
 | supabase-storage | Avatars, stored on the server's disk | via Kong |
 | supabase-meta | Database API for Studio | via Kong (service key) |
-| supabase-studio | Admin dashboard | via Kong (password) |
+| supabase-studio | Admin dashboard | **no**: the server's localhost only, over SSH ([Studio](#studio)) |
 | supabase-edge-functions | The two push functions, and `apple-tokens` (revokes Sign in with Apple when an account is deleted) | **no**: only the database calls them |
 
 Left out on purpose:
@@ -64,7 +64,6 @@ At the `nous-deux.app` registrar, point `api` at the server with an `A` record (
 
 5. **Deploy.** Then copy into Proton Pass, item `Nous Deux / Supabase`:
    - `SERVICE_PASSWORD_JWT`, `SERVICE_PASSWORD_POSTGRES`, `SERVICE_SUPABASEANON_KEY` (the app's anon key), `SERVICE_SUPABASESERVICE_KEY`.
-   - `SERVICE_USER_ADMIN` and `SERVICE_PASSWORD_ADMIN` (the Studio login).
    - `SERVICE_PASSWORD_64_PUSHWEBHOOK`.
 
    The push secret is copied into the database at first boot. Changing it later needs the [rotation steps](#rotate-the-push-secret).
@@ -141,7 +140,21 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 - **Function change:** `scripts/deploy-functions.sh root@<server>`. The `apple-tokens` tests run without a local Deno: see the top of `supabase/functions/apple-tokens/handler_test.ts`.
 - **Test numbers:** edit `SMS_TEST_OTP` in Coolify and redeploy the service.
 - **Email accounts** (store reviewers, test accounts): `scripts/create-email-account.sh root@<server> <email>`. You type the password; keep it in Proton Pass. No email is sent, so an address like `review1@nous-deux.app` needs no mailbox. To remove one, delete the user in Studio › Authentication. Nobody can create an email account from the app: the `hook_before_user_created` function (migration `20261115100000`) refuses email sign-ups, and accounts made through the admin API never go through it. The stack turns that hook on, so the migration must be on the database before the auth service starts with this `compose.yml`, or every new sign-up fails.
-- **Studio:** open `https://api.nous-deux.app` and log in with `SERVICE_USER_ADMIN` / `SERVICE_PASSWORD_ADMIN`. Apply schema changes as migration files, not in Studio's SQL editor.
+- **Studio:** over an SSH tunnel, see [Studio](#studio). Apply schema changes as migration files, not in Studio's SQL editor.
+
+### Studio
+Studio has no login of its own, so it has no public address either. Kong has no route to it (`https://api.nous-deux.app/` answers 404), and the container is published on the server's localhost only, port 3010. Anyone who can open Studio can already SSH into the server as root.
+
+1. Open the tunnel through the server's SSH alias (or `root@<server>`), and leave it running:
+   ```bash
+   ssh -N -L 3010:127.0.0.1:3010 nous-deux
+   ```
+2. Open http://localhost:3010. That's production, not a local Supabase (whose Studio is on 54323).
+3. Ctrl-C closes the tunnel.
+
+If port 3010 is taken on your machine, change only the first number: `-L 3011:127.0.0.1:3010`, then http://localhost:3011.
+
+Studio used to sit behind Basic auth at `https://api.nous-deux.app/`. Its login (`SERVICE_USER_ADMIN` / `SERVICE_PASSWORD_ADMIN`) is no longer used.
 
 ### Rotate the push secret
 1. Change `SERVICE_PASSWORD_64_PUSHWEBHOOK` in Coolify and redeploy. The functions get the new value.
@@ -300,6 +313,7 @@ Coolify never updates a compose service by itself. To upgrade:
 5. Commit.
 
 Watch for:
+- **Mounted files** (`content:` blocks such as Kong's `kong.yml` and its entrypoint, and the SQL init scripts): Coolify reads them from the compose only the first time. Later pastes keep the old copy. To change one, open the service's **Persistent Storage**, paste the new content into that file and save, which writes it to the server. Then redeploy. If you change `KONG_PLUGINS` without also changing `kong.yml`, or the other way round, Kong won't start.
 - **Postgres major versions:** follow upstream's upgrade guide; a tag change isn't enough.
 - **Storage:** some versions add one-way migrations.
 - **pg_net:** at first boot, `99-pg-net-access.sql` keeps `net.http_post` to `postgres`, `supabase_functions_admin` and `service_role`; the image grants it to every role. After a pg_net upgrade, check it still does:

@@ -35,7 +35,7 @@ These take precedence over the local file.
 
 ### Where to use the service_role key
 
-- **Studio** (`https://api.nous-deux.app`, behind its own password) already has access.
+- **Studio** (over an SSH tunnel only, see [`docs/SELF_HOSTING.md`](../../docs/SELF_HOSTING.md#studio)) already has access.
 - **Edge Functions**: the server passes it as `SUPABASE_SERVICE_ROLE_KEY`.
 
 Never put the service_role key in this Flutter project or in any client-side code.

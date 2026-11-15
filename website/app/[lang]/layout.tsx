@@ -1,20 +1,33 @@
-import {
-  DEFAULT_OG,
-  DEFAULT_TWITTER,
-  getBaseStructuredData,
-  SITE_NAME,
-  SITE_URL,
-} from "@/lib/seo";
-import type { Locale } from "@/lib/i18n";
+import { getBaseStructuredData, SITE_URL } from "@/lib/seo";
 import type { Metadata } from "next";
+import { Geist_Mono, Manrope } from "next/font/google";
+import { notFound } from "next/navigation";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
-import SetLangAttr from "@/components/SetLangAttr";
 import Stats from "@/components/Stats";
+import "../../vendor/scrollcraft/scrollcraft.css";
+import "../globals.css";
+
+// The app's one font: light weights for display, regular for text.
+const manrope = Manrope({
+  variable: "--font-manrope",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export async function generateStaticParams() {
   return [{ lang: "fr" }, { lang: "en" }];
 }
 
+/**
+ * Defaults for pages that set nothing themselves (the not-found page). Every
+ * other page builds its own canonical, hreflang and share tags with
+ * pageMetadata() from lib/seo.ts.
+ */
 export async function generateMetadata({
   params,
 }: {
@@ -23,51 +36,17 @@ export async function generateMetadata({
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
-  const siteName = dict.common.siteName;
-  const title = `${siteName} · ${dict.home.meta.title}`;
-  const description = dict.home.meta.description;
-  const basePath = `/${lang}`;
   return {
     metadataBase: new URL(SITE_URL),
-    title: {
-      default: title,
-      template: `%s | ${siteName}`,
-    },
-    description,
-    keywords:
-      lang === "fr"
-        ? [
-            "application couple",
-            "calendrier partagé",
-            "suivi des règles",
-            "confidentialité",
-            "Nous Deux",
-          ]
-        : [
-            "couples app",
-            "shared calendar",
-            "period tracking",
-            "privacy",
-            "Nous Deux",
-          ],
-    robots: "index, follow",
-    openGraph: {
-      ...DEFAULT_OG,
-      url: `${SITE_URL}${basePath}`,
-      title,
-      locale: lang === "fr" ? "fr_FR" : "en_US",
-    },
-    twitter: DEFAULT_TWITTER,
-    alternates: {
-      canonical: `${SITE_URL}${basePath}`,
-      languages: {
-        fr: `${SITE_URL}/fr`,
-        en: `${SITE_URL}/en`,
-      },
-    },
+    title: `${dict.common.siteName} · ${dict.home.meta.title}`,
+    description: dict.home.meta.description,
   };
 }
 
+/**
+ * The root layout lives in [lang] so the server sends <html lang="fr|en">:
+ * crawlers and screen readers get the language before any script runs.
+ */
 export default async function LangLayout({
   children,
   params,
@@ -76,22 +55,25 @@ export default async function LangLayout({
   params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
-  if (!hasLocale(lang)) {
-    const { notFound } = await import("next/navigation");
-    notFound();
-  }
-  const baseStructuredData = getBaseStructuredData(lang);
+  if (!hasLocale(lang)) notFound();
+  const dict = await getDictionary(lang);
+  const baseStructuredData = getBaseStructuredData(
+    lang,
+    dict.home.meta.description,
+  );
   return (
-    <>
-      <SetLangAttr lang={lang as Locale} />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(baseStructuredData),
-        }}
-      />
-      {children}
-      <Stats />
-    </>
+    // Font variables live on <html> so the :root design tokens can use them.
+    <html lang={lang} className={`${manrope.variable} ${geistMono.variable}`}>
+      <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(baseStructuredData),
+          }}
+        />
+        {children}
+        <Stats />
+      </body>
+    </html>
   );
 }
