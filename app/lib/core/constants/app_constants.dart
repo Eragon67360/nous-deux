@@ -37,10 +37,6 @@ abstract class AppConstants {
   // local builds, means nothing is reported.
   static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
-  // Pairing
-  static const int pairingCodeLength = 6;
-  static const String pairingCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-
   // Location
   static const int locationUpdateIntervalSeconds = 30;
 

@@ -11,6 +11,8 @@ import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/data/datasources/ping_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/calendar_remote_datasource.dart';
 import 'package:nousdeux/data/datasources/period_remote_datasource.dart';
+import 'package:nousdeux/data/datasources/pairing_remote_datasource.dart';
+import 'package:nousdeux/core/errors/failures.dart';
 
 // What the datasources send to PostgREST. A real SupabaseClient is pointed at
 // an in-memory HTTP client: no network, no Supabase.initialize.
@@ -37,7 +39,7 @@ const _logRow = {
 };
 
 /// A client that answers every request with [row] and records the requests.
-SupabaseClient _client(Map<String, Object?> row, List<http.Request> requests) {
+SupabaseClient _client(Object? row, List<http.Request> requests) {
   final client = SupabaseClient(
     'https://example.test',
     'anon-key',
@@ -187,6 +189,73 @@ void main() {
       await ds.update('l1', startDate: DateTime(2026, 3, 1), endDate: null);
 
       expect(_body(requests.single), containsPair('end_date', null));
+    });
+  });
+
+  group('PairingRemoteDatasource', () {
+    test('createCouple asks the database for the invite', () async {
+      final requests = <http.Request>[];
+      final ds = PairingRemoteDatasource(
+        _client({
+          'id': 'c1',
+          'user1_id': 'u1',
+          'pairing_code': 'K7M2QX',
+        }, requests),
+      );
+
+      final couple = await ds.createCouple();
+
+      final r = requests.single;
+      expect(r.method, 'POST');
+      expect(r.url.path, '/rest/v1/rpc/create_couple');
+      expect(couple.pairingCode, 'K7M2QX');
+    });
+
+    test(
+      'joinByCode sends the code and the local day to join_couple',
+      () async {
+        final requests = <http.Request>[];
+        final ds = PairingRemoteDatasource(_client('invalid_code', requests));
+
+        await expectLater(
+          ds.joinByCode(' k7m2qx ', today: DateTime(2026, 11, 16, 23, 30)),
+          throwsA(isA<PairingException>()),
+        );
+
+        final r = requests.single;
+        expect(r.method, 'POST');
+        expect(r.url.path, '/rest/v1/rpc/join_couple');
+        expect(_body(r), {'p_code': 'K7M2QX', 'p_day': '2026-11-16'});
+      },
+    );
+
+    for (final (status, problem) in [
+      ('invalid_code', PairingProblem.invalidCode),
+      ('code_used', PairingProblem.codeUsed),
+      ('own_code', PairingProblem.ownCode),
+      ('already_paired', PairingProblem.alreadyPaired),
+      ('too_many_attempts', PairingProblem.tooManyAttempts),
+    ]) {
+      test('joinByCode turns $status into $problem', () async {
+        final ds = PairingRemoteDatasource(_client(status, []));
+        await expectLater(
+          ds.joinByCode('K7M2QX'),
+          throwsA(
+            isA<PairingException>().having(
+              (e) => e.problem,
+              'problem',
+              problem,
+            ),
+          ),
+        );
+      });
+    }
+
+    test('an empty code never reaches the database', () async {
+      final requests = <http.Request>[];
+      final ds = PairingRemoteDatasource(_client('joined', requests));
+      await expectLater(ds.joinByCode('  '), throwsA(isA<PairingException>()));
+      expect(requests, isEmpty);
     });
   });
 

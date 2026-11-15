@@ -46,7 +46,13 @@ class UnknownFailure extends Failure {
 
 /// Why joining a couple by code failed, so the UI can say it in the
 /// person's language.
-enum PairingProblem { invalidCode, codeUsed, ownCode }
+enum PairingProblem {
+  invalidCode,
+  codeUsed,
+  ownCode,
+  alreadyPaired,
+  tooManyAttempts,
+}
 
 class PairingFailure extends Failure {
   const PairingFailure(this.problem) : super(null);
