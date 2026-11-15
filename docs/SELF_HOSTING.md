@@ -32,7 +32,7 @@ Each step names who does it. Thomas does the console clicks. Claude may run the 
 
 ### 1. Hetzner (Thomas)
 1. **Server.** In Hetzner Cloud, create a project "Nous Deux" with a server:
-   - Type CX33 (4 vCPU / 8 GB), or CAX21 on Arm.
+   - Today: 2 vCPU / 4 GB with a 2 GB swap file (`/swapfile`), running Supabase, Umami, GlitchTip and the website. CX33 (4 vCPU / 8 GB) or CAX21 on Arm gives more room.
    - Location `nbg1` or `fsn1`, Ubuntu 24.04.
    - Add your Mac's SSH key.
 2. **Firewall** on the server: allow 22/tcp, 80/tcp and 443/tcp in, nothing else.
