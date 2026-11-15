@@ -4,9 +4,9 @@
 
 /**
  * The public address, for canonical links, hreflang, the sitemap, robots.txt
- * and JSON-LD. Fixed on purpose: Vercel's NEXT_PUBLIC_SITE_URL still holds
- * the old vercel.app address, and previews should point search engines to
- * the real site too. No trailing slash: callers append "/fr/…".
+ * and JSON-LD. Fixed on purpose, not read from the environment: every build,
+ * a local one or a preview included, should point search engines to the real
+ * site. No trailing slash: callers append "/fr/…".
  */
 export const SITE_URL = "https://nous-deux.app";
 

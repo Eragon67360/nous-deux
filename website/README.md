@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Nous Deux website
 
-## Getting Started
+The public site at https://nous-deux.app, in French and English: the home page, the Android beta page, the privacy policy and the account deletion page. Next.js 16 and Tailwind 4.
 
-First, run the development server:
+## Working on it
 
 ```bash
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Copy lives in `lib/dictionaries/{fr,en}.json`, the privacy policy included (under `policy`). Change both languages.
+- Before a PR: `npx tsc --noEmit`, `npm run lint`, and `npx prettier --write` on the files you touched.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Hosting
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Coolify (`coolify.thomasmoserdev.com`) builds this folder's `Dockerfile` and runs the container on the Hetzner server in Germany that also runs the backend (`api.nous-deux.app`). `next.config.ts` sets `output: "standalone"`, so the image holds only the Node server, `public/` and the static assets. The site needs no environment variables: its public address is the `SITE_URL` constant in `lib/seo.ts`.
 
-## Learn More
+Until the DNS switch, Vercel still serves nous-deux.app from `main`.
 
-To learn more about Next.js, take a look at the following resources:
+Coolify application settings:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Setting     | Value                                                                    |
+| ----------- | ------------------------------------------------------------------------ |
+| Source      | GitHub App, repository `Eragon67360/nous-deux`, branch `main`            |
+| Build pack  | Dockerfile, base directory `/website`, Dockerfile location `/Dockerfile` |
+| Port        | 3000                                                                     |
+| Domains     | `https://nous-deux.app,https://www.nous-deux.app`, redirect to non-www   |
+| Healthcheck | dashboard check off; the image's `HEALTHCHECK` fetches `/robots.txt`     |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Each push to `main` (a `dev` → `main` release) redeploys the site. Images resized by `next/image` (through sharp) are cached inside the container and made again on demand after a deploy.
 
-## Deploy on Vercel
+DNS for `nous-deux.app` is in Hetzner DNS. The apex and `www` point at the server like `api` does: `A 5.75.147.14`, `AAAA 2a01:4f8:1c16:f769::1`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To try the image locally:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+docker build -t nous-deux-website .
+```
+
+```bash
+docker run --rm -p 3000:3000 nous-deux-website
+```

@@ -1,4 +1,3 @@
-import { Analytics } from "@vercel/analytics/next";
 import {
   DEFAULT_OG,
   DEFAULT_TWITTER,
@@ -91,7 +90,6 @@ export default async function LangLayout({
         }}
       />
       {children}
-      <Analytics />
     </>
   );
 }
