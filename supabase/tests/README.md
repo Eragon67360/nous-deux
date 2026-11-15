@@ -16,6 +16,8 @@ right internal function with the shared secret, nothing is sent without it,
 and signed-in users can't call pg_net themselves. `00_supabase_stubs.sql`
 replaces pg_net's `net.http_post` with a recorder for this.
 
+`97_profiles_scenario.sql` checks who reads profiles: each person and their partner (the other member of their paired couple), nobody else; a waiting couple's creator, a stranger and a signed-out caller see only themselves or nothing, even with a `partner_id` left pointing elsewhere; clients can't write `partner_id` or the consent time, while everything the app writes still works; `shares_cycle()` answers only about yourself and your partner; avatar folders are listed only by their owner.
+
 The `apple-tokens` function has its own tests, with Apple faked; the command
 is at the top of `supabase/functions/apple-tokens/handler_test.ts`.
 
