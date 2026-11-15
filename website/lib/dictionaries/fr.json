@@ -222,6 +222,10 @@
             "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, et l'annonce de ses règles lorsque votre partenaire partage son cycle."
           },
           {
+            "label": "Rapports de plantage",
+            "text": "quand l'application plante ou rencontre une erreur inattendue : ce qui s'est mal passé et à quel endroit du code de l'application, la version de l'application, le modèle du téléphone et son état (version du système, mémoire, stockage, batterie, réseau), sa langue et son fuseau horaire, et si l'application revenait de l'arrière-plan. Un rapport est conçu pour ne rien dire de vous : ni compte, ni nom, ni numéro de téléphone, ni adresse e-mail, ni adresse IP, ni position, ni capture d'écran. L'application retire de ses textes d'erreur les adresses e-mail, numéros de téléphone, identifiants et coordonnées avant de les envoyer, et notre serveur filtre de nouveau les adresses IP, adresses e-mail et identifiants d'appareil avant tout enregistrement."
+          },
+          {
             "label": "Données techniques",
             "text": "permissions demandées (calendrier, notifications, position, appareil photo pour scanner le QR code de votre partenaire) et informations nécessaires au bon fonctionnement de l'application sur votre appareil."
           }
@@ -229,11 +233,11 @@
       },
       "purposes": {
         "title": "Finalités des traitements",
-        "body": "Les données servent à : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, listes, petits mots, compteur de jours, position si activée) ; envoyer les notifications que vous avez acceptées ; afficher la carte (via OpenFreeMap) lorsque le partage de position est activé."
+        "body": "Les données servent à : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, listes, petits mots, compteur de jours, position si activée) ; envoyer les notifications que vous avez acceptées ; afficher la carte (via OpenFreeMap) lorsque le partage de position est activé ; repérer et corriger les plantages et les erreurs (rapports de plantage)."
       },
       "legalBasis": {
         "title": "Base légale",
-        "body": "Le traitement des données liées à votre compte, votre profil, le calendrier, les listes et les petits mots est nécessaire à l'exécution du contrat (utilisation de l'application). Les données de cycle sont des données de santé : nous ne les traitons qu'avec votre consentement explicite (article 9.2.a du RGPD), que vous donnez en choisissant de suivre votre cycle dans l'application. Nous enregistrons la date de ce consentement, et l'effaçons quand vous le retirez. Vous pouvez le retirer à tout moment dans Paramètres › Règles : vous arrêtez le suivi et pouvez supprimer toutes vos données de cycle. Le partage de position et les notifications push sont optionnels et reposent aussi sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil."
+        "body": "Le traitement des données liées à votre compte, votre profil, le calendrier, les listes et les petits mots est nécessaire à l'exécution du contrat (utilisation de l'application). Les données de cycle sont des données de santé : nous ne les traitons qu'avec votre consentement explicite (article 9.2.a du RGPD), que vous donnez en choisissant de suivre votre cycle dans l'application. Nous enregistrons la date de ce consentement, et l'effaçons quand vous le retirez. Vous pouvez le retirer à tout moment dans Paramètres › Règles : vous arrêtez le suivi et pouvez supprimer toutes vos données de cycle. Le partage de position et les notifications push sont optionnels et reposent aussi sur votre consentement ; vous pouvez les désactiver à tout moment dans les paramètres de l'application ou de votre appareil. Les rapports de plantage reposent sur notre intérêt légitime à faire fonctionner l'application (article 6.1.f du RGPD) ; ils se limitent aux informations techniques décrites plus haut, et vous pouvez vous y opposer en nous contactant."
       },
       "hosting": {
         "title": "Hébergement et sous-traitants",
@@ -241,7 +245,7 @@
         "items": [
           {
             "label": "Hetzner (Allemagne)",
-            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne."
+            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Ils font aussi tourner GlitchTip (un logiciel open source), qui reçoit les rapports de plantage. Les données restent dans l'Union européenne."
           },
           {
             "label": "Firebase (Google)",
@@ -259,7 +263,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours. Les rapports de plantage sont supprimés au bout de 30 jours et ne sont pas sauvegardés."
       },
       "rights": {
         "title": "Vos droits",

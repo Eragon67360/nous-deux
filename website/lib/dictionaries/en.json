@@ -222,6 +222,10 @@
             "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, and word that their period started when they share their cycle."
           },
           {
+            "label": "Crash reports",
+            "text": "when the app crashes or hits an unexpected error: what went wrong and where in the app's code, the app version, the phone's model and state (system version, memory, storage, battery, network), its language and time zone, and whether the app had just come back from the background. A report is built to say nothing about you: no account, name, phone number, email, IP address or location, and no screenshot. The app cleans its error texts of email addresses, phone numbers, identifiers and coordinates before sending them, and our server filters out IP addresses, email addresses and device identifiers again before storing anything."
+          },
+          {
             "label": "Technical data",
             "text": "requested permissions (calendar, notifications, location, camera to scan your partner's QR code) and information needed for the app to work on your device."
           }
@@ -229,11 +233,11 @@
       },
       "purposes": {
         "title": "Purposes of processing",
-        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through OpenFreeMap) when location sharing is on."
+        "body": "The data is used to: provide and secure the service (sign-in, storage, sync); let you share within the couple (calendar, period tracking, lists, little notes, days-together counter, location if turned on); send the notifications you accepted; show the map (through OpenFreeMap) when location sharing is on; find and fix crashes and errors (crash reports)."
       },
       "legalBasis": {
         "title": "Legal basis",
-        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. We record when you gave it, and clear that record when you withdraw it. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings."
+        "body": "Processing of data related to your account, your profile, the calendar, lists and little notes is necessary for the performance of the contract (use of the app). Cycle data is health data: we only process it with your explicit consent (Article 9(2)(a) GDPR), which you give by choosing to track your cycle in the app. We record when you gave it, and clear that record when you withdraw it. You can withdraw it at any time in Settings › Period: you stop tracking and can delete all your cycle data. Location sharing and push notifications are optional and also based on your consent; you can turn them off at any time in the app or device settings. Crash reports rely on our legitimate interest in keeping the app working (Article 6(1)(f) GDPR); they are limited to the technical details listed above, and you can object by contacting us."
       },
       "hosting": {
         "title": "Hosting and processors",
@@ -241,7 +245,7 @@
         "items": [
           {
             "label": "Hetzner (Germany)",
-            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. The data stays in the EU."
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. They also run GlitchTip (open-source software), which receives crash reports. The data stays in the EU."
           },
           {
             "label": "Firebase (Google)",
@@ -259,7 +263,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days. Crash reports are deleted after 30 days and are not backed up."
       },
       "rights": {
         "title": "Your rights",

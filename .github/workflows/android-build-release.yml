@@ -98,12 +98,16 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          # GlitchTip project DSN (infra/glitchtip/). Unset, the define is
+          # empty and the build reports no crashes.
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
         # The Google client ids are public and default in app_constants.dart;
         # passing an unset secret as a define would replace them with "".
         run: |
           flutter build appbundle --release \
             --dart-define=SUPABASE_URL="$SUPABASE_URL" \
-            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY"
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=SENTRY_DSN="$SENTRY_DSN"
 
       # 2. GENERATE APK (from the AAB created above)
       - name: Generate APK from AAB
