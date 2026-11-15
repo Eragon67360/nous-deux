@@ -49,7 +49,7 @@ Export compliance: `ITSAppUsesNonExemptEncryption` is `false` in `Info.plist` (H
 > Sign in with Apple and Google are also available. Account deletion is in Settings > Account. The app follows the device language (French or English).
 
 ### Groups
-- **Bêta publique**: external group with the public link turned on, shared on nous-deux.app/beta and in `promo/`. The workflow adds every build and submits the first build of each version for beta review.
+- **Bêta publique**: external group, public link https://testflight.apple.com/join/kScrT3Sk (no tester limit), shared on nous-deux.app/beta and in `promo/`. The workflow adds every build and submits the first build of each version for beta review. Created on 2026-11-15 through the App Store Connect API: the web page offered no external group even with the test information complete.
 
 ## App Privacy
 
