@@ -96,7 +96,7 @@ To build for a device or use Sign in with Apple, Xcode needs the Apple ID that o
 **Revoking Sign in with Apple** (App Store guideline 5.1.1(v)). Deleting an account revokes the app's Apple access too. After each Apple sign-in, the app passes Apple's one-time authorization code to `save_apple_authorization()`; the database hands it to the internal `apple-tokens` function, which exchanges it for a refresh token and keeps it in `public.apple_tokens`. When the account goes, so does the row, and its delete trigger sends the token back to `apple-tokens`, which revokes it with Apple (migration `20261115200000`). That needs a Sign in with Apple key:
 1. Developer → Keys → **+**, name "Nous Deux Sign in with Apple", tick **Sign in with Apple**, configure it with the primary App ID `app.nous-deux`. Download the `.p8` (Apple lets you download it once).
 2. Proton Pass item `Nous Deux / Apple Sign in key`: the key id and the `.p8` contents. Delete the downloaded file.
-3. In Coolify, on the `supabase` service, set `APPLE_SIGN_IN_KEY_ID` and `APPLE_SIGN_IN_KEY` (the whole `.p8`, line breaks included), then redeploy.
+3. In Coolify, on the `supabase` service, set `APPLE_SIGN_IN_KEY_ID` and `APPLE_SIGN_IN_KEY`: the whole `.p8` on one line, its line breaks written as `\n` (`awk 'NF {printf "%s\\n", $0}' AuthKey_….p8`). Then redeploy.
 4. `scripts/deploy-functions.sh nous-deux`.
 
 Without the key, sign-in and deletion still work; `apple-tokens` logs that the key is missing and nothing is kept or revoked.

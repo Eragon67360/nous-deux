@@ -18,9 +18,11 @@ export interface AppleKey {
 
 export type Fetch = typeof fetch;
 
+/// APPLE_SIGN_IN_KEY is the .p8 file's contents. On one line, as an
+/// environment value, its line breaks are written as \n.
 export function readAppleKey(): AppleKey | null {
   const keyId = Deno.env.get("APPLE_SIGN_IN_KEY_ID");
-  const privateKey = Deno.env.get("APPLE_SIGN_IN_KEY");
+  const privateKey = Deno.env.get("APPLE_SIGN_IN_KEY")?.replaceAll("\\n", "\n");
   return keyId && privateKey ? { keyId, privateKey } : null;
 }
 

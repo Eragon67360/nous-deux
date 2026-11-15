@@ -8,7 +8,7 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import * as jose from "https://esm.sh/jose@5";
-import { type AppleKey, clientSecret, revokeToken } from "./apple.ts";
+import { type AppleKey, clientSecret, readAppleKey, revokeToken } from "./apple.ts";
 import { handle } from "./handler.ts";
 
 const SECRET = "test-secret";
@@ -212,4 +212,12 @@ Deno.test("a body that isn't a job is skipped", async () => {
   });
   assertEquals((await res.json()).ok, false);
   assertEquals(apple.calls.length, 0);
+});
+
+Deno.test("the key may come on one line, with \\n for line breaks", async () => {
+  Deno.env.set("APPLE_SIGN_IN_KEY_ID", "KEY123");
+  Deno.env.set("APPLE_SIGN_IN_KEY", key.privateKey.trim().replaceAll("\n", "\\n"));
+  const read = readAppleKey()!;
+  await clientSecret(read);
+  assertEquals(read.privateKey, key.privateKey.trim());
 });
