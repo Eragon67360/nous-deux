@@ -32,6 +32,11 @@ abstract class AppConstants {
   // --dart-define=PHONE_SIGN_IN=true.
   static const bool phoneSignIn = bool.fromEnvironment('PHONE_SIGN_IN');
 
+  // Crash reports go to the self-hosted GlitchTip when the build passes
+  // --dart-define=SENTRY_DSN=… (release CI does). Empty, the default for
+  // local builds, means nothing is reported.
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
   // Pairing
   static const int pairingCodeLength = 6;
   static const String pairingCodeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

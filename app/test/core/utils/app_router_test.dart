@@ -78,10 +78,13 @@ Future<String?> _redirectFrom(
 /// A widget test with a host widget to borrow a BuildContext from. Containers
 /// are disposed inside the test, then a pump flushes the zero-delay timers
 /// Riverpod uses to schedule provider refreshes.
+///
+/// [skip] stays null unless given: an explicit `false` would override the
+/// enclosing group's skip, and the Supabase-only group would run unconfigured.
 void redirectTest(
   String description,
   Future<void> Function(WidgetTester tester) body, {
-  bool skip = false,
+  bool? skip,
 }) {
   testWidgets(description, skip: skip, (tester) async {
     await tester.pumpWidget(const SizedBox());
