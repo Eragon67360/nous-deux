@@ -131,6 +131,7 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 - **New migration:** add the file under `supabase/migrations/`, run the SQL dry run (`supabase/tests/README.md`), then `scripts/db-migrate.sh root@<server>`. With `--list`, it only shows what's pending.
 - **Push function change:** `scripts/deploy-functions.sh root@<server>`.
 - **Test numbers:** edit `SMS_TEST_OTP` in Coolify and redeploy the service.
+- **Email accounts** (store reviewers, test accounts): `scripts/create-email-account.sh root@<server> <email>`. You type the password; keep it in Proton Pass. No email is sent, so an address like `review1@nous-deux.app` needs no mailbox. To remove one, delete the user in Studio › Authentication. Nobody can create an email account from the app: the `hook_before_user_created` function (migration `20261115100000`) refuses email sign-ups, and accounts made through the admin API never go through it. The stack turns that hook on, so the migration must be on the database before the auth service starts with this `compose.yml`, or every new sign-up fails.
 - **Studio:** open `https://api.nous-deux.app` and log in with `SERVICE_USER_ADMIN` / `SERVICE_PASSWORD_ADMIN`. Apply schema changes as migration files, not in Studio's SQL editor.
 
 ### Rotate the push secret
