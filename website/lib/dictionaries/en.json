@@ -168,7 +168,7 @@
     },
     "lastUpdated": "Last updated:",
     "effectiveDate": "15 November 2026",
-    "effectiveDateISO": "2026-11-12",
+    "effectiveDateISO": "2026-11-15",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -181,7 +181,7 @@
         "items": [
           {
             "label": "Account and authentication",
-            "text": "sign-in identifier (sign in with Google or with Apple) and the email address Google or Apple provides, if any. For the few accounts we create ourselves (app store review, testing): an email address and a password, stored only as a hash."
+            "text": "sign-in identifier (sign in with Google or with Apple) and the email address Google or Apple provides, if any. For the few accounts we create ourselves (app store review, testing): an email address and a password, stored only as a hash. If you sign in with Apple: a token from Apple, kept only to withdraw the app's access to your Apple ID when you delete your account."
           },
           {
             "label": "Profile",
@@ -257,7 +257,7 @@
       },
       "retention": {
         "title": "Retention",
-        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days. Crash reports are deleted after 30 days and are not backed up."
+        "body": "Data is kept while your account is active. For location and little notes, only the latest value is kept, and your location is erased as soon as you stop sharing it. If one of you leaves the couple, the couple's shared data (calendar, period dates and daily check-ins, location, lists, little notes and start date) is deleted for both of you; your cycle notes, which are yours alone, stay until you delete them. When you stop tracking your cycle, you can delete all your cycle data at once. When you delete your account (Settings › Account), your account, profile, photo and cycle notes are erased at once, and you leave the couple: its shared data is deleted for both of you. If you signed in with Apple, the app's access to your Apple ID is withdrawn at the same time. Backups are kept for 14 days: once an account is deleted or one of you leaves the couple, the erased data also disappears from the backups within 14 days. Crash reports are deleted after 30 days and are not backed up."
       },
       "rights": {
         "title": "Your rights",

@@ -171,7 +171,7 @@
     },
     "lastUpdated": "Dernière mise à jour :",
     "effectiveDate": "15 novembre 2026",
-    "effectiveDateISO": "2026-11-12",
+    "effectiveDateISO": "2026-11-15",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Compte et authentification",
-            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant. Pour les quelques comptes que nous créons nous-mêmes (vérification par les magasins d'applications, tests) : une adresse e-mail et un mot de passe, conservé uniquement sous forme hachée."
+            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant. Pour les quelques comptes que nous créons nous-mêmes (vérification par les magasins d'applications, tests) : une adresse e-mail et un mot de passe, conservé uniquement sous forme hachée. Si vous vous connectez avec Apple : un jeton fourni par Apple, gardé uniquement pour retirer à l'application l'accès à votre identifiant Apple quand vous supprimez votre compte."
           },
           {
             "label": "Profil",
@@ -260,7 +260,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours. Les rapports de plantage sont supprimés au bout de 30 jours et ne sont pas sauvegardés."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Si vous vous connectiez avec Apple, l'accès de l'application à votre identifiant Apple est retiré en même temps. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours. Les rapports de plantage sont supprimés au bout de 30 jours et ne sont pas sauvegardés."
       },
       "rights": {
         "title": "Vos droits",

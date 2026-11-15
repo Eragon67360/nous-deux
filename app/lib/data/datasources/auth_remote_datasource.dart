@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -84,12 +87,26 @@ class AuthRemoteDatasource {
     if (idToken == null) {
       throw AuthException('No Apple ID token');
     }
-    return _client.auth.signInWithIdToken(
+    final response = await _client.auth.signInWithIdToken(
       provider: OAuthProvider.apple,
       idToken: idToken,
       nonce: nonce.raw,
     );
+    // Lets the server revoke the app's Apple access when the account is
+    // deleted. Signing in must not fail because of it.
+    try {
+      await saveAppleAuthorization(credential.authorizationCode);
+    } catch (e, stack) {
+      unawaited(Sentry.captureException(e, stackTrace: stack));
+    }
+    return response;
   }
+
+  /// Hands the one-time authorization code from the Apple sign-in sheet to
+  /// the server, which exchanges it for Apple's refresh token and revokes
+  /// that token when the account is deleted (App Store guideline 5.1.1(v)).
+  Future<void> saveAppleAuthorization(String code) =>
+      _client.rpc<void>('save_apple_authorization', params: {'code': code});
 
   /// Sign in with an email and password (accounts created with the auth
   /// admin API; the server refuses email sign-ups).
@@ -110,7 +127,8 @@ class AuthRemoteDatasource {
 
   /// Removes the profile photo through Storage (which refuses direct deletes
   /// from its tables), deletes the account and its data in one database call
-  /// (`delete_my_account`), then forgets the session on this phone.
+  /// (`delete_my_account`, which also has the server revoke Sign in with
+  /// Apple), then forgets the session on this phone.
   Future<void> deleteAccount() async {
     final userId = _client.auth.currentUser?.id;
     if (userId == null) throw AuthException('Not signed in');

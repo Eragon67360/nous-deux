@@ -7,7 +7,8 @@
 // services, and period data is health data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { fromDatabase, json, readServiceAccount, sendPush } from "../_shared/fcm.ts";
+import { fromDatabase, json } from "../_shared/database.ts";
+import { readServiceAccount, sendPush } from "../_shared/fcm.ts";
 
 interface WebhookPayload {
   type: "INSERT" | "UPDATE" | "DELETE";
