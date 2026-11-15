@@ -14,6 +14,12 @@ class AuthFailure extends Failure {
   const AuthFailure([super.message]);
 }
 
+/// Wrong email or password, so the sign-in screen can say it in the
+/// person's language.
+class WrongCredentialsFailure extends AuthFailure {
+  const WrongCredentialsFailure() : super(null);
+}
+
 class NetworkFailure extends Failure {
   const NetworkFailure([super.message]);
 }

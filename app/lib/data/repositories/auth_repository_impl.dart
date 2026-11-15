@@ -80,6 +80,29 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<AuthResult> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final res = await _datasource.signInWithEmail(
+        email: email,
+        password: password,
+      );
+      return (user: _userFromSupabase(res.user), failure: null);
+    } on AuthApiException catch (e) {
+      if (e.code == 'invalid_credentials') {
+        return (user: null, failure: const WrongCredentialsFailure());
+      }
+      return (user: null, failure: AuthFailure(e.message));
+    } on AuthException catch (e) {
+      return (user: null, failure: AuthFailure(e.message));
+    } catch (e) {
+      return (user: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<void> signOut() => _datasource.signOut();
 
   @override

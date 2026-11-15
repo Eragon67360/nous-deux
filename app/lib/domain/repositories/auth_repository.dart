@@ -23,6 +23,14 @@ abstract class AuthRepository {
   /// Sign in with Apple (get credential then Supabase signInWithIdToken).
   Future<AuthResult> signInWithApple();
 
+  /// Sign in with an email and password. Only accounts created for people
+  /// (store reviewers, testers) have one: nobody can sign up this way. A
+  /// wrong pair fails with [WrongCredentialsFailure].
+  Future<AuthResult> signInWithEmail({
+    required String email,
+    required String password,
+  });
+
   /// Sign out.
   Future<void> signOut();
 

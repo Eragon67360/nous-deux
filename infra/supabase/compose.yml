@@ -864,9 +864,16 @@ services:
       - GOTRUE_JWT_EXP=${JWT_EXPIRY:-3600}
       - GOTRUE_JWT_SECRET=${SERVICE_PASSWORD_JWT}
       - GOTRUE_JWT_ISSUER=${SERVICE_URL_SUPABASEKONG}/auth/v1
-      # Sign-in: phone code, Google, Apple. No email, no anonymous users.
-      - GOTRUE_EXTERNAL_EMAIL_ENABLED=false
+      # Sign-in: phone code, Google, Apple, and email and password for the
+      # accounts we create (reviewers, tests) with the admin API. No
+      # anonymous users. Email sign-up is closed by the hook below, from
+      # migration 20261115100000: apply it before turning the hook on, or
+      # every new sign-up fails.
+      - GOTRUE_EXTERNAL_EMAIL_ENABLED=true
+      - GOTRUE_HOOK_BEFORE_USER_CREATED_ENABLED=true
+      - GOTRUE_HOOK_BEFORE_USER_CREATED_URI=pg-functions://postgres/public/hook_before_user_created
       - GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED=false
+      # No mail server: nothing is ever emailed, and nothing needs to be.
       - GOTRUE_MAILER_AUTOCONFIRM=false
       - GOTRUE_EXTERNAL_PHONE_ENABLED=true
       # Off, so the SMS rate limiter applies.

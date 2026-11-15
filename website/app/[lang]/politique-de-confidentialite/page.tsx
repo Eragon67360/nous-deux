@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import { notFound } from "next/navigation";
 
-const POLICY_LAST_UPDATED_ISO = "2026-11-10";
+const POLICY_LAST_UPDATED_ISO = "2026-11-15";
 const GITHUB_REPO = "https://github.com/Eragon67360/nous-deux";
 
 type PageProps = { params: Promise<{ lang: string }> };
