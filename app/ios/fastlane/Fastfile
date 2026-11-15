@@ -1,0 +1,136 @@
+# TestFlight uploads for Nous Deux (see README.md in this folder). Every
+# lane talks to the real App Store Connect. The "iOS TestFlight" GitHub
+# workflow runs them in the `app-store` environment, which waits for
+# Thomas's approval.
+#
+# The beta review details (contact, sign-in account, notes) and the test
+# information (description, feedback email, privacy policy) are set once in
+# App Store Connect and kept there: the review passwords never enter this
+# public repo.
+
+require "shellwords"
+
+default_platform(:ios)
+skip_docs
+
+# External group behind the public TestFlight link, made in App Store
+# Connect. The name must match exactly.
+PUBLIC_GROUP = "Bêta publique"
+
+# "What to Test", shown to testers with each build.
+WHAT_TO_TEST = {
+  "fr-FR" => "testflight/what_to_test.fr.txt",
+  "en-US" => "testflight/what_to_test.en.txt"
+}.freeze
+
+def env!(name)
+  ENV[name].to_s.strip.empty? ? UI.user_error!("#{name} is not set") : ENV[name]
+end
+
+def api_key
+  app_store_connect_api_key(
+    key_id: env!("ASC_KEY_ID"),
+    issuer_id: env!("ASC_ISSUER_ID"),
+    key_filepath: env!("ASC_KEY_PATH")
+  )
+end
+
+# xcodebuild signs with the same API key: automatic signing creates the
+# certificate and profiles in the developer account when they're missing,
+# and the export uses Apple's cloud-managed distribution certificate. Cloud
+# signing needs an Admin key.
+def signing_xcargs
+  [
+    "-allowProvisioningUpdates",
+    "-authenticationKeyPath #{env!('ASC_KEY_PATH').shellescape}",
+    "-authenticationKeyID #{env!('ASC_KEY_ID').shellescape}",
+    "-authenticationKeyIssuerID #{env!('ASC_ISSUER_ID').shellescape}"
+  ].join(" ")
+end
+
+# Each fresh runner gets a new "Apple Development" certificate from cloud
+# signing, and Apple caps how many a team holds. Before archiving, revoke
+# the ones earlier runs made through an API key (Apple names them "Created
+# via API"; Le Bon Tempérament's CI, on the same team, makes them too).
+# Certificates made in Xcode and every distribution certificate stay.
+# Revoking one doesn't touch TestFlight builds or push. Logs counts only:
+# the workflow logs are public.
+def revoke_ci_development_certificates
+  types = Spaceship::ConnectAPI::Certificate::CertificateType
+  certificates = Spaceship::ConnectAPI::Certificate.all(
+    filter: { certificateType: [types::DEVELOPMENT, types::IOS_DEVELOPMENT].join(",") }
+  )
+  stale = certificates.select do |certificate|
+    [certificate.name, certificate.display_name].any? { |label| label.to_s.include?("Created via API") }
+  end
+  stale.each(&:delete!)
+  UI.message("Development certificates: #{certificates.size} found, #{stale.size} left by earlier CI builds revoked")
+end
+
+# Adds a build to the public group and submits it for Apple's beta review
+# when it needs one (the first build of each version does; later builds of
+# the same version usually go through at once). nil sends the newest build.
+def send_to_testers(key, build_number)
+  # pilot skips a group it can't find without saying so: fail instead.
+  app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
+  names = app.get_beta_groups.map(&:name)
+  UI.user_error!("TestFlight group « #{PUBLIC_GROUP} » not found (groups: #{names.join(', ')})") unless names.include?(PUBLIC_GROUP)
+
+  upload_to_testflight(
+    api_key: key,
+    distribute_only: true,
+    # With no .ipa to read it from, pilot would ask for the platform.
+    app_platform: "ios",
+    build_number: build_number,
+    localized_build_info: WHAT_TO_TEST.transform_values { |path| { whats_new: File.read(path).strip } },
+    distribute_external: true,
+    groups: [PUBLIC_GROUP],
+    submit_beta_review: true,
+    notify_external_testers: true
+  )
+end
+
+platform :ios do
+  desc "Archive the app (after `flutter build ios --config-only`), sign it for the App Store, upload it to TestFlight and send it to the public group."
+  lane :beta do
+    key = api_key
+    revoke_ci_development_certificates
+    # Automatic signing for this run's checkout only (not as xcargs: gym
+    # passes them to the export too, where xcodebuild refuses duplicates).
+    update_code_signing_settings(
+      path: "Runner.xcodeproj",
+      targets: ["Runner"],
+      use_automatic_signing: true,
+      team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id)
+    )
+    build_app(
+      workspace: "Runner.xcworkspace",
+      scheme: "Runner",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: "build",
+      output_name: "NousDeux.ipa",
+      xcargs: signing_xcargs
+    )
+    # Waits until Apple has processed the build.
+    upload_to_testflight(
+      api_key: key,
+      ipa: "build/NousDeux.ipa",
+      distribute_external: false,
+      submit_beta_review: false
+    )
+    build_number = FastlaneCore::IpaFileAnalyser.fetch_app_build(lane_context[SharedValues::IPA_OUTPUT_PATH])
+    begin
+      send_to_testers(key, build_number)
+    rescue StandardError => e
+      UI.error("Build #{build_number} is on TestFlight, but sending it to « #{PUBLIC_GROUP} » failed. " \
+               "Fix the cause, then run the workflow with « Send the latest build to testers ».")
+      raise e
+    end
+  end
+
+  desc "Send the newest TestFlight build to the public group (retry after a failed send)."
+  lane :send do
+    send_to_testers(api_key, nil)
+  end
+end

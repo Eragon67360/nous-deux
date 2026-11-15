@@ -1,0 +1,4 @@
+source "https://rubygems.org"
+
+# TestFlight uploads from CI: see fastlane/README.md.
+gem "fastlane", "~> 2.240"

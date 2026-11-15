@@ -4,7 +4,8 @@
 // FIREBASE_SERVICE_ACCOUNT_JSON.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { fromDatabase, json, readServiceAccount, sendPush } from "../_shared/fcm.ts";
+import { fromDatabase, json } from "../_shared/database.ts";
+import { readServiceAccount, sendPush } from "../_shared/fcm.ts";
 
 type PingKind =
   | "thinking_of_you"

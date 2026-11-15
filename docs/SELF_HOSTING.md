@@ -16,7 +16,7 @@ The stack is defined in [`infra/supabase/compose.yml`](../infra/supabase/compose
 | supabase-storage | Avatars, stored on the server's disk | via Kong |
 | supabase-meta | Database API for Studio | via Kong (service key) |
 | supabase-studio | Admin dashboard | via Kong (password) |
-| supabase-edge-functions | The two push functions | **no**: only the database calls them |
+| supabase-edge-functions | The two push functions, and `apple-tokens` (revokes Sign in with Apple when an account is deleted) | **no**: only the database calls them |
 
 Left out on purpose:
 - Logflare and Vector, so no request logs are kept.
@@ -91,12 +91,21 @@ The iOS app is `app.nous-deux` (the domain reversed) in the paid team `2Y57C77BK
 
 Why not `com.nousdeux.app`: Apple answers "not available". The project was first signed with the free Personal Team `2YPH2XA7AZ`, which most likely registered it in February. Only Apple Developer Support can release an ID from a free team.
 
-To build for a device or use Sign in with Apple, Xcode needs the Apple ID that owns team `2Y57C77BK4` (**Xcode → Settings → Accounts**).
+**Push Notifications** is on for the App ID since 2026-11-15, with `aps-environment` in the entitlements and the `remote-notification` background mode in `Info.plist`. Release builds come from CI ("iOS TestFlight" workflow, [APP_STORE_CONNECT.md](APP_STORE_CONNECT.md)), signed through an App Store Connect API key, so no Mac needs the team's Apple ID. To build for a device from Xcode instead, add that Apple ID in **Xcode → Settings → Accounts**.
+
+**Revoking Sign in with Apple** (App Store guideline 5.1.1(v)). Deleting an account revokes the app's Apple access too. After each Apple sign-in, the app passes Apple's one-time authorization code to `save_apple_authorization()`; the database hands it to the internal `apple-tokens` function, which exchanges it for a refresh token and keeps it in `public.apple_tokens`. When the account goes, so does the row, and its delete trigger sends the token back to `apple-tokens`, which revokes it with Apple (migration `20261115200000`). That needs a Sign in with Apple key:
+1. Developer → Keys → **+**, name "Nous Deux Sign in with Apple", tick **Sign in with Apple**, configure it with the primary App ID `app.nous-deux`. Download the `.p8` (Apple lets you download it once).
+2. Proton Pass item `Nous Deux / Apple Sign in key`: the key id and the `.p8` contents. Delete the downloaded file.
+3. In Coolify, on the `supabase` service, set `APPLE_SIGN_IN_KEY_ID` and `APPLE_SIGN_IN_KEY`: the whole `.p8` on one line, its line breaks written as `\n` (`awk 'NF {printf "%s\\n", $0}' AuthKey_….p8`). Then redeploy.
+4. `scripts/deploy-functions.sh nous-deux`.
+
+Without the key, sign-in and deletion still work; `apple-tokens` logs that the key is missing and nothing is kept or revoked.
 
 Still to do: one real Sign in with Apple, on an iPhone signed in to an Apple Account (a TestFlight build works). On 2026-11-11 the simulator couldn't sign in to an Apple Account: Apple took the password, then failed at the two-factor step. The App ID, the server setting and the app's nonce code are in place.
 
 ### 6. Firebase (Thomas)
 - **iOS app:** "Nous Deux iOS" (`app.nous-deux`, app id `1:836600962251:ios:e48ad19409b909f70f4f4e`), added on 2026-11-11. The older iOS app "nousdeux (ios)" is registered for `com.nousdeux.app` and no longer used.
+- **APNs key** (iOS push): Apple Developer → Keys → **+**, tick **Apple Push Notifications service (APNs)**, environment "Sandbox & Production". Download the `.p8` once, keep it and its key id in Proton Pass, then in Firebase **Project settings → Cloud Messaging → Apple app configuration → APNs Authentication Key**, upload it with the key id and team id `2Y57C77BK4`. One key serves the simulator, TestFlight and the App Store.
 - **Service account:** in **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
 
 ### 7. Database and functions (Claude or Thomas, over SSH)
@@ -129,7 +138,7 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 ## Day to day
 
 - **New migration:** add the file under `supabase/migrations/`, run the SQL dry run (`supabase/tests/README.md`), then `scripts/db-migrate.sh root@<server>`. With `--list`, it only shows what's pending.
-- **Push function change:** `scripts/deploy-functions.sh root@<server>`.
+- **Function change:** `scripts/deploy-functions.sh root@<server>`. The `apple-tokens` tests run without a local Deno: see the top of `supabase/functions/apple-tokens/handler_test.ts`.
 - **Test numbers:** edit `SMS_TEST_OTP` in Coolify and redeploy the service.
 - **Email accounts** (store reviewers, test accounts): `scripts/create-email-account.sh root@<server> <email>`. You type the password; keep it in Proton Pass. No email is sent, so an address like `review1@nous-deux.app` needs no mailbox. To remove one, delete the user in Studio › Authentication. Nobody can create an email account from the app: the `hook_before_user_created` function (migration `20261115100000`) refuses email sign-ups, and accounts made through the admin API never go through it. The stack turns that hook on, so the migration must be on the database before the auth service starts with this `compose.yml`, or every new sign-up fails.
 - **Studio:** open `https://api.nous-deux.app` and log in with `SERVICE_USER_ADMIN` / `SERVICE_PASSWORD_ADMIN`. Apply schema changes as migration files, not in Studio's SQL editor.
@@ -147,17 +156,18 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 
 ## Backups
 
-Set up on 2026-11-12 with Coolify 4.7.5. Both schedules live on the `supabase` service under **Backups**, and upload to the Hetzner bucket `nous-deux-backups` in Helsinki (`hel1`). The server is in `nbg1`, so losing one site doesn't lose both.
+Set up on 2026-11-12 with Coolify 4.7.5. The database and avatar schedules live on the `supabase` service under **Backups**, Umami's on the `umami` service (added 2026-11-15), and all three upload to the Hetzner bucket `nous-deux-backups` in Helsinki (`hel1`). GlitchTip isn't backed up: crash reports expire after 30 days anyway. The server is in `nbg1`, so losing one site doesn't lose both.
 
 | What | Schedule (UTC) | File | Kept |
 |---|---|---|---|
 | Database `postgres` | `17 3 * * *` | `pg_dump --format=custom`, about 0.5 MB | 7 on the server, 14 in the bucket |
 | Avatars (`volumes/storage`) | `27 3 * * *`, containers keep running | `.tar.gz` of the folder | 7 on the server, 14 in the bucket |
+| Umami database `umami` | `37 3 * * *` | `pg_dump --format=custom`, about 45 KB | 7 on the server, 14 in the bucket |
 
 - **S3 access:** Coolify's S3 storage `hetzner-hel1-nous-deux-backups` (endpoint `https://hel1.your-objectstorage.com`, region `hel1`). The key is in Proton Pass, `Nous Deux / Backups S3`.
 - **On the server:** `/data/coolify/backups/databases/…/pg-dump-postgres-<time>-<id>.dmp` and `/data/coolify/backups/volumes/…/directory-…storage-<time>.tar.gz`. **Executions** in Coolify lists every run with its size and a download button.
 - **Checks:** Coolify fails a run only when the file is empty. The empty Supabase dumps reported upstream don't happen here: the image sets `POSTGRES_USER=supabase_admin`, which logs in on the local socket without a password. A good dump starts with `PGDMP`.
-- **Retention:** after changing it, reopen the schedule to check. On 2026-11-12 the first save on the database schedule didn't stick (0 means keep everything).
+- **Retention:** after changing it, reopen the schedule to check (0 means keep everything). On 2026-11-12 the first save on the database schedule didn't stick, and on 2026-11-15 neither did Umami's until the edit panel's own **Save changes** was used.
 - **Deleted accounts** stay in the backups for up to 14 days.
 - **Not in a dump:**
   - `app.settings.jwt_exp` and `app.settings.push_webhook_secret`. A fresh deploy sets both at first boot from its environment.
@@ -319,5 +329,6 @@ Versions pinned (2026-11-11, upstream self-hosted v0.8.4). The whole file was re
   - Check `net._http_response` (above). A 403 means the database and the functions have different secrets.
   - A `couple not found` or `no partner` answer is data.
   - `FCM error` shows in `docker logs` of the functions container.
+- **An Apple token isn't kept or revoked.** `net._http_response` holds `apple-tokens`' answers: `{"ok":false,"skipped":"Apple key not set"}` means the two `APPLE_SIGN_IN_KEY*` settings are missing; `{"ok":false}` means Apple refused, and `docker logs` of the functions container has Apple's error (`invalid_client`: wrong key id or key; `invalid_grant`: the code was older than five minutes or already used).
 - **Sign-in with Google fails with "audience".** `GOOGLE_CLIENT_IDS` must contain the client id the app requested the token for. On Android that's the web client id.
 - **Live updates stop.** Restart `realtime-dev`. Its container name must stay `realtime-dev.supabase-realtime`.
