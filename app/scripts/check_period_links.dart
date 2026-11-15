@@ -11,7 +11,10 @@ const _builtinAllowlist = ['instagram.com', 'ameli.fr'];
 const _timeout = Duration(seconds: 20);
 
 // Matches URLs in Dart string literals (single- or double-quoted).
-final _urlRegex = RegExp(r'https?://[^\s''"]+');
+final _urlRegex = RegExp(
+  r'https?://[^\s'
+  '"]+',
+);
 
 void main(List<String> args) async {
   final root = args.isNotEmpty ? args[0] : '.';
@@ -40,8 +43,12 @@ void main(List<String> args) async {
     exit(0);
   }
 
-  final allowlisted = urls.where((u) => _isAllowlisted(u, allowlistPatterns)).toList();
-  final toCheck = urls.where((u) => !_isAllowlisted(u, allowlistPatterns)).toList();
+  final allowlisted = urls
+      .where((u) => _isAllowlisted(u, allowlistPatterns))
+      .toList();
+  final toCheck = urls
+      .where((u) => !_isAllowlisted(u, allowlistPatterns))
+      .toList();
 
   for (final u in allowlisted) {
     print('Skipped (allowlist): $u');
@@ -52,11 +59,11 @@ void main(List<String> args) async {
   final client = HttpClient()..connectionTimeout = _timeout;
   try {
     for (final url in toCheck) {
-      final ok = await _checkUrl(client, url);
-      if (ok) {
+      final problem = await _checkUrl(client, url);
+      if (problem == null) {
         print('OK: $url');
       } else {
-        print('FAIL: $url');
+        print('FAIL ($problem): $url');
         failures.add(url);
       }
     }
@@ -110,23 +117,22 @@ bool _isAllowlisted(String url, List<String> patterns) {
   return patterns.any((p) => url.contains(p));
 }
 
-Future<bool> _checkUrl(HttpClient client, String urlString) async {
+/// Null when the URL answers 2xx, otherwise why it failed.
+Future<String?> _checkUrl(HttpClient client, String urlString) async {
   try {
     final uri = Uri.parse(urlString);
-    final headRequest = await client.headUrl(uri).timeout(_timeout);
-    final headResponse = await headRequest.close().timeout(_timeout);
-    await headResponse.drain();
-    final code = headResponse.statusCode;
-
-    if (code >= 200 && code < 300) return true;
-    if (code == 405 || code == 501) {
-      final getRequest = await client.getUrl(uri).timeout(_timeout);
-      final getResponse = await getRequest.close().timeout(_timeout);
-      await getResponse.drain();
-      return getResponse.statusCode >= 200 && getResponse.statusCode < 300;
-    }
-    return false;
-  } catch (_) {
-    return false;
+    var code = await _status(client.headUrl(uri));
+    // Some servers refuse HEAD; ask with GET instead.
+    if (code == 405 || code == 501) code = await _status(client.getUrl(uri));
+    return code >= 200 && code < 300 ? null : 'HTTP $code';
+  } catch (e) {
+    return e.runtimeType.toString();
   }
+}
+
+Future<int> _status(Future<HttpClientRequest> request) async {
+  final opened = await request.timeout(_timeout);
+  final response = await opened.close().timeout(_timeout);
+  await response.drain<void>();
+  return response.statusCode;
 }

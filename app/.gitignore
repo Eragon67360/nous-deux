@@ -47,7 +47,5 @@ app.*.map.json
 # Supabase keys (optional: copy supabase_keys_example.dart to supabase_keys.dart and fill in)
 lib/core/config/supabase_keys.dart
 
-# Mapbox token (keep real token out of the repo; committed stub has empty string)
-lib/core/config/mapbox_keys.dart
 
 # Smoke test dependencies (infra/supabase)

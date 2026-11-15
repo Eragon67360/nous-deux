@@ -1,7 +1,10 @@
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 
-typedef LocationSharingResult = ({LocationSharingEntity? entity, Failure? failure});
+typedef LocationSharingResult = ({
+  LocationSharingEntity? entity,
+  Failure? failure,
+});
 
 abstract class LocationRepository {
   /// Get current user's location sharing row (if any).
@@ -17,4 +20,8 @@ abstract class LocationRepository {
     double? lat,
     double? lng,
   });
+
+  /// Moves the current user's position while they share it. Never turns
+  /// sharing on: when sharing is off, nothing is written.
+  Future<Failure?> updateMyPosition({required double lat, required double lng});
 }

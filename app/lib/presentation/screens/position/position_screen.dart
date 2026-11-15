@@ -11,21 +11,22 @@ import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 // ignore: depend_on_referenced_packages
 import 'package:light/light.dart';
-import 'package:mapbox_maps_flutter/mapbox_maps_flutter.dart' as mapbox;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/utils/app_routes.dart';
-import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/utils/geo_utils.dart';
+import 'package:nousdeux/core/utils/map_style.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/widgets/couple_map.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 
-/// Position tab: Mapbox (Sensor-based Dark Mode), circular avatars, compact UI.
+/// Position tab: a MapLibre map (OpenFreeMap tiles) that turns dark in low
+/// light, a picture for each person, and a compact UI.
 class PositionScreen extends ConsumerStatefulWidget {
   const PositionScreen({super.key});
 
@@ -38,14 +39,13 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   RealtimeChannel? _locationChannel;
   String? _subscribedCoupleId;
 
-  // Mapbox
-  static bool get _useMapbox =>
-      AppConfig.isMapboxConfigured &&
-      (defaultTargetPlatform == TargetPlatform.android ||
-          defaultTargetPlatform == TargetPlatform.iOS);
+  // Map: MapLibre draws through a native view, so only phones show it.
+  static bool get _mapSupported =>
+      defaultTargetPlatform == TargetPlatform.android ||
+      defaultTargetPlatform == TargetPlatform.iOS;
 
-  mapbox.MapboxMap? _mapboxMap;
-  mapbox.PointAnnotationManager? _pointAnnotationManager;
+  final _map = GlobalKey<CoupleMapState>();
+  List<MapMarker> _markers = const [];
 
   // --- Ambient Light & Style Logic ---
   static const int _luxBufferSize = 10;
@@ -54,8 +54,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   Light? _lightSensor;
   StreamSubscription<int>? _lightSubscription;
 
-  // Start with a safe default (will be updated immediately in initState)
-  String _currentMapStyle = mapbox.MapboxStyles.STANDARD;
+  // Set from the time of day in initState, then from the light sensor.
   bool _isMapDark = false;
 
   // Assets & Caching
@@ -108,71 +107,18 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   }
 
   void _applyLuxLogic(int lux) {
-    String? targetStyle;
-
+    // Two thresholds so the map doesn't flicker around a single value.
     if (lux < 30 && !_isMapDark) {
-      targetStyle = mapbox.MapboxStyles.DARK;
+      setState(() => _isMapDark = true);
     } else if (lux > 50 && _isMapDark) {
-      targetStyle = mapbox.MapboxStyles.STANDARD;
-    }
-
-    if (targetStyle != null) {
-      _switchMapStyle(targetStyle);
+      setState(() => _isMapDark = false);
     }
   }
 
   void _updateStyleBasedOnTime() {
     // Fallback logic if sensor isn't ready or available
     final hour = DateTime.now().hour;
-    final isNight = hour < 6 || hour > 20; // Simplified night logic
-
-    final targetStyle = isNight
-        ? mapbox.MapboxStyles.DARK
-        : mapbox.MapboxStyles.STANDARD;
-
-    if (targetStyle != _currentMapStyle) {
-      // Direct update for initial load
-      setState(() {
-        _currentMapStyle = targetStyle;
-        _isMapDark = isNight;
-      });
-    }
-  }
-
-  /// Switches style dynamically and updates UI brightness
-  Future<void> _switchMapStyle(String nextStyle) async {
-    if (_currentMapStyle == nextStyle) return;
-    if (!mounted) return;
-
-    setState(() {
-      _currentMapStyle = nextStyle;
-      _isMapDark = (nextStyle == mapbox.MapboxStyles.DARK);
-    });
-
-    if (_mapboxMap != null) {
-      try {
-        await _mapboxMap!.loadStyleURI(nextStyle);
-        if (!mounted) return;
-        // Style reload often resets UI settings, re-apply them:
-        await _applyMapSettings(_mapboxMap!);
-        if (!mounted) return;
-
-        // Refresh markers as style reload might clear canvas cache
-        _myCachedAvatarBytes = null;
-        _partnerCachedAvatarBytes = null;
-        _heartMarkerBytes = null;
-      } catch (e) {
-        debugPrint('Error switching map style: $e');
-      }
-    }
-  }
-
-  Future<void> _applyMapSettings(mapbox.MapboxMap map) async {
-    try {
-      await map.scaleBar.updateSettings(
-        mapbox.ScaleBarSettings(enabled: false),
-      );
-    } catch (_) {}
+    _isMapDark = hour < 6 || hour > 20; // Simplified night logic
   }
 
   // --- Realtime Logic ---
@@ -321,10 +267,10 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     final isMerged =
         distanceM != null && distanceM < positionMergeThresholdMeters;
 
-    if (_useMapbox && _mapboxMap != null) {
+    if (_mapSupported) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
-          _updateMapboxMarkers(
+          _refreshMarkers(
             myPos: myPos,
             partnerPos: partnerPos,
             isMerged: isMerged,
@@ -364,12 +310,20 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       ),
       body: Stack(
         children: [
-          if (_useMapbox)
+          if (_mapSupported)
             Positioned.fill(
-              child: _buildMapboxMap(myPos: myPos, partnerPos: partnerPos),
+              child: CoupleMap(
+                key: _map,
+                initialCenter:
+                    myPos ?? partnerPos ?? const LatLng(48.8566, 2.3522),
+                markers: _markers,
+                look: _isMapDark ? MapLook.night : MapLook.day,
+                lang: _lang(),
+                onReady: _onMapReady,
+              ),
             )
           else
-            _MapboxOnlyPlaceholder(lang: _lang()),
+            _MapPhoneOnly(lang: _lang()),
 
           if (distanceM != null)
             SafeArea(
@@ -399,16 +353,16 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
                 partnerPos: partnerPos,
                 isMerged: isMerged,
                 // If merged, center on myPos (which is effectively the shared group pos)
-                onCenterMerged: (_useMapbox && myPos != null)
+                onCenterMerged: (_mapSupported && myPos != null)
                     ? () => _centerCameraOn(myPos)
                     : null,
-                onCenterMy: (_useMapbox && myPos != null)
+                onCenterMy: (_mapSupported && myPos != null)
                     ? () => _centerCameraOn(myPos)
                     : null,
-                onCenterPartner: (_useMapbox && partnerPos != null)
+                onCenterPartner: (_mapSupported && partnerPos != null)
                     ? () => _centerCameraOn(partnerPos)
                     : null,
-                onFitBoth: (_useMapbox && myPos != null && partnerPos != null)
+                onFitBoth: (_mapSupported && myPos != null && partnerPos != null)
                     ? () => _fitBoth(myPos, partnerPos)
                     : null,
                 lang: _lang(),
@@ -444,52 +398,26 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     );
   }
 
-  Widget _buildMapboxMap({
-    required LatLng? myPos,
-    required LatLng? partnerPos,
-  }) {
-    final startPos = myPos ?? partnerPos ?? const LatLng(48.8566, 2.3522);
-
-    return mapbox.MapWidget(
-      key: const ValueKey('mapbox-map-view'),
-      styleUri: _currentMapStyle, // Controlled by Lux/Time logic
-      cameraOptions: mapbox.CameraOptions(
-        center: mapbox.Point(
-          coordinates: mapbox.Position(startPos.longitude, startPos.latitude),
-        ),
-        zoom: 13.0,
-      ),
-      onMapCreated: (mapbox.MapboxMap map) async {
-        _mapboxMap = map;
-        await _applyMapSettings(map);
-
-        _pointAnnotationManager = await map.annotations
-            .createPointAnnotationManager();
-
-        if (myPos != null && partnerPos != null) {
-          _fitBoth(myPos, partnerPos, animated: false);
-        } else if (myPos != null) {
-          _centerCameraOn(myPos, zoom: 16.0, animated: false);
-        }
-      },
-    );
+  /// First view once the map is up: both people when there are two
+  /// positions, otherwise me up close.
+  void _onMapReady() {
+    final mine = ref.read(myLocationSharingProvider).valueOrNull;
+    final theirs = ref.read(partnerLocationSharingProvider).valueOrNull;
+    final myPos = mine?.hasPosition == true
+        ? LatLng(mine!.latitude!, mine.longitude!)
+        : null;
+    final partnerPos = theirs?.hasPosition == true
+        ? LatLng(theirs!.latitude!, theirs.longitude!)
+        : null;
+    if (myPos != null && partnerPos != null) {
+      _fitBoth(myPos, partnerPos, animated: false);
+    } else if (myPos != null) {
+      _centerCameraOn(myPos, zoom: 16.0, animated: false);
+    }
   }
 
   void _centerCameraOn(LatLng pos, {double zoom = 16.5, bool animated = true}) {
-    final camera = mapbox.CameraOptions(
-      center: mapbox.Point(
-        coordinates: mapbox.Position(pos.longitude, pos.latitude),
-      ),
-      zoom: zoom,
-      pitch: 45,
-      bearing: 0,
-    );
-
-    if (animated) {
-      _mapboxMap?.flyTo(camera, mapbox.MapAnimationOptions(duration: 1200));
-    } else {
-      _mapboxMap?.setCamera(camera);
-    }
+    _map.currentState?.centerOn(pos, zoom: zoom, animated: animated);
   }
 
   Future<void> _fitBoth(LatLng a, LatLng b, {bool animated = true}) async {
@@ -503,48 +431,15 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       _centerCameraOn(a, zoom: 17.0, animated: animated);
       return;
     }
-
-    final points = [
-      mapbox.Point(coordinates: mapbox.Position(a.longitude, a.latitude)),
-      mapbox.Point(coordinates: mapbox.Position(b.longitude, b.latitude)),
-    ];
-
-    final padding = mapbox.MbxEdgeInsets(
-      top: 120.0,
-      left: 50.0,
-      bottom: 180.0,
-      right: 50.0,
-    );
-
-    final baseCamera = mapbox.CameraOptions(pitch: 40.0, bearing: 0.0);
-
-    try {
-      final camera = await _mapboxMap?.cameraForCoordinatesPadding(
-        points,
-        baseCamera,
-        padding,
-        null,
-        null,
-      );
-
-      if (camera != null) {
-        if (animated) {
-          await _mapboxMap?.flyTo(
-            camera,
-            mapbox.MapAnimationOptions(duration: 1500),
-          );
-        } else {
-          await _mapboxMap?.setCamera(camera);
-        }
-      }
-    } catch (e) {
-      debugPrint('Error calculating camera: $e');
-    }
+    await _map.currentState?.fitBoth(a, b, animated: animated);
   }
 
   // --- Marker Management & Image Generation ---
 
-  Future<void> _updateMapboxMarkers({
+  /// Works out what the map shows: one heart when together, otherwise a
+  /// picture for each person who has a position. Pictures are drawn once and
+  /// redrawn only when a name or photo changes.
+  Future<void> _refreshMarkers({
     required LatLng? myPos,
     required LatLng? partnerPos,
     required bool isMerged,
@@ -552,106 +447,69 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     required ProfileEntity? partnerProfile,
     required BuildContext context,
   }) async {
-    final manager = _pointAnnotationManager;
-    if (manager == null) return;
-
-    // 1. If Merged: Show ONLY the Heart marker
+    final List<MapMarker> markers;
     if (isMerged && myPos != null) {
-      // Ensure heart marker is generated
       _heartMarkerBytes ??= await _createHeartMarker(context);
-
-      final heartIcon = _heartMarkerBytes;
-      if (heartIcon == null) return;
-
-      await manager.deleteAll();
-
-      await manager.create(
-        mapbox.PointAnnotationOptions(
-          geometry: mapbox.Point(
-            coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
-          ),
-          image: heartIcon,
-          iconSize: 1.5,
-          iconOffset: [0, -10],
-          symbolSortKey: 10,
+      markers = [
+        MapMarker(
+          id: 'together',
+          position: myPos,
+          image: _heartMarkerBytes!,
+          size: 1.5,
+          zIndex: 10,
         ),
-      );
-      return; // Exit early so we don't add individual avatars
-    }
+      ];
+    } else {
+      final myUrl = myProfile?.avatarUrl;
+      final myName = myProfile?.username;
+      if (_myCachedAvatarBytes == null ||
+          _lastMyAvatarUrl != myUrl ||
+          _lastMyName != myName) {
+        _myCachedAvatarBytes = await _generateAvatar(
+          myUrl,
+          myName,
+          context,
+          true,
+        );
+        _lastMyAvatarUrl = myUrl;
+        _lastMyName = myName;
+      }
 
-    // 2. If Separate: Show individual avatars
-    final myUrl = myProfile?.avatarUrl;
-    final myName = myProfile?.username;
+      final partnerUrl = partnerProfile?.avatarUrl;
+      final partnerName = partnerProfile?.username;
+      if (!context.mounted) return;
+      if (_partnerCachedAvatarBytes == null ||
+          _lastPartnerAvatarUrl != partnerUrl ||
+          _lastPartnerName != partnerName) {
+        _partnerCachedAvatarBytes = await _generateAvatar(
+          partnerUrl,
+          partnerName,
+          context,
+          false,
+        );
+        _lastPartnerAvatarUrl = partnerUrl;
+        _lastPartnerName = partnerName;
+      }
 
-    if (_myCachedAvatarBytes == null ||
-        _lastMyAvatarUrl != myUrl ||
-        _lastMyName != myName) {
-      _myCachedAvatarBytes = await _generateAvatar(
-        myUrl,
-        myName,
-        context,
-        true,
-      );
-      _lastMyAvatarUrl = myUrl;
-      _lastMyName = myName;
-    }
-
-    final partnerUrl = partnerProfile?.avatarUrl;
-    final partnerName = partnerProfile?.username;
-
-    if (_partnerCachedAvatarBytes == null ||
-        _lastPartnerAvatarUrl != partnerUrl ||
-        _lastPartnerName != partnerName) {
-      _partnerCachedAvatarBytes = await _generateAvatar(
-        partnerUrl,
-        partnerName,
-        context,
-        false,
-      );
-      _lastPartnerAvatarUrl = partnerUrl;
-      _lastPartnerName = partnerName;
-    }
-
-    final myIcon = _myCachedAvatarBytes;
-    final partnerIcon = _partnerCachedAvatarBytes;
-
-    if (myIcon == null || partnerIcon == null) return;
-
-    await manager.deleteAll();
-
-    final options = <mapbox.PointAnnotationOptions>[];
-
-    if (myPos != null) {
-      options.add(
-        mapbox.PointAnnotationOptions(
-          geometry: mapbox.Point(
-            coordinates: mapbox.Position(myPos.longitude, myPos.latitude),
+      markers = [
+        if (myPos != null)
+          MapMarker(
+            id: 'me',
+            position: myPos,
+            image: _myCachedAvatarBytes!,
+            zIndex: 2,
           ),
-          image: myIcon,
-          iconSize: 1.2,
-          iconOffset: [0, -5],
-          symbolSortKey: 2,
-        ),
-      );
-    }
-    if (partnerPos != null) {
-      options.add(
-        mapbox.PointAnnotationOptions(
-          geometry: mapbox.Point(
-            coordinates: mapbox.Position(
-              partnerPos.longitude,
-              partnerPos.latitude,
-            ),
+        if (partnerPos != null)
+          MapMarker(
+            id: 'partner',
+            position: partnerPos,
+            image: _partnerCachedAvatarBytes!,
+            zIndex: 1,
           ),
-          image: partnerIcon,
-          iconSize: 1.2,
-          iconOffset: [0, -5],
-          symbolSortKey: 1,
-        ),
-      );
+      ];
     }
-
-    await manager.createMulti(options);
+    if (!mounted || listEquals(markers, _markers)) return;
+    setState(() => _markers = markers);
   }
 
   /// Generates a "Heart" marker icon (White circle with Red Heart)
@@ -1098,12 +956,13 @@ class _AvatarChip extends StatelessWidget {
   }
 }
 
-class _MapboxOnlyPlaceholder extends StatelessWidget {
-  const _MapboxOnlyPlaceholder({required this.lang});
+/// Where MapLibre has no native view (tests, desktop).
+class _MapPhoneOnly extends StatelessWidget {
+  const _MapPhoneOnly({required this.lang});
   final String lang;
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text(_positionMapboxOnlyMessage(lang)));
+    return Center(child: Text(_positionMapPhoneOnly(lang)));
   }
 }
 
@@ -1125,6 +984,6 @@ String _positionOpenSettings(String lang) =>
 String _positionReloadTooltip(String lang) =>
     lang == 'fr' ? 'Actualiser' : 'Refresh';
 String _positionReloadDone(String lang) => lang == 'fr' ? 'À jour' : 'Up to date';
-String _positionMapboxOnlyMessage(String lang) => lang == 'fr'
-    ? "Carte indisponible : la clé Mapbox n'est pas configurée."
-    : "Map unavailable: the Mapbox key isn't set up.";
+String _positionMapPhoneOnly(String lang) => lang == 'fr'
+    ? "La carte s'affiche sur téléphone."
+    : 'The map shows on phones.';

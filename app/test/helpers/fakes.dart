@@ -94,6 +94,21 @@ class FakeAuthRepository implements AuthRepository {
   Future<void> signOut() async {
     signOutCalls++;
   }
+
+  int deleteAccountCalls = 0;
+
+  /// Returned by [deleteAccount] instead of deleting.
+  Failure? deleteFailure;
+
+  /// Like the real one: on success the session ends, which signs out.
+  @override
+  Future<Failure?> deleteAccount() async {
+    deleteAccountCalls++;
+    if (gate != null) await gate!.future;
+    if (deleteFailure != null) return deleteFailure;
+    emit(null);
+    return null;
+  }
 }
 
 class FakeProfileRepository implements ProfileRepository {
@@ -634,6 +649,24 @@ class FakeLocationRepository implements LocationRepository {
     );
     return (entity: mine, failure: null);
   }
+
+  @override
+  Future<Failure?> updateMyPosition({
+    required double lat,
+    required double lng,
+  }) async {
+    final current = mine;
+    // Like the database: only a row that is sharing takes the position.
+    if (current == null || !current.isSharing) return null;
+    mine = LocationSharingEntity(
+      userId: current.userId,
+      coupleId: current.coupleId,
+      isSharing: true,
+      latitude: lat,
+      longitude: lng,
+    );
+    return null;
+  }
 }
 
 /// [LocationUpdateNotifier] that never touches Geolocator or timers.
@@ -653,8 +686,7 @@ class FakeLocationUpdateNotifier extends LocationUpdateNotifier {
 }
 
 class FakePingRepository implements PingRepository {
-  FakePingRepository([List<PingEntity>? initial])
-    : _pings = [...?initial];
+  FakePingRepository([List<PingEntity>? initial]) : _pings = [...?initial];
 
   final List<PingEntity> _pings;
   final _controller = StreamController<List<PingEntity>>.broadcast();
@@ -694,9 +726,11 @@ class FakePingRepository implements PingRepository {
 }
 
 class FakeListsRepository implements ListsRepository {
-  FakeListsRepository({List<SharedListEntity>? lists, List<ListItemEntity>? items})
-    : lists = [...?lists],
-      items = [...?items];
+  FakeListsRepository({
+    List<SharedListEntity>? lists,
+    List<ListItemEntity>? items,
+  }) : lists = [...?lists],
+       items = [...?items];
 
   final List<SharedListEntity> lists;
   final List<ListItemEntity> items;
@@ -731,7 +765,10 @@ class FakeListsRepository implements ListsRepository {
   }
 
   @override
-  Future<ListResult> createList({required String name, required ListIcon icon}) async {
+  Future<ListResult> createList({
+    required String name,
+    required ListIcon icon,
+  }) async {
     calls.add('create:$name:${icon.name}');
     final f = _take();
     if (f != null) return (list: null, failure: f);

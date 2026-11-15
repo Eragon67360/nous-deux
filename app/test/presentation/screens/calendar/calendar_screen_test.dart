@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/data/models/calendar_event_model.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
@@ -169,6 +170,23 @@ void main() {
         tester.getTopLeft(find.text('Dentiste')).dy,
         lessThan(tester.getTopLeft(find.text('Cinéma')).dy),
       );
+    });
+
+    // Postgres sends timestamptz with an offset, which parses as UTC.
+    testWidgets('a server row shows its local time', (tester) async {
+      final noon = _today(hour: 12);
+      final fromServer = CalendarEventModel.fromJson({
+        'id': 'server',
+        'couple_id': coupleId,
+        'title': 'Déjeuner',
+        'start_time': noon.toUtc().toIso8601String(),
+        'created_by': meId,
+      }).toEntity();
+
+      await pumpCalendar(tester, events: [fromServer]);
+
+      expect(find.text('Déjeuner'), findsOneWidget);
+      expect(find.text('12:00'), findsOneWidget);
     });
 
     testWidgets('the next month shows its own events', (tester) async {

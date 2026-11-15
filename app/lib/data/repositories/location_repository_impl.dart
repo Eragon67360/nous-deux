@@ -6,7 +6,7 @@ import 'package:nousdeux/domain/repositories/location_repository.dart';
 
 class LocationRepositoryImpl implements LocationRepository {
   LocationRepositoryImpl({LocationRemoteDatasource? datasource})
-      : _datasource = datasource ?? LocationRemoteDatasource();
+    : _datasource = datasource ?? LocationRemoteDatasource();
 
   final LocationRemoteDatasource _datasource;
 
@@ -14,7 +14,9 @@ class LocationRepositoryImpl implements LocationRepository {
   Future<LocationSharingResult> getMyLocationSharing() async {
     try {
       final uid = Supabase.instance.client.auth.currentUser?.id;
-      if (uid == null) return (entity: null, failure: AuthFailure('Not signed in'));
+      if (uid == null) {
+        return (entity: null, failure: AuthFailure('Not signed in'));
+      }
       final model = await _datasource.getByUserId(uid);
       return (entity: model?.toEntity(), failure: null);
     } on AuthException catch (e) {
@@ -27,7 +29,9 @@ class LocationRepositoryImpl implements LocationRepository {
   }
 
   @override
-  Future<LocationSharingResult> getPartnerLocationSharing(String partnerUserId) async {
+  Future<LocationSharingResult> getPartnerLocationSharing(
+    String partnerUserId,
+  ) async {
     try {
       final model = await _datasource.getPartnerByUserId(partnerUserId);
       return (entity: model?.toEntity(), failure: null);
@@ -49,7 +53,9 @@ class LocationRepositoryImpl implements LocationRepository {
   }) async {
     try {
       final uid = Supabase.instance.client.auth.currentUser?.id;
-      if (uid == null) return (entity: null, failure: AuthFailure('Not signed in'));
+      if (uid == null) {
+        return (entity: null, failure: AuthFailure('Not signed in'));
+      }
       final model = await _datasource.upsertMyLocation(
         userId: uid,
         coupleId: coupleId,
@@ -64,6 +70,25 @@ class LocationRepositoryImpl implements LocationRepository {
       return (entity: null, failure: ServerFailure(e.message));
     } catch (e) {
       return (entity: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Failure?> updateMyPosition({
+    required double lat,
+    required double lng,
+  }) async {
+    try {
+      final uid = Supabase.instance.client.auth.currentUser?.id;
+      if (uid == null) return AuthFailure('Not signed in');
+      await _datasource.updateMyPosition(userId: uid, lat: lat, lng: lng);
+      return null;
+    } on AuthException catch (e) {
+      return AuthFailure(e.message);
+    } on PostgrestException catch (e) {
+      return ServerFailure(e.message);
+    } catch (e) {
+      return UnknownFailure(e.toString());
     }
   }
 }

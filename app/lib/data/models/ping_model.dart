@@ -22,7 +22,7 @@ class PingModel {
       coupleId: json['couple_id'] as String,
       senderId: json['sender_id'] as String,
       kind: kind,
-      sentAt: DateTime.parse(json['sent_at'] as String),
+      sentAt: DateTime.parse(json['sent_at'] as String).toLocal(),
     );
   }
 

@@ -10,14 +10,14 @@ import '../../../helpers/fakes.dart';
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
 
-// Only the states without a map are covered: the Mapbox view is a platform
+// Only the states without a map are covered: the MapLibre map is a platform
 // view. Its copy is private to position_screen.dart, so it is spelled out.
 //
 // No couple is set up on purpose: with one, the screen subscribes to Supabase
 // Realtime through Supabase.instance.client, which is not initialized here.
 
-/// Mapbox only runs on Android/iOS; any other platform shows the placeholder.
-final _noMapbox = TargetPlatformVariant.only(TargetPlatform.macOS);
+/// The map only runs on Android/iOS; any other platform shows the placeholder.
+final _noMap = TargetPlatformVariant.only(TargetPlatform.macOS);
 
 const _paris = (lat: 48.8566, lng: 2.3522);
 
@@ -167,15 +167,12 @@ void main() {
         theirs: location(userId: partnerId, lat: 48.8666, lng: _paris.lng),
       );
 
-      expect(
-        find.text("Carte indisponible : la clé Mapbox n'est pas configurée."),
-        findsOneWidget,
-      );
+      expect(find.text("La carte s'affiche sur téléphone."), findsOneWidget);
       expect(find.text('1.1 km'), findsOneWidget);
       expect(find.text('Moi'), findsOneWidget);
       expect(find.text('Alex'), findsOneWidget);
       expect(find.byTooltip('Voir tout'), findsOneWidget);
-    }, variant: _noMapbox);
+    }, variant: _noMap);
 
     positionTest('under a kilometre the distance is in metres', (tester) async {
       await _pumpPosition(
@@ -185,12 +182,9 @@ void main() {
         theirs: location(userId: partnerId, lat: 48.8606, lng: _paris.lng),
       );
 
-      expect(
-        find.text("Map unavailable: the Mapbox key isn't set up."),
-        findsOneWidget,
-      );
+      expect(find.text('The map shows on phones.'), findsOneWidget);
       expect(find.text('445 m'), findsOneWidget);
-    }, variant: _noMapbox);
+    }, variant: _noMap);
 
     positionTest('within 10 m the two of you are together', (tester) async {
       await _pumpPosition(
@@ -202,7 +196,7 @@ void main() {
       expect(find.text('Ensemble ❤️'), findsOneWidget);
       expect(find.text('Nous Deux'), findsOneWidget);
       expect(find.text('Moi'), findsNothing);
-    }, variant: _noMapbox);
+    }, variant: _noMap);
 
     positionTest('only the partner shared: no distance, partner shown', (
       tester,
@@ -218,7 +212,25 @@ void main() {
       expect(find.text('Alex'), findsOneWidget);
       expect(find.byTooltip('Voir tout'), findsNothing);
       expect(_updates(tester).stopCalls, greaterThan(0), reason: 'not sharing');
-    }, variant: _noMapbox);
+    }, variant: _noMap);
+
+    positionTest('the partner stopped: their row has no position, only me', (
+      tester,
+    ) async {
+      // Turning sharing off clears the coordinates in the database.
+      await _pumpPosition(
+        tester,
+        mine: location(lat: _paris.lat, lng: _paris.lng),
+        theirs: location(userId: partnerId, isSharing: false),
+      );
+
+      expect(find.text("La carte s'affiche sur téléphone."), findsOneWidget);
+      expect(find.textContaining(' km'), findsNothing);
+      expect(find.textContaining(' m'), findsNothing);
+      expect(find.text('Moi'), findsOneWidget);
+      expect(find.text('Alex'), findsOneWidget);
+      expect(find.byTooltip('Voir tout'), findsNothing);
+    }, variant: _noMap);
 
     positionTest(
       'while sharing, updates start and refresh pushes a position',
@@ -233,24 +245,21 @@ void main() {
         await tester.pumpAndSettle();
         expect(_updates(tester).pushCalls, 1);
       },
-      variant: _noMapbox,
+      variant: _noMap,
     );
   });
 
-  testWidgets(
-    'leaving the screen stops the periodic updates',
-    (tester) async {
-      // Regression: dispose() used to call ref.read after unmount, which
-      // Riverpod 2.6 forbids, so stop() never ran and the timer kept going.
-      final (_, router) = await _pumpPosition(tester);
-      final updates = _updates(tester);
-      final stopsBefore = updates.stopCalls;
+  testWidgets('leaving the screen stops the periodic updates', (tester) async {
+    // Regression: dispose() used to call ref.read after unmount, which
+    // Riverpod 2.6 forbids, so stop() never ran and the timer kept going.
+    final (_, router) = await _pumpPosition(tester);
+    final updates = _updates(tester);
+    final stopsBefore = updates.stopCalls;
 
-      router.go('/settings');
-      await tester.pumpAndSettle();
+    router.go('/settings');
+    await tester.pumpAndSettle();
 
-      expect(tester.takeException(), isNull);
-      expect(updates.stopCalls, stopsBefore + 1);
-    },
-  );
+    expect(tester.takeException(), isNull);
+    expect(updates.stopCalls, stopsBefore + 1);
+  });
 }

@@ -9,7 +9,7 @@ cannot be forged; signed-out callers get nothing; a list outlives its
 creator's deleted account, minus what they wrote). Nothing here touches the
 real project.
 
-`40_cycle_scenario.sql` checks the Règles data: the partner reads period dates and check-ins only while they are shared, notes stay with their author, and nobody writes as the other. `50_cycle_consent_scenario.sql` checks that the database, not the app, records when cycle tracking was agreed to, and clears it when tracking stops.
+`40_cycle_scenario.sql` checks the Règles data: the partner reads period dates and check-ins only while they are shared, notes stay with their author, and nobody writes as the other. `50_cycle_consent_scenario.sql` checks that the database, not the app, records when cycle tracking was agreed to, and clears it when tracking stops. `60_delete_account_scenario.sql` checks account deletion: the account, profile and private notes go; the couple goes with everything shared, also when the person deleting is `user2`; the partner keeps their account and notes; another couple is untouched; signed-out callers are refused. `70_location_off_scenario.sql` checks that turning location sharing off erases the last position, so the partner reads none, that a position sent while not sharing is never stored, and that sharing again shows the new one.
 
 `30_push_webhooks_scenario.sql` checks the push triggers: each write calls the
 right internal function with the shared secret, nothing is sent without it,

@@ -35,7 +35,7 @@
         "after": "Un seul espace.",
         "body": "L'un de vous génère un code, l'autre le scanne. À partir de là, ce que l'un ajoute, l'autre le voit.",
         "leftAlt": "Le calendrier sur votre téléphone",
-        "rightAlt": "Le suivi du cycle sur le téléphone de votre partenaire",
+        "rightAlt": "Le calendrier sur le téléphone de votre partenaire",
         "mergedAlt": "Le même calendrier, partagé à deux",
         "labelMe": "Moi",
         "labelYou": "Toi"
@@ -129,7 +129,7 @@
           },
           {
             "question": "Comment supprimer mon compte ?",
-            "answer": "Envoyez un e-mail à l'adresse indiquée sur la page Suppression du compte, avec le numéro de téléphone ou l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
+            "answer": "Dans l'application : Paramètres › Compte › Supprimer mon compte. Sans accès à l'application, écrivez à l'adresse indiquée sur la page Suppression du compte, avec l'adresse e-mail (Google ou Apple) qui vous sert à vous connecter."
           },
           {
             "question": "Quand sort l'application ?",
@@ -170,7 +170,7 @@
       "description": "Politique de confidentialité de l'application Nous Deux."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "12 novembre 2026",
+    "effectiveDate": "14 novembre 2026",
     "effectiveDateISO": "2026-11-12",
     "backHome": "Retour à l'accueil",
     "sections": {
@@ -184,7 +184,7 @@
         "items": [
           {
             "label": "Compte et authentification",
-            "text": "identifiant de connexion (connexion avec Google, avec Apple ou par code SMS), adresse e-mail transmise par Google ou Apple le cas échéant, numéro de téléphone si vous vous connectez par SMS."
+            "text": "identifiant de connexion (connexion avec Google ou avec Apple) et adresse e-mail transmise par Google ou Apple le cas échéant."
           },
           {
             "label": "Profil",
@@ -200,7 +200,7 @@
           },
           {
             "label": "Position (optionnelle)",
-            "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé."
+            "text": "si vous activez le partage de position, votre position en temps réel (latitude, longitude) est utilisée pour l'affichage sur la carte. Aucun historique de position n'est conservé, et quand vous désactivez le partage, votre dernière position est effacée."
           },
           {
             "label": "Listes partagées",
@@ -220,13 +220,13 @@
           },
           {
             "label": "Données techniques",
-            "text": "permissions demandées (calendrier, notifications, position, appareil photo pour la photo de profil) et informations nécessaires au bon fonctionnement de l'application sur votre appareil."
+            "text": "permissions demandées (calendrier, notifications, position, appareil photo pour scanner le QR code de votre partenaire) et informations nécessaires au bon fonctionnement de l'application sur votre appareil."
           }
         ]
       },
       "purposes": {
         "title": "Finalités des traitements",
-        "body": "Les données servent à : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, listes, petits mots, compteur de jours, position si activée) ; envoyer les notifications que vous avez acceptées ; afficher la carte (via Mapbox) lorsque le partage de position est activé."
+        "body": "Les données servent à : fournir et sécuriser le service (authentification, stockage, synchronisation) ; permettre le partage au sein du couple (calendrier, suivi des règles, listes, petits mots, compteur de jours, position si activée) ; envoyer les notifications que vous avez acceptées ; afficher la carte (via OpenFreeMap) lorsque le partage de position est activé."
       },
       "legalBasis": {
         "title": "Base légale",
@@ -238,15 +238,15 @@
         "items": [
           {
             "label": "Hetzner (Allemagne)",
-            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne. Pour la connexion par SMS, le code est envoyé par un prestataire d'envoi de SMS."
+            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Les données restent dans l'Union européenne."
           },
           {
             "label": "Firebase (Google)",
             "text": "envoi des notifications push (FCM)."
           },
           {
-            "label": "Mapbox",
-            "text": "affichage de la carte lorsque le partage de position est activé."
+            "label": "OpenFreeMap (Hyperknot Software, Hongrie)",
+            "text": "fonds de carte, issus d'OpenStreetMap, affichés lorsque le partage de position est activé. Pour dessiner la carte, votre téléphone demande à ses serveurs les zones à l'écran : pas de compte, pas de cookies, et ses journaux ne gardent pas votre adresse IP, sauf les journaux d'erreurs, effacés au bout de 7 jours. Le service peut passer par le réseau Cloudflare."
           },
           {
             "label": "Google et Apple",
@@ -256,7 +256,7 @@
       },
       "retention": {
         "title": "Durée de conservation",
-        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. En cas de suppression du compte, les données vous concernant sont effacées selon nos procédures et les délais techniques de nos sous-traitants. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
+        "body": "Les données sont conservées tant que votre compte est actif. Pour la position et les petits mots, seule la dernière valeur est gardée ; la position est effacée dès que vous arrêtez de la partager. Si l'un de vous quitte le couple, les données partagées du couple (calendrier, dates de règles et ressenti du jour, position, listes, petits mots et date de début) sont supprimées pour vous deux ; vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez. Quand vous arrêtez le suivi du cycle, vous pouvez supprimer toutes vos données de cycle en une fois. Quand vous supprimez votre compte (Paramètres › Compte), votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite, et vous quittez le couple : ses données partagées sont supprimées pour vous deux. Les sauvegardes sont conservées 14 jours : quand un compte est supprimé ou que l'un de vous quitte le couple, les données effacées disparaissent aussi des sauvegardes sous 14 jours."
       },
       "rights": {
         "title": "Vos droits",
@@ -289,18 +289,53 @@
   "suppression": {
     "meta": {
       "title": "Suppression du compte",
-      "description": "Comment demander la suppression de votre compte et de vos données dans l'application Nous Deux."
+      "description": "Comment supprimer votre compte Nous Deux et vos données, depuis l'application ou par e-mail."
     },
     "title": "Suppression du compte",
-    "intro": "Vous ne pouvez pas encore supprimer votre compte depuis l'application. En attendant, faites la demande par e-mail : nous supprimons le compte et les données qui y sont liées.",
-    "howToTitle": "Comment demander la suppression de mon compte ?",
+    "intro": "Vous pouvez supprimer votre compte vous-même, depuis l'application. La suppression est immédiate et ne peut pas être annulée.",
+    "inAppTitle": "Depuis l'application",
+    "inAppSteps": [
+      "Dans l'onglet Nous, touchez votre initiale ou votre photo, en haut à droite, pour ouvrir les Paramètres.",
+      "Dans Compte, touchez Supprimer mon compte.",
+      "Confirmez. L'application revient à l'écran de connexion."
+    ],
+    "deletedTitle": "Ce qui est supprimé",
+    "deletedBody": "Votre compte, votre profil, votre photo et vos notes de cycle sont effacés tout de suite. Si vous êtes en couple, vous le quittez : le calendrier, le cycle, la position, les listes et les petits mots sont supprimés pour vous deux, et votre partenaire garde son compte. Les sauvegardes sont conservées 14 jours : passé ce délai, elles ne contiennent plus rien de vous.",
+    "partialTitle": "Supprimer une partie de vos données",
+    "partialIntro": "Vous pouvez aussi effacer certaines données depuis l'application et garder votre compte :",
+    "partialItems": [
+      {
+        "label": "Votre cycle",
+        "text": "dans Paramètres › Règles, désactivez « Je suis mon cycle dans l'app », puis choisissez Tout supprimer. Vos dates de règles, votre ressenti du jour et vos notes de cycle sont effacés."
+      },
+      {
+        "label": "Un cycle",
+        "text": "dans l'onglet Règles, ouvrez Vos cycles et restez appuyé sur celui à effacer."
+      },
+      {
+        "label": "Un événement",
+        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer."
+      },
+      {
+        "label": "Les listes",
+        "text": "faites glisser un élément vers la gauche pour l'effacer, touchez Tout effacer pour retirer les éléments cochés, ou supprimez la liste depuis ses options."
+      },
+      {
+        "label": "Votre position",
+        "text": "dans Paramètres › Position, désactivez « Partager ma position ». Votre dernière position est effacée."
+      },
+      {
+        "label": "Tout ce que vous partagez",
+        "text": "dans Paramètres › Couple, touchez Quitter le couple. Le calendrier, les dates de règles et le ressenti du jour, la position, les listes, les petits mots et votre date de début sont supprimés pour vous deux. Vos notes de cycle, qui ne sont qu'à vous, restent jusqu'à ce que vous les supprimiez."
+      }
+    ],
+    "partialNote": "Un événement ou un élément de liste supprimé disparaît aussi chez votre partenaire. Les données effacées quittent les sauvegardes sous 14 jours.",
+    "howToTitle": "Sans accès à l'application",
     "howToIntro": "Écrivez à l'adresse suivante pour demander la suppression de votre compte et de vos données personnelles :",
-    "phoneNote": "Indiquez dans votre message le numéro de téléphone ou l'adresse e-mail (Google ou Apple)",
+    "phoneNote": "Indiquez dans votre message l'adresse e-mail (Google ou Apple)",
     "phoneNoteSuffix": "qui vous sert à vous connecter. C'est ce qui nous permet de retrouver votre compte.",
     "processingNote": "Nous traitons la demande dès que possible. Une fois le compte supprimé, les données associées sont effacées comme le prévoit notre",
     "privacyLink": "politique de confidentialité",
-    "noteTitle": "À noter",
-    "noteBody": "Cette procédure est provisoire. La suppression du compte depuis l'application arrivera dans une prochaine version.",
     "footerPrivacy": "Politique de confidentialité",
     "backHome": "Retour à l'accueil",
     "emailSubject": "Demande de suppression de compte - Nous Deux"

@@ -9,7 +9,8 @@ import 'package:nousdeux/data/repositories/ping_repository_impl.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 
 class _ThrowingPings extends PingRemoteDatasource {
-  _ThrowingPings(this.message) : super(SupabaseClient('https://example.test', 'k'));
+  _ThrowingPings(this.message)
+    : super(SupabaseClient('https://example.test', 'k'));
 
   final String message;
 
@@ -53,7 +54,8 @@ void main() {
         'sent_at': '2026-11-10T17:00:00Z',
       })!;
       expect(m.kind, PingKind.onMyWay);
-      expect(m.sentAt, DateTime.utc(2026, 11, 10, 17));
+      expect(m.sentAt.isUtc, isFalse);
+      expect(m.sentAt, DateTime.utc(2026, 11, 10, 17).toLocal());
     });
 
     test('skips a kind this version does not know', () {

@@ -10,18 +10,82 @@ import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
 
 import '../../../helpers/test_app.dart';
 
-Future<GoRouter> _pumpAuth(WidgetTester tester, TestDeps deps) {
+/// Most tests cover phone sign-in, so they turn it on; the beta build keeps
+/// it off (see the "phone sign-in off" group).
+Future<GoRouter> _pumpAuth(
+  WidgetTester tester,
+  TestDeps deps, {
+  bool phoneSignIn = true,
+}) {
   return pumpRouter(
     tester,
     deps: deps,
     initialLocation: '/auth',
     routes: [
-      screenRoute('/auth', const AuthScreen(), routes: [stubRoute('verify')]),
+      screenRoute(
+        '/auth',
+        AuthScreen(phoneSignIn: phoneSignIn),
+        routes: [stubRoute('verify')],
+      ),
     ],
   );
 }
 
 void main() {
+  group('phone sign-in off (the beta build)', () {
+    testWidgets('is the default', (tester) async {
+      expect(const AuthScreen().phoneSignIn, isFalse);
+    });
+
+    testWidgets(
+      'shows only Apple and Google',
+      (tester) async {
+        await _pumpAuth(tester, TestDeps(user: null), phoneSignIn: false);
+
+        expect(find.byType(TextField), findsNothing);
+        expect(find.text(authSendCode('fr')), findsNothing);
+        expect(find.text(authOr('fr')), findsNothing);
+        expect(find.text(authContinueWithApple('fr')), findsOneWidget);
+        expect(find.text(authContinueWithGoogle('fr')), findsOneWidget);
+      },
+      variant: TargetPlatformVariant.only(TargetPlatform.iOS),
+    );
+
+    testWidgets('a sign-in failure still shows its error', (tester) async {
+      final deps = TestDeps(user: null)..auth.nextFailure = const AuthFailure();
+      await _pumpAuth(tester, deps, phoneSignIn: false);
+
+      await tester.tap(find.text(authContinueWithGoogle('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.auth.googleCalls, 1);
+      expect(find.text(authErrorGeneric('fr')), findsOneWidget);
+    });
+
+    testWidgets('shows a spinner and disables Google while signing in', (
+      tester,
+    ) async {
+      final deps = TestDeps(user: null);
+      final gate = deps.auth.gate = Completer<void>();
+      await _pumpAuth(tester, deps, phoneSignIn: false);
+
+      await tester.tap(find.text(authContinueWithGoogle('fr')));
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      final google = tester.widget<OutlinedButton>(
+        find.ancestor(
+          of: find.text(authContinueWithGoogle('fr')),
+          matching: find.byWidgetPredicate((w) => w is OutlinedButton),
+        ),
+      );
+      expect(google.onPressed, isNull);
+
+      gate.complete();
+      await tester.pumpAndSettle();
+    });
+  });
+
   for (final lang in ['fr', 'en']) {
     testWidgets(
       '[$lang] shows the sign-in options in the device language',

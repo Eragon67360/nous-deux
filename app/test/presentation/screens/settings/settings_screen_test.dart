@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -171,6 +173,107 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(deps.auth.signOutCalls, 1);
+    });
+  });
+
+  group('delete account', () {
+    Future<void> openConfirmation(WidgetTester tester, String lang) async {
+      await tester.ensureVisible(find.text(settingsDeleteAccount(lang)));
+      await tester.tap(find.text(settingsDeleteAccount(lang)));
+      await tester.pumpAndSettle();
+    }
+
+    Finder confirmButton(String lang) =>
+        find.widgetWithText(FilledButton, settingsDeleteAccountConfirm(lang));
+
+    testWidgets('cancelling keeps the account', (tester) async {
+      final (deps, _) = await _pumpSettings(tester);
+
+      await openConfirmation(tester, 'fr');
+      expect(
+        find.text(settingsDeleteAccountConfirmTitle('fr')),
+        findsOneWidget,
+      );
+      expect(
+        find.text(settingsDeleteAccountConfirmMessage('fr', paired: false)),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.text(settingsCancel('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.auth.deleteAccountCalls, 0);
+    });
+
+    testWidgets('in a couple, the warning says the couple goes too', (
+      tester,
+    ) async {
+      await _pumpSettings(tester, paired: true, lang: 'en');
+
+      await openConfirmation(tester, 'en');
+
+      expect(
+        find.text(settingsDeleteAccountConfirmMessage('en', paired: true)),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('confirming deletes it and forgets it on this phone', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        periodPartnerReminderEnabledKey: true,
+        calendarNotificationsEnabledKey: true,
+        guideReadChaptersKey: <String>['cycle'],
+        'unrelated': 'kept',
+      });
+      final (deps, _) = await _pumpSettings(tester, lang: 'en');
+
+      await openConfirmation(tester, 'en');
+      await tester.tap(confirmButton('en'));
+      await tester.pumpAndSettle();
+
+      expect(deps.auth.deleteAccountCalls, 1);
+      expect(deps.auth.currentUser, isNull);
+      expect(find.text(settingsDeleteAccountDone('en')), findsOneWidget);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {'unrelated'});
+    });
+
+    testWidgets('a failure keeps everything and says so', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        periodPartnerReminderEnabledKey: true,
+      });
+      final (deps, _) = await _pumpSettings(tester);
+      deps.auth.deleteFailure = const ServerFailure('offline');
+
+      await openConfirmation(tester, 'fr');
+      await tester.tap(confirmButton('fr'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(settingsDeleteAccountFailed('fr')), findsOneWidget);
+      expect(deps.auth.currentUser, isNotNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool(periodPartnerReminderEnabledKey), isTrue);
+    });
+
+    testWidgets('a second tap does nothing while it runs', (tester) async {
+      final (deps, _) = await _pumpSettings(tester);
+      final gate = deps.auth.gate = Completer<void>();
+
+      await openConfirmation(tester, 'fr');
+      await tester.tap(confirmButton('fr'));
+      // Lets the dialog finish closing; settling would wait on the spinner.
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await tester.tap(find.text(settingsDeleteAccount('fr')));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text(settingsDeleteAccountConfirmTitle('fr')), findsNothing);
+
+      gate.complete();
+      await tester.pumpAndSettle();
+      expect(deps.auth.deleteAccountCalls, 1);
     });
   });
 

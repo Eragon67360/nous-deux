@@ -81,4 +81,20 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<void> signOut() => _datasource.signOut();
+
+  @override
+  Future<Failure?> deleteAccount() async {
+    try {
+      await _datasource.deleteAccount();
+      return null;
+    } on AuthException catch (e) {
+      return AuthFailure(e.message);
+    } on PostgrestException catch (e) {
+      return ServerFailure(e.message);
+    } on StorageException catch (e) {
+      return ServerFailure(e.message);
+    } catch (e) {
+      return UnknownFailure(e.toString());
+    }
+  }
 }

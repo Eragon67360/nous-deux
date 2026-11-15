@@ -16,7 +16,9 @@ final locationRepositoryProvider = Provider<LocationRepository>((ref) {
 });
 
 /// Current user's location sharing row. Invalidate after toggle or position update.
-final myLocationSharingProvider = FutureProvider<LocationSharingEntity?>((ref) async {
+final myLocationSharingProvider = FutureProvider<LocationSharingEntity?>((
+  ref,
+) async {
   final user = ref.watch(currentUserProvider).valueOrNull;
   if (user == null) return null;
   final repo = ref.watch(locationRepositoryProvider);
@@ -25,7 +27,9 @@ final myLocationSharingProvider = FutureProvider<LocationSharingEntity?>((ref) a
 });
 
 /// Partner's location sharing row (when current user has a partner). Subscribe to Realtime in Position screen and invalidate this + [myLocationSharingProvider] on changes.
-final partnerLocationSharingProvider = FutureProvider<LocationSharingEntity?>((ref) async {
+final partnerLocationSharingProvider = FutureProvider<LocationSharingEntity?>((
+  ref,
+) async {
   final myProfile = await ref.watch(myProfileProvider.future);
   final partnerId = myProfile?.partnerId;
   if (partnerId == null || partnerId.isEmpty) return null;
@@ -42,17 +46,19 @@ class LocationUpdateNotifier extends Notifier<void> {
   void build() {}
 
   /// Push current device position to backend. Used when enabling sharing (Settings) and by the periodic timer.
+  /// Only moves the position of a row that is sharing: a fix that arrives
+  /// after sharing was turned off is dropped instead of turning it back on.
   Future<void> pushCurrentPosition() async {
     final couple = await ref.read(myCoupleProvider.future);
     if (couple == null) return;
     try {
       final position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.medium),
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.medium,
+        ),
       );
       final repo = ref.read(locationRepositoryProvider);
-      await repo.setMyLocationSharing(
-        isSharing: true,
-        coupleId: couple.id,
+      await repo.updateMyPosition(
         lat: position.latitude,
         lng: position.longitude,
       );

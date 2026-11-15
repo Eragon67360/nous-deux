@@ -98,6 +98,17 @@ void main() {
     test('0,0 is a real position', () {
       expect(at(0, 0).hasPosition, isTrue);
     });
+
+    test('a row that stopped sharing has none, stale coordinates or not', () {
+      const stopped = LocationSharingEntity(
+        userId: 'a',
+        coupleId: 'c',
+        isSharing: false,
+        latitude: 48.8,
+        longitude: 2.3,
+      );
+      expect(stopped.hasPosition, isFalse);
+    });
   });
 
   test('PeriodLogEntity compares by value', () {

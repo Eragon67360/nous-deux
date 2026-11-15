@@ -31,13 +31,13 @@ export default function MergeChapter({ dict }: { dict: Merge }) {
         </h2>
         <div className="nd-merge__phones">
           <div className="nd-merge__phone nd-merge__phone--left">
-            <PhoneFrame src="/screenshots/calendar.png" alt={dict.leftAlt} />
+            <PhoneFrame src="/screenshots/merge-me.png" alt={dict.leftAlt} />
             <span className="nd-merge__who" aria-hidden="true">
               {dict.labelMe}
             </span>
           </div>
           <div className="nd-merge__phone nd-merge__phone--right">
-            <PhoneFrame src="/screenshots/screenshot_3.png" alt={dict.rightAlt} />
+            <PhoneFrame src="/screenshots/merge-partner.png" alt={dict.rightAlt} />
             <span className="nd-merge__who" aria-hidden="true">
               {dict.labelYou}
             </span>
