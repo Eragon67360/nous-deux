@@ -235,7 +235,7 @@
         "items": [
           {
             "label": "Hetzner (Germany)",
-            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. This website is hosted there too, with no ads. It counts its visits with Umami, open-source software running on these servers: pages viewed, the site you came from, browser, system, device type, screen size, language, approximate country and city (worked out from your IP address, which isn't kept), with no cookies. The site's only cookie remembers your language. The data stays in the EU."
+            "text": "our own servers in Germany, running Supabase (open-source software): sign-in, database and profile photos, backed up every day over an encrypted connection to Hetzner storage in Finland. This website is hosted there too, with no ads. It counts its visits with Umami, open-source software running on these servers: pages viewed, the site you came from, browser, system, device type, screen size, language, approximate country, region and city (worked out from your IP address, which isn't kept), with no cookies. The site's only cookie remembers your language. The data stays in the EU."
           },
           {
             "label": "Firebase (Google)",
