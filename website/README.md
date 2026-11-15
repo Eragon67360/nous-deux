@@ -14,7 +14,7 @@ npm run dev
 
 ## Hosting
 
-Coolify (`coolify.thomasmoserdev.com`) builds this folder's `Dockerfile` and runs the container on the Hetzner server in Germany that also runs the backend (`api.nous-deux.app`). `next.config.ts` sets `output: "standalone"`, so the image holds only the Node server, `public/` and the static assets. The site needs no environment variables: its public address is the `SITE_URL` constant in `lib/seo.ts`.
+Coolify (`coolify.thomasmoserdev.com`) builds this folder's `Dockerfile` and runs the container on the Hetzner server in Germany that also runs the backend (`api.nous-deux.app`). `next.config.ts` sets `output: "standalone"`, so the image holds only the Node server, `public/` and the static assets. Its public address is the `SITE_URL` constant in `lib/seo.ts`. The one environment variable, `UMAMI_WEBSITE_ID`, is set only on the Coolify app: it turns on the visit counts from Umami (`stats.nous-deux.app`, also on Coolify, cookie-free; see `components/Stats.tsx`). Without it, nothing is counted.
 
 Until the DNS switch, Vercel still serves nous-deux.app from `main`.
 
@@ -27,6 +27,7 @@ Coolify application settings:
 | Port        | 3000                                                                     |
 | Domains     | `https://nous-deux.app,https://www.nous-deux.app`, redirect to non-www   |
 | Healthcheck | dashboard check off; the image's `HEALTHCHECK` fetches `/robots.txt`     |
+| Environment | `UMAMI_WEBSITE_ID`, the website's ID in Umami (runtime only)             |
 
 Each push to `main` (a `dev` → `main` release) redeploys the site. Images resized by `next/image` (through sharp) are cached inside the container and made again on demand after a deploy.
 

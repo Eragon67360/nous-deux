@@ -9,6 +9,7 @@ import type { Locale } from "@/lib/i18n";
 import type { Metadata } from "next";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import SetLangAttr from "@/components/SetLangAttr";
+import Stats from "@/components/Stats";
 
 export async function generateStaticParams() {
   return [{ lang: "fr" }, { lang: "en" }];
@@ -90,6 +91,7 @@ export default async function LangLayout({
         }}
       />
       {children}
+      <Stats />
     </>
   );
 }
