@@ -1,0 +1,10 @@
+node_modules
+.next
+.vercel
+.env*
+npm-debug.log*
+Dockerfile
+.dockerignore
+README.md
+portfolio-hover
+tsconfig.tsbuildinfo
