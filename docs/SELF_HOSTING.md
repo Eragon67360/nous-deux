@@ -147,17 +147,18 @@ Expect `200` with `partner has no fcm_token`. The test accounts have no phone to
 
 ## Backups
 
-Set up on 2026-11-12 with Coolify 4.7.5. Both schedules live on the `supabase` service under **Backups**, and upload to the Hetzner bucket `nous-deux-backups` in Helsinki (`hel1`). The server is in `nbg1`, so losing one site doesn't lose both.
+Set up on 2026-11-12 with Coolify 4.7.5. The database and avatar schedules live on the `supabase` service under **Backups**, Umami's on the `umami` service (added 2026-11-15), and all three upload to the Hetzner bucket `nous-deux-backups` in Helsinki (`hel1`). GlitchTip isn't backed up: crash reports expire after 30 days anyway. The server is in `nbg1`, so losing one site doesn't lose both.
 
 | What | Schedule (UTC) | File | Kept |
 |---|---|---|---|
 | Database `postgres` | `17 3 * * *` | `pg_dump --format=custom`, about 0.5 MB | 7 on the server, 14 in the bucket |
 | Avatars (`volumes/storage`) | `27 3 * * *`, containers keep running | `.tar.gz` of the folder | 7 on the server, 14 in the bucket |
+| Umami database `umami` | `37 3 * * *` | `pg_dump --format=custom`, about 45 KB | 7 on the server, 14 in the bucket |
 
 - **S3 access:** Coolify's S3 storage `hetzner-hel1-nous-deux-backups` (endpoint `https://hel1.your-objectstorage.com`, region `hel1`). The key is in Proton Pass, `Nous Deux / Backups S3`.
 - **On the server:** `/data/coolify/backups/databases/…/pg-dump-postgres-<time>-<id>.dmp` and `/data/coolify/backups/volumes/…/directory-…storage-<time>.tar.gz`. **Executions** in Coolify lists every run with its size and a download button.
 - **Checks:** Coolify fails a run only when the file is empty. The empty Supabase dumps reported upstream don't happen here: the image sets `POSTGRES_USER=supabase_admin`, which logs in on the local socket without a password. A good dump starts with `PGDMP`.
-- **Retention:** after changing it, reopen the schedule to check. On 2026-11-12 the first save on the database schedule didn't stick (0 means keep everything).
+- **Retention:** after changing it, reopen the schedule to check (0 means keep everything). On 2026-11-12 the first save on the database schedule didn't stick, and on 2026-11-15 neither did Umami's until the edit panel's own **Save changes** was used.
 - **Deleted accounts** stay in the backups for up to 14 days.
 - **Not in a dump:**
   - `app.settings.jwt_exp` and `app.settings.push_webhook_secret`. A fresh deploy sets both at first boot from its environment.
