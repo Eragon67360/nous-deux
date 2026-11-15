@@ -5,7 +5,7 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 ## Before you submit
 
 1. **Closed test before production.** Personal developer accounts created after 13 November 2023 must run a closed test with at least 12 testers who stay opted in for 14 days in a row before they can apply for production. The Console's Dashboard says whether this applies to your account.
-2. **The build.** Releasing `dev` to `main` without `[skip ci]` runs the Android workflow. It uploads the signed bundle to the internal testing track as a draft, and you publish it from the Console.
+2. **The build.** Releasing `dev` to `main` without `[skip ci]` runs the Android workflow. It uploads the signed bundle to the internal testing track as a draft, and you publish it from the Console. The upload never sends Console changes for review (`changesNotSentForReview`); only "Envoyer pour examen" on the Publishing overview does.
 
 ## Store settings
 
@@ -30,11 +30,9 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 **No**, the app doesn't contain ads.
 
 ### App access
-**All or some functionality is restricted.** Add two credentials, `review1@nous-deux.app` and `review2@nous-deux.app`, each with its password from Proton Pass (create them with `scripts/create-email-account.sh`, see `docs/SELF_HOSTING.md`). Both accounts need no 2-step verification. Give the reviewer these instructions:
+**All or some functionality is restricted.** Add two credentials, `review1@nous-deux.app` and `review2@nous-deux.app`, each with its password from Proton Pass (create them with `scripts/create-email-account.sh`, see `docs/SELF_HOSTING.md`). Both accounts need no 2-step verification. Each credential gets the same instructions in "Toute autre information requise" (500 characters at most), and the box saying the details give full access is ticked:
 
-> On the sign-in screen, tap "Sign in with email" (in French: "Se connecter avec un e-mail") and use the first account. After entering a name, the app asks to pair with a partner: most features (calendar, cycle sharing, location, lists, little notes) only appear inside a couple. To see them, sign in on a second device with the second account. On the first device choose "Generate a code"; on the second choose "I have a code" and type the 6 characters, or scan the QR code.
-
-If a review leaves the two accounts paired, the next reviewer can use them as they are, or leave the couple from Settings to pair again.
+> On the sign-in screen, tap "Sign in with email" (French: "Se connecter avec un e-mail"). Most features (calendar, cycle, location, lists, notes) appear only once two accounts are paired, so sign in with the other account on a second device. On one device choose "Generate a code", on the other "I have a code" and type the 6 characters or scan the QR code. To pair again, use Settings > Leave couple.
 
 ### Content rating (IARC questionnaire)
 - **Category:** Utility, Productivity, Communication, or Other.
