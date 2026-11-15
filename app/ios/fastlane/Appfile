@@ -1,0 +1,4 @@
+# The App Store Connect API key comes from the workflow: its file is written
+# to the runner's temporary folder for the run only, never committed.
+app_identifier("app.nous-deux")
+team_id("2Y57C77BK4")

@@ -1,0 +1,5 @@
+Thanks for testing Nous Deux! It takes two: send the same TestFlight link to your partner, then pair your accounts with a code or a QR code.
+
+Worth trying: the shared calendar, the cycle, location (only when you turn it on), lists, little notes and their notifications. The app is in French or English, following your iPhone's language.
+
+Something wrong? Take a screenshot in the app: TestFlight offers to send it with a comment.
