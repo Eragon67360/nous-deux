@@ -106,7 +106,7 @@ Still to do: one real Sign in with Apple, on an iPhone signed in to an Apple Acc
 ### 6. Firebase (Thomas)
 - **iOS app:** "Nous Deux iOS" (`app.nous-deux`, app id `1:836600962251:ios:e48ad19409b909f70f4f4e`), added on 2026-11-11. The older iOS app "nousdeux (ios)" is registered for `com.nousdeux.app` and no longer used.
 - **APNs key** (iOS push): Apple Developer → Keys → **+**, tick **Apple Push Notifications service (APNs)**, environment "Sandbox & Production". Download the `.p8` once, keep it and its key id in Proton Pass, then in Firebase **Project settings → Cloud Messaging → Apple app configuration → APNs Authentication Key**, upload it with the key id and team id `2Y57C77BK4`. One key serves the simulator, TestFlight and the App Store.
-- **Service account:** in **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
+- **Service account:** `nous-deux-push@nous-deux-7bf2f.iam.gserviceaccount.com` (created 2026-11-15), whose only role is **Firebase Cloud Messaging API Admin**: it can send pushes and nothing else. In Google Cloud → IAM → Service accounts → Keys, **Add key → JSON**. The JSON, on one line, becomes `FIREBASE_SERVICE_ACCOUNT_JSON` on the Coolify `supabase` service, a copy goes in Proton Pass (`Nous Deux / Firebase push service account`), and the downloaded file is deleted. Until 2026-11-15 the variable was never set, so the server sent no push at all.
 
 ### 7. Database and functions (Claude or Thomas, over SSH)
 ```bash

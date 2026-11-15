@@ -17,7 +17,10 @@ export function readServiceAccount(): FirebaseServiceAccount | null {
 
 async function getAccessToken(sa: FirebaseServiceAccount): Promise<string> {
   const key = await jose.importPKCS8(sa.private_key, "RS256");
-  const jwt = await new jose.SignJWT({})
+  // Google refuses a token request without the scope ("invalid_scope").
+  const jwt = await new jose.SignJWT({
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
+  })
     .setProtectedHeader({ alg: "RS256", typ: "JWT" })
     .setIssuer(sa.client_email)
     .setSubject(sa.client_email)
