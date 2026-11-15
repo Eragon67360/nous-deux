@@ -2,8 +2,13 @@
  * Centralized SEO and site configuration for metadata, robots, sitemap, and JSON-LD.
  */
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://nous-deux-website.vercel.app/";
+/**
+ * The public address, for canonical links, hreflang, the sitemap, robots.txt
+ * and JSON-LD. Fixed on purpose: Vercel's NEXT_PUBLIC_SITE_URL still holds
+ * the old vercel.app address, and previews should point search engines to
+ * the real site too. No trailing slash: callers append "/fr/…".
+ */
+export const SITE_URL = "https://nous-deux.app";
 
 export const SITE_NAME = "Nous Deux";
 export const SITE_DESCRIPTION =
