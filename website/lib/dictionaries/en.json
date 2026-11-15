@@ -128,13 +128,13 @@
           },
           {
             "question": "When does the app come out?",
-            "answer": "The beta is open on Android and iPhone: the \"Join the beta\" page explains how to install it. The App Store and Google Play launch will follow. The source code is already public on GitHub."
+            "answer": "The Android beta is open: the \"Join the beta\" page explains how to install it. The App Store and Google Play launch will follow. The source code is already public on GitHub."
           }
         ]
       },
       "close": {
         "folio": "Colophon",
-        "heading": "In beta on Android and iPhone. Coming soon to the App Store and Google Play.",
+        "heading": "In beta on Android. Coming soon to the App Store and Google Play.",
         "support": "Until then, if you like the project, you can",
         "supportLink": "buy its developer a coffee",
         "supportSuffix": ".",
@@ -251,7 +251,7 @@
           },
           {
             "label": "Google and Apple",
-            "text": "sign-in (Sign in with Google / Sign in with Apple); data processed by these services is governed by their own policies. During the iPhone beta, the app is distributed through TestFlight (Apple), which passes on crash reports and the feedback you choose to send."
+            "text": "sign-in (Sign in with Google / Sign in with Apple); data processed by these services is governed by their own policies."
           }
         ]
       },
@@ -344,11 +344,11 @@
   "beta": {
     "meta": {
       "title": "Join the beta",
-      "description": "Try Nous Deux on Android or iPhone before it launches: Google Play for Android, TestFlight for iPhone."
+      "description": "Try Nous Deux on Android before it launches: join the testers' group, then install the app from Google Play."
     },
     "title": "Join the beta",
-    "intro": "Nous Deux is being tested on Android and iPhone before its launch. It's free, with no ads, and your feedback shapes what comes next.",
-    "stepsTitle": "On Android, in four steps",
+    "intro": "Nous Deux is being tested on Android before its launch. It's free, with no ads, and your feedback shapes what comes next.",
+    "stepsTitle": "In four steps",
     "steps": [
       {
         "text": "Join the testers' group with the Google account on your phone.",
@@ -367,37 +367,20 @@
         "link": ""
       }
     ],
-    "stayTitle": "On Android, stay for 14 days",
+    "stayTitle": "Stay for 14 days",
     "stayBody": "Google only releases an app after a test of 14 days in a row with at least 12 testers. Keep Nous Deux installed and stay in the test for 14 days: that's what will let it open to everyone.",
     "languageTitle": "French or English",
     "languageBody": "The app is in French and English only. If your phone isn't set to French, it shows in English.",
-    "iphoneTitle": "On iPhone, with TestFlight",
+    "iphoneTitle": "What about iPhone?",
+    "iphoneBody": "For now, the beta is Android only. The iPhone version will come later.",
     "feedbackTitle": "Your feedback",
     "feedbackBody": "A bug, an idea, a question? Write to us:",
     "feedbackSubject": "Nous Deux beta",
     "dataTitle": "Your data",
-    "dataBody": "During the beta, the app works like the final version: your data is on our own servers in Germany and is never sold. You can delete your account from the app at any time. The testers' group runs on Google Groups: only its owner sees your address, and only to run the test. On iPhone, TestFlight is Apple's: it passes on crashes and the feedback you choose to send.",
+    "dataBody": "During the beta, the app works like the final version: your data is on our own servers in Germany and is never sold. You can delete your account from the app at any time. The testers' group runs on Google Groups: only its owner sees your address, and only to run the test.",
     "privacyLink": "Privacy policy",
     "leaveTitle": "Leaving the beta",
-    "leaveBody": "On Android, open the Google Play testing link and choose \"Leave the program\"; you can also leave the testers' group. On iPhone, open Nous Deux in TestFlight and choose \"Stop Testing\".",
-    "backHome": "Back to home",
-    "iphoneSteps": [
-      {
-        "text": "Install TestFlight, Apple's app for testing apps, from the App Store.",
-        "link": "TestFlight on the App Store"
-      },
-      {
-        "text": "On your iPhone, open the beta link and accept the invitation.",
-        "link": "Join the iPhone beta"
-      },
-      {
-        "text": "Install Nous Deux from TestFlight and sign in with Apple or Google.",
-        "link": ""
-      },
-      {
-        "text": "Your partner does the same, on iPhone or Android. Then one of you generates a code and the other types it in, and you're paired.",
-        "link": ""
-      }
-    ]
+    "leaveBody": "Open the Google Play testing link and choose \"Leave the program\". You can also leave the testers' group.",
+    "backHome": "Back to home"
   }
 }

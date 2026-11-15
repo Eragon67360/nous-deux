@@ -14,10 +14,6 @@ const TESTERS_GROUP_URL = "https://groups.google.com/g/testeurs-nous-deux";
 const PLAY_TESTING_URL =
   "https://play.google.com/apps/testing/com.nousdeux.android";
 const STEP_LINKS = [TESTERS_GROUP_URL, PLAY_TESTING_URL];
-const TESTFLIGHT_APP_URL = "https://apps.apple.com/app/testflight/id899247664";
-// The public link of the TestFlight group « Bêta publique ».
-const TESTFLIGHT_JOIN_URL = "https://testflight.apple.com/join/kScrT3Sk";
-const IPHONE_STEP_LINKS = [TESTFLIGHT_APP_URL, TESTFLIGHT_JOIN_URL];
 
 type PageProps = { params: Promise<{ lang: string }> };
 
@@ -66,31 +62,6 @@ export default async function BetaPage({ params }: PageProps) {
     "inline-block rounded-md border border-primary px-4 py-2 font-medium text-primary no-underline hover:bg-primary hover:text-surface focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-surface";
   const h2Class = "mb-3 text-3xl font-normal font-display text-on-surface";
 
-  const stepList = (
-    steps: { text: string; link: string }[],
-    links: string[],
-  ) => (
-    <ol className="list-decimal space-y-5 pl-6">
-      {steps.map((step, i) => (
-        <li key={step.text}>
-          <p>{step.text}</p>
-          {step.link && links[i] ? (
-            <p className="mt-3">
-              <a
-                href={links[i]}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={actionClass}
-              >
-                {step.link}
-              </a>
-            </p>
-          ) : null}
-        </li>
-      ))}
-    </ol>
-  );
-
   return (
     <div className="min-h-screen bg-surface text-on-surface">
       <SiteHeader lang={lang as Locale} siteName={dict.common.siteName} />
@@ -112,12 +83,25 @@ export default async function BetaPage({ params }: PageProps) {
 
           <section>
             <h2 className={h2Class}>{b.stepsTitle}</h2>
-            {stepList(b.steps, STEP_LINKS)}
-          </section>
-
-          <section>
-            <h2 className={h2Class}>{b.iphoneTitle}</h2>
-            {stepList(b.iphoneSteps, IPHONE_STEP_LINKS)}
+            <ol className="list-decimal space-y-5 pl-6">
+              {b.steps.map((step, i) => (
+                <li key={step.text}>
+                  <p>{step.text}</p>
+                  {step.link && STEP_LINKS[i] ? (
+                    <p className="mt-3">
+                      <a
+                        href={STEP_LINKS[i]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={actionClass}
+                      >
+                        {step.link}
+                      </a>
+                    </p>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
           </section>
 
           <section>
@@ -128,6 +112,11 @@ export default async function BetaPage({ params }: PageProps) {
           <section>
             <h2 className={h2Class}>{b.languageTitle}</h2>
             <p>{b.languageBody}</p>
+          </section>
+
+          <section>
+            <h2 className={h2Class}>{b.iphoneTitle}</h2>
+            <p>{b.iphoneBody}</p>
           </section>
 
           <section>
