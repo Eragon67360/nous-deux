@@ -165,7 +165,8 @@ jobs:
           # mappingFile: android/app/build/outputs/mapping/release/mapping.txt
           track: internal
           status: draft
-          # Committing the edit would otherwise also send every change
-          # waiting in the Play Console for review (it did on 2026-11-15).
-          # Only "Envoyer pour examen" in the Console sends them.
-          changesNotSentForReview: true
+          # Committing this edit also sends every change waiting in the Play
+          # Console for review (it did on 2026-11-15). Play refuses
+          # changesNotSentForReview for this app ("Changes are sent for
+          # review automatically"), so leave nothing half-done in the
+          # Console before releasing to main.
