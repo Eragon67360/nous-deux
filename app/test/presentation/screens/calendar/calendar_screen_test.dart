@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -57,6 +58,28 @@ void main() {
   }
 
   for (final lang in ['fr', 'en']) {
+    testWidgets('[$lang] the title stays on one line on a narrow phone', (
+      tester,
+    ) async {
+      // An iPhone SE / small Android: 320 points wide, with large text.
+      tester.view.physicalSize = const Size(960, 1704);
+      tester.view.devicePixelRatio = 3;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.3;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpCalendar(tester, lang: lang);
+
+      final title = tester.renderObject<RenderParagraph>(
+        find.text(calendarTitle(lang)),
+      );
+      final lines = title.getBoxesForSelection(
+        TextSelection(baseOffset: 0, extentOffset: calendarTitle(lang).length),
+      );
+      expect(lines.map((b) => b.top).toSet(), hasLength(1));
+      expect(title.didExceedMaxLines, isFalse);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('[$lang] header shows the month and the title', (tester) async {
       await pumpCalendar(tester, lang: lang);
 
