@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/data/models/couple_model.dart';
 
 import 'package:nousdeux/core/errors/failures.dart';
@@ -13,17 +10,8 @@ class PairingRemoteDatasource {
     : _client = client ?? Supabase.instance.client;
 
   final SupabaseClient _client;
-  final Random _random = Random();
 
   static const String _table = 'couples';
-
-  String _generateCode() {
-    const chars = AppConstants.pairingCodeChars;
-    return List.generate(
-      AppConstants.pairingCodeLength,
-      (_) => chars[_random.nextInt(chars.length)],
-    ).join();
-  }
 
   /// Sets `together_since` on the current couple (a calendar day).
   Future<void> updateTogetherSince(String coupleId, DateTime day) async {
@@ -45,68 +33,42 @@ class PairingRemoteDatasource {
     return CoupleModel.fromJson(Map<String, dynamic>.from(res));
   }
 
-  /// Create couple with user1_id = current user and a unique pairing_code.
+  /// The current user's invite: their waiting couple, or a new one whose code
+  /// the database draws (RPC create_couple).
   Future<CoupleModel> createCouple() async {
-    final uid = _client.auth.currentUser?.id;
-    if (uid == null) throw AuthException('Not signed in');
-    String code;
-    int attempts = 0;
-    while (true) {
-      code = _generateCode();
-      final existing = await _client
-          .from(_table)
-          .select('id')
-          .eq('pairing_code', code)
-          .maybeSingle();
-      if (existing == null) break;
-      if (++attempts > 10) {
-        throw AuthException('Could not generate unique code');
-      }
-    }
-    final res = await _client
-        .from(_table)
-        .insert({'user1_id': uid, 'pairing_code': code})
-        .select()
-        .single();
-    return CoupleModel.fromJson(Map<String, dynamic>.from(res));
+    final res = await _client.rpc('create_couple');
+    return CoupleModel.fromJson(Map<String, dynamic>.from(res as Map));
   }
 
-  /// Join couple by code: set user2_id = current user where pairing_code = code and user2_id is null.
-  Future<CoupleModel> joinByCode(String code) async {
-    final uid = _client.auth.currentUser?.id;
-    if (uid == null) throw AuthException('Not signed in');
+  /// Joins the couple whose code was typed or scanned (RPC join_couple). The
+  /// database checks the code and limits wrong guesses; [today] is the
+  /// joiner's local day, the server's being UTC.
+  Future<CoupleModel> joinByCode(String code, {DateTime? today}) async {
     final normalizedCode = code.trim().toUpperCase();
     if (normalizedCode.isEmpty) {
-      throw PostgrestException(message: 'Code requis');
-    }
-
-    final existing = await _client
-        .from(_table)
-        .select()
-        .eq('pairing_code', normalizedCode)
-        .maybeSingle();
-    if (existing == null) {
       throw const PairingException(PairingProblem.invalidCode);
     }
-    final coupleId = existing['id'] as String;
-    final user2Id = existing['user2_id'];
-    if (user2Id != null && (user2Id as String).isNotEmpty) {
-      throw const PairingException(PairingProblem.codeUsed);
+    final status = await _client.rpc(
+      'join_couple',
+      params: {
+        'p_code': normalizedCode,
+        'p_day': formatDay(today ?? DateTime.now()),
+      },
+    );
+    final problem = switch (status) {
+      'joined' => null,
+      'code_used' => PairingProblem.codeUsed,
+      'own_code' => PairingProblem.ownCode,
+      'already_paired' => PairingProblem.alreadyPaired,
+      'too_many_attempts' => PairingProblem.tooManyAttempts,
+      _ => PairingProblem.invalidCode,
+    };
+    if (problem != null) throw PairingException(problem);
+    final couple = await getMyCouple();
+    if (couple == null) {
+      throw const PairingException(PairingProblem.invalidCode);
     }
-    final user1Id = existing['user1_id'] as String;
-    if (user1Id == uid) {
-      throw const PairingException(PairingProblem.ownCode);
-    }
-
-    // The joiner's local day: the server's CURRENT_DATE is UTC and can be off
-    // by one late in the evening in Europe.
-    await _client
-        .from(_table)
-        .update({'user2_id': uid, 'together_since': formatDay(DateTime.now())})
-        .eq('id', coupleId);
-
-    final res = await _client.from(_table).select().eq('id', coupleId).single();
-    return CoupleModel.fromJson(Map<String, dynamic>.from(res));
+    return couple;
   }
 
   /// Leave current couple (RPC: clear partner_id on both profiles, delete couple row).
@@ -115,7 +77,7 @@ class PairingRemoteDatasource {
   }
 }
 
-/// A join attempt the server would refuse, detected before writing.
+/// A join attempt the server refused, with the reason.
 class PairingException implements Exception {
   const PairingException(this.problem);
 
