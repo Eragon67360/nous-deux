@@ -66,10 +66,7 @@
           {
             "id": "position",
             "name": "Position",
-            "facts": [
-              "En direct, quand vous l'activez.",
-              "Aucun historique."
-            ]
+            "facts": ["En direct, quand vous l'activez.", "Aucun historique."]
           },
           {
             "id": "together",
@@ -245,7 +242,7 @@
         "items": [
           {
             "label": "Hetzner (Allemagne)",
-            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Ils font aussi tourner GlitchTip (un logiciel open source), qui reçoit les rapports de plantage. Les données restent dans l'Union européenne."
+            "text": "nos propres serveurs en Allemagne, qui font tourner Supabase (un logiciel open source) : connexion, base de données et photos de profil, sauvegardées chaque jour par une connexion chiffrée vers un stockage Hetzner en Finlande. Ils font aussi tourner GlitchTip (un logiciel open source), qui reçoit les rapports de plantage. Ce site y est hébergé aussi, sans publicité. Il compte ses visites avec Umami, un logiciel open source installé sur ces serveurs : pages vues, site d'où vous venez, navigateur, système, type d'appareil, taille d'écran, langue, pays, région et ville approximatifs (déduits de votre adresse IP, qui n'est pas conservée), sans cookie. Le seul cookie du site retient votre langue. Les données restent dans l'Union européenne."
           },
           {
             "label": "Firebase (Google)",
