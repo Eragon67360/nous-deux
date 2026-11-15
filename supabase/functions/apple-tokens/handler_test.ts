@@ -8,7 +8,7 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.224.0/assert/mod.ts";
 import * as jose from "https://esm.sh/jose@5";
-import { type AppleKey, clientSecret } from "./apple.ts";
+import { type AppleKey, clientSecret, revokeToken } from "./apple.ts";
 import { handle } from "./handler.ts";
 
 const SECRET = "test-secret";
@@ -24,7 +24,7 @@ const key: AppleKey = {
 
 /// Plays Apple: answers /auth/token with a token for [sub], and records
 /// every form it receives.
-function fakeApple(sub: string, tokenStatus = 200) {
+function fakeApple(sub: string, tokenStatus = 200, revokeStatuses: number[] = []) {
   const calls: { path: string; form: URLSearchParams }[] = [];
   const fetchFn = async (input: string | URL | Request, init?: RequestInit) => {
     const path = new URL(String(input)).pathname;
@@ -38,7 +38,7 @@ function fakeApple(sub: string, tokenStatus = 200) {
         .sign(privateKey);
       return Response.json({ refresh_token: "r-token", id_token: idToken });
     }
-    return new Response("", { status: 200 });
+    return new Response("", { status: revokeStatuses.shift() ?? 200 });
   };
   return { calls, fetchFn: fetchFn as typeof fetch };
 }
@@ -157,6 +157,56 @@ Deno.test("without the Apple key nothing is called", async () => {
   const apple = fakeApple("apple-u1");
   const res = await handle(request(exchange), {
     key: null,
+    saveToken: () => Promise.resolve(true),
+    fetch: apple.fetchFn,
+  });
+  assertEquals((await res.json()).ok, false);
+  assertEquals(apple.calls.length, 0);
+});
+
+Deno.test("a token that can't be saved is revoked", async () => {
+  const apple = fakeApple("apple-u1");
+  const res = await handle(request(exchange), {
+    key,
+    saveToken: () => Promise.reject(new Error("database down")),
+    fetch: apple.fetchFn,
+  });
+  assertEquals(await res.json(), { ok: false });
+  assertEquals(apple.calls.map((c) => c.path), ["/auth/token", "/auth/revoke"]);
+});
+
+Deno.test("Apple's 5xx on a code exchange isn't retried", async () => {
+  const apple = fakeApple("apple-u1", 503);
+  await handle(request(exchange), {
+    key,
+    saveToken: () => Promise.resolve(true),
+    fetch: apple.fetchFn,
+  });
+  assertEquals(apple.calls.map((c) => c.path), ["/auth/token"]);
+});
+
+Deno.test("a revocation is retried while Apple answers 5xx", async () => {
+  const apple = fakeApple("apple-u1", 200, [503, 502]);
+  await revokeToken(key, "r-old", apple.fetchFn, [0, 0]);
+  assertEquals(apple.calls.length, 3);
+});
+
+Deno.test("a revocation gives up after three tries", async () => {
+  const apple = fakeApple("apple-u1", 200, [503, 503, 503]);
+  let failed = false;
+  try {
+    await revokeToken(key, "r-old", apple.fetchFn, [0, 0]);
+  } catch {
+    failed = true;
+  }
+  assert(failed);
+  assertEquals(apple.calls.length, 3);
+});
+
+Deno.test("a body that isn't a job is skipped", async () => {
+  const apple = fakeApple("apple-u1");
+  const res = await handle(request(null), {
+    key,
     saveToken: () => Promise.resolve(true),
     fetch: apple.fetchFn,
   });

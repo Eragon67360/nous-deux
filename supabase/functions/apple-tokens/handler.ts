@@ -38,6 +38,9 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
   } catch {
     return json({ ok: false, skipped: "not JSON" });
   }
+  if (typeof body !== "object" || body === null) {
+    return json({ ok: false, skipped: "not a job" });
+  }
 
   try {
     if (body.type === "exchange") {
@@ -48,7 +51,15 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
         await revokeToken(key, token.refreshToken, fetchFn);
         return json({ ok: false, skipped: "code from another Apple account" });
       }
-      if (!(await deps.saveToken(body.user_id, token.refreshToken))) {
+      let saved: boolean;
+      try {
+        saved = await deps.saveToken(body.user_id, token.refreshToken);
+      } catch (e) {
+        // A token we can't keep could never be revoked later.
+        await revokeToken(key, token.refreshToken, fetchFn);
+        throw e;
+      }
+      if (!saved) {
         await revokeToken(key, token.refreshToken, fetchFn);
         return json({ ok: false, skipped: "account deleted meanwhile" });
       }

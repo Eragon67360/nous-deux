@@ -12,6 +12,8 @@ the shared `x-webhook-secret` (migration
   then it revokes it at once.
 - `revoke`: the account was deleted, so its `apple_tokens` row was too; the
   delete trigger sends the token, and the function revokes it with Apple.
+  Apple's 5xx answers and network errors are retried twice; after that the
+  token is lost with the account and only the functions log keeps the error.
 
 - Settings: `APPLE_SIGN_IN_KEY_ID`, `APPLE_SIGN_IN_KEY` (the `.p8`), plus the
   push functions' `PUSH_WEBHOOK_SECRET` and service role key. Setup and

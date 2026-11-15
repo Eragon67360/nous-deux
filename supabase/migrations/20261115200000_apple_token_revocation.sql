@@ -49,7 +49,7 @@ BEGIN
       'Content-Type', 'application/json',
       'x-webhook-secret', _secret
     ),
-    timeout_milliseconds := 10000
+    timeout_milliseconds := 20000
   );
   RETURN TRUE;
 END;

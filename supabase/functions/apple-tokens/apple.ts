@@ -39,21 +39,33 @@ export async function clientSecret(
     .sign(await jose.importPKCS8(key.privateKey, "ES256"));
 }
 
+/// Retries network errors and Apple's 5xx answers twice, a second then two
+/// apart: a revocation that fails here is not tried again later.
 async function post(
   fetchFn: Fetch,
   key: AppleKey,
   path: string,
   fields: Record<string, string>,
+  retryDelaysMs = [1000, 2000],
 ): Promise<Response> {
-  return await fetchFn(`${APPLE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: APPLE_CLIENT_ID,
-      client_secret: await clientSecret(key),
-      ...fields,
-    }),
-  });
+  for (let attempt = 0; ; attempt++) {
+    const last = attempt >= retryDelaysMs.length;
+    try {
+      const res = await fetchFn(`${APPLE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: APPLE_CLIENT_ID,
+          client_secret: await clientSecret(key),
+          ...fields,
+        }),
+      });
+      if (res.status < 500 || last) return res;
+    } catch (e) {
+      if (last) throw e;
+    }
+    await new Promise((r) => setTimeout(r, retryDelaysMs[attempt]));
+  }
 }
 
 /// Apple's error bodies are small JSON like {"error":"invalid_grant"} and
@@ -68,10 +80,11 @@ export async function exchangeCode(
   code: string,
   fetchFn: Fetch = fetch,
 ): Promise<{ refreshToken: string; appleSub: string }> {
+  // No retry: an authorization code works once, and Apple may have used it.
   const res = await post(fetchFn, key, "/auth/token", {
     code,
     grant_type: "authorization_code",
-  });
+  }, []);
   if (!res.ok) throw await failure("Apple code exchange failed", res);
   const body = await res.json();
   const sub = typeof body.id_token === "string"
@@ -87,10 +100,11 @@ export async function revokeToken(
   key: AppleKey,
   refreshToken: string,
   fetchFn: Fetch = fetch,
+  retryDelaysMs?: number[],
 ): Promise<void> {
   const res = await post(fetchFn, key, "/auth/revoke", {
     token: refreshToken,
     token_type_hint: "refresh_token",
-  });
+  }, retryDelaysMs);
   if (!res.ok) throw await failure("Apple token revocation failed", res);
 }
