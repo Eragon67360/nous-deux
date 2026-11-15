@@ -110,7 +110,11 @@ platform :ios do
       export_method: "app-store",
       output_directory: "build",
       output_name: "NousDeux.ipa",
-      xcargs: signing_xcargs
+      xcargs: signing_xcargs,
+      # Without the team, the export looks for a local distribution
+      # certificate instead of Apple's cloud-managed one.
+      export_team_id: CredentialsManager::AppfileConfig.try_fetch_value(:team_id),
+      export_options: { signingStyle: "automatic" }
     )
     # Waits until Apple has processed the build.
     upload_to_testflight(
