@@ -27,7 +27,7 @@ Coolify application settings:
 | Healthcheck | dashboard check off; the image's `HEALTHCHECK` fetches `/robots.txt`     |
 | Environment | `UMAMI_WEBSITE_ID`, the website's ID in Umami (runtime only)             |
 
-The app is `nous-deux-website` in Coolify. It has no GitHub webhook yet, so after a `dev` → `main` release that touches `website/`, press Redeploy on it. Images resized by `next/image` (through sharp) are cached inside the container and made again on demand after a deploy.
+The app is `nous-deux-website` in Coolify. A GitHub webhook on the repository (push events, to Coolify's manual GitHub endpoint, signed with the secret shown on the app's Webhooks page) redeploys it on every push to `main`, app-only releases included. Images resized by `next/image` (through sharp) are cached inside the container and made again on demand after a deploy.
 
 DNS for `nous-deux.app` is in Hetzner DNS. The apex and `www` point at the server like `api` does: `A 5.75.147.14`, `AAAA 2a01:4f8:1c16:f769::1`.
 
