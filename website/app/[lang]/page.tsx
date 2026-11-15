@@ -39,9 +39,9 @@ export default async function Home({ params }: PageProps) {
       />
       <main id="home">
         <TitlePage dict={home.hero} cover={home.folio.titlePage} lang={lang} />
-        <AgendasChapter dict={home.chapters.agendas} />
-        <MergeChapter dict={home.chapters.merge} />
-        <ShareRail dict={home.chapters.share} />
+        <AgendasChapter dict={home.chapters.agendas} lang={lang} />
+        <MergeChapter dict={home.chapters.merge} lang={lang} />
+        <ShareRail dict={home.chapters.share} lang={lang} />
         <TrustChapter dict={home.chapters.trust} lang={lang} />
         <FaqChapter dict={home.chapters.faq} />
         <Colophon dict={home.chapters.close} footer={dict.footer} lang={lang} />
