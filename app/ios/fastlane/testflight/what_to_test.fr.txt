@@ -1,0 +1,5 @@
+Merci de tester Nous Deux ! L'app se teste à deux : envoyez le même lien TestFlight à votre partenaire, puis reliez vos comptes avec un code ou un QR code.
+
+À essayer : le calendrier partagé, le cycle, la position (seulement quand vous l'activez), les listes, les petits mots et leurs notifications.
+
+Un souci ? Faites une capture d'écran dans l'app : TestFlight propose de l'envoyer avec un commentaire.

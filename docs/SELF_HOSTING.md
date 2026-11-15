@@ -91,7 +91,7 @@ The iOS app is `app.nous-deux` (the domain reversed) in the paid team `2Y57C77BK
 
 Why not `com.nousdeux.app`: Apple answers "not available". The project was first signed with the free Personal Team `2YPH2XA7AZ`, which most likely registered it in February. Only Apple Developer Support can release an ID from a free team.
 
-To build for a device or use Sign in with Apple, Xcode needs the Apple ID that owns team `2Y57C77BK4` (**Xcode → Settings → Accounts**).
+**Push Notifications** is on for the App ID since 2026-11-15, with `aps-environment` in the entitlements and the `remote-notification` background mode in `Info.plist`. Release builds come from CI ("iOS TestFlight" workflow, [APP_STORE_CONNECT.md](APP_STORE_CONNECT.md)), signed through an App Store Connect API key, so no Mac needs the team's Apple ID. To build for a device from Xcode instead, add that Apple ID in **Xcode → Settings → Accounts**.
 
 **Revoking Sign in with Apple** (App Store guideline 5.1.1(v)). Deleting an account revokes the app's Apple access too. After each Apple sign-in, the app passes Apple's one-time authorization code to `save_apple_authorization()`; the database hands it to the internal `apple-tokens` function, which exchanges it for a refresh token and keeps it in `public.apple_tokens`. When the account goes, so does the row, and its delete trigger sends the token back to `apple-tokens`, which revokes it with Apple (migration `20261115200000`). That needs a Sign in with Apple key:
 1. Developer → Keys → **+**, name "Nous Deux Sign in with Apple", tick **Sign in with Apple**, configure it with the primary App ID `app.nous-deux`. Download the `.p8` (Apple lets you download it once).
@@ -105,6 +105,7 @@ Still to do: one real Sign in with Apple, on an iPhone signed in to an Apple Acc
 
 ### 6. Firebase (Thomas)
 - **iOS app:** "Nous Deux iOS" (`app.nous-deux`, app id `1:836600962251:ios:e48ad19409b909f70f4f4e`), added on 2026-11-11. The older iOS app "nousdeux (ios)" is registered for `com.nousdeux.app` and no longer used.
+- **APNs key** (iOS push): Apple Developer → Keys → **+**, tick **Apple Push Notifications service (APNs)**, environment "Sandbox & Production". Download the `.p8` once, keep it and its key id in Proton Pass, then in Firebase **Project settings → Cloud Messaging → Apple app configuration → APNs Authentication Key**, upload it with the key id and team id `2Y57C77BK4`. One key serves the simulator, TestFlight and the App Store.
 - **Service account:** in **Project settings → Service accounts**, use **Generate new private key**. Its JSON becomes `FIREBASE_SERVICE_ACCOUNT_JSON`, and the downloaded file is deleted once it's in Proton Pass.
 
 ### 7. Database and functions (Claude or Thomas, over SSH)

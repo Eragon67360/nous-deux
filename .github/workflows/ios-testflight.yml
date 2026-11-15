@@ -1,0 +1,124 @@
+name: iOS TestFlight
+
+# Builds the iPhone app, signs it for the App Store, uploads it to TestFlight
+# and sends it to the public beta group (fastlane, app/ios/fastlane). Runs on
+# each release to main that touches the app, like the Android workflow, or by
+# hand from Actions; "Send the latest build to testers" only retries that last
+# step.
+#
+# It changes App Store Connect, so the job runs in the `app-store`
+# environment, which holds the API key and waits for Thomas's approval.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "app/lib/**"
+      - "app/ios/**"
+      - "app/assets/**"
+      - "app/pubspec.yaml"
+      - "app/pubspec.lock"
+      - ".github/workflows/ios-testflight.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: What to do
+        type: choice
+        default: Build and upload
+        options:
+          - Build and upload
+          - Send the latest build to testers
+
+permissions:
+  contents: read
+
+concurrency:
+  group: app-store
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    name: ${{ inputs.action || 'Build and upload' }}
+    runs-on: macos-26
+    timeout-minutes: 90
+    environment: app-store
+    defaults:
+      run:
+        working-directory: app
+    env:
+      BUILD: ${{ !inputs.action || inputs.action == 'Build and upload' }}
+      LC_ALL: en_US.UTF-8
+      LANG: en_US.UTF-8
+      FASTLANE_SKIP_UPDATE_CHECK: "1"
+      FASTLANE_OPT_OUT_USAGE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check the secrets
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          missing=""
+          for name in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "Missing secrets in the app-store environment:$missing" >&2
+            exit 1
+          fi
+          xcodebuild -version
+
+      # Same Flutter as the Android release: newer ones need Gradle 9.
+      - name: Setup Flutter
+        if: env.BUILD == 'true'
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.38.9"
+          cache: true
+
+      # Writes the Xcode settings and the defines for the archive, and
+      # installs the pods; fastlane then archives and signs. Same defines as
+      # the Android release: the Google client ids are built in.
+      - name: Prepare the Xcode project
+        if: env.BUILD == 'true'
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          flutter pub get
+          cp lib/core/config/supabase_keys_stub.dart lib/core/config/supabase_keys.dart
+          flutter build ios --release --config-only \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=SENTRY_DSN="$SENTRY_DSN"
+          cd ios && pod install
+
+      - name: Install fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: app/ios
+
+      - name: Run fastlane
+        working-directory: app/ios
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          export ASC_KEY_PATH="$RUNNER_TEMP/asc-key.p8"
+          ( umask 077; printf '%s\n' "$ASC_KEY_P8" > "$ASC_KEY_PATH" )
+          trap 'rm -f "$ASC_KEY_PATH"' EXIT
+          if [ "$BUILD" = "true" ]; then
+            bundle exec fastlane ios beta
+          else
+            bundle exec fastlane ios send
+          fi
