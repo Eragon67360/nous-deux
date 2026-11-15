@@ -1,6 +1,6 @@
 # Google Play Console answers
 
-What to enter in the Play Console for `com.nousdeux.android`, written from the app's code (version 0.3.0+18). Update this file, the privacy policy and the Console together whenever the app starts collecting something new.
+What to enter in the Play Console for `com.nousdeux.android`, written from the app's code (version 0.3.1+19). Update this file, the privacy policy and the Console together whenever the app starts collecting something new.
 
 ## Before you submit
 
