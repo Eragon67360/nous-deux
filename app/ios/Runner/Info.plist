@@ -77,6 +77,11 @@
 	<!-- Corresponds to android.permission.ACCESS_FINE_LOCATION -->
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel).</string>
+	<!-- Apple requires this key because the location plugins can ask for
+	     "always" access (ITMS-90683). The app never asks for it: only while
+	     it is open, and there is no background location mode. -->
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel), uniquement pendant que vous utilisez l'application.</string>
 	
 	<!-- Required for iOS gallery access (Android uses intents, but iOS needs this key) -->
 	<key>NSPhotoLibraryUsageDescription</key>
