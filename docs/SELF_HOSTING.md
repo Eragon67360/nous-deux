@@ -158,13 +158,18 @@ Studio used to sit behind Basic auth at `https://api.nous-deux.app/`. Its login 
 
 ### Rotate the push secret
 1. Change `SERVICE_PASSWORD_64_PUSHWEBHOOK` in Coolify and redeploy. The functions get the new value.
-2. Give the database the same value:
+2. Give the database the same value. It lives in `private.secrets`, readable by the database owner only (migration `20261116300000`):
    ```bash
-   ssh root@<server> 'db=$(docker ps --format "{{.Names}}" | grep ^supabase-db); fn=$(docker ps --format "{{.Names}}" | grep ^supabase-edge-functions); \
-     docker exec $db psql -U postgres -v s="$(docker exec $fn printenv PUSH_WEBHOOK_SECRET)" \
-     -c "ALTER DATABASE postgres SET \"app.settings.push_webhook_secret\" TO :'"'"'s'"'"'"'
+   ssh root@<server> bash -s <<'EOF'
+   db=$(docker ps --format '{{.Names}}' | grep ^supabase-db)
+   fn=$(docker ps --format '{{.Names}}' | grep ^supabase-edge-functions)
+   docker exec -i $db psql -U postgres -q -v ON_ERROR_STOP=1 -v s="$(docker exec $fn printenv PUSH_WEBHOOK_SECRET)" <<'SQL'
+   INSERT INTO private.secrets (name, value) VALUES ('push_webhook_secret', :'s')
+   ON CONFLICT (name) DO UPDATE SET value = EXCLUDED.value;
+   SQL
+   EOF
    ```
-   The value never leaves the server.
+   The value never leaves the server. (psql only fills in `:'s'` from standard input, not in a `-c` command.)
 3. Update Proton Pass.
 
 ## Backups
@@ -182,8 +187,9 @@ Set up on 2026-11-12 with Coolify 4.7.5. The database and avatar schedules live 
 - **Checks:** Coolify fails a run only when the file is empty. The empty Supabase dumps reported upstream don't happen here: the image sets `POSTGRES_USER=supabase_admin`, which logs in on the local socket without a password. A good dump starts with `PGDMP`.
 - **Retention:** after changing it, reopen the schedule to check (0 means keep everything). On 2026-11-12 the first save on the database schedule didn't stick, and on 2026-11-15 neither did Umami's until the edit panel's own **Save changes** was used.
 - **Deleted accounts** stay in the backups for up to 14 days.
+- **The push secret** is in the dump (`private.secrets`), like the data it protects.
 - **Not in a dump:**
-  - `app.settings.jwt_exp` and `app.settings.push_webhook_secret`. A fresh deploy sets both at first boot from its environment.
+  - `app.settings.jwt_exp`. A fresh deploy sets it at first boot from its environment.
   - `net._http_response`, pg_net's short-lived reply log.
   - The Vault key, `pgsodium_root.key` in the `supabase-db-config` volume. Vault is unused (`vault.secrets` is empty); before storing anything in it, copy that key to Proton Pass.
 
@@ -208,12 +214,13 @@ This works on the same server or on a fresh deploy. For a fresh deploy, do One-t
    docker exec $db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 -c "
      REVOKE ALL ON ALL TABLES    IN SCHEMA public, private FROM anon, authenticated, service_role;
      REVOKE ALL ON ALL SEQUENCES IN SCHEMA public, private FROM anon, authenticated, service_role;
-     REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public, private FROM anon, authenticated, service_role;"
+     REVOKE ALL ON ALL FUNCTIONS IN SCHEMA public, private FROM anon, authenticated, service_role;
+     ALTER DATABASE postgres RESET \"app.settings.push_webhook_secret\";"
    docker exec $db sh -c 'pg_restore -l /tmp/restore.dmp | grep -E "^[0-9]+; [0-9]+ [0-9]+ ACL (public|private) " > /tmp/acl.list \
      && pg_restore -U supabase_admin -d postgres -L /tmp/acl.list /tmp/restore.dmp'
    docker exec $db psql -U supabase_admin -d postgres -tAc "select relacl from pg_class where oid = 'public.cycle_notes'::regclass"
    ```
-   The last command's output must not mention `anon`.
+   The last command's output must not mention `anon`. The `RESET` drops the push secret a fresh deploy sets at first boot: the dump brings it in `private.secrets`.
 5. Clean up, start the services, then run the smoke test ([step 9](#9-check)):
    ```bash
    docker exec $db rm /tmp/restore.dmp /tmp/acl.list && rm /root/restore.dmp

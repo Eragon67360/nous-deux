@@ -20,6 +20,8 @@ replaces pg_net's `net.http_post` with a recorder for this.
 
 `98_hardening_scenario.sql` checks the last review fixes: period logs and location rows go only into the caller's own couple (a waiting person still logs in their invite couple); an event's author is whoever created it, whatever the app sends; every SECURITY DEFINER function fixes its search_path, signed-out callers get no table or function in public and nobody can TRUNCATE; `couple_pings` and `location_sharing` are keyed by a random id, so Realtime deletes don't say who was paired, while notes and positions work as before; display names stop at 50 characters; `save_apple_authorization()` reaches Apple at most once a minute per account.
 
+`99_push_secret_scenario.sql` checks that pushes take the shared secret from `private.secrets`, with no setting any session can read, and that neither signed-in nor signed-out callers can read that table or the function that returns the secret. The other scenarios still set the secret per session, which the function falls back to.
+
 The `apple-tokens` function has its own tests, with Apple faked; the command
 is at the top of `supabase/functions/apple-tokens/handler_test.ts`.
 
