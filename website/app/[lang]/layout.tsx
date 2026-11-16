@@ -4,7 +4,6 @@ import { Geist_Mono, Manrope } from "next/font/google";
 import { notFound } from "next/navigation";
 import { getDictionary, hasLocale } from "@/lib/dictionaries";
 import Stats from "@/components/Stats";
-import "../../vendor/scrollcraft/scrollcraft.css";
 import "../globals.css";
 
 // The app's one font: light weights for display, regular for text.
