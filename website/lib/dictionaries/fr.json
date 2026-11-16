@@ -131,13 +131,13 @@
           },
           {
             "question": "Quand sort l'application ?",
-            "answer": "La bêta Android est ouverte : la page « Rejoindre la bêta » explique comment l'installer. La sortie sur l'App Store et Google Play suivra. Le code source est déjà public sur GitHub."
+            "answer": "La bêta est ouverte sur Android et sur iPhone : la page « Rejoindre la bêta » explique comment l'installer. La sortie sur l'App Store et Google Play suivra. Le code source est déjà public sur GitHub."
           }
         ]
       },
       "close": {
         "folio": "Colophon",
-        "heading": "En bêta sur Android. Bientôt sur l'App Store et Google Play.",
+        "heading": "En bêta sur Android et iPhone. Bientôt sur l'App Store et Google Play.",
         "support": "D'ici là, si le projet vous plaît, vous pouvez",
         "supportLink": "offrir un café à son développeur",
         "supportSuffix": ".",
@@ -254,7 +254,7 @@
           },
           {
             "label": "Google et Apple",
-            "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques."
+            "text": "fourniture de la connexion (Sign in with Google / Sign in with Apple) ; les données traitées par ces services sont régies par leurs propres politiques. Pendant la bêta iPhone, l'application est distribuée par TestFlight (Apple), qui nous transmet les rapports de plantage et les commentaires que vous choisissez d'envoyer."
           }
         ]
       },
@@ -347,11 +347,11 @@
   "beta": {
     "meta": {
       "title": "Rejoindre la bêta",
-      "description": "Testez Nous Deux sur Android avant sa sortie : rejoignez le groupe des testeurs, puis installez l'application depuis Google Play."
+      "description": "Testez Nous Deux sur Android ou sur iPhone avant sa sortie : Google Play pour Android, TestFlight pour iPhone."
     },
     "title": "Rejoindre la bêta",
-    "intro": "Nous Deux est en test sur Android avant sa sortie. C'est gratuit, sans publicité, et vos retours décident de la suite.",
-    "stepsTitle": "En quatre étapes",
+    "intro": "Nous Deux est en test sur Android et sur iPhone avant sa sortie. C'est gratuit, sans publicité, et vos retours décident de la suite.",
+    "stepsTitle": "Sur Android, en quatre étapes",
     "steps": [
       {
         "text": "Rejoignez le groupe des testeurs avec le compte Google de votre téléphone.",
@@ -370,20 +370,37 @@
         "link": ""
       }
     ],
-    "stayTitle": "Restez 14 jours",
+    "stayTitle": "Sur Android, restez 14 jours",
     "stayBody": "Google ne publie une application qu'après un test de 14 jours d'affilée avec au moins 12 testeurs. Gardez Nous Deux installée et restez inscrit pendant 14 jours : c'est ce qui permettra de l'ouvrir à tout le monde.",
     "languageTitle": "Français ou anglais",
     "languageBody": "L'application existe en français et en anglais. Si votre téléphone n'est pas réglé en français, elle s'affiche en anglais.",
-    "iphoneTitle": "Et sur iPhone ?",
-    "iphoneBody": "Pour l'instant, la bêta est uniquement sur Android. La version iPhone viendra ensuite.",
+    "iphoneTitle": "Sur iPhone, avec TestFlight",
     "feedbackTitle": "Vos retours",
     "feedbackBody": "Un bug, une idée, une question ? Écrivez-nous :",
     "feedbackSubject": "Bêta Nous Deux",
     "dataTitle": "Vos données",
-    "dataBody": "Pendant la bêta, l'application fonctionne comme la version finale : vos données sont sur nos propres serveurs en Allemagne et ne sont jamais revendues. Vous pouvez supprimer votre compte depuis l'application à tout moment. Le groupe des testeurs est géré sur Google Groups : seul son propriétaire voit votre adresse, et seulement pour gérer le test.",
+    "dataBody": "Pendant la bêta, l'application fonctionne comme la version finale : vos données sont sur nos propres serveurs en Allemagne et ne sont jamais revendues. Vous pouvez supprimer votre compte depuis l'application à tout moment. Le groupe des testeurs est géré sur Google Groups : seul son propriétaire voit votre adresse, et seulement pour gérer le test. Sur iPhone, TestFlight appartient à Apple : il nous transmet les plantages et les commentaires que vous choisissez d'envoyer.",
     "privacyLink": "Politique de confidentialité",
     "leaveTitle": "Quitter la bêta",
-    "leaveBody": "Ouvrez le lien de test Google Play et choisissez « Quitter le programme ». Vous pouvez aussi quitter le groupe des testeurs.",
-    "backHome": "Retour à l'accueil"
+    "leaveBody": "Sur Android, ouvrez le lien de test Google Play et choisissez « Quitter le programme » ; vous pouvez aussi quitter le groupe des testeurs. Sur iPhone, ouvrez Nous Deux dans TestFlight et choisissez « Arrêter les tests ».",
+    "backHome": "Retour à l'accueil",
+    "iphoneSteps": [
+      {
+        "text": "Installez TestFlight, l'application de test d'Apple, depuis l'App Store.",
+        "link": "TestFlight sur l'App Store"
+      },
+      {
+        "text": "Sur l'iPhone, ouvrez le lien de la bêta et acceptez l'invitation.",
+        "link": "Rejoindre la bêta iPhone"
+      },
+      {
+        "text": "Installez Nous Deux depuis TestFlight et connectez-vous avec Apple ou Google.",
+        "link": ""
+      },
+      {
+        "text": "Votre partenaire fait de même, sur iPhone ou sur Android. Ensuite, l'un génère un code et l'autre le saisit : vous voilà reliés.",
+        "link": ""
+      }
+    ]
   }
 }
