@@ -11,6 +11,7 @@ import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
+import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
@@ -696,6 +697,8 @@ class _TracksCycleSwitch extends ConsumerWidget {
             .deleteAllMyData();
         if (failure != null) return say(cycleSaveFailed(lang));
         deleted = true;
+        // The states of one's own saved on this phone are cycle data too.
+        await ref.read(ownStatesProvider.notifier).clear();
         ref
           ..invalidate(cycleNoteProvider)
           ..invalidate(cycleCheckinsProvider)

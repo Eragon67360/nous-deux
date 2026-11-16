@@ -11,9 +11,13 @@ class PingRemoteDatasource {
   static const String _table = 'couple_pings';
 
   /// Sends through the `send_ping` RPC, which checks the couple and the
-  /// 30-second limit (raises `cooldown` or `not_paired`).
-  Future<PingModel> send(PingKind kind) async {
-    final res = await _client.rpc('send_ping', params: {'p_kind': kind.wire});
+  /// 30-second limit (raises `cooldown` or `not_paired`), and the [text] of
+  /// a [PingKind.custom] note (raises `invalid_text`).
+  Future<PingModel> send(PingKind kind, {String? text}) async {
+    final res = await _client.rpc(
+      'send_ping',
+      params: {'p_kind': kind.wire, 'p_text': ?text},
+    );
     final model = PingModel.fromJson(Map<String, dynamic>.from(res as Map));
     if (model == null) throw StateError('Unknown ping kind in response');
     return model;

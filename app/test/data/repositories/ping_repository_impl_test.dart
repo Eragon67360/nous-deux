@@ -15,7 +15,7 @@ class _ThrowingPings extends PingRemoteDatasource {
   final String message;
 
   @override
-  Future<PingModel> send(PingKind kind) =>
+  Future<PingModel> send(PingKind kind, {String? text}) =>
       Future.error(PostgrestException(message: message, code: 'P0001'));
 }
 
@@ -56,6 +56,25 @@ void main() {
       expect(m.kind, PingKind.onMyWay);
       expect(m.sentAt.isUtc, isFalse);
       expect(m.sentAt, DateTime.utc(2026, 11, 10, 17).toLocal());
+      expect(m.text, isNull);
+    });
+
+    test("reads a note of one's own with its words", () {
+      final row = {
+        'couple_id': 'c1',
+        'sender_id': 'u1',
+        'kind': 'custom',
+        'text': 'Bonne journée',
+        'sent_at': '2026-11-10T17:00:00Z',
+      };
+      final m = PingModel.fromJson(row)!;
+      expect(m.kind, PingKind.custom);
+      expect(m.toEntity().text, 'Bonne journée');
+      // Without its words there is nothing to show.
+      expect(PingModel.fromJson({...row, 'text': null}), isNull);
+      expect(PingModel.fromJson({...row, 'text': '  '}), isNull);
+      // A preset never carries words.
+      expect(PingModel.fromJson({...row, 'kind': 'kiss'})!.text, isNull);
     });
 
     test('skips a kind this version does not know', () {
@@ -78,6 +97,7 @@ void main() {
       'on_my_way',
       'miss_you',
       'kiss',
+      'custom',
     ]);
   });
 }

@@ -1,5 +1,8 @@
 // Push a little note to the partner. Called by the database on each
 // couple_pings insert or update (migration 20261111100000_push_webhooks.sql).
+// A note the sender wrote (kind "custom") is announced without its words:
+// the text never goes into the push, so it never reaches Google's or
+// Apple's push servers. This function doesn't even read it.
 // Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUSH_WEBHOOK_SECRET,
 // FIREBASE_SERVICE_ACCOUNT_JSON.
 
@@ -12,7 +15,8 @@ type PingKind =
   | "good_night"
   | "on_my_way"
   | "miss_you"
-  | "kiss";
+  | "kiss"
+  | "custom";
 
 interface PingRecord {
   couple_id: string;
@@ -35,6 +39,7 @@ const BODIES: Record<"fr" | "en", Record<PingKind, (name: string) => string>> = 
     on_my_way: (n) => `${n} arrive`,
     miss_you: (n) => `${n} : tu me manques`,
     kiss: (n) => `${n} t'envoie un bisou`,
+    custom: (n) => `${n} t'a écrit un petit mot`,
   },
   en: {
     thinking_of_you: (n) => `${n} is thinking of you`,
@@ -42,6 +47,7 @@ const BODIES: Record<"fr" | "en", Record<PingKind, (name: string) => string>> = 
     on_my_way: (n) => `${n} is on the way`,
     miss_you: (n) => `${n} misses you`,
     kiss: (n) => `${n} sends you a kiss`,
+    custom: (n) => `${n} wrote you a little note`,
   },
 };
 
@@ -64,7 +70,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Trust the database, not the request body.
+    // Trust the database, not the request body. Never select `text`: the
+    // words of a written note stay out of the push.
     const { data: ping } = await supabase
       .from("couple_pings")
       .select("couple_id, sender_id, kind, sent_at")

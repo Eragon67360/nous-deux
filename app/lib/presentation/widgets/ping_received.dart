@@ -11,7 +11,8 @@ import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 /// Full-screen moment when the partner's little note arrives while the app
 /// is open, or when its notification is tapped: your two rings slide almost
-/// into one, with the note inside. Two quick replies; tap anywhere else or go
+/// into one, with the note inside (a note of one's own: its words, signed
+/// underneath). Two quick replies and a written one; tap anywhere else or go
 /// Back to close. It stays until then, so there is time to read and answer.
 class PingReceived extends StatefulWidget {
   const PingReceived({
@@ -19,14 +20,23 @@ class PingReceived extends StatefulWidget {
     required this.lang,
     required this.partnerName,
     required this.kind,
+    this.text,
     required this.onReply,
+    this.onWrite,
     required this.onDismissed,
   });
 
   final String lang;
   final String partnerName;
   final PingKind kind;
+
+  /// The words of a [PingKind.custom] note.
+  final String? text;
   final ValueChanged<PingKind> onReply;
+
+  /// "Répondre par un mot": closes the note, then [onWrite] opens the
+  /// writing sheet. Hidden when null.
+  final VoidCallback? onWrite;
   final VoidCallback onDismissed;
 
   @override
@@ -69,13 +79,25 @@ class _PingReceivedState extends State<PingReceived>
     _dismiss();
   }
 
+  Future<void> _write() async {
+    final write = widget.onWrite;
+    await _dismiss();
+    write?.call();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final lang = widget.lang;
     final reduced = AppMotion.reduced(context);
-    final title = pingReceivedTitle(lang, widget.kind, widget.partnerName);
+    final own = widget.kind == PingKind.custom;
+    final title = pingReceivedTitle(
+      lang,
+      widget.kind,
+      widget.partnerName,
+      text: widget.text,
+    );
     final titleStyle = _Rings.fitTitle(
       title,
       (theme.textTheme.headlineMedium ?? const TextStyle()).copyWith(
@@ -132,7 +154,13 @@ class _PingReceivedState extends State<PingReceived>
                                 ),
                               ),
                               below: Text(
-                                pingJustNow(lang).toUpperCase(),
+                                (own
+                                        ? pingSignature(
+                                            lang,
+                                            widget.partnerName,
+                                          )
+                                        : pingJustNow(lang))
+                                    .toUpperCase(),
                                 textAlign: TextAlign.center,
                                 style: theme.textTheme.labelSmall?.copyWith(
                                   fontSize: 11,
@@ -175,7 +203,18 @@ class _PingReceivedState extends State<PingReceived>
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.lg),
+                        if (widget.onWrite != null) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          TextButton(
+                            onPressed: _write,
+                            child: Text(pingWriteBack(lang)),
+                          ),
+                        ],
+                        SizedBox(
+                          height: widget.onWrite != null
+                              ? AppSpacing.xs
+                              : AppSpacing.lg,
+                        ),
                         TextButton(
                           onPressed: _dismiss,
                           child: Text(

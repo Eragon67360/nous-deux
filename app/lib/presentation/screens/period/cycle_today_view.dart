@@ -5,10 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_options.dart';
+import 'package:nousdeux/core/utils/code_point_limit.dart';
 import 'package:nousdeux/domain/cycle/cycle_stats.dart';
+import 'package:nousdeux/domain/cycle/own_states.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
+import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -341,6 +344,62 @@ class _TodayCheckinState extends ConsumerState<_TodayCheckin> {
   bool _moodTouched = false;
   Future<void> _saving = Future.value();
 
+  /// "+ Autre" turned into a field to write a state of one's own.
+  bool _adding = false;
+  final _newState = TextEditingController();
+
+  @override
+  void dispose() {
+    _newState.dispose();
+    super.dispose();
+  }
+
+  void _say(String message, {SnackBarAction? action}) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message), action: action));
+  }
+
+  /// Picks the state just written: a preset when it is one by name ("crampes"
+  /// is Crampes), else one's own, saved for the next days.
+  void _addOwn(Set<String> symptoms, String? mood) {
+    final text = cleanStateText(_newState.text);
+    setState(() => _adding = false);
+    _newState.clear();
+    if (text.isEmpty) return;
+    final lower = text.toLowerCase();
+    final preset = periodSymptoms
+        .where(
+          (s) =>
+              periodSymptomOptionLabel(s, widget.lang).toLowerCase() == lower,
+        )
+        .firstOrNull;
+    final own = ref.read(ownStatesProvider).valueOrNull ?? const OwnStates([]);
+    final value =
+        preset ??
+        own.items.where((s) => s.toLowerCase() == lower).firstOrNull ??
+        text;
+    if (preset == null) ref.read(ownStatesProvider.notifier).add(value);
+    if (symptoms.contains(value)) return;
+    if (symptoms.length >= checkinMaxStates) {
+      _say(cycleTooManyStates(widget.lang));
+      return;
+    }
+    _save({...symptoms, value}, mood);
+  }
+
+  void _forget(String state) {
+    HapticFeedback.mediumImpact();
+    ref.read(ownStatesProvider.notifier).remove(state);
+    _say(
+      cycleStateRemoved(widget.lang, state),
+      action: SnackBarAction(
+        label: cycleUndo(widget.lang),
+        onPressed: () => ref.read(ownStatesProvider.notifier).add(state),
+      ),
+    );
+  }
+
   void _save(Set<String> symptoms, String? mood) {
     final before = (symptoms: _symptoms, mood: _mood, touched: _moodTouched);
     setState(() {
@@ -378,6 +437,24 @@ class _TodayCheckinState extends ConsumerState<_TodayCheckin> {
     final saved = ref.watch(myTodayCheckinProvider);
     final symptoms = _symptoms ?? {...?saved?.symptoms};
     final mood = _moodTouched ? _mood : saved?.mood;
+    final ownSaved =
+        ref.watch(ownStatesProvider).valueOrNull?.items ?? const <String>[];
+    // One's own states: the saved ones, then any picked today that is no
+    // longer saved, so it can still be unpicked.
+    final own = [
+      ...ownSaved,
+      for (final s in symptoms.toList()..sort())
+        if (!periodSymptoms.contains(s) &&
+            !ownSaved.any((o) => o.toLowerCase() == s.toLowerCase()))
+          s,
+    ];
+    void toggle(String value, bool on) {
+      if (on && symptoms.length >= checkinMaxStates) {
+        _say(cycleTooManyStates(lang));
+        return;
+      }
+      _save(on ? {...symptoms, value} : ({...symptoms}..remove(value)), mood);
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -410,12 +487,36 @@ class _TodayCheckinState extends ConsumerState<_TodayCheckin> {
               FilterChip(
                 label: Text(periodSymptomOptionLabel(symptom, lang)),
                 selected: symptoms.contains(symptom),
-                onSelected: (on) => _save(
-                  on
-                      ? {...symptoms, symptom}
-                      : ({...symptoms}..remove(symptom)),
-                  mood,
+                onSelected: (on) => toggle(symptom, on),
+              ),
+            for (final state in own)
+              Semantics(
+                onLongPressHint: ownSaved.contains(state)
+                    ? cycleOwnStateHint(lang)
+                    : null,
+                child: GestureDetector(
+                  onLongPress: ownSaved.contains(state)
+                      ? () => _forget(state)
+                      : null,
+                  child: FilterChip(
+                    label: Text(state),
+                    selected: symptoms.contains(state),
+                    onSelected: (on) => toggle(state, on),
+                  ),
                 ),
+              ),
+            if (_adding)
+              _NewStateField(
+                controller: _newState,
+                lang: lang,
+                onDone: () => _addOwn(symptoms, mood),
+              )
+            else
+              ActionChip(
+                label: Text(cycleOtherState(lang)),
+                labelStyle: TextStyle(color: theme.colorScheme.primary),
+                side: BorderSide(color: theme.colorScheme.primary),
+                onPressed: () => setState(() => _adding = true),
               ),
           ],
         ),
@@ -433,6 +534,67 @@ class _TodayCheckinState extends ConsumerState<_TodayCheckin> {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// "+ Autre" once tapped: a field the size of a chip, with a tick to add.
+/// Leaving it empty and done puts the chip back.
+class _NewStateField extends StatelessWidget {
+  const _NewStateField({
+    required this.controller,
+    required this.lang,
+    required this.onDone,
+  });
+
+  final TextEditingController controller;
+  final String lang;
+  final VoidCallback onDone;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Container(
+      height: 48,
+      padding: const EdgeInsets.only(left: 14, right: 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: scheme.primary),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 170,
+            child: TextField(
+              controller: controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              textInputAction: TextInputAction.done,
+              inputFormatters: const [CodePointLimit(ownStateMaxLength)],
+              onSubmitted: (_) => onDone(),
+              onTapOutside: (_) => onDone(),
+              style: theme.textTheme.bodyLarge,
+              decoration: InputDecoration(
+                isDense: true,
+                filled: false,
+                contentPadding: EdgeInsets.zero,
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                hintText: cycleNewStateHint(lang),
+              ),
+            ),
+          ),
+          IconButton(
+            tooltip: cycleAddState(lang),
+            onPressed: onDone,
+            icon: const Icon(Icons.check, size: 20),
+            color: scheme.primary,
+          ),
+        ],
+      ),
     );
   }
 }

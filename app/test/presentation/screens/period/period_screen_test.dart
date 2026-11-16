@@ -6,6 +6,7 @@ import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/guide_chapters.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
+import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
@@ -198,6 +199,97 @@ void main() {
       );
       expect(chip.selected, isFalse);
       expect(find.text(cycleSaveFailed('fr')), findsOneWidget);
+    });
+
+    FilterChip chip(WidgetTester tester, String label) =>
+        tester.widget<FilterChip>(find.widgetWithText(FilterChip, label));
+
+    Future<void> writeState(WidgetTester tester, String text) async {
+      await tester.tap(find.text(cycleOtherState('fr')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), text);
+      await tester.tap(find.byTooltip(cycleAddState('fr')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets("« + Autre » adds a state of one's own, kept for next time", (
+      tester,
+    ) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+
+      await writeState(tester, ' Besoin de chocolat ');
+
+      expect(deps.cycle.checkinCalls.last.symptoms, ['Besoin de chocolat']);
+      expect(chip(tester, 'Besoin de chocolat').selected, isTrue);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(ownStatesKey), '["Besoin de chocolat"]');
+      // Back to a chip, ready for another one.
+      expect(find.text(cycleOtherState('fr')), findsOneWidget);
+    });
+
+    testWidgets("a preset's name picks the preset", (tester) async {
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+
+      await writeState(tester, 'crampes');
+
+      expect(deps.cycle.checkinCalls.last.symptoms, ['cramps']);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(ownStatesKey), isNull);
+    });
+
+    testWidgets('a saved state is offered; a long press forgets it', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        ownStatesKey: '["Jambes lourdes"]',
+      });
+      final deps = await pumpRegles(tester, logs: lastPeriod);
+      expect(chip(tester, 'Jambes lourdes').selected, isFalse);
+
+      await tester.longPress(find.text('Jambes lourdes'));
+      await tester.pumpAndSettle();
+      expect(find.text('Jambes lourdes'), findsNothing);
+      expect(
+        find.text(cycleStateRemoved('fr', 'Jambes lourdes')),
+        findsOneWidget,
+      );
+      expect(deps.cycle.checkinCalls, isEmpty);
+
+      await tester.tap(find.text(cycleUndo('fr')));
+      await tester.pumpAndSettle();
+      expect(find.text('Jambes lourdes'), findsOneWidget);
+    });
+
+    testWidgets('a state picked today stays, even once forgotten', (
+      tester,
+    ) async {
+      await pumpRegles(
+        tester,
+        logs: lastPeriod,
+        checkins: [
+          checkin(day: today, symptoms: ['Besoin de calme']),
+        ],
+      );
+
+      expect(chip(tester, 'Besoin de calme').selected, isTrue);
+    });
+
+    testWidgets('twelve states a day at most', (tester) async {
+      final deps = await pumpRegles(
+        tester,
+        logs: lastPeriod,
+        checkins: [
+          checkin(
+            day: today,
+            symptoms: [for (var i = 0; i < 12; i++) 'État $i'],
+          ),
+        ],
+      );
+
+      await writeState(tester, 'Encore un');
+
+      expect(find.text(cycleTooManyStates('fr')), findsOneWidget);
+      expect(deps.cycle.checkinCalls, isEmpty);
     });
 
     testWidgets('the private note is written in a sheet', (tester) async {

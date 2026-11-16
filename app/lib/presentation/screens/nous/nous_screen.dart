@@ -8,16 +8,19 @@ import 'package:nousdeux/core/constants/lists_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
-import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/domain/nous/note_words.dart';
 import 'package:nousdeux/domain/nous/nous_dates.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
+import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/screens/nous/my_words_screen.dart';
 import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/entrance.dart';
+import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// The home tab, laid out like a notebook page: how long you have been
@@ -257,16 +260,23 @@ class _PingSection extends ConsumerStatefulWidget {
 }
 
 class _PingSectionState extends ConsumerState<_PingSection> {
-  PingKind? _sending;
+  NoteWord? _sending;
 
-  Future<void> _send(PingKind kind) async {
+  Future<void> _send(NoteWord word) async {
     if (_sending != null) return;
     HapticFeedback.lightImpact();
-    setState(() => _sending = kind);
-    final result = await ref.read(pingRepositoryProvider).send(kind);
+    setState(() => _sending = word);
+    final result = await ref
+        .read(pingRepositoryProvider)
+        .send(word.kind, text: word.text);
     if (!mounted) return;
     setState(() => _sending = null);
-    final message = pingResultMessage(widget.lang, kind, result.failure);
+    final message = pingResultMessage(
+      widget.lang,
+      word.kind,
+      result.failure,
+      text: word.text,
+    );
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -278,23 +288,47 @@ class _PingSectionState extends ConsumerState<_PingSection> {
     final lang = widget.lang;
     final partnerPing = ref.watch(partnerLastPingProvider);
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
+    final name = (partnerName?.trim().isNotEmpty ?? false)
+        ? partnerName!.trim()
+        : nousPartnerFallback(lang);
+    final words =
+        (ref.watch(noteWordsProvider).valueOrNull ?? NoteWords.defaults())
+            .shown;
     ref.watch(minuteTickProvider);
     final now = ref.watch(clockProvider)();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        NotebookLabel(nousSendNote(lang)),
-        const SizedBox(height: 6),
+        Row(
+          children: [
+            Expanded(child: NotebookLabel(nousSendNote(lang))),
+            TextButton(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const MyWordsScreen()),
+              ),
+              child: Text(nousMyWords(lang)),
+            ),
+          ],
+        ),
         Wrap(
           spacing: 18,
           children: [
-            for (final kind in PingKind.values)
+            for (final word in words)
               _NoteWord(
-                label: pingLabel(lang, kind),
-                busy: _sending == kind,
-                onPressed: _sending == null ? () => _send(kind) : null,
+                label: pingLabel(lang, word.kind, text: word.text),
+                busy: _sending == word,
+                onPressed: _sending == null ? () => _send(word) : null,
               ),
+            _NoteWord(
+              label: nousWrite(lang),
+              busy: false,
+              accent: true,
+              onPressed: _sending == null
+                  ? () =>
+                        showNoteComposer(context, lang: lang, partnerName: name)
+                  : null,
+            ),
           ],
         ),
         if (partnerPing != null) ...[
@@ -314,12 +348,11 @@ class _PingSectionState extends ConsumerState<_PingSection> {
                 child: Text(
                   nousReceivedLine(
                     lang,
-                    (partnerName?.trim().isNotEmpty ?? false)
-                        ? partnerName!.trim()
-                        : nousPartnerFallback(lang),
+                    name,
                     partnerPing.kind,
                     partnerPing.sentAt,
                     now,
+                    text: partnerPing.text,
                   ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -334,17 +367,20 @@ class _PingSectionState extends ConsumerState<_PingSection> {
   }
 }
 
-/// One of the five notes, written as an underlined word you tap.
+/// A note, written as an underlined word you tap. [accent] draws it in
+/// gold, for "Écrire…".
 class _NoteWord extends StatelessWidget {
   const _NoteWord({
     required this.label,
     required this.busy,
     required this.onPressed,
+    this.accent = false,
   });
 
   final String label;
   final bool busy;
   final VoidCallback? onPressed;
+  final bool accent;
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +389,7 @@ class _NoteWord extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: scheme.onSurface,
+        foregroundColor: accent ? scheme.primary : scheme.onSurface,
         disabledForegroundColor: scheme.onSurface.withValues(alpha: 0.45),
         padding: const EdgeInsets.symmetric(vertical: 8),
         minimumSize: const Size(0, 48),
@@ -365,11 +401,16 @@ class _NoteWord extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.only(bottom: 3),
           decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: scheme.outline)),
+            border: Border(
+              bottom: BorderSide(
+                color: accent ? scheme.primary : scheme.outline,
+              ),
+            ),
           ),
           child: Text(
             label,
             style: theme.textTheme.titleLarge?.copyWith(
+              color: accent ? scheme.primary : null,
               fontSize: 20,
               fontWeight: FontWeight.w400,
               letterSpacing: -0.2,

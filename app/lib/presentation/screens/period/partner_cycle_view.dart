@@ -9,6 +9,7 @@ import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
+import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// R3: my partner's cycle, seen from my side, with what tends to help now.
@@ -122,7 +123,7 @@ class PartnerCycleView extends ConsumerWidget {
           const NotebookRule(),
           NotebookLabel(cycleLittleNote(lang)),
           const SizedBox(height: 4),
-          _LittleNotes(lang: lang),
+          _LittleNotes(lang: lang, partnerName: name),
           if (partner.shareCycle) ...[
             const NotebookRule(),
             _ReminderSwitch(lang: lang),
@@ -135,9 +136,10 @@ class PartnerCycleView extends ConsumerWidget {
 
 /// Three words that go straight to my partner, like on the Nous page.
 class _LittleNotes extends ConsumerStatefulWidget {
-  const _LittleNotes({required this.lang});
+  const _LittleNotes({required this.lang, required this.partnerName});
 
   final String lang;
+  final String partnerName;
 
   @override
   ConsumerState<_LittleNotes> createState() => _LittleNotesState();
@@ -188,6 +190,26 @@ class _LittleNotesState extends ConsumerState<_LittleNotes> {
               ),
             ),
           ),
+        TextButton(
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(44, 44),
+            foregroundColor: theme.colorScheme.primary,
+          ),
+          onPressed: _sending == null
+              ? () => showNoteComposer(
+                  context,
+                  lang: widget.lang,
+                  partnerName: widget.partnerName,
+                )
+              : null,
+          child: Text(
+            nousWrite(widget.lang),
+            style: theme.textTheme.bodyLarge?.copyWith(
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
       ],
     );
   }

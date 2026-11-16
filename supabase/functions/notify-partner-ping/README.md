@@ -2,7 +2,11 @@
 
 Sends the partner a push notification when someone sends a little note
 (`send_ping`), in the partner's app language: "Camille pense à toi",
-"Alex says good night", and so on.
+"Alex says good night", and so on. For a note the sender wrote (kind
+`custom`), the push only says there is one ("Camille t'a écrit un petit
+mot", "Alex wrote you a little note"): the words stay out of the push, so
+they never go through Google's or Apple's push servers. The app shows them
+once it reads the note.
 
 The database calls it on each `couple_pings` insert or update (migration
 `20261111100000_push_webhooks.sql`), on the server's internal network only.

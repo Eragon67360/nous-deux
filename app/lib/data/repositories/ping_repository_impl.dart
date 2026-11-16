@@ -29,9 +29,10 @@ class PingRepositoryImpl implements PingRepository {
   }
 
   @override
-  Future<PingResult> send(PingKind kind) async {
+  Future<PingResult> send(PingKind kind, {String? text}) async {
+    assert((kind == PingKind.custom) == (text != null));
     try {
-      final model = await _pings.send(kind);
+      final model = await _pings.send(kind, text: text);
       return (ping: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {
       final problem = switch (e.message) {
@@ -41,7 +42,9 @@ class PingRepositoryImpl implements PingRepository {
       };
       return (
         ping: null,
-        failure: problem != null ? PingFailure(problem) : ServerFailure(e.message),
+        failure: problem != null
+            ? PingFailure(problem)
+            : ServerFailure(e.message),
       );
     } catch (e) {
       return (ping: null, failure: UnknownFailure(e.toString()));
