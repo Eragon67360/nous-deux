@@ -12,6 +12,7 @@ import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 // --- Avatar Controller ---
@@ -125,7 +126,8 @@ final calendarPrefsProvider =
 
 /// Deletes my account, then forgets it on this phone: the reminder about my
 /// partner's period and the local Règles and calendar preferences go too, so
-/// a next account here starts clean. Null on success.
+/// a next account here starts clean, and so do the notes and states of
+/// one's own saved here. Null on success.
 Future<Failure?> deleteMyAccount(WidgetRef ref) async {
   final failure = await ref.read(authRepositoryProvider).deleteAccount();
   if (failure != null) return failure;
@@ -135,8 +137,13 @@ Future<Failure?> deleteMyAccount(WidgetRef ref) async {
     periodPartnerReminderEnabledKey,
     calendarNotificationsEnabledKey,
     guideReadChaptersKey,
+    noteWordsKey,
+    ownStatesKey,
   ]) {
     await prefs.remove(key);
   }
+  ref
+    ..invalidate(noteWordsProvider)
+    ..invalidate(ownStatesProvider);
   return null;
 }

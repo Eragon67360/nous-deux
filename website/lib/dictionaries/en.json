@@ -167,8 +167,8 @@
       "description": "What data Nous Deux collects and why, where it is stored (our own servers in Germany, in the EU), and how to use your rights."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "15 November 2026",
-    "effectiveDateISO": "2026-11-15",
+    "effectiveDate": "16 November 2026",
+    "effectiveDateISO": "2026-11-16",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -193,7 +193,7 @@
           },
           {
             "label": "Period tracking",
-            "text": "if you choose to track your cycle: the start and end dates of your periods, how you feel each day if you note it (symptoms, mood) and your notes. This is health data. Your partner sees your dates and how you feel for as long as you share them: two switches in the Period tab, on by default, that you can turn off at any time. Your notes are never shared: nobody but you can read them."
+            "text": "if you choose to track your cycle: the start and end dates of your periods, how you feel each day if you note it (symptoms, mood, and states you write yourself, such as “Craving chocolate”) and your notes. This is health data. Your partner sees your dates and how you feel for as long as you share them: two switches in the Period tab, on by default, that you can turn off at any time. The states you write are stored and shared like the others: your partner only sees them if you share “How I feel each day”. The states you keep to find again from one day to the next stay on your phone; we only receive the ones you note for a day. Your notes are never shared: nobody but you can read them."
           },
           {
             "label": "Location (optional)",
@@ -205,7 +205,7 @@
           },
           {
             "label": "Little notes",
-            "text": "the last little note each of you sent (its type and time), so your partner can see it. No history is kept."
+            "text": "the last little note each of you sent, so your partner can see it: its type and time, and its text if you wrote it yourself (40 characters at most). Each new note replaces the previous one: no history is kept. The notification for a note you wrote doesn't contain its text, so the text never goes through Google's or Apple's notification servers. The words you keep to send again later stay on your phone; we only receive the one you send."
           },
           {
             "label": "Days together",

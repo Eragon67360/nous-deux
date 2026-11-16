@@ -22,6 +22,8 @@ replaces pg_net's `net.http_post` with a recorder for this.
 
 `99_push_secret_scenario.sql` checks that pushes take the shared secret from `private.secrets`, with no setting any session can read, and that neither signed-in nor signed-out callers can read that table or the function that returns the secret. The other scenarios still set the secret per session, which the function falls back to.
 
+`91_own_words_scenario.sql` checks the words people write themselves. A little note can be a short text: the partner reads it with its text, someone outside the couple or signed out reads nothing; a text over 40 characters, empty, only spaces or with a line break is refused, the spaces around it are trimmed, and a preset note sent with a text keeps none. Older builds' `send_ping('kiss')` still works, by position and by name as PostgREST calls it; the 30 seconds between notes count whatever the kind; clients still can't write `couple_pings` themselves, and the table holds the same rules for anyone who does. A check-in can hold states written by hand next to the preset ones: it saves, and the partner reads it while it is shared, not after; a state over 30 characters, more than 12 states or a line break is refused.
+
 The `apple-tokens` function has its own tests, with Apple faked; the command
 is at the top of `supabase/functions/apple-tokens/handler_test.ts`.
 

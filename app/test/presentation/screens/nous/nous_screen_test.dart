@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/core/constants/lists_strings.dart';
@@ -6,7 +8,10 @@ import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
+import 'package:nousdeux/presentation/screens/nous/my_words_screen.dart';
 import 'package:nousdeux/presentation/screens/nous/nous_screen.dart';
+import 'package:nousdeux/presentation/widgets/note_composer.dart';
 
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
@@ -140,7 +145,7 @@ void main() {
       final deps = _paired();
       await _pump(tester, deps);
 
-      for (final kind in PingKind.values) {
+      for (final kind in PingKind.presets) {
         expect(find.text(pingLabel('fr', kind)), findsOneWidget);
       }
       await tester.tap(find.text(pingLabel('fr', PingKind.goodNight)));
@@ -177,6 +182,133 @@ void main() {
       );
 
       expect(find.text('Alex : Je pense à toi, il y a 12 min'), findsOneWidget);
+    });
+  });
+
+  group("notes of one's own", () {
+    setUp(() => SharedPreferences.setMockInitialValues({}));
+
+    Future<void> write(WidgetTester tester, String text) async {
+      await tester.tap(find.text(nousWrite('fr')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), text);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('"Écrire…" sends them and keeps them on Nous', (tester) async {
+      final deps = _paired();
+      await _pump(tester, deps);
+
+      await write(tester, '  Bonne journée ');
+      expect(
+        find.text(nousWriteTo('fr', 'Alex').toUpperCase()),
+        findsOneWidget,
+      );
+      expect(find.text('13 / 40'), findsOneWidget);
+      await tester.tap(find.text(nousSend('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.pings.sent, [PingKind.custom]);
+      expect(deps.pings.sentTexts, ['Bonne journée']);
+      expect(find.byType(NoteComposer), findsNothing);
+      expect(
+        find.text(nousNoteSent('fr', PingKind.custom, text: 'Bonne journée')),
+        findsOneWidget,
+      );
+      // Kept: now a word on Nous, sent again with one tap.
+      await tester.tap(find.widgetWithText(TextButton, 'Bonne journée'));
+      await tester.pumpAndSettle();
+      expect(deps.pings.sentTexts, ['Bonne journée', 'Bonne journée']);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString(noteWordsKey), contains('Bonne journée'));
+    });
+
+    testWidgets('"Le garder" off sends without keeping', (tester) async {
+      final deps = _paired();
+      await _pump(tester, deps);
+
+      await write(tester, 'Courage');
+      await tester.tap(find.text(nousKeepWord('fr')));
+      await tester.tap(find.text(nousSend('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.pings.sentTexts, ['Courage']);
+      expect(find.widgetWithText(TextButton, 'Courage'), findsNothing);
+    });
+
+    testWidgets('a refusal stays on the sheet with the reason', (tester) async {
+      final deps = _paired()
+        ..pings.nextFailure = const PingFailure(PingProblem.cooldown);
+      await _pump(tester, deps);
+
+      await write(tester, 'Courage');
+      await tester.tap(find.text(nousSend('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(NoteComposer), findsOneWidget);
+      expect(find.text(nousNoteCooldown('fr')), findsOneWidget);
+    });
+
+    testWidgets('nothing to send until something is written', (tester) async {
+      final deps = _paired();
+      await _pump(tester, deps);
+
+      await write(tester, '   ');
+      await tester.tap(find.text(nousSend('fr')));
+      await tester.pumpAndSettle();
+
+      expect(deps.pings.sent, isEmpty);
+    });
+
+    testWidgets('the chosen words show, in their order', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        noteWordsKey:
+            '[{"k":"kiss","on":true},{"t":"Courage","on":true},'
+            '{"k":"thinking_of_you","on":false}]',
+      });
+      final deps = _paired();
+      await _pump(tester, deps);
+
+      expect(find.text(pingLabel('fr', PingKind.thinkingOfYou)), findsNothing);
+      final kiss = tester.getTopLeft(find.text(pingLabel('fr', PingKind.kiss)));
+      final courage = tester.getTopLeft(find.text('Courage'));
+      expect(kiss.dx, lessThan(courage.dx));
+
+      await tester.tap(find.text('Courage'));
+      await tester.pumpAndSettle();
+      expect(deps.pings.sent, [PingKind.custom]);
+      expect(deps.pings.sentTexts, ['Courage']);
+    });
+
+    testWidgets("the partner's written note shows in the line", (tester) async {
+      await _pump(
+        tester,
+        _paired(
+          pings: [
+            PingEntity(
+              coupleId: coupleId,
+              senderId: partnerId,
+              kind: PingKind.custom,
+              text: 'Bonne journée',
+              sentAt: _now.subtract(const Duration(minutes: 12)),
+            ),
+          ],
+        ),
+      );
+
+      expect(
+        find.text('Alex\u00a0: Bonne journée, il y a 12 min'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('"Mes mots" opens the list', (tester) async {
+      await _pump(tester, _paired());
+
+      await tester.tap(find.text(nousMyWords('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(MyWordsScreen), findsOneWidget);
     });
   });
 
