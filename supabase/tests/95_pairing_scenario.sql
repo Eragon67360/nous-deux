@@ -1,7 +1,7 @@
 \set ON_ERROR_STOP 1
--- Pairing through create_couple() / join_couple() (migration 20261115300000).
--- Ann invites, Ben joins. Sam is a stranger who guesses codes. Kim and Lou
--- are an existing couple. Tom tries the old direct-write path.
+-- Pairing through create_couple() / join_couple() (migrations 20261115300000
+-- and 20261116500000). Ann invites, Ben joins. Sam is a stranger who guesses
+-- codes. Kim and Lou are an existing couple. Tom tries direct writes.
 INSERT INTO auth.users (id) VALUES
  ('00000000-0000-0000-0000-0000000095a1'),('00000000-0000-0000-0000-0000000095b1'),
  ('00000000-0000-0000-0000-0000000095c1'),('00000000-0000-0000-0000-0000000095d1'),
@@ -66,12 +66,13 @@ DO $$ BEGIN ASSERT public.join_couple(current_setting('nd.ann_code')) = 'code_us
 -- Kim, already paired, can't join Uma's invite.
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095f2';
 DO $$ BEGIN PERFORM public.create_couple(); END $$;
-SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095d1';
-DO $$ BEGIN ASSERT public.join_couple((SELECT pairing_code FROM public.couples WHERE user1_id = '00000000-0000-0000-0000-0000000095f2')) = 'already_paired'; RAISE NOTICE 'paired person can''t join a second couple'; END $$;
+RESET ROLE;
+DO $$ BEGIN PERFORM set_config('nd.uma_code', (SELECT pairing_code FROM public.couples WHERE user1_id = '00000000-0000-0000-0000-0000000095f2'), false); END $$;
+SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095d1';
+DO $$ BEGIN ASSERT public.join_couple(current_setting('nd.uma_code')) = 'already_paired'; RAISE NOTICE 'paired person can''t join a second couple'; END $$;
 RESET ROLE;
 
 -- Sam guesses: 5 wrong codes, then even Uma's real code is refused for 10 minutes.
-DO $$ BEGIN PERFORM set_config('nd.uma_code', (SELECT pairing_code FROM public.couples WHERE user1_id = '00000000-0000-0000-0000-0000000095f2'), false); END $$;
 SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095c1';
 DO $$ BEGIN
   FOR i IN 1..4 LOOP ASSERT public.join_couple('WRONG' || i) = 'invalid_code'; END LOOP;
@@ -88,25 +89,36 @@ DO $$ BEGIN ASSERT public.join_couple(current_setting('nd.uma_code')) = 'joined'
 RESET ROLE;
 SELECT 'old attempts deleted: ' || (count(*) = 0) FROM private.pairing_failures WHERE user_id = '00000000-0000-0000-0000-0000000095c1';
 
--- The old direct path (app 0.3.5) can't join several couples in one request.
+-- Waiting couples are invisible to everyone else, and direct writes can't
+-- create or join one (migration 20261116500000).
 INSERT INTO public.couples (id, user1_id, pairing_code) VALUES
  ('95000000-0000-0000-0000-0000000000f3','00000000-0000-0000-0000-0000000095f3','VIC234');
 INSERT INTO auth.users (id) VALUES ('00000000-0000-0000-0000-0000000095f4');
 INSERT INTO public.profiles (id, username) VALUES ('00000000-0000-0000-0000-0000000095f4','Wes');
 INSERT INTO public.couples (id, user1_id, pairing_code) VALUES
  ('95000000-0000-0000-0000-0000000000f4','00000000-0000-0000-0000-0000000095f4','WES234');
-SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095f1';
-DO $$ BEGIN
-  UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-0000000095f1' WHERE pairing_code IN ('VIC234','WES234');
-  RAISE EXCEPTION 'expected refusal';
-EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'joining two couples in one request refused: %', SQLERRM;
+SET ROLE anon; RESET request.jwt.claim.sub;
+DO $$ BEGIN PERFORM count(*) FROM public.couples; RAISE EXCEPTION 'expected refusal';
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'signed out, couples can''t be read';
 END $$;
--- One at a time still works for 0.3.5, and a second one is refused.
-UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-0000000095f1' WHERE pairing_code = 'VIC234';
+RESET ROLE;
+SET ROLE authenticated; SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000095f1';
+DO $$ DECLARE n int; BEGIN
+  ASSERT (SELECT count(*) FROM public.couples WHERE pairing_code IN ('VIC234','WES234')) = 0;
+  UPDATE public.couples SET user2_id = auth.uid() WHERE pairing_code IN ('VIC234','WES234');
+  GET DIAGNOSTICS n = ROW_COUNT;
+  ASSERT n = 0, n::text;
+  RAISE NOTICE 'Tom sees no waiting couple and can''t join one directly';
+END $$;
 DO $$ BEGIN
-  UPDATE public.couples SET user2_id = '00000000-0000-0000-0000-0000000095f1' WHERE pairing_code = 'WES234';
+  INSERT INTO public.couples (user1_id, pairing_code) VALUES (auth.uid(), 'TOM234');
   RAISE EXCEPTION 'expected refusal';
-EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'direct join of a second couple refused: %', SQLERRM;
+EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'direct insert refused';
+END $$;
+DO $$ BEGIN
+  ASSERT public.join_couple('VIC234') = 'joined';
+  ASSERT public.join_couple('WES234') = 'already_paired';
+  RAISE NOTICE 'Tom joins Vic with the code, then can''t join Wes';
 END $$;
 RESET ROLE;
 SELECT 'Tom''s couples: ' || count(*) FROM public.couples WHERE user2_id = '00000000-0000-0000-0000-0000000095f1';

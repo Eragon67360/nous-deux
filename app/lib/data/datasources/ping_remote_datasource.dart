@@ -23,7 +23,7 @@ class PingRemoteDatasource {
   Stream<List<PingModel>> watch(String coupleId) {
     return _client
         .from(_table)
-        .stream(primaryKey: ['couple_id', 'sender_id'])
+        .stream(primaryKey: ['id'])
         .eq('couple_id', coupleId)
         .map(
           (rows) => rows

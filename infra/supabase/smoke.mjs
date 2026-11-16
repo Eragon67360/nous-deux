@@ -31,7 +31,9 @@ const client = () =>
   const res = await fetch(`${url}/auth/v1/health`, { headers: { apikey: anonKey } })
   check(res.ok, 'auth is up', `HTTP ${res.status}`)
   const { data, error } = await client().from('profiles').select('id')
-  check(!error && data.length === 0, 'signed out, profiles are hidden', error?.message)
+  check(error?.code === '42501' || (!error && data.length === 0), 'signed out, profiles are hidden', error?.message)
+  const listed = await client().storage.from('avatars').list()
+  check(!listed.error && listed.data.length === 0, 'signed out, avatar folders are hidden', listed.error?.message)
   const fn = await fetch(`${url}/functions/v1/notify-partner-ping`, { method: 'POST' })
   const body = await fn.text()
   check(fn.status !== 200 && !body.includes('forbidden'), 'push functions are not public', `HTTP ${fn.status}`)
@@ -57,15 +59,11 @@ for (const [p, name] of [[a, 'Smoke A'], [b, 'Smoke B']]) {
 }
 await a.sb.rpc('leave_couple') // in case an earlier run stopped half-way
 await b.sb.rpc('leave_couple')
-const code = 'SMK' + Math.floor(Math.random() * 1000).toString().padStart(3, '0')
-const created = await a.sb.from('couples').insert({ user1_id: a.id, pairing_code: code }).select().single()
-check(!created.error, 'A creates a couple', created.error?.message)
+const created = await a.sb.rpc('create_couple')
+check(!created.error && /^[A-Z2-9]{6}$/.test(created.data?.pairing_code ?? ''), 'A creates an invite', created.error?.message)
 const today = new Date().toISOString().slice(0, 10)
-const joined = await b.sb
-  .from('couples')
-  .update({ user2_id: b.id, together_since: today })
-  .eq('id', created.data?.id)
-check(!joined.error, 'B joins with the code', joined.error?.message)
+const joined = await b.sb.rpc('join_couple', { p_code: created.data?.pairing_code, p_day: today })
+check(!joined.error && joined.data === 'joined', 'B joins with the code', joined.error?.message ?? joined.data)
 const { data: linked } = await a.sb.from('profiles').select('partner_id').eq('id', a.id).single()
 check(linked?.partner_id === b.id, 'profiles linked')
 const coupleId = created.data?.id

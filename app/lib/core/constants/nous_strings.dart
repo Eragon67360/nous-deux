@@ -51,10 +51,12 @@ String pingResultMessage(String lang, PingKind kind, Failure? failure) =>
       _ => nousNoteFailed(lang),
     };
 
-/// "Camille, il y a 12 min" / "Camille, 12 min ago".
+/// "Camille : Je pense à toi, il y a 12 min" /
+/// "Camille: Thinking of you, 12 min ago".
 String nousReceivedLine(
   String lang,
   String name,
+  PingKind kind,
   DateTime sentAt,
   DateTime now,
 ) {
@@ -73,7 +75,9 @@ String nousReceivedLine(
         ? 'le ${DateFormat('d MMM', 'fr_FR').format(sentAt.toLocal())}'
         : 'on ${DateFormat('MMM d', 'en_US').format(sentAt.toLocal())}';
   }
-  return '$name, $when';
+  // French puts a (non-breaking) space before the colon.
+  final note = pingLabel(lang, kind);
+  return lang == 'fr' ? '$name : $note, $when' : '$name: $note, $when';
 }
 
 /// The full-screen moment and the push body when a note arrives.

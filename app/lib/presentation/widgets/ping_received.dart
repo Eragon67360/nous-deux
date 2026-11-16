@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -11,10 +10,9 @@ import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 /// Full-screen moment when the partner's little note arrives while the app
-/// is open: your two rings slide almost into one, with the note inside. Two
-/// quick replies; tap anywhere else or go Back to close. Leaves on its own
-/// after a few seconds, except with a screen reader on, where it waits to be
-/// closed.
+/// is open, or when its notification is tapped: your two rings slide almost
+/// into one, with the note inside. Two quick replies; tap anywhere else or go
+/// Back to close. It stays until then, so there is time to read and answer.
 class PingReceived extends StatefulWidget {
   const PingReceived({
     super.key,
@@ -37,8 +35,6 @@ class PingReceived extends StatefulWidget {
 
 class _PingReceivedState extends State<PingReceived>
     with SingleTickerProviderStateMixin {
-  static const _stay = Duration(seconds: 6);
-
   late final AnimationController _fade = AnimationController(
     vsync: this,
     duration: AppMotion.slow,
@@ -47,7 +43,6 @@ class _PingReceivedState extends State<PingReceived>
     parent: _fade,
     curve: AppMotion.enter,
   );
-  Timer? _timer;
   bool _leaving = false;
 
   @override
@@ -57,20 +52,7 @@ class _PingReceivedState extends State<PingReceived>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final screenReader = MediaQuery.accessibleNavigationOf(context);
-    if (screenReader) {
-      _timer?.cancel();
-      _timer = null;
-    } else if (_timer == null && !_leaving) {
-      _timer = Timer(_stay, _dismiss);
-    }
-  }
-
-  @override
   void dispose() {
-    _timer?.cancel();
     _fade.dispose();
     super.dispose();
   }
@@ -78,7 +60,6 @@ class _PingReceivedState extends State<PingReceived>
   Future<void> _dismiss() async {
     if (_leaving) return;
     _leaving = true;
-    _timer?.cancel();
     await _fade.reverse();
     if (mounted) widget.onDismissed();
   }

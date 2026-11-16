@@ -1,3 +1,5 @@
+import 'package:nousdeux/core/config/app_config.dart';
+import 'package:nousdeux/core/utils/avatar_url.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 
 class ProfileModel {
@@ -38,7 +40,10 @@ class ProfileModel {
       gender: json['gender'] as String? ?? 'woman',
       partnerId: json['partner_id'] as String?,
       language: json['language'] as String? ?? 'fr',
-      avatarUrl: json['avatar_url'] as String?,
+      avatarUrl: trustedAvatarUrl(
+        json['avatar_url'] as String?,
+        apiUrl: AppConfig.supabaseUrl,
+      ),
       fcmToken: json['fcm_token'] as String?,
       onboardingCompletedAt: json['onboarding_completed_at'] != null
           ? DateTime.parse(json['onboarding_completed_at'] as String)

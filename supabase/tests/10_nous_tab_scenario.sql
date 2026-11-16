@@ -19,12 +19,10 @@ DO $$ BEGIN
   RAISE EXCEPTION 'expected refusal';
 EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'forced pairing refused: %', SQLERRM;
 END $$;
--- B joins by code the way the app does (join policy, sets themself and
--- their local day, here already tomorrow in UTC terms).
+-- B joins by code the way the app does (join_couple, with their local day,
+-- here already tomorrow in UTC terms).
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000000b';
-UPDATE public.couples
-SET user2_id = '00000000-0000-0000-0000-00000000000b', together_since = CURRENT_DATE + 1
-WHERE pairing_code = 'ABC123';
+SELECT 'B joins: ' || public.join_couple('ABC123', CURRENT_DATE + 1);
 RESET ROLE;
 SELECT 'B joined: ' || (user2_id = '00000000-0000-0000-0000-00000000000b') FROM public.couples;
 SELECT 'together_since = joiner''s local day: ' || (together_since = CURRENT_DATE + 1) FROM public.couples;

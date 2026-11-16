@@ -58,10 +58,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(router.state.uri.path, '/main/period');
     expect(find.text('stub:/main/period'), findsOneWidget);
-    expect(
-      tester.widget<TextTabBar>(find.byType(TextTabBar)).selectedIndex,
-      2,
-    );
+    expect(tester.widget<TextTabBar>(find.byType(TextTabBar)).selectedIndex, 2);
 
     await tester.tap(find.text(mainNavCalendar('fr')));
     await tester.pumpAndSettle();
@@ -92,9 +89,7 @@ void main() {
       expect(find.text(mainNoPartnerBubble('fr')), findsNothing);
     });
 
-    testWidgets('stays off Position, which has its own invite', (
-      tester,
-    ) async {
+    testWidgets('stays off Position, which has its own invite', (tester) async {
       await _pumpShell(tester, TestDeps());
       await tester.tap(find.text(mainNavPosition('fr')));
       await tester.pumpAndSettle();
@@ -198,7 +193,12 @@ void main() {
 
   group('little note from the partner', () {
     PingEntity note(DateTime at, [PingKind kind = PingKind.thinkingOfYou]) =>
-        PingEntity(coupleId: coupleId, senderId: partnerId, kind: kind, sentAt: at);
+        PingEntity(
+          coupleId: coupleId,
+          senderId: partnerId,
+          kind: kind,
+          sentAt: at,
+        );
 
     TestDeps paired({List<PingEntity>? pings}) => TestDeps(
       myProfile: profile(partner: partnerId),
@@ -207,10 +207,16 @@ void main() {
       pings: pings,
     );
 
-    testWidgets('a new note arriving while open shows the moment', (tester) async {
+    testWidgets('a new note arriving while open shows the moment', (
+      tester,
+    ) async {
       final deps = paired(pings: [note(DateTime(2026, 11, 10, 9))]);
       await _pumpShell(tester, deps);
-      expect(find.byType(PingReceived), findsNothing, reason: 'old note on start');
+      expect(
+        find.byType(PingReceived),
+        findsNothing,
+        reason: 'old note on start',
+      );
 
       deps.pings.emit([note(DateTime(2026, 11, 10, 18), PingKind.goodNight)]);
       await tester.pumpAndSettle();
@@ -221,7 +227,9 @@ void main() {
       );
     });
 
-    testWidgets('"Me too" replies with "thinking of you" and closes', (tester) async {
+    testWidgets('"Me too" replies with "thinking of you" and closes', (
+      tester,
+    ) async {
       final deps = paired();
       await _pumpShell(tester, deps);
       deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
@@ -288,7 +296,9 @@ void main() {
     ) async {
       tester.platformDispatcher.accessibilityFeaturesTestValue =
           const FakeAccessibilityFeatures(accessibleNavigation: true);
-      addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
       final deps = paired();
       await _pumpShell(tester, deps);
       deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
@@ -302,7 +312,7 @@ void main() {
       expect(find.byType(PingReceived), findsNothing);
     });
 
-    testWidgets('otherwise it leaves on its own after a few seconds', (
+    testWidgets('it stays until closed, so there is time to reply', (
       tester,
     ) async {
       final deps = paired();
@@ -310,7 +320,67 @@ void main() {
       deps.pings.emit([note(DateTime(2026, 11, 10, 18))]);
       await tester.pumpAndSettle();
 
-      await tester.pump(const Duration(seconds: 7));
+      await tester.pump(const Duration(minutes: 2));
+      await tester.pumpAndSettle();
+      expect(find.byType(PingReceived), findsOneWidget);
+
+      await tester.tap(find.text(pingReplyMeToo('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.pings.sent, [PingKind.thinkingOfYou]);
+      expect(find.byType(PingReceived), findsNothing);
+    });
+  });
+
+  group('tapping a little note\'s notification', () {
+    PingEntity note(DateTime at, [PingKind kind = PingKind.thinkingOfYou]) =>
+        PingEntity(
+          coupleId: coupleId,
+          senderId: partnerId,
+          kind: kind,
+          sentAt: at,
+        );
+
+    TestDeps paired({List<PingEntity>? pings}) => TestDeps(
+      myProfile: profile(partner: partnerId),
+      partner: partnerProfile(),
+      couple: couple(pairingCode: null),
+      pings: pings,
+    );
+
+    testWidgets('opens Nous with the note and its replies', (tester) async {
+      final evening = DateTime(2026, 11, 10, 18);
+      // The note is already known: the app was in the background.
+      final deps = paired(pings: [note(evening, PingKind.missYou)]);
+      final router = await _pumpShell(tester, deps);
+      router.go(AppRoutes.tabs[2]);
+      await tester.pumpAndSettle();
+
+      deps.openedNotes.add((kind: PingKind.missYou, sentAt: evening));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, AppRoutes.tabs[0]);
+      expect(
+        find.text(pingReceivedTitle('fr', PingKind.missYou, 'Alex')),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(pingReplyMeToo('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.pings.sent, [PingKind.thinkingOfYou]);
+    });
+
+    testWidgets('the same note arriving afterwards does not show again', (
+      tester,
+    ) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      final evening = DateTime(2026, 11, 10, 18);
+
+      deps.openedNotes.add((kind: PingKind.kiss, sentAt: evening));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(pingTapToClose('fr')));
+      await tester.pumpAndSettle();
+
+      deps.pings.emit([note(evening, PingKind.kiss)]);
       await tester.pumpAndSettle();
       expect(find.byType(PingReceived), findsNothing);
     });
