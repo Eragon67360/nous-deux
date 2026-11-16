@@ -31,9 +31,10 @@ Future<void> _pump(
   required String lang,
   required PingKind kind,
   required String name,
+  // An iPhone 16 Plus by default.
+  Size size = const Size(430, 932),
 }) async {
-  // An iPhone 16 Plus: 430 × 932 points.
-  tester.view.physicalSize = const Size(1290, 2796);
+  tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -122,6 +123,49 @@ void main() {
         });
       }
     }
+  }
+
+  for (final width in [360.0, 320.0]) {
+    testWidgets('on a phone ${width.toInt()} points wide, the rings, the dot '
+        'and the note share one centre and fit on screen', (tester) async {
+      await _pump(
+        tester,
+        lang: 'fr',
+        kind: PingKind.kiss,
+        name: 'Evah',
+        size: Size(width, 780),
+      );
+      final title = pingReceivedTitle('fr', PingKind.kiss, 'Evah');
+      final centres = _ringCentres(tester);
+      final ringsMid = (centres[0].dx + centres[1].dx) / 2;
+      final dot = tester.getRect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.constraints == BoxConstraints.tight(const Size(18, 18)),
+        ),
+      );
+      expect(ringsMid, moreOrLessEquals(width / 2, epsilon: 0.5));
+      expect(dot.center.dx, moreOrLessEquals(width / 2, epsilon: 0.5));
+      expect(
+        tester.getCenter(find.text(title)).dx,
+        moreOrLessEquals(width / 2, epsilon: 0.5),
+      );
+      // Both rings drawn whole: the frame holding them is on screen.
+      for (final e
+          in find
+              .byWidgetPredicate(
+                (w) =>
+                    w is Container &&
+                    w.constraints == BoxConstraints.tight(const Size(260, 260)),
+              )
+              .evaluate()) {
+        final ring = tester.getRect(find.byWidget(e.widget));
+        expect(ring.left, greaterThanOrEqualTo(0));
+        expect(ring.right, lessThanOrEqualTo(width));
+      }
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('a short title keeps the full 26-point size', (tester) async {

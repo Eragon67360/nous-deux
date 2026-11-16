@@ -11,6 +11,7 @@ import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.dart';
+import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
@@ -31,8 +32,37 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
 
   bool get _isCurrentMonth => _month == _monthOf(DateTime.now());
 
+  /// Which way the last page turn went: 1 to a later month, -1 to an
+  /// earlier one. The new month slides in from that side.
+  int _turn = 1;
+
+  /// How far the finger has moved sideways in the current drag.
+  double _dragged = 0;
+
+  void _showMonth(DateTime month) {
+    if (month == _month) return;
+    setState(() {
+      _turn = month.isAfter(_month) ? 1 : -1;
+      _month = month;
+    });
+  }
+
   void _shiftMonth(int delta) =>
-      setState(() => _month = DateTime(_month.year, _month.month + delta));
+      _showMonth(DateTime(_month.year, _month.month + delta));
+
+  /// A quick swipe, or a slow drag across about a quarter of the screen,
+  /// turns the page: to the left for the next month, to the right for the
+  /// one before. Anything shorter leaves the month alone.
+  void _onSwipeEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    final dragged = _dragged;
+    _dragged = 0;
+    if (velocity.abs() >= 300) {
+      _shiftMonth(velocity < 0 ? 1 : -1);
+    } else if (dragged.abs() >= 96) {
+      _shiftMonth(dragged < 0 ? 1 : -1);
+    }
+  }
 
   /// The viewed month's events, grouped by the day they start, in order.
   static List<(DateTime, List<CalendarEventEntity>)> _diary(
@@ -80,57 +110,94 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
               month: _month,
               onPrevious: () => _shiftMonth(-1),
               onNext: () => _shiftMonth(1),
-              onToday: () => setState(() => _month = _monthOf(DateTime.now())),
+              onToday: () => _showMonth(_monthOf(DateTime.now())),
               onImport: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const CalendarImportScreen()),
               ),
               onAdd: () => _openEventForm(context),
             ),
             Expanded(
-              child: eventsAsync.when(
-                data: (allEvents) {
-                  final days = _diary(allEvents, _month);
-                  if (days.isEmpty) {
-                    return EmptyState(
-                      icon: Icons.event_note_outlined,
-                      message: calendarNothingInMonth(
-                        lang,
-                        DateFormat.MMMM(_locale(lang)).format(_month),
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragUpdate: (d) => _dragged += d.primaryDelta ?? 0,
+                onHorizontalDragEnd: _onSwipeEnd,
+                onHorizontalDragCancel: () => _dragged = 0,
+                child: AnimatedSwitcher(
+                  duration: AppMotion.reduced(context)
+                      ? Duration.zero
+                      : AppMotion.medium,
+                  switchInCurve: AppMotion.enter,
+                  switchOutCurve: AppMotion.exit,
+                  layoutBuilder: (current, previous) => Stack(
+                    fit: StackFit.expand,
+                    children: [...previous, ?current],
+                  ),
+                  // The new month comes in a little from the side it was
+                  // swiped from; the old one leaves the other way.
+                  transitionBuilder: (child, animation) {
+                    final incoming = child.key == ValueKey(_month);
+                    final from = Offset((incoming ? 0.06 : -0.06) * _turn, 0);
+                    return FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween(
+                          begin: from,
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
                       ),
-                      actionLabel: calendarCreateEvent(lang),
-                      onAction: () => _openEventForm(context),
                     );
-                  }
-                  final today = dayOf(DateTime.now());
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(
-                      28,
-                      0,
-                      28,
-                      AppSpacing.lg,
+                  },
+                  child: KeyedSubtree(
+                    key: ValueKey(_month),
+                    child: eventsAsync.when(
+                      data: (allEvents) {
+                        final days = _diary(allEvents, _month);
+                        if (days.isEmpty) {
+                          return EmptyState(
+                            icon: Icons.event_note_outlined,
+                            message: calendarNothingInMonth(
+                              lang,
+                              DateFormat.MMMM(_locale(lang)).format(_month),
+                            ),
+                            actionLabel: calendarCreateEvent(lang),
+                            onAction: () => _openEventForm(context),
+                          );
+                        }
+                        final today = dayOf(DateTime.now());
+                        return ListView(
+                          padding: const EdgeInsets.fromLTRB(
+                            28,
+                            0,
+                            28,
+                            AppSpacing.lg,
+                          ),
+                          children: [
+                            for (final (i, (day, events)) in days.indexed)
+                              _DiaryDay(
+                                lang: lang,
+                                day: day,
+                                today: today,
+                                events: events,
+                                last: i == days.length - 1,
+                                currentUserId: currentUserId,
+                                partnerName: partnerName,
+                                onOpen: (event) =>
+                                    _openEventForm(context, event: event),
+                                onDelete: (event) =>
+                                    _confirmDelete(context, event),
+                              ),
+                            const SizedBox(height: AppSpacing.sm),
+                            _Legend(lang: lang, partnerName: partnerName),
+                          ],
+                        );
+                      },
+                      loading: () => const LoadingContent(),
+                      error: (e, _) =>
+                          Center(child: Text(e.toString(), softWrap: true)),
                     ),
-                    children: [
-                      for (final (i, (day, events)) in days.indexed)
-                        _DiaryDay(
-                          lang: lang,
-                          day: day,
-                          today: today,
-                          events: events,
-                          last: i == days.length - 1,
-                          currentUserId: currentUserId,
-                          partnerName: partnerName,
-                          onOpen: (event) =>
-                              _openEventForm(context, event: event),
-                          onDelete: (event) => _confirmDelete(context, event),
-                        ),
-                      const SizedBox(height: AppSpacing.sm),
-                      _Legend(lang: lang, partnerName: partnerName),
-                    ],
-                  );
-                },
-                loading: () => const LoadingContent(),
-                error: (e, _) =>
-                    Center(child: Text(e.toString(), softWrap: true)),
+                  ),
+                ),
               ),
             ),
           ],
