@@ -31,13 +31,14 @@ EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'signed-out write to cou
 END $$;
 RESET ROLE;
 
--- Signed in, the 0.3.5 path still works: Ada sees her invite, Bob his couple,
--- and Dee finds Ada's waiting couple by its code.
+-- Signed in: Ada sees her invite and Bob his couple. Since migration
+-- 20261116500000, Dee no longer finds Ada's waiting couple by its code:
+-- join_couple() is the only way in.
 SET ROLE authenticated;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000096a1';
 DO $$ BEGIN ASSERT (SELECT pairing_code FROM public.couples WHERE user1_id = auth.uid()) = 'ADA234'; RAISE NOTICE 'Ada still reads her invite'; END $$;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000096b1';
 DO $$ BEGIN ASSERT (SELECT count(*) FROM public.couples WHERE id = '96000000-0000-0000-0000-0000000000b1') = 1; RAISE NOTICE 'Bob still reads his couple'; END $$;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000096d1';
-DO $$ BEGIN ASSERT (SELECT count(*) FROM public.couples WHERE pairing_code = 'ADA234') = 1; RAISE NOTICE 'signed-in lookup by code still works for 0.3.5'; END $$;
+DO $$ BEGIN ASSERT (SELECT count(*) FROM public.couples WHERE pairing_code = 'ADA234') = 0; RAISE NOTICE 'signed-in lookup by code refused'; END $$;
 RESET ROLE;
