@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -46,7 +47,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _loading = false);
     if (result.failure != null) {
       setState(
-        () => _error = result.failure!.message ?? onboardingErrorGeneric(_language),
+        () => _error =
+            result.failure!.message ?? onboardingErrorGeneric(_language),
       );
       return;
     }
@@ -92,6 +94,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     TextField(
                       controller: _displayNameController,
                       autofocus: true,
+                      maxLength: AppConstants.usernameMaxLength,
                       autofillHints: const [AutofillHints.givenName],
                       textCapitalization: TextCapitalization.words,
                       textInputAction: TextInputAction.done,
