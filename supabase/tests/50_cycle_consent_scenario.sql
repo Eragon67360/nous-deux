@@ -24,7 +24,11 @@ SELECT pg_temp.expect('tracking on records the time',
 CREATE TEMP TABLE first_consent AS
   SELECT cycle_consent_at AS at FROM public.profiles WHERE id = auth.uid();
 
-UPDATE public.profiles SET cycle_consent_at = '2020-01-01' WHERE id = auth.uid();
+DO $$ BEGIN
+  UPDATE public.profiles SET cycle_consent_at = '2020-01-01' WHERE id = auth.uid();
+  RAISE EXCEPTION 'expected refusal';
+EXCEPTION WHEN insufficient_privilege THEN NULL;
+END $$;
 SELECT pg_temp.expect('the client cannot change the time',
   (SELECT p.cycle_consent_at = f.at FROM public.profiles p, first_consent f WHERE p.id = auth.uid()));
 

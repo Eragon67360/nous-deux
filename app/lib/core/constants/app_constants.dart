@@ -45,5 +45,8 @@ abstract class AppConstants {
 
   // Validation
   static const int eventTitleMaxLength = 200;
+
+  /// The database refuses longer display names (profiles_username_length).
+  static const int usernameMaxLength = 50;
   static const int eventDescriptionMaxLength = 2000;
 }

@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP 1
 -- Pairing through create_couple() / join_couple() (migrations 20261115300000
--- and 20261116100000). Ann invites, Ben joins. Sam is a stranger who guesses
+-- and 20261116500000). Ann invites, Ben joins. Sam is a stranger who guesses
 -- codes. Kim and Lou are an existing couple. Tom tries direct writes.
 INSERT INTO auth.users (id) VALUES
  ('00000000-0000-0000-0000-0000000095a1'),('00000000-0000-0000-0000-0000000095b1'),
@@ -90,7 +90,7 @@ RESET ROLE;
 SELECT 'old attempts deleted: ' || (count(*) = 0) FROM private.pairing_failures WHERE user_id = '00000000-0000-0000-0000-0000000095c1';
 
 -- Waiting couples are invisible to everyone else, and direct writes can't
--- create or join one (migration 20261116100000).
+-- create or join one (migration 20261116500000).
 INSERT INTO public.couples (id, user1_id, pairing_code) VALUES
  ('95000000-0000-0000-0000-0000000000f3','00000000-0000-0000-0000-0000000095f3','VIC234');
 INSERT INTO auth.users (id) VALUES ('00000000-0000-0000-0000-0000000095f4');

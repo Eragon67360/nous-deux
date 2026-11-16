@@ -32,7 +32,7 @@ END $$;
 RESET ROLE;
 
 -- Signed in: Ada sees her invite and Bob his couple. Since migration
--- 20261116100000, Dee no longer finds Ada's waiting couple by its code:
+-- 20261116500000, Dee no longer finds Ada's waiting couple by its code:
 -- join_couple() is the only way in.
 SET ROLE authenticated;
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-0000000096a1';
