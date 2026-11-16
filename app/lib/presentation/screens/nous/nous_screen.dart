@@ -317,6 +317,7 @@ class _PingSectionState extends ConsumerState<_PingSection> {
                     (partnerName?.trim().isNotEmpty ?? false)
                         ? partnerName!.trim()
                         : nousPartnerFallback(lang),
+                    partnerPing.kind,
                     partnerPing.sentAt,
                     now,
                   ),

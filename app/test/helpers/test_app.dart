@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
@@ -85,6 +86,10 @@ class TestDeps {
   final FakePingRepository pings;
   final FakeListsRepository lists;
 
+  /// Add a note to it to tap that note's notification.
+  final StreamController<OpenedNote> openedNotes =
+      StreamController<OpenedNote>.broadcast();
+
   /// What the app reads as "now" (clockProvider).
   final DateTime now;
   final String deviceLanguage;
@@ -104,6 +109,7 @@ class TestDeps {
     listsRepositoryProvider.overrideWithValue(lists),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
+    openedNotesProvider.overrideWith((ref) => openedNotes.stream),
   ];
 }
 

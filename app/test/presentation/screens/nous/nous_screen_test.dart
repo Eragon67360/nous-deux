@@ -23,12 +23,24 @@ TestDeps _paired({
     now: _now,
     myProfile: profile(partner: partnerId, language: lang),
     partner: partnerProfile(),
-    couple: couple(pairingCode: null, togetherSince: since ?? DateTime(2025, 9, 24)),
+    couple: couple(
+      pairingCode: null,
+      togetherSince: since ?? DateTime(2025, 9, 24),
+    ),
     pings: pings,
     events: withCountdown
         ? [
-            event(id: 'lyon', title: 'Lyon', start: DateTime(2026, 11, 20, 8), isCountdown: true),
-            event(id: 'dentist', title: 'Dentiste', start: DateTime(2026, 11, 12, 9)),
+            event(
+              id: 'lyon',
+              title: 'Lyon',
+              start: DateTime(2026, 11, 20, 8),
+              isCountdown: true,
+            ),
+            event(
+              id: 'dentist',
+              title: 'Dentiste',
+              start: DateTime(2026, 11, 12, 9),
+            ),
           ]
         : null,
   );
@@ -60,12 +72,17 @@ void main() {
   });
 
   for (final lang in ['fr', 'en']) {
-    testWidgets('[$lang] counts the days together since the start date', (tester) async {
+    testWidgets('[$lang] counts the days together since the start date', (
+      tester,
+    ) async {
       await _pump(tester, _paired(lang: lang));
 
       expect(find.text('412'), findsOneWidget);
       expect(find.text(nousDaysUnit(lang, 412)), findsOneWidget);
-      expect(find.text(nousSinceDate(lang, DateTime(2025, 9, 24))), findsOneWidget);
+      expect(
+        find.text(nousSinceDate(lang, DateTime(2025, 9, 24))),
+        findsOneWidget,
+      );
     });
   }
 
@@ -78,12 +95,17 @@ void main() {
     expect(find.text('13462'), findsOneWidget);
   });
 
-  testWidgets('falls back to the pairing day when no start date is stored', (tester) async {
+  testWidgets('falls back to the pairing day when no start date is stored', (
+    tester,
+  ) async {
     final deps = TestDeps(
       now: _now,
       myProfile: profile(partner: partnerId),
       partner: partnerProfile(),
-      couple: couple(pairingCode: null, createdAt: DateTime.utc(2026, 11, 1, 10)),
+      couple: couple(
+        pairingCode: null,
+        createdAt: DateTime.utc(2026, 11, 1, 10),
+      ),
     );
     await _pump(tester, deps);
 
@@ -112,7 +134,9 @@ void main() {
   });
 
   group('little notes', () {
-    testWidgets('offers the five notes and sends the one tapped', (tester) async {
+    testWidgets('offers the five notes and sends the one tapped', (
+      tester,
+    ) async {
       final deps = _paired();
       await _pump(tester, deps);
 
@@ -127,7 +151,8 @@ void main() {
     });
 
     testWidgets('explains the 30-second limit', (tester) async {
-      final deps = _paired()..pings.nextFailure = const PingFailure(PingProblem.cooldown);
+      final deps = _paired()
+        ..pings.nextFailure = const PingFailure(PingProblem.cooldown);
       await _pump(tester, deps);
 
       await tester.tap(find.text(pingLabel('fr', PingKind.kiss)));
@@ -151,7 +176,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Alex, il y a 12 min'), findsOneWidget);
+      expect(find.text('Alex : Je pense à toi, il y a 12 min'), findsOneWidget);
     });
   });
 
@@ -179,7 +204,13 @@ void main() {
       partner: partnerProfile(),
       couple: couple(pairingCode: null, togetherSince: DateTime(2025, 9, 24)),
       lists: const [
-        SharedListEntity(id: 'l1', coupleId: coupleId, name: 'Courses', icon: ListIcon.cart, createdBy: meId),
+        SharedListEntity(
+          id: 'l1',
+          coupleId: coupleId,
+          name: 'Courses',
+          icon: ListIcon.cart,
+          createdBy: meId,
+        ),
       ],
     );
     await _pump(tester, deps);

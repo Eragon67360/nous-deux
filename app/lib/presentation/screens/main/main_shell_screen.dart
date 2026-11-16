@@ -8,6 +8,7 @@ import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -34,7 +35,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   bool _celebrating = false;
 
   /// The partner's note currently shown full screen, if any.
-  PingEntity? _incomingPing;
+  OpenedNote? _incomingPing;
 
   /// Who the notes stream belongs to and the partner's latest note in its
   /// first snapshot. Null until that snapshot arrives for a paired couple.
@@ -48,6 +49,26 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       (_, next) => _onPings(next),
       fireImmediately: true,
     );
+    // Not fired immediately: a note opened before this shell was built (a
+    // shell rebuilt after signing in again) was already shown.
+    ref.listenManual<AsyncValue<OpenedNote>>(openedNotesProvider, (_, next) {
+      final note = next.valueOrNull;
+      if (note != null) _onOpenedNote(note);
+    });
+  }
+
+  /// A tapped notification opens the Nous tab with its note full screen,
+  /// replies included, even though the app may already know the note.
+  void _onOpenedNote(OpenedNote note) {
+    if (!mounted) return;
+    widget.navigationShell.goBranch(0, initialLocation: true);
+    final baseline = _pingBaseline;
+    final seen = baseline?.latest;
+    if (baseline != null && (seen == null || note.sentAt.isAfter(seen))) {
+      // So the notes stream doesn't show it a second time.
+      _pingBaseline = (user: baseline.user, latest: note.sentAt);
+    }
+    setState(() => _incomingPing = note);
   }
 
   /// Only a partner note newer than what the stream first showed gets the
@@ -71,7 +92,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final seen = baseline.latest;
     if (seen != null && !latest.sentAt.isAfter(seen)) return;
     _pingBaseline = (user: me, latest: latest.sentAt);
-    if (mounted) setState(() => _incomingPing = latest);
+    if (mounted) {
+      setState(
+        () => _incomingPing = (kind: latest.kind, sentAt: latest.sentAt),
+      );
+    }
   }
 
   Future<void> _reply(PingKind kind) async {

@@ -50,7 +50,7 @@ Future<void> _pump(
       ),
     ),
   );
-  // The rings finish sliding together; the overlay stays 6 s.
+  // The rings finish sliding together; the overlay stays until closed.
   await tester.pump(const Duration(seconds: 2));
 }
 

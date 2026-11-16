@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/domain/entities/ping_entity.dart';
 
 void main() {
   test('waits until Apple hands out the push token', () async {
@@ -26,5 +27,34 @@ void main() {
     );
     expect(ready, isFalse);
     expect(calls, 4);
+  });
+
+  group('the note a tapped push announces', () {
+    test('reads the kind and time notify-partner-ping sends', () {
+      final note = openedNoteFrom({
+        'type': 'ping',
+        'kind': 'miss_you',
+        'sent_at': '2026-11-16T18:30:00+00:00',
+      });
+      expect(note?.kind, PingKind.missYou);
+      expect(note?.sentAt, DateTime.utc(2026, 11, 16, 18, 30).toLocal());
+    });
+
+    test('ignores other pushes, unknown kinds and broken times', () {
+      expect(openedNoteFrom({'type': 'period'}), isNull);
+      expect(
+        openedNoteFrom({
+          'type': 'ping',
+          'kind': 'hug',
+          'sent_at': '2026-11-16',
+        }),
+        isNull,
+      );
+      expect(
+        openedNoteFrom({'type': 'ping', 'kind': 'kiss', 'sent_at': 'soon'}),
+        isNull,
+      );
+      expect(openedNoteFrom(const {}), isNull);
+    });
   });
 }
