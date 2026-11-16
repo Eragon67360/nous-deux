@@ -18,6 +18,8 @@ replaces pg_net's `net.http_post` with a recorder for this.
 
 `97_profiles_scenario.sql` checks who reads profiles: each person and their partner (the other member of their paired couple), nobody else; a waiting couple's creator, a stranger and a signed-out caller see only themselves or nothing, even with a `partner_id` left pointing elsewhere; clients can't write `partner_id` or the consent time, while everything the app writes still works; `shares_cycle()` answers only about yourself and your partner; avatar folders are listed only by their owner.
 
+`99_push_secret_scenario.sql` checks that pushes take the shared secret from `private.secrets`, with no setting any session can read, and that neither signed-in nor signed-out callers can read that table or the function that returns the secret. The other scenarios still set the secret per session, which the function falls back to.
+
 The `apple-tokens` function has its own tests, with Apple faked; the command
 is at the top of `supabase/functions/apple-tokens/handler_test.ts`.
 

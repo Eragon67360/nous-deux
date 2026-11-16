@@ -750,8 +750,9 @@ services:
         target: /docker-entrypoint-initdb.d/init-scripts/99-push-webhook.sql
         content: |
           -- Lets the push triggers authenticate to the push functions (see the
-          -- push_webhooks migration). Runs once, at first boot. To rotate: change the
-          -- variable in Coolify, then ALTER DATABASE postgres SET ... with the new value.
+          -- push_webhooks migration). Runs once, at first boot. Migration
+          -- 20261116300000 then moves it into private.secrets and removes this
+          -- setting. To rotate, see docs/SELF_HOSTING.md.
           \set push_secret `echo "$PUSH_WEBHOOK_SECRET"`
           ALTER DATABASE postgres SET "app.settings.push_webhook_secret" TO :'push_secret';
 
