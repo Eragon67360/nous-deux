@@ -1,4 +1,8 @@
 @import "tailwindcss";
+/* The scroll-craft engine sits in Tailwind's components layer so utilities win
+   over its element rules. Unlayered, its `:where(a)` and `button` resets
+   (`color: inherit`) beat every text-* and hover:* utility on links and buttons. */
+@import "../vendor/scrollcraft/scrollcraft.css" layer(components);
 
 /* Nous Deux: warm off-black with tan, the same palette as the app.
    `html:root` outranks the engine's `:root` defaults regardless of load order. */
