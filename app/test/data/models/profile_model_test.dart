@@ -10,7 +10,9 @@ void main() {
     'gender': 'woman',
     'partner_id': 'u2',
     'language': 'en',
-    'avatar_url': 'https://example.test/a.jpg',
+    // Tests have no backend URL configured, so no avatar URL is trusted
+    // (see avatar_url_test.dart).
+    'avatar_url': null,
     'fcm_token': 'tok',
     'onboarding_completed_at': '2026-03-01T08:00:00.000Z',
     'created_at': '2026-02-01T08:00:00.000Z',
@@ -24,11 +26,19 @@ void main() {
     expect(m.gender, 'woman');
     expect(m.partnerId, 'u2');
     expect(m.language, 'en');
-    expect(m.avatarUrl, 'https://example.test/a.jpg');
+    expect(m.avatarUrl, isNull);
     expect(m.fcmToken, 'tok');
     expect(m.onboardingCompletedAt, DateTime.utc(2026, 3, 1, 8));
     expect(m.createdAt, DateTime.utc(2026, 2, 1, 8));
     expect(m.updatedAt, DateTime.utc(2026, 3, 2, 8));
+  });
+
+  test('fromJson drops an avatar URL outside this backend', () {
+    final m = ProfileModel.fromJson({
+      'id': 'u1',
+      'avatar_url': 'https://example.test/a.jpg',
+    });
+    expect(m.avatarUrl, isNull);
   });
 
   test('fromJson defaults gender to woman and language to fr', () {
@@ -55,7 +65,6 @@ void main() {
         gender: 'woman',
         partnerId: 'u2',
         language: 'en',
-        avatarUrl: 'https://example.test/a.jpg',
         onboardingCompletedAt: DateTime.utc(2026, 3, 1, 8),
         createdAt: DateTime.utc(2026, 2, 1, 8),
         updatedAt: DateTime.utc(2026, 3, 2, 8),
