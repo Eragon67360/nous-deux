@@ -137,6 +137,57 @@ void main() {
     );
   });
 
+  testWidgets('a swipe left shows the next month, a swipe right the one '
+      'before', (tester) async {
+    await pumpCalendar(tester);
+    final now = DateTime.now();
+    String label(DateTime m) =>
+        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
+
+    await tester.fling(
+      find.text(
+        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(now)),
+      ),
+      const Offset(-200, 0),
+      800,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(label(DateTime(now.year, now.month + 1))), findsOneWidget);
+
+    for (var i = 0; i < 2; i++) {
+      await tester.fling(
+        find.text(calendarCreateEvent('fr')),
+        const Offset(200, 0),
+        800,
+      );
+      await tester.pumpAndSettle();
+    }
+    expect(find.text(label(DateTime(now.year, now.month - 1))), findsOneWidget);
+  });
+
+  testWidgets('a slow sideways drag or a scroll leaves the month alone', (
+    tester,
+  ) async {
+    await pumpCalendar(tester);
+    final now = DateTime.now();
+    final month = find.text(
+      DateFormat('MMMM y', 'fr_FR').format(now).toUpperCase(),
+    );
+
+    await tester.drag(
+      find.text(calendarCreateEvent('fr')),
+      const Offset(-40, 0),
+    );
+    await tester.pumpAndSettle();
+    await tester.fling(
+      find.text(calendarCreateEvent('fr')),
+      const Offset(-20, -300),
+      800,
+    );
+    await tester.pumpAndSettle();
+    expect(month, findsOneWidget);
+  });
+
   testWidgets('the empty-state action opens a new event form', (tester) async {
     await pumpCalendar(tester);
 
@@ -216,6 +267,16 @@ void main() {
       await pumpCalendar(tester, events: [mine, later]);
 
       await tester.tap(find.byTooltip(calendarNextMonth('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Ski'), findsOneWidget);
+      expect(find.text('Cinéma'), findsNothing);
+    });
+
+    testWidgets('a swipe across the events turns the page too', (tester) async {
+      await pumpCalendar(tester, events: [mine, later]);
+
+      await tester.fling(find.text('Cinéma'), const Offset(-200, 0), 800);
       await tester.pumpAndSettle();
 
       expect(find.text('Ski'), findsOneWidget);

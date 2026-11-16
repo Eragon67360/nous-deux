@@ -108,29 +108,37 @@ class _PingReceivedState extends State<PingReceived>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        AnimatedBuilder(
-                          animation: _closeIn,
-                          builder: (context, _) => _Rings(
-                            // How far apart the rings start; they end 10 px
-                            // from each other, almost one.
-                            gap: reduced ? 10 : 10 + 70 * (1 - _closeIn.value),
-                            above: Semantics(
-                              liveRegion: true,
-                              child: Text(
-                                title,
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                overflow: TextOverflow.ellipsis,
-                                style: titleStyle,
+                        // The rings' frame is wider than a 360-point phone
+                        // leaves between the margins; shrink it whole so the
+                        // rings, the dot and the note stay on one centre.
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: AnimatedBuilder(
+                            animation: _closeIn,
+                            builder: (context, _) => _Rings(
+                              // How far apart the rings start; they end 10 px
+                              // from each other, almost one.
+                              gap: reduced
+                                  ? 10
+                                  : 10 + 70 * (1 - _closeIn.value),
+                              above: Semantics(
+                                liveRegion: true,
+                                child: Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: titleStyle,
+                                ),
                               ),
-                            ),
-                            below: Text(
-                              pingJustNow(lang).toUpperCase(),
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontSize: 11,
-                                letterSpacing: 2,
-                                color: scheme.primary,
+                              below: Text(
+                                pingJustNow(lang).toUpperCase(),
+                                textAlign: TextAlign.center,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  fontSize: 11,
+                                  letterSpacing: 2,
+                                  color: scheme.primary,
+                                ),
                               ),
                             ),
                           ),
