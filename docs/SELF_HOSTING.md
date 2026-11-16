@@ -112,6 +112,10 @@ Still to do: one real Sign in with Apple, on an iPhone signed in to an Apple Acc
 scripts/db-migrate.sh root@<server>       # applies and records every migration
 scripts/deploy-functions.sh root@<server> # copies the push functions, restarts them
 ```
+On a fresh stack, `db-migrate.sh` warns that the push secret was copied to `private.secrets` but its first-boot setting is still there: only `supabase_admin` can remove it.
+```bash
+ssh root@<server> 'docker exec $(docker ps --format "{{.Names}}" | grep ^supabase-db) psql -U supabase_admin -d postgres -c "ALTER DATABASE postgres RESET \"app.settings.push_webhook_secret\""'
+```
 
 ### 8. App configuration
 - **Local:** in the gitignored `app/lib/core/config/supabase_keys.dart`, set `supabaseUrlLocal = 'https://api.nous-deux.app'` and the anon key.

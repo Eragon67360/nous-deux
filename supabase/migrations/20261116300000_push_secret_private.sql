@@ -8,7 +8,9 @@
 --
 -- A fresh stack still gets the setting from its environment at first boot
 -- (infra/supabase/compose.yml); this migration moves it here and removes the
--- setting. To rotate, see docs/SELF_HOSTING.md.
+-- setting. Removing it takes a superuser: run as postgres (db-migrate.sh), the
+-- migration warns instead, and docs/SELF_HOSTING.md has the one-line fix to
+-- run as supabase_admin. To rotate, see the same page.
 
 CREATE TABLE private.secrets (
   name TEXT PRIMARY KEY,
@@ -26,7 +28,11 @@ BEGIN
   IF _secret IS NOT NULL AND _secret <> '' THEN
     INSERT INTO private.secrets (name, value) VALUES ('push_webhook_secret', _secret)
     ON CONFLICT (name) DO NOTHING;
-    EXECUTE format('ALTER DATABASE %I RESET %I', current_database(), 'app.settings.push_webhook_secret');
+    BEGIN
+      EXECUTE format('ALTER DATABASE %I RESET %I', current_database(), 'app.settings.push_webhook_secret');
+    EXCEPTION WHEN insufficient_privilege THEN
+      RAISE WARNING 'push secret copied to private.secrets; remove the old setting as supabase_admin: ALTER DATABASE % RESET "app.settings.push_webhook_secret"', current_database();
+    END;
   END IF;
 END $$;
 
