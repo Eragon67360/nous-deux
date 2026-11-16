@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
-import 'package:nousdeux/core/constants/period_education.dart' show periodScreenTitle;
+import 'package:nousdeux/core/constants/period_education.dart'
+    show periodScreenTitle;
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -77,9 +79,7 @@ class SettingsScreen extends ConsumerWidget {
               // 2. Language
               _SettingsGroup(
                 title: settingsLanguage(lang),
-                children: [
-                  _LanguageTile(lang: lang),
-                ],
+                children: [_LanguageTile(lang: lang)],
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -178,6 +178,7 @@ class SettingsScreen extends ConsumerWidget {
           ),
           autofocus: true,
           textCapitalization: TextCapitalization.words,
+          maxLength: AppConstants.usernameMaxLength,
           maxLines: null, // Allow wrapping in input
         ),
         actions: [
@@ -451,8 +452,9 @@ class _LanguageTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final currentLabel =
-        lang == 'fr' ? settingsLanguageFrench(lang) : settingsLanguageEnglish(lang);
+    final currentLabel = lang == 'fr'
+        ? settingsLanguageFrench(lang)
+        : settingsLanguageEnglish(lang);
 
     return InkWell(
       onTap: () => _showLanguageDialog(context, ref, lang),
@@ -488,7 +490,11 @@ class _LanguageTile extends ConsumerWidget {
     );
   }
 
-  void _showLanguageDialog(BuildContext context, WidgetRef ref, String currentLang) {
+  void _showLanguageDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String currentLang,
+  ) {
     final screenContext = context;
     showDialog<void>(
       context: context,
@@ -502,13 +508,15 @@ class _LanguageTile extends ConsumerWidget {
                 title: Text(settingsLanguageFrench(currentLang)),
                 value: 'fr',
                 groupValue: currentLang,
-                onChanged: (v) => _selectLanguage(screenContext, dialogContext, ref, v!),
+                onChanged: (v) =>
+                    _selectLanguage(screenContext, dialogContext, ref, v!),
               ),
               RadioListTile<String>(
                 title: Text(settingsLanguageEnglish(currentLang)),
                 value: 'en',
                 groupValue: currentLang,
-                onChanged: (v) => _selectLanguage(screenContext, dialogContext, ref, v!),
+                onChanged: (v) =>
+                    _selectLanguage(screenContext, dialogContext, ref, v!),
               ),
             ],
           ),
@@ -529,9 +537,9 @@ class _LanguageTile extends ConsumerWidget {
     ref.invalidate(myProfileProvider);
     if (!screenContext.mounted) return;
     if (result.failure != null) {
-      ScaffoldMessenger.of(screenContext).showSnackBar(
-        SnackBar(content: Text(result.failure!.message ?? '')),
-      );
+      ScaffoldMessenger.of(
+        screenContext,
+      ).showSnackBar(SnackBar(content: Text(result.failure!.message ?? '')));
     } else {
       ScaffoldMessenger.of(screenContext).showSnackBar(
         SnackBar(
@@ -728,7 +736,15 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
               ),
               value: isSharing,
               activeThumbColor: theme.colorScheme.primary,
-              onChanged: hasCouple ? (v) => _onLocationSharingChanged(context, ref, couple.id, v, lang) : null,
+              onChanged: hasCouple
+                  ? (v) => _onLocationSharingChanged(
+                      context,
+                      ref,
+                      couple.id,
+                      v,
+                      lang,
+                    )
+                  : null,
             );
           },
           loading: () => const Padding(
@@ -755,7 +771,8 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
   ) async {
     if (enable) {
       final status = await Permission.location.request();
-      final allowed = status.isGranted ||
+      final allowed =
+          status.isGranted ||
           status == PermissionStatus.limited ||
           status == PermissionStatus.provisional;
       if (!allowed) {
@@ -789,7 +806,9 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
       return;
     }
     if (enable) {
-      await ref.read(locationUpdateNotifierProvider.notifier).pushCurrentPosition();
+      await ref
+          .read(locationUpdateNotifierProvider.notifier)
+          .pushCurrentPosition();
     }
   }
 }
@@ -853,9 +872,9 @@ Future<void> _showLeaveCoupleDialog(
   ref.invalidate(myLocationSharingProvider);
   if (!context.mounted) return;
   if (result.failure != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(result.failure!.message ?? '')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(result.failure!.message ?? '')));
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
