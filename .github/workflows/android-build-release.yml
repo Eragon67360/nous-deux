@@ -109,6 +109,12 @@ jobs:
             --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --dart-define=SENTRY_DSN="$SENTRY_DSN"
 
+      # R8 must keep device_calendar's models under their own names: the plugin
+      # sends them to Dart as JSON keyed by field name, and renamed, every phone
+      # calendar arrives without an id (android/app/proguard-rules.pro).
+      - name: Check R8 kept the calendar plugin's models
+        run: scripts/check-r8-keeps.sh build/app/outputs/mapping/release/mapping.txt
+
       # 2. GENERATE APK (from the AAB created above)
       - name: Generate APK from AAB
         env:
