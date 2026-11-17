@@ -24,6 +24,7 @@ ProfileEntity profile({
   bool shareCycle = true,
   bool shareCheckins = true,
   String? calendarSyncDevice,
+  DateTime? calendarSyncedAt,
 }) {
   return ProfileEntity(
     id: id,
@@ -36,12 +37,14 @@ ProfileEntity profile({
     shareCycle: shareCycle,
     shareCheckins: shareCheckins,
     calendarSyncDevice: calendarSyncDevice,
+    calendarSyncedAt: calendarSyncedAt,
   );
 }
 
 ProfileEntity partnerProfile({
   String? username = 'Alex',
   String language = 'fr',
+  DateTime? calendarSyncedAt,
   bool? tracksCycle,
   bool shareCycle = true,
   bool shareCheckins = true,
@@ -54,6 +57,10 @@ ProfileEntity partnerProfile({
     tracksCycle: tracksCycle,
     shareCycle: shareCycle,
     shareCheckins: shareCheckins,
+    calendarSyncDevice: calendarSyncedAt == null
+        ? null
+        : '00000000-0000-4000-8000-0000000000aa',
+    calendarSyncedAt: calendarSyncedAt,
   );
 }
 

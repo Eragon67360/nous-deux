@@ -171,6 +171,28 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }
 
   @override
+  Future<CalendarEventResult> setCountdown(String id, bool on) async {
+    try {
+      final model = await _calendar.setCountdown(id, on);
+      return (event: model.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (event: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (event: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<String?> requestPartnerCalendarSync() async {
+    try {
+      return await _calendar.requestPartnerSync();
+    } catch (_) {
+      // Best effort: the partner's phone also syncs when it opens the app.
+      return null;
+    }
+  }
+
+  @override
   Future<Failure?> deleteEvent(String id) async {
     try {
       await _calendar.delete(id);

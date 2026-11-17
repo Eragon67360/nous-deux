@@ -1,3 +1,6 @@
+import 'package:nousdeux/domain/calendar/phone_event.dart';
+import 'package:nousdeux/data/calendar_sync/phone_calendar.dart';
+import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'dart:async';
 
 import 'package:nousdeux/domain/repositories/lists_repository.dart';
@@ -538,6 +541,37 @@ class FakeCalendarRepository implements CalendarRepository {
     return (event: events[i], failure: null);
   }
 
+  final countdownCalls = <({String id, bool on})>[];
+
+  @override
+  Future<CalendarEventResult> setCountdown(String id, bool on) async {
+    countdownCalls.add((id: id, on: on));
+    final failure = _takeFailure();
+    if (failure != null) return (event: null, failure: failure);
+    final i = events.indexWhere((e) => e.id == id);
+    final old = events[i];
+    events[i] = event(
+      id: old.id,
+      title: old.title,
+      description: old.description,
+      start: old.startTime,
+      end: old.endTime,
+      createdBy: old.createdBy,
+      isCountdown: on,
+      sourceKey: old.sourceKey,
+    );
+    return (event: events[i], failure: null);
+  }
+
+  int partnerSyncRequests = 0;
+  String? partnerSyncAnswer = 'sent';
+
+  @override
+  Future<String?> requestPartnerCalendarSync() async {
+    partnerSyncRequests++;
+    return partnerSyncAnswer;
+  }
+
   @override
   Future<Failure?> deleteEvent(String id) async {
     deletedIds.add(id);
@@ -974,5 +1008,52 @@ class FakeListsRepository implements ListsRepository {
     items.removeWhere((x) => x.listId == listId && x.checked);
     _publish();
     return null;
+  }
+}
+
+/// Plays the phone's calendars: [phoneCalendars] to choose from, the events
+/// of each calendar id ([perCalendar], null: they can't be read), and
+/// whether the app may read them. [hold] keeps a read waiting; [error] makes
+/// it throw.
+class FakePhoneCalendar implements PhoneCalendar {
+  FakePhoneCalendar({
+    List<Calendar>? calendars,
+    Map<String, List<PhoneEvent>>? events = const {},
+    this.allowed = true,
+  }) : phoneCalendars = calendars ?? [Calendar(id: 'cal-1', name: 'Personnel')],
+       perCalendar = events == null ? null : {...events};
+
+  List<Calendar> phoneCalendars;
+  Map<String, List<PhoneEvent>>? perCalendar;
+  bool allowed;
+  bool grantOnRequest = true;
+  Completer<void>? hold;
+  Object? error;
+  int reads = 0;
+  int accessRequests = 0;
+
+  @override
+  Future<List<Calendar>?> calendars() async =>
+      allowed ? [...phoneCalendars] : null;
+
+  @override
+  Future<bool> requestAccess() async {
+    accessRequests++;
+    if (grantOnRequest) allowed = true;
+    return allowed;
+  }
+
+  @override
+  Future<List<PhoneEvent>?> events(
+    Set<String> calendarIds,
+    DateTime from,
+    DateTime to,
+  ) async {
+    reads++;
+    if (hold != null) await hold!.future;
+    if (error != null) throw error!;
+    final per = perCalendar;
+    if (!allowed || per == null) return null;
+    return [for (final id in calendarIds) ...?per[id]];
   }
 }
