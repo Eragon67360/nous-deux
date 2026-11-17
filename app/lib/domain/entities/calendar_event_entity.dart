@@ -34,6 +34,16 @@ class CalendarEventEntity extends Equatable {
 
   bool get isSynced => sourceKey != null;
 
+  /// Starts and ends at midnight (or ends at 23:59): an all-day event, as
+  /// phone calendars send them; there is no all-day flag (docs/CALENDAR_SYNC.md).
+  bool get looksAllDay {
+    bool midnight(DateTime d) => d.hour == 0 && d.minute == 0;
+    final end = endTime;
+    return midnight(startTime) &&
+        end != null &&
+        (midnight(end) || (end.hour == 23 && end.minute == 59));
+  }
+
   @override
   List<Object?> get props => [
     id,

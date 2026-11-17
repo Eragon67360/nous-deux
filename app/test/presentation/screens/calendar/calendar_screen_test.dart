@@ -437,6 +437,29 @@ void main() {
       );
     }
 
+    for (final lang in AppLanguages.supported) {
+      testWidgets('[$lang] an all-day event says so instead of 00:00', (
+        tester,
+      ) async {
+        final birthday = event(
+          id: 'birthday',
+          title: 'Anniversaire',
+          start: _today(),
+          end: _today(),
+          sourceKey: 'k-birthday',
+        );
+        await pumpCalendar(tester, events: [birthday], lang: lang);
+
+        expect(find.text(calendarAllDay(lang)), findsOneWidget);
+        expect(find.text('00:00'), findsNothing);
+
+        await tester.tap(find.text('Anniversaire'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining(calendarAllDay(lang)), findsNWidgets(2));
+        expect(find.textContaining('00:00'), findsNothing);
+      });
+    }
+
     testWidgets('long-press opens the same sheet, never a delete', (
       tester,
     ) async {

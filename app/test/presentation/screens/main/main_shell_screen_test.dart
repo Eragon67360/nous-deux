@@ -184,6 +184,27 @@ void main() {
       },
     );
 
+    testWidgets('a paired person\'s profile update does not celebrate again', (
+      tester,
+    ) async {
+      final deps = TestDeps(
+        myProfile: profile(partner: partnerId),
+        partner: partnerProfile(),
+      );
+      await _pumpShell(tester, deps);
+      await tester.pumpAndSettle();
+
+      // A calendar sync writes calendar_synced_at; Realtime sends the whole row.
+      deps.realtime.named(_channelName).emitUpdate({
+        'id': meId,
+        'partner_id': partnerId,
+        'calendar_synced_at': '2026-11-17T15:00:00Z',
+      });
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PairingCelebration), findsNothing);
+    });
+
     testWidgets('other profile updates do not celebrate', (tester) async {
       final deps = TestDeps();
       await _pumpShell(tester, deps);
