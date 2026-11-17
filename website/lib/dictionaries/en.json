@@ -166,8 +166,8 @@
       "description": "What data Nous Deux collects and why, where it is stored (our own servers in Germany, in the EU), and how to use your rights."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "16 November 2026",
-    "effectiveDateISO": "2026-11-16",
+    "effectiveDate": "17 November 2026",
+    "effectiveDateISO": "2026-11-17",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -184,7 +184,7 @@
           },
           {
             "label": "Profile",
-            "text": "display name, gender, app language, profile picture (avatar), link to your partner when you form a couple."
+            "text": "display name, app language, profile picture (avatar), link to your partner when you form a couple."
           },
           {
             "label": "Shared calendar",
