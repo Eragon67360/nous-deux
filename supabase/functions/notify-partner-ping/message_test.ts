@@ -74,4 +74,17 @@ Deno.test("the sender's name is trimmed and kept as written", () => {
 Deno.test("a kind it doesn't know sends nothing", () => {
   assertEquals(pingPush("fr", "Camille", "hug"), null);
   assertEquals(pingPush("en", "Camille", ""), null);
+  // Names every object has are not kinds either.
+  for (const kind of ["toString", "constructor", "__proto__", "hasOwnProperty"]) {
+    assertEquals(pingPush("fr", "Camille", kind), null);
+  }
+});
+
+Deno.test("a language the server doesn't speak reads in English", () => {
+  for (const lang of ["de", "es", "", null, undefined]) {
+    for (const [kind, body] of Object.entries(NAMED.en)) {
+      assertEquals(pingPush(lang, "Camille", kind), { title: "Nous Deux", body });
+    }
+    assertEquals(pingPush(lang, null, "kiss")?.body, "Your partner sends you a kiss");
+  }
 });

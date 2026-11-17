@@ -29,6 +29,16 @@ Deno.test("the update reads as today in en", () => {
   });
 });
 
+Deno.test("a language the server doesn't speak reads in English", () => {
+  for (const lang of ["de", "es", "", null, undefined]) {
+    assertEquals(periodPush(lang, "Camille"), {
+      title: "Nous Deux",
+      body: "Camille updated their tracking",
+    });
+    assertEquals(periodPush(lang, null).body, "Your partner updated their tracking");
+  }
+});
+
 Deno.test("the author's name is trimmed, and a blank one is the fallback", () => {
   assertEquals(periodPush("fr", "  Camille ").body, "Camille a mis à jour son suivi");
   assertEquals(periodPush("fr", " ").body, "Votre partenaire a mis à jour son suivi");

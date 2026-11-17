@@ -1,19 +1,15 @@
-// What the partner's phone shows when a period log is added. The text stays
-// vague on purpose: it goes through Apple's and Google's push services, and
-// period data is health data.
+// What the partner's phone shows when a period log is added, in their app
+// language (texts in ../_shared/i18n/). The text stays vague on purpose: it
+// goes through Apple's and Google's push services, and period data is health
+// data.
 
-const BODIES: Record<"fr" | "en", (name: string) => string> = {
-  fr: (n) => `${n} a mis à jour son suivi`,
-  en: (n) => `${n} updated their tracking`,
-};
+import { t } from "../_shared/i18n/mod.ts";
 
 /** The push telling the partner that `authorName` updated their tracking. */
 export function periodPush(
   language: string | null | undefined,
   authorName: string | null | undefined,
 ): { title: string; body: string } {
-  const lang = language === "en" ? "en" : "fr";
-  const name = authorName?.trim() ||
-    (lang === "fr" ? "Votre partenaire" : "Your partner");
-  return { title: "Nous Deux", body: BODIES[lang](name) };
+  const name = authorName?.trim() || t(language, "push.partner");
+  return { title: t(language, "push.title"), body: t(language, "period.updated", { name }) };
 }
