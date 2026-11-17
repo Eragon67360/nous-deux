@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
@@ -118,7 +119,7 @@ const _localizationsDelegates = [
   GlobalWidgetsLocalizations.delegate,
   GlobalCupertinoLocalizations.delegate,
 ];
-const _supportedLocales = [Locale('fr'), Locale('en')];
+final _supportedLocales = AppLanguages.locales;
 
 TransitionBuilder _motion(bool reducedMotion) => (context, child) {
   if (!reducedMotion) return child!;

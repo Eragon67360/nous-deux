@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
@@ -133,30 +134,22 @@ void main() {
       expect(c.read(appLocaleProvider), const Locale('en'));
     });
 
-    test(
-      'falls back to the device locale (fr or en) without a profile',
-      () async {
-        final c = containerFor(TestDeps(user: null));
-        await c.read(currentUserProvider.future);
-        await c.read(myProfileProvider.future);
-        final device = ui.PlatformDispatcher.instance.locale;
-        expect(
-          c.read(appLocaleProvider),
-          device.languageCode.startsWith('fr')
-              ? const Locale('fr')
-              : const Locale('en'),
-        );
-      },
-    );
+    test("falls back to the phone's language without a profile", () async {
+      final c = containerFor(TestDeps(user: null));
+      await c.read(currentUserProvider.future);
+      await c.read(myProfileProvider.future);
+      final device = ui.PlatformDispatcher.instance.locale;
+      expect(c.read(appLocaleProvider), Locale(AppLanguages.forDevice(device)));
+    });
   });
 
-  test('deviceLanguageProvider maps the device locale to fr or en', () {
+  test('deviceLanguageProvider maps the device locale to an app language', () {
     final container = ProviderContainer();
     addTearDown(container.dispose);
     final device = ui.PlatformDispatcher.instance.locale;
     expect(
       container.read(deviceLanguageProvider),
-      device.languageCode.startsWith('fr') ? 'fr' : 'en',
+      AppLanguages.forDevice(device),
     );
   });
 }

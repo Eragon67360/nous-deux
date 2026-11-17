@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
 
 import '../../../helpers/test_app.dart';
@@ -119,7 +120,7 @@ void main() {
     });
   });
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets(
       '[$lang] shows the sign-in options in the device language',
       (tester) async {

@@ -1,13 +1,14 @@
 import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/period_education.dart' show CyclePhase;
+import 'package:nousdeux/core/l10n/app_languages.dart';
 
 /// Strings for the Règles tab (cycle page, partner page, sharing, guide).
 /// Use lang 'fr' or 'en'. Names are the partner's display name.
 
 String _date(String lang, DateTime d) => DateFormat(
   lang == 'fr' ? 'EEE d MMM' : 'EEE, MMM d',
-  lang == 'fr' ? 'fr_FR' : 'en_US',
+  AppLanguages.dateLocale(lang),
 ).format(d);
 
 /// The partner's name, or a stand-in while they have none.
@@ -166,7 +167,7 @@ String cycleLoggedEnd(String lang, DateTime day) => lang == 'fr'
 String cycleUndo(String lang) => lang == 'fr' ? 'Annuler' : 'Undo';
 String cycleShortDate(String lang, DateTime day) => DateFormat(
   lang == 'fr' ? 'd MMM' : 'MMM d',
-  lang == 'fr' ? 'fr_FR' : 'en_US',
+  AppLanguages.dateLocale(lang),
 ).format(day);
 // States of one's own in today's check-in ("Besoin de chocolat").
 String cycleOtherState(String lang) => lang == 'fr' ? '+ Autre' : '+ Other';

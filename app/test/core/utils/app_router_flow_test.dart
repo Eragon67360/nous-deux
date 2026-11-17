@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/config/app_config.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/auth/auth_screen.dart';
@@ -29,7 +30,7 @@ Future<ProviderContainer> _pumpApp(WidgetTester tester, TestDeps deps) async {
         builder: (context, ref, _) => MaterialApp.router(
           theme: testTheme,
           locale: const Locale('fr'),
-          supportedLocales: const [Locale('fr'), Locale('en')],
+          supportedLocales: AppLanguages.locales,
           localizationsDelegates: const [
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

@@ -2,7 +2,7 @@
 
 Goal: make a language a matter of files and translation, not code, while French and English stay exactly as they are today. Once this is done, adding Spanish, German or Portuguese means adding files, translating and reviewing, without touching screens, services or functions.
 
-Written 2026-11-17. Nothing here is implemented yet.
+Written 2026-11-17. Phase 1 is done (`app/lib/core/l10n/app_languages.dart`); the later phases are not started.
 
 ## Where we start
 
@@ -133,7 +133,7 @@ Not needed while only French and English exist:
 
 | PR | Phase | Size | Visible change |
 | --- | --- | --- | --- |
-| 1 | Language list, date locales, test loops | small | none |
+| 1 | Language list, date locales, test loops | small | the language picker names each language in its own words (« English » in the French UI) |
 | 2 | Snapshot test, then gen-l10n and codemod | large | none (snapshot identical) |
 | 3 | Long content per language | medium | none |
 | 4 | iOS `InfoPlist.strings`, `knownRegions` | small | iOS permission prompts follow the phone's language |

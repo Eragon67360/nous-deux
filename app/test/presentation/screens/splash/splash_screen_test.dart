@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/app_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
 import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
 import 'package:nousdeux/presentation/theme/app_motion.dart';
@@ -25,7 +26,7 @@ double _taglineOpacity(WidgetTester tester, String lang) => tester
     .value;
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] shows the name, the tagline and the rings', (
       tester,
     ) async {

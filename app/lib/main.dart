@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/config/app_config.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/crash_reporting.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
@@ -29,8 +30,9 @@ Future<void> _start() async {
     ], await rootBundle.loadString('assets/fonts/OFL.txt'));
   });
 
-  await initializeDateFormatting('fr_FR', null);
-  await initializeDateFormatting('en_US', null);
+  for (final locale in AppLanguages.dateLocales) {
+    await initializeDateFormatting(locale, null);
+  }
 
   if (AppConfig.isSupabaseConfigured) {
     await Supabase.initialize(
@@ -61,7 +63,7 @@ class MainApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = AppTheme.dark;
     final locale = ref.watch(appLocaleProvider);
-    const supportedLocales = [Locale('fr'), Locale('en')];
+    final supportedLocales = AppLanguages.locales;
     const localizationsDelegates = [
       GlobalMaterialLocalizations.delegate,
       GlobalWidgetsLocalizations.delegate,
