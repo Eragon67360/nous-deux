@@ -18,6 +18,10 @@ each release to `main` that touches the app, or by hand from Actions.
   `docs/APP_STORE_CONNECT.md`.
 - **Lanes:** `beta` (archive, upload, send to the group), `send` (send the
   newest build again after a failed send).
+- **Sending right after processing:** App Store Connect can take a few
+  minutes to create a new build's TestFlight details, and sending fails with
+  "There is no resource of type 'buildBetaDetails'" until then. The send step
+  retries that error only, every 30 s for up to 10 tries.
 
 Locally, with the key file at hand:
 `ASC_KEY_ID=… ASC_ISSUER_ID=… ASC_KEY_PATH=… bundle exec fastlane ios send`.
