@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_calendar/device_calendar.dart';
 
 import 'package:nousdeux/domain/calendar/phone_event.dart';
@@ -58,7 +60,7 @@ class DevicePhoneCalendar implements PhoneCalendar {
         );
         if (!result.isSuccess) return null;
         for (final e in result.data ?? <Event>[]) {
-          final p = phoneEventFrom(e);
+          final p = phoneEventFrom(e, floatingAllDay: Platform.isIOS);
           if (p != null) out.add(p);
         }
       }

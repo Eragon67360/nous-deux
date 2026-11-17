@@ -115,6 +115,29 @@ void main() {
       expect(phoneEventFrom(e)!.title.runes.length, 200);
     });
 
+    test(
+      'an iPhone all-day event (no time zone, read as UTC) keeps its day',
+      () {
+        // EventKit starts an all-day event at the phone's local midnight and
+        // gives it no time zone, so the plugin builds it in UTC.
+        final midnight = DateTime(2026, 11, 20).millisecondsSinceEpoch;
+        final nextMidnight = DateTime(2026, 11, 21).millisecondsSinceEpoch;
+        final p = phoneEventFrom(
+          Event(
+            'cal-1',
+            eventId: 'ev-1',
+            title: 'Anniversaire',
+            start: TZDateTime.fromMillisecondsSinceEpoch(UTC, midnight),
+            end: TZDateTime.fromMillisecondsSinceEpoch(UTC, nextMidnight),
+            allDay: true,
+          ),
+          floatingAllDay: true,
+        )!;
+        expect(p.start, DateTime(2026, 11, 20));
+        expect(p.end, DateTime(2026, 11, 21));
+      },
+    );
+
     test('an all-day event keeps its day, whatever its time zone', () {
       for (final zone in ['Europe/Paris', 'America/New_York', 'UTC']) {
         final where = getLocation(zone);

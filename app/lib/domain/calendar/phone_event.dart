@@ -36,9 +36,12 @@ String phoneEventKey(String calendarId, String eventId, DateTime start) {
 
 /// The copy of [e], or null when it has no calendar, id, start or title.
 /// The title is cut to [AppConstants.eventTitleMaxLength] characters. An
-/// all-day event keeps its calendar day: it starts and ends at local
-/// midnight, whatever time zone the phone gave it.
-PhoneEvent? phoneEventFrom(Event e) {
+/// all-day event keeps its calendar day and starts and ends at local
+/// midnight. Its day is read from the date the plugin gives (Android brings
+/// it back to midnight UTC), or, with [floatingAllDay] (iPhone: EventKit
+/// gives all-day events no time zone, so the plugin reads them as UTC),
+/// from the instant in the phone's own time zone.
+PhoneEvent? phoneEventFrom(Event e, {bool floatingAllDay = false}) {
   final calendarId = e.calendarId;
   final eventId = e.eventId;
   final start = e.start;
@@ -54,12 +57,17 @@ PhoneEvent? phoneEventFrom(Event e) {
     title: String.fromCharCodes(
       title.runes.take(AppConstants.eventTitleMaxLength),
     ),
-    start: allDay ? _day(start) : _local(start),
-    end: end == null ? null : (allDay ? _day(end) : _local(end)),
+    start: allDay ? _day(start, floatingAllDay) : _local(start),
+    end: end == null
+        ? null
+        : (allDay ? _day(end, floatingAllDay) : _local(end)),
   );
 }
 
 DateTime _local(DateTime d) =>
     DateTime.fromMillisecondsSinceEpoch(d.millisecondsSinceEpoch);
 
-DateTime _day(DateTime d) => DateTime(d.year, d.month, d.day);
+DateTime _day(DateTime d, bool floating) {
+  final day = floating ? _local(d) : d;
+  return DateTime(day.year, day.month, day.day);
+}

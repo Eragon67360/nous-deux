@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,12 +14,14 @@ import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import '../../helpers/fakes.dart';
 import '../../helpers/fixtures.dart';
 
-/// Plays the phone's calendars: [events] per calendar id, or null when the
-/// calendar can't be read.
+/// Plays the phone's calendars: events per calendar id, or null when they
+/// can't be read. [hold] keeps a read waiting until it completes.
 class FakePhoneCalendar implements PhoneCalendar {
-  FakePhoneCalendar(this.phoneEvents);
+  FakePhoneCalendar(List<PhoneEvent>? events)
+    : perCalendar = events == null ? null : {'cal-1': events};
 
-  List<PhoneEvent>? phoneEvents;
+  Map<String, List<PhoneEvent>>? perCalendar;
+  Completer<void>? hold;
   int reads = 0;
 
   @override
@@ -30,7 +34,10 @@ class FakePhoneCalendar implements PhoneCalendar {
     DateTime to,
   ) async {
     reads++;
-    return phoneEvents == null ? null : [...phoneEvents!];
+    if (hold != null) await hold!.future;
+    final per = perCalendar;
+    if (per == null) return null;
+    return [for (final id in calendarIds) ...?per[id]];
   }
 }
 
@@ -202,10 +209,95 @@ void main() {
         ],
       );
 
-      await service.stopFollowing();
+      expect(await service.stopFollowing(), isTrue);
       expect(calendar.deletedIds, ['id-mine']);
       expect(await prefs.followed(), isEmpty);
       expect(profiles.mine!.calendarSyncDevice, isNull);
+    },
+  );
+
+  test('a trip that started before the window is not copied twice', () async {
+    final trip = PhoneEvent(
+      key: 'k-trip',
+      title: 'Voyage',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 11, 30),
+    );
+    await setUpWith(
+      events: [trip],
+      existing: [
+        CalendarEventEntity(
+          id: 'id-trip',
+          coupleId: coupleId,
+          title: 'Voyage',
+          startTime: DateTime(2026, 10, 1),
+          endTime: DateTime(2026, 11, 30),
+          createdBy: meId,
+          sourceKey: 'k-trip',
+        ),
+      ],
+    );
+
+    expect(await service.run(), CalendarSyncOutcome.synced);
+    expect(calendar.createCalls, isEmpty);
+    expect(calendar.deletedIds, isEmpty);
+  });
+
+  test('following another calendar during a sync copies it too', () async {
+    await setUpWith(events: [_phone('k1', 'Dentiste')]);
+    phone.perCalendar!['cal-2'] = [_phone('k2', 'Yoga', day: 21)];
+    phone.hold = Completer<void>();
+
+    final first = service.run();
+    final followed = service.follow({'cal-1', 'cal-2'});
+    phone.hold!.complete();
+    expect(await first, CalendarSyncOutcome.synced);
+    expect(await followed, CalendarSyncOutcome.synced);
+    expect(
+      calendar.events.map((e) => e.sourceKey),
+      unorderedEquals(['k1', 'k2']),
+    );
+  });
+
+  test(
+    'stopFollowing on a phone that no longer syncs deletes nothing',
+    () async {
+      await setUpWith(
+        events: [],
+        existing: [_copy('id-mine', 'k1', 'Dentiste')],
+        thisPhone: false,
+      );
+      final other = profiles.mine!.calendarSyncDevice;
+
+      expect(await service.stopFollowing(), isTrue);
+      expect(calendar.deletedIds, isEmpty);
+      expect(profiles.mine!.calendarSyncDevice, other);
+      expect(await prefs.followed(), isEmpty);
+    },
+  );
+
+  test('stopFollowing that fails keeps following, to try again', () async {
+    await setUpWith(events: [], existing: [_copy('id-mine', 'k1', 'Dentiste')]);
+    final install = await prefs.installId();
+    calendar.nextFailure = const ServerFailure('offline');
+
+    expect(await service.stopFollowing(), isFalse);
+    expect(await prefs.followed(), {'cal-1'});
+    expect(profiles.mine!.calendarSyncDevice, install);
+  });
+
+  test(
+    'stopFollowing waits for a running sync, then removes its copies',
+    () async {
+      await setUpWith(events: [_phone('k1', 'Dentiste')]);
+      phone.hold = Completer<void>();
+
+      final running = service.run();
+      final stopping = service.stopFollowing();
+      phone.hold!.complete();
+      await running;
+      expect(await stopping, isTrue);
+      expect(calendar.events.where((e) => e.isSynced), isEmpty);
     },
   );
 

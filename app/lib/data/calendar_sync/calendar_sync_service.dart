@@ -39,12 +39,15 @@ class CalendarSyncService {
       _running ??= _run().whenComplete(() => _running = null);
 
   /// Follows [calendarIds] from this phone (none: [stopFollowing]), then
-  /// syncs them.
+  /// syncs them. A sync already running finishes first, so the new set is
+  /// read by a fresh one.
   Future<CalendarSyncOutcome> follow(Set<String> calendarIds) async {
     if (calendarIds.isEmpty) {
-      await stopFollowing();
-      return CalendarSyncOutcome.notFollowing;
+      return await stopFollowing()
+          ? CalendarSyncOutcome.notFollowing
+          : CalendarSyncOutcome.failed;
     }
+    await _running;
     final named = await _profiles.setCalendarSyncDevice(
       await _prefs.installId(),
     );
@@ -53,16 +56,36 @@ class CalendarSyncService {
     return run();
   }
 
-  /// Removes my copies in the window (older ones stay as history) and stops
-  /// following from this phone.
-  Future<void> stopFollowing() async {
+  /// Stops following from this phone and removes my copies in the window
+  /// (older ones stay as history); true when done. A phone that another of
+  /// mine has replaced only forgets its settings: the copies are that
+  /// phone's. When a delete fails, this phone keeps following, so stopping
+  /// can be tried again and no copy is left without a phone to update it.
+  Future<bool> stopFollowing() async {
+    await _running;
+    final me = await _profiles.getOrCreateMyProfile();
+    if (me.failure != null || me.profile == null) return false;
+    if (me.profile!.calendarSyncDevice != await _prefs.installId()) {
+      await _prefs.setFollowed({});
+      return true;
+    }
+    final previous = await _prefs.followed();
+    // Followed nothing from here on, so no new run copies anything.
+    await _prefs.setFollowed({});
+    Future<bool> keepFollowing() async {
+      await _prefs.setFollowed(previous);
+      return false;
+    }
+
     final (:from, :to) = _window();
     final synced = await _calendar.getMySyncedEvents(from: from, to: to);
+    if (synced.failure != null) return keepFollowing();
     for (final e in synced.events) {
-      await _calendar.deleteEvent(e.id);
+      if (await _calendar.deleteEvent(e.id) != null) return keepFollowing();
     }
-    await _prefs.setFollowed({});
-    await _profiles.setCalendarSyncDevice(null);
+    final cleared = await _profiles.setCalendarSyncDevice(null);
+    if (cleared.failure != null) return keepFollowing();
+    return true;
   }
 
   Future<CalendarSyncOutcome> _run() async {
@@ -80,10 +103,16 @@ class CalendarSyncService {
     final (:from, :to) = _window();
     final phone = await _phone.events(followed, from, to);
     if (phone == null) return CalendarSyncOutcome.noAccess;
-    // A day's margin each side: an all-day copy starts at local midnight,
-    // which can sit just outside the window its phone event is in.
+    // The phone also gives events that started earlier and still run in
+    // the window (a trip): their copies are fetched too, or they would be
+    // copied again. A day's margin each side: an all-day copy starts at
+    // local midnight, which can sit just outside its phone event's window.
+    final earliest = phone.fold(
+      from,
+      (d, e) => e.start.isBefore(d) ? e.start : d,
+    );
     final synced = await _calendar.getMySyncedEvents(
-      from: from.subtract(const Duration(days: 1)),
+      from: earliest.subtract(const Duration(days: 1)),
       to: to.add(const Duration(days: 1)),
     );
     if (synced.failure != null) return CalendarSyncOutcome.failed;

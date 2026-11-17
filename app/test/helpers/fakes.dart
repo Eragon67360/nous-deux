@@ -444,6 +444,16 @@ class FakeCalendarRepository implements CalendarRepository {
     ));
     final failure = _takeFailure();
     if (failure != null) return (event: null, failure: failure);
+    // calendar_events_source_key: one copy per author and source key.
+    if (sourceKey != null &&
+        events.any((e) => e.createdBy == meId && e.sourceKey == sourceKey)) {
+      return (
+        event: null,
+        failure: const ServerFailure(
+          'duplicate key value violates unique constraint',
+        ),
+      );
+    }
     final created = event(
       id: 'event-${events.length + 1}',
       title: title,
