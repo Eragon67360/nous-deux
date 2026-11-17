@@ -221,3 +221,7 @@ String guidePartnerIsHere(String lang, String name) =>
 String guideSources(String lang) => l10nFor(lang).guideSources;
 String guideDaysShort(String lang, String range) =>
     l10nFor(lang).guideDaysShort(range);
+
+/// A label before its text in the guide; French puts a space before the colon.
+String guideLabelPrefix(String lang, String label) =>
+    lang == 'fr' ? '$label : ' : '$label: ';
