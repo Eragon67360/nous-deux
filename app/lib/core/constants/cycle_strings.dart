@@ -224,4 +224,4 @@ String guideDaysShort(String lang, String range) =>
 
 /// A label before its text in the guide; French puts a space before the colon.
 String guideLabelPrefix(String lang, String label) =>
-    lang == 'fr' ? '$label : ' : '$label: ';
+    l10nFor(lang).guideLabelPrefix(label);

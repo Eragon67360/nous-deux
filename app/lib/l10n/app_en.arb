@@ -926,5 +926,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "guideLabelPrefix": "{label}: ",
+  "@guideLabelPrefix": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "positionTitle": "Location",
+  "positionNoPartnerMessage": "Invite your partner",
+  "positionNoPartnerSecondary": "Once they join, you'll see each other on the map.",
+  "positionInvitePartner": "Invite",
+  "positionEnableSharingMessage": "Turn on location",
+  "positionEnableSharingSecondary": "Allow location access in your phone's settings.",
+  "positionOpenSettings": "Open settings",
+  "positionReloadTooltip": "Refresh",
+  "positionReloadDone": "Up to date",
+  "positionMapPhoneOnly": "The map shows on phones.",
+  "positionTogether": "Together ❤️",
+  "positionTogetherTitle": "Together",
+  "positionMe": "Me",
+  "positionSeeAll": "See all",
+  "positionPartnerFallback": "Partner",
+  "appInfoFriendsName": "Friends"
 }

@@ -375,5 +375,22 @@
   "periodReminderNotificationTitle": "Règles prévues demain",
   "periodReminderNotificationBody": "D'après son cycle, les règles de votre partenaire devraient commencer demain.",
   "periodMoodLabel": "{value, select, good{Bien} tired{Fatigué(e)} anxious{Anxieux(se)} irritable{Irrité(e)} other{{value}}}",
-  "periodSymptomLabel": "{value, select, cramps{Crampes} headache{Maux de tête} acne{Acné} pain{Douleurs} bloating{Ballonnements} other{{value}}}"
+  "periodSymptomLabel": "{value, select, cramps{Crampes} headache{Maux de tête} acne{Acné} pain{Douleurs} bloating{Ballonnements} other{{value}}}",
+  "guideLabelPrefix": "{label} : ",
+  "positionTitle": "Position",
+  "positionNoPartnerMessage": "Invitez votre partenaire",
+  "positionNoPartnerSecondary": "Une fois à deux, vous vous verrez sur la carte.",
+  "positionInvitePartner": "Inviter",
+  "positionEnableSharingMessage": "Activez la position",
+  "positionEnableSharingSecondary": "Autorisez l'accès à la position dans les réglages de votre téléphone.",
+  "positionOpenSettings": "Ouvrir les réglages",
+  "positionReloadTooltip": "Actualiser",
+  "positionReloadDone": "À jour",
+  "positionMapPhoneOnly": "La carte s'affiche sur téléphone.",
+  "positionTogether": "Ensemble ❤️",
+  "positionTogetherTitle": "Nous Deux",
+  "positionMe": "Moi",
+  "positionSeeAll": "Voir tout",
+  "positionPartnerFallback": "Partenaire",
+  "appInfoFriendsName": "Les amis"
 }

@@ -1464,4 +1464,59 @@ class AppLocalizationsFr extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String guideLabelPrefix(String label) {
+    return '$label : ';
+  }
+
+  @override
+  String get positionTitle => 'Position';
+
+  @override
+  String get positionNoPartnerMessage => 'Invitez votre partenaire';
+
+  @override
+  String get positionNoPartnerSecondary =>
+      'Une fois à deux, vous vous verrez sur la carte.';
+
+  @override
+  String get positionInvitePartner => 'Inviter';
+
+  @override
+  String get positionEnableSharingMessage => 'Activez la position';
+
+  @override
+  String get positionEnableSharingSecondary =>
+      'Autorisez l\'accès à la position dans les réglages de votre téléphone.';
+
+  @override
+  String get positionOpenSettings => 'Ouvrir les réglages';
+
+  @override
+  String get positionReloadTooltip => 'Actualiser';
+
+  @override
+  String get positionReloadDone => 'À jour';
+
+  @override
+  String get positionMapPhoneOnly => 'La carte s\'affiche sur téléphone.';
+
+  @override
+  String get positionTogether => 'Ensemble ❤️';
+
+  @override
+  String get positionTogetherTitle => 'Nous Deux';
+
+  @override
+  String get positionMe => 'Moi';
+
+  @override
+  String get positionSeeAll => 'Voir tout';
+
+  @override
+  String get positionPartnerFallback => 'Partenaire';
+
+  @override
+  String get appInfoFriendsName => 'Les amis';
 }
