@@ -115,7 +115,7 @@ export default async function BetaPage({ params }: PageProps) {
             {stepList(b.steps, STEP_LINKS)}
           </section>
 
-          <section>
+          <section id="iphone" className="scroll-mt-24">
             <h2 className={h2Class}>{b.iphoneTitle}</h2>
             {stepList(b.iphoneSteps, IPHONE_STEP_LINKS)}
           </section>
