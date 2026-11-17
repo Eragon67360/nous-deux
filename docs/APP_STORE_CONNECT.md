@@ -133,9 +133,14 @@ The Position capture was left out: the French one still shows the old light map.
 
 ### « En-tête et résultats de recherche » (optional)
 
-A newer tab next to the screenshots, about the App Store only (not web search engines). **En-tête** is one wide banner at the top of the product page (5244 × 2950 or 3840 × 1646); none is set. **Résultats de recherche** is one landscape image shown in the app's row in App Store search results (5244 × 2950, 3840 × 2560 or 1920 × 1280); without it, search results show the first screenshots.
+A newer tab next to the screenshots, about the App Store only (not web search engines). **En-tête** is one wide banner at the top of the product page (5244 × 2950 or 3840 × 1646). **Résultats de recherche** is one landscape image shown in the app's row in App Store search results (5244 × 2950, 3840 × 2560 or 1920 × 1280); without it, search results show the first screenshots.
 
 Set on 2026-11-17: `out/fr/search.png` and `out/en/search.png` (3840 × 2560, from `src/search.html` in the same render script): the rings, « Nous Deux », a tagline, and the Nous, Calendrier and Règles captures. French was uploaded first; with the page switched to English, its own English image replaces « Ressource de résultats de recherche utilisée : Français ». Apple's « Aperçu » showed it whole, under the name and subtitle.
+
+Header set on 2026-11-17: `out/fr/header.png` and `out/en/header.png` (5244 × 2950, from `src/header.html`): the rings, a gold label, the line « Votre espace à deux, / et rien d'autre. » ("A space for just / the two of you.") and five phones fanned out below. Apple's preview crops it per device:
+- **iPhone, upright:** only the middle ~54% of the width and the top ~70% of the height show; the Dynamic Island covers the top ~6% and the back and share buttons sit on either side about 28% down. Everything that matters is in that window, which is why the line is on two short lines and the English label is "Calendar · Cycle · Lists · Notes" (with "Little notes" it touched the share button).
+- **iPad (landscape):** the whole width shows but only a band of the height; the App Store's floating tab bar covers the rings. The label, the line and the tops of the phones show. Landscape isn't offered for iPhone.
+The first versions of both headers were removed from the page; they stay in « Bibliothèque de ressources » until deleted there.
 
 ### Age rating (set 2026-11-17)
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Renders the App Store screenshots (src/screen.html) and the search results
-image (src/search.html) with headless Chrome.
+"""Renders the App Store screenshots (src/screen.html), the search results
+image (src/search.html) and the product page header (src/header.html) with
+headless Chrome.
 
 Usage: python3 app/store/appstore/render.py  (outputs in app/store/appstore/out/)
 Same look as the Google Play graphics (../play). Screenshots at the iPhone
@@ -33,6 +34,10 @@ SCREENS = {
     ],
 }
 
+HEADER = {
+    "fr": ("Agenda · Cycle · Listes · Petits mots", "Votre espace à deux,\net rien d'autre."),
+    "en": ("Calendar · Cycle · Lists · Notes", "A space for just\nthe two of you."),
+}
 SEARCH = {
     "fr": ("Agenda · Cycle · Listes", "Votre espace à deux, gratuit et sans publicité."),
     "en": ("Calendar · Cycle · Lists", "A space for just the two of you, free and ad-free."),
@@ -60,3 +65,7 @@ for lang, screens in SCREENS.items():
     label, tag = SEARCH[lang]
     shot("search.html", {"label": label, "tag": tag, "lang": lang},
          OUT / lang / "search.png", (1920, 1280), scale=2)
+    # Product page header: 2622 × 1475 at 2×, so 5244 × 2950, one of Apple's sizes.
+    label, title = HEADER[lang]
+    shot("header.html", {"label": label, "title": title, "lang": lang},
+         OUT / lang / "header.png", (2622, 1475), scale=2)
