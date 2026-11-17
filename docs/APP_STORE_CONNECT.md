@@ -181,13 +181,14 @@ Same facts as Play's Data safety table, in Apple's terms. Apple counts crash and
 | Health & Fitness › Health | Yes | No | App Functionality | Period dates, daily symptoms and mood, private cycle notes; only with cycle tracking on |
 | Location › Precise Location | Yes | No | App Functionality | Latest position only, while sharing is on |
 | User Content › Photos or Videos | Yes | No | App Functionality | Profile photo |
-| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, little notes (latest per person, preset or written), the relationship's start date |
+| User Content › Emails or Text Messages | Yes | No | App Functionality | Little notes: a preset or a text the person writes (40 characters at most), only the latest per person; never in the push |
+| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, the relationship's start date |
 | Other Data › Other Data Types | Yes | No | App Functionality | Gender, chosen at onboarding |
 | Identifiers › User ID | Yes | No | App Functionality | Account id |
 | Identifiers › Device ID | Yes | No | App Functionality | Push notification token |
 | Diagnostics › Crash Data | No | No | App Functionality | Crash and error reports to our GlitchTip, kept 30 days, no account, IP or location |
 | Diagnostics › Other Diagnostic Data | No | No | App Functionality | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 
-**Open question (2026-11-17):** since build 26 a little note can be a text the person writes (40 characters at most, only the latest kept). That makes it a short message between the two partners, which Apple's « E-mails ou SMS » (contents of a message) and Play's "Messages › Other in-app messages" may describe better than Other User Content. The published answers still say Other User Content; changing them is Thomas's call.
+Since build 26 (2026-11-17) a little note can be a text the person writes, so notes are declared as **Emails or Text Messages** (« E-mails ou SMS », the contents of a message), as Play's "Messages › Other in-app messages" already does. Before, as preset phrases, they were under Other User Content.
 
-**Not collected:** phone number (phone sign-in is off), physical address, other contact info, financial info, contacts, emails or text messages (little notes are counted under Other User Content; see below), audio, gameplay, customer support, browsing or search history, purchases, usage data (no analytics), advertising data, performance data, sensitive info, coarse location.
+**Not collected:** phone number (phone sign-in is off), physical address, other contact info, financial info, contacts, audio, gameplay, customer support, browsing or search history, purchases, usage data (no analytics), advertising data, performance data, sensitive info, coarse location.

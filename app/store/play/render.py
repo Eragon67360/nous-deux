@@ -2,7 +2,8 @@
 """Renders the Google Play graphics from src/*.html with headless Chrome.
 
 Usage: python3 app/store/play/render.py  (outputs in app/store/play/out/)
-The screens reuse the site's app captures in website/public/screenshots/.
+The screens reuse the site's app captures in website/public/screenshots/
+(English ones in its en/ folder).
 """
 import pathlib, subprocess, urllib.parse
 
@@ -16,15 +17,15 @@ SCREENS = {
         ("01-nous", "nous", "Nous", "Votre espace à deux, et rien d'autre."),
         ("02-calendrier", "calendar", "Calendrier", "Un agenda pour deux, chacun sa couleur."),
         ("03-cycle", "cycle", "Règles", "Le cycle, partagé comme vous le choisissez."),
-        ("04-petits-mots", "ping", "Petits mots", f"«{NBSP}Je{NBSP}pense{NBSP}à{NBSP}toi{NBSP}», d'un geste."),
+        ("04-petits-mots", "ping", "Petits mots", f"«{NBSP}Je{NBSP}pense{NBSP}à{NBSP}toi{NBSP}», ou vos propres mots."),
         ("05-listes", "lists", "Listes", "Les courses, cochées des deux côtés."),
     ],
     "en": [
-        ("01-us", "nous", "Us", "A space for just the two of you."),
-        ("02-calendar", "calendar", "Calendar", "One calendar for two, a colour each."),
-        ("03-cycle", "cycle", "Period", "The cycle, shared the way you choose."),
-        ("04-notes", "ping", "Little notes", f"“Thinking{NBSP}of{NBSP}you”, in one tap."),
-        ("05-lists", "lists", "Lists", "Groceries, ticked off on both phones."),
+        ("01-us", "en/nous", "Us", "A space for just the two of you."),
+        ("02-calendar", "en/calendar", "Calendar", "One calendar for two, a colour each."),
+        ("03-cycle", "en/cycle", "Period", "The cycle, shared the way you choose."),
+        ("04-notes", "en/ping", "Little notes", f"“Thinking{NBSP}of{NBSP}you”, or your own words."),
+        ("05-lists", "en/lists", "Lists", "Groceries, ticked off on both phones."),
     ],
 }
 FEATURE = {
