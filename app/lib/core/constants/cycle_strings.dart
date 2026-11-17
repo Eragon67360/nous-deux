@@ -294,7 +294,7 @@ String cyclePartnerNotTracking(String lang, String name) => lang == 'fr'
     ? '$name ne suit pas de cycle dans l\'app.'
     : '$name doesn\'t track a cycle in the app.';
 String cycleNoPartner(String lang) => lang == 'fr'
-    ? 'Ici, vous suivrez le cycle de votre partenaire, s\'il le partage, avec des idées pour être là au bon moment.'
+    ? 'Ici, vous suivrez le cycle de votre partenaire quand il sera partagé, avec des idées pour être là au bon moment.'
     : 'Here you\'ll follow your partner\'s cycle, if they share it, with ideas for being there at the right time.';
 String cycleWhatHelps(String lang) => lang == 'fr'
     ? 'Ce qui peut aider cette semaine'

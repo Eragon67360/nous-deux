@@ -6,7 +6,6 @@ class ProfileModel {
   ProfileModel({
     required this.id,
     this.username,
-    required this.gender,
     this.partnerId,
     this.language = 'fr',
     this.avatarUrl,
@@ -21,7 +20,6 @@ class ProfileModel {
 
   final String id;
   final String? username;
-  final String gender;
   final String? partnerId;
   final String language;
   final String? avatarUrl;
@@ -37,7 +35,6 @@ class ProfileModel {
     return ProfileModel(
       id: json['id'] as String,
       username: json['username'] as String?,
-      gender: json['gender'] as String? ?? 'woman',
       partnerId: json['partner_id'] as String?,
       language: json['language'] as String? ?? 'fr',
       avatarUrl: trustedAvatarUrl(
@@ -64,7 +61,6 @@ class ProfileModel {
     return {
       'id': id,
       'username': username,
-      'gender': gender,
       'partner_id': partnerId,
       'language': language,
       'avatar_url': avatarUrl,
@@ -79,7 +75,6 @@ class ProfileModel {
     return ProfileEntity(
       id: id,
       username: username,
-      gender: gender,
       partnerId: partnerId,
       language: language,
       avatarUrl: avatarUrl,
@@ -96,7 +91,6 @@ class ProfileModel {
     return ProfileModel(
       id: e.id,
       username: e.username,
-      gender: e.gender,
       partnerId: e.partnerId,
       language: e.language,
       avatarUrl: e.avatarUrl,

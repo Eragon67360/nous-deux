@@ -134,17 +134,9 @@ class FakeProfileRepository implements ProfileRepository {
   Failure? loadFailure;
 
   int getOrCreateCalls = 0;
-  final completeOnboardingCalls =
-      <({String username, String gender, String language})>[];
+  final completeOnboardingCalls = <({String username, String language})>[];
   final updateCalls =
-      <
-        ({
-          String? username,
-          String? gender,
-          String? language,
-          String? avatarUrl,
-        })
-      >[];
+      <({String? username, String? language, String? avatarUrl})>[];
 
   Failure? _takeFailure() {
     final f = nextFailure;
@@ -155,7 +147,6 @@ class FakeProfileRepository implements ProfileRepository {
   ProfileEntity _copy(
     ProfileEntity p, {
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
     DateTime? onboardingCompletedAt,
@@ -166,7 +157,6 @@ class FakeProfileRepository implements ProfileRepository {
     return ProfileEntity(
       id: p.id,
       username: username ?? p.username,
-      gender: gender ?? p.gender,
       partnerId: p.partnerId,
       language: language ?? p.language,
       avatarUrl: avatarUrl ?? p.avatarUrl,
@@ -196,13 +186,11 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<ProfileResult> updateProfile({
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
   }) async {
     updateCalls.add((
       username: username,
-      gender: gender,
       language: language,
       avatarUrl: avatarUrl,
     ));
@@ -211,7 +199,6 @@ class FakeProfileRepository implements ProfileRepository {
     mine = _copy(
       mine!,
       username: username,
-      gender: gender,
       language: language,
       avatarUrl: avatarUrl,
     );
@@ -246,20 +233,14 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<ProfileResult> completeOnboarding({
     required String username,
-    required String gender,
     required String language,
   }) async {
-    completeOnboardingCalls.add((
-      username: username,
-      gender: gender,
-      language: language,
-    ));
+    completeOnboardingCalls.add((username: username, language: language));
     final failure = _takeFailure();
     if (failure != null) return (profile: null, failure: failure);
     mine = _copy(
       mine ?? profile(onboarded: false),
       username: username,
-      gender: gender,
       language: language,
       onboardingCompletedAt: DateTime.utc(2026, 1, 2),
     );

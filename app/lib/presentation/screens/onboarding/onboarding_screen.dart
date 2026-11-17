@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/entrance.dart';
 
@@ -16,7 +17,6 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final _displayNameController = TextEditingController();
-  String _gender = 'woman';
   String _language = 'fr';
   bool _loading = false;
   String? _error;
@@ -40,7 +40,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final repo = ref.read(profileRepositoryProvider);
     final result = await repo.completeOnboarding(
       username: name,
-      gender: _gender,
       language: _language,
     );
     if (!mounted) return;
@@ -105,36 +104,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    _Label(onboardingGender(lang)),
-                    SegmentedButton<String>(
-                      showSelectedIcon: false,
-                      segments: [
-                        ButtonSegment(
-                          value: 'woman',
-                          label: Text(onboardingWoman(lang)),
-                        ),
-                        ButtonSegment(
-                          value: 'man',
-                          label: Text(onboardingMan(lang)),
-                        ),
-                      ],
-                      selected: {_gender},
-                      onSelectionChanged: (v) =>
-                          setState(() => _gender = v.first),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
                     _Label(onboardingLanguageLabel(lang)),
                     SegmentedButton<String>(
                       showSelectedIcon: false,
                       segments: [
-                        ButtonSegment(
-                          value: 'fr',
-                          label: Text(onboardingFrench(lang)),
-                        ),
-                        ButtonSegment(
-                          value: 'en',
-                          label: Text(onboardingEnglish(lang)),
-                        ),
+                        for (final code in AppLanguages.supported)
+                          ButtonSegment(
+                            value: code,
+                            label: Text(AppLanguages.nativeName(code)),
+                          ),
                       ],
                       selected: {_language},
                       onSelectionChanged: (v) =>
