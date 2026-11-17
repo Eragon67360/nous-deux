@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
@@ -766,7 +767,18 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
     String lang,
   ) async {
     if (enable) {
-      final status = await Permission.location.request();
+      // On iOS a request whose answer never came back (GlitchTip APP-4)
+      // blocks every later one until the app restarts. Go by the current
+      // status then, and point to the settings, where it can still be given.
+      var blocked = false;
+      PermissionStatus status;
+      try {
+        status = await Permission.location.request();
+      } on PlatformException catch (e) {
+        if (e.code != 'ERROR_ALREADY_REQUESTING_PERMISSIONS') rethrow;
+        blocked = true;
+        status = await Permission.location.status;
+      }
       final allowed =
           status.isGranted ||
           status == PermissionStatus.limited ||
@@ -777,7 +789,7 @@ class _LocationSharingSwitchBody extends ConsumerWidget {
             SnackBar(
               content: Text(settingsLocationRequiredForSharing(lang)),
               behavior: SnackBarBehavior.floating,
-              action: status.isPermanentlyDenied
+              action: status.isPermanentlyDenied || blocked
                   ? SnackBarAction(
                       label: settingsOpenAppSettings(lang),
                       onPressed: openAppSettings,
