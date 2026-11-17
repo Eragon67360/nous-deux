@@ -1,0 +1,8 @@
+/* iOS permission prompts in English (docs/LOCALIZATION.md, phase 4).
+   Info.plist holds the English ones, for any language without a file here. */
+"NSCameraUsageDescription" = "Nous Deux uses the camera to scan your partner's invitation QR code.";
+"NSLocationWhenInUseUsageDescription" = "Nous Deux shows your location to your partner when you turn on sharing (optional).";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Nous Deux shows your location to your partner when you turn on sharing (optional), only while you are using the app.";
+"NSPhotoLibraryUsageDescription" = "Nous Deux uses the photo you pick as your profile picture.";
+"NSCalendarsUsageDescription" = "Nous Deux accesses your calendar to manage and sync your shared events.";
+"NSCalendarsFullAccessUsageDescription" = "Nous Deux accesses your calendar to manage and sync your shared events.";
