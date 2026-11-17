@@ -68,7 +68,7 @@ This keeps the app outside the Families policy. The app pairs adults and stores 
 None of the permissions with their own Play declaration are used: no background location, no exact alarms, no SMS or call log, no broad photo or file access. The built app requests:
 - **Fine location:** sharing where you are with your partner, only after you turn it on.
 - **Camera:** scanning the pairing QR code.
-- **Calendar read and write:** importing events from the phone's calendar.
+- **Calendar read and write:** following phone calendars: the events of the ones the person chooses are copied into the couple's calendar and kept up to date, also in the background (docs/CALENDAR_SYNC.md).
 - **Notifications and push (FCM):** reminders and your partner's notes.
 - **Network, wake lock, vibrate.**
 
@@ -100,9 +100,9 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 | Location › Precise location | Optional | App functionality | Latest position only, no history; erased when sharing stops |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
 | Messages › Other in-app messages | Optional | App functionality | Little notes, latest one per person: a preset or, since build 26, a text the person writes (40 characters at most). The push never carries the text. |
-| Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |
+| Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones copied from a followed phone calendar (title and times only) and kept up to date |
 | App activity › Other user-generated content | Optional | App functionality | Shared lists and items, the date the relationship started |
-| Device or other IDs | Optional | App functionality | Push notification token |
+| Device or other IDs | Optional | App functionality | Push notification token; a random id of the phone that follows calendars |
 | App info and performance › Crash logs | Required | Analytics | Crash and error reports to our GlitchTip (`errors.nous-deux.app`), kept 30 days: what failed and where in the code, the app version. No account, name, IP address or location; there's no setting to turn them off. |
 | App info and performance › Diagnostics | Required | Analytics | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 

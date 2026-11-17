@@ -191,7 +191,7 @@
           },
           {
             "label": "Calendrier partagé",
-            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, et l'option « compte à rebours » si vous l'activez sur un événement. Visibles uniquement au sein du couple."
+            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, et l'option « compte à rebours » si vous l'activez sur un événement. Si vous suivez un agenda de votre téléphone : les titres, dates et heures de ses événements, du mois dernier aux six prochains mois, copiés et tenus à jour par votre téléphone, y compris en arrière-plan, ainsi qu'un identifiant aléatoire de ce téléphone et l'heure de sa dernière mise à jour. Rien d'autre de votre agenda ne quitte votre téléphone, et ne plus le suivre retire les copies. Visibles uniquement au sein du couple."
           },
           {
             "label": "Suivi des règles",
@@ -317,7 +317,7 @@
       },
       {
         "label": "Un événement",
-        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer."
+        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer. Un événement copié d'un agenda suivi se supprime sur votre téléphone, ou disparaît quand vous ne suivez plus cet agenda."
       },
       {
         "label": "Les listes",

@@ -182,9 +182,9 @@ Same facts as Play's Data safety table, in Apple's terms. Apple counts crash and
 | Location › Precise Location | Yes | No | App Functionality | Latest position only, while sharing is on |
 | User Content › Photos or Videos | Yes | No | App Functionality | Profile photo |
 | User Content › Emails or Text Messages | Yes | No | App Functionality | Little notes: a preset or a text the person writes (40 characters at most), only the latest per person; never in the push |
-| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, the relationship's start date |
+| User Content › Other User Content | Yes | No | App Functionality | Calendar events (copied from followed phone calendars too: title and times), shared lists, the relationship's start date |
 | Identifiers › User ID | Yes | No | App Functionality | Account id |
-| Identifiers › Device ID | Yes | No | App Functionality | Push notification token |
+| Identifiers › Device ID | Yes | No | App Functionality | Push notification token; a random id of the phone that follows calendars |
 | Diagnostics › Crash Data | No | No | App Functionality | Crash and error reports to our GlitchTip, kept 30 days, no account, IP or location |
 | Diagnostics › Other Diagnostic Data | No | No | App Functionality | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 

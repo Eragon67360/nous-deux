@@ -8,7 +8,9 @@
 
 **Tech Stack:** Flutter (Riverpod, `device_calendar` 4.3.3, `firebase_messaging` 16.7.1, `supabase_flutter` 2.12.0, `crypto`), Kotlin WorkManager, self-hosted Supabase (Postgres triggers, `pg_net`, Deno edge functions), FCM HTTP v1.
 
-**Spec:** the Decisions section below, agreed with Thomas on 2026-11-17. Written 2026-11-17; nothing here is implemented yet.
+**Spec:** the Decisions section below, agreed with Thomas on 2026-11-17.
+
+**Status (2026-11-17):** Tasks 1–6 are done (#128–#131 and the PR for Tasks 5–6): followed calendars sync when the app opens or resumes, and opening the calendar asks to wake the partner's phone. Thomas picked follow screen A (with B's « Nous » tip) and calendar B. Tasks 0, 7 and 8 (background sync) wait for a Galaxy S25 on adb and an iPhone.
 
 ## Where we start
 
