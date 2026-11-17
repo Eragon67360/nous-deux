@@ -2353,6 +2353,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{value, select, cramps{Cramps} headache{Headache} acne{Acne} pain{Pain} bloating{Bloating} other{{value}}}'**
   String periodSymptomLabel(String value);
+
+  /// No description provided for @guideLabelPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}: '**
+  String guideLabelPrefix(String label);
+
+  /// No description provided for @positionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get positionTitle;
+
+  /// No description provided for @positionNoPartnerMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite your partner'**
+  String get positionNoPartnerMessage;
+
+  /// No description provided for @positionNoPartnerSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Once they join, you\'ll see each other on the map.'**
+  String get positionNoPartnerSecondary;
+
+  /// No description provided for @positionInvitePartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
+  String get positionInvitePartner;
+
+  /// No description provided for @positionEnableSharingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location'**
+  String get positionEnableSharingMessage;
+
+  /// No description provided for @positionEnableSharingSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow location access in your phone\'s settings.'**
+  String get positionEnableSharingSecondary;
+
+  /// No description provided for @positionOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get positionOpenSettings;
+
+  /// No description provided for @positionReloadTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh'**
+  String get positionReloadTooltip;
+
+  /// No description provided for @positionReloadDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get positionReloadDone;
+
+  /// No description provided for @positionMapPhoneOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'The map shows on phones.'**
+  String get positionMapPhoneOnly;
+
+  /// No description provided for @positionTogether.
+  ///
+  /// In en, this message translates to:
+  /// **'Together ❤️'**
+  String get positionTogether;
+
+  /// No description provided for @positionTogetherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Together'**
+  String get positionTogetherTitle;
+
+  /// No description provided for @positionMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Me'**
+  String get positionMe;
+
+  /// No description provided for @positionSeeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'See all'**
+  String get positionSeeAll;
+
+  /// No description provided for @positionPartnerFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Partner'**
+  String get positionPartnerFallback;
+
+  /// No description provided for @appInfoFriendsName.
+  ///
+  /// In en, this message translates to:
+  /// **'Friends'**
+  String get appInfoFriendsName;
 }
 
 class _AppLocalizationsDelegate

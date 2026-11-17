@@ -19,6 +19,7 @@ import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/constants/pairing_strings.dart';
 import 'package:nousdeux/core/constants/period_ui_strings.dart';
+import 'package:nousdeux/core/constants/position_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
@@ -1542,6 +1543,10 @@ void main() {
       );
       put('guideSources()', guideSources(lang));
       put('guideDaysShort(range=\'<range>\')', guideDaysShort(lang, '<range>'));
+      put(
+        'guideLabelPrefix(label=\'<label>\')',
+        guideLabelPrefix(lang, '<label>'),
+      );
       put('listsTitle()', listsTitle(lang));
       put('listsSubtitle(partnerName=\'Alex\')', listsSubtitle(lang, 'Alex'));
       put(
@@ -4548,6 +4553,24 @@ void main() {
       put('pairingScanConnecting()', pairingScanConnecting(lang));
       put('periodLearnMore()', periodLearnMore(lang));
       put('periodCouldNotOpenLink()', periodCouldNotOpenLink(lang));
+      put('positionTitle()', positionTitle(lang));
+      put('positionNoPartnerMessage()', positionNoPartnerMessage(lang));
+      put('positionNoPartnerSecondary()', positionNoPartnerSecondary(lang));
+      put('positionInvitePartner()', positionInvitePartner(lang));
+      put('positionEnableSharingMessage()', positionEnableSharingMessage(lang));
+      put(
+        'positionEnableSharingSecondary()',
+        positionEnableSharingSecondary(lang),
+      );
+      put('positionOpenSettings()', positionOpenSettings(lang));
+      put('positionReloadTooltip()', positionReloadTooltip(lang));
+      put('positionReloadDone()', positionReloadDone(lang));
+      put('positionMapPhoneOnly()', positionMapPhoneOnly(lang));
+      put('positionTogether()', positionTogether(lang));
+      put('positionTogetherTitle()', positionTogetherTitle(lang));
+      put('positionMe()', positionMe(lang));
+      put('positionSeeAll()', positionSeeAll(lang));
+      put('positionPartnerFallback()', positionPartnerFallback(lang));
       put('mainNavCalendar()', mainNavCalendar(lang));
       put('mainNavPeriod()', mainNavPeriod(lang));
       put('mainNavPosition()', mainNavPosition(lang));
@@ -4642,6 +4665,7 @@ void main() {
       put('settingsEditUsername()', settingsEditUsername(lang));
       put('settingsSave()', settingsSave(lang));
       put('settingsCancel()', settingsCancel(lang));
+      put('appInfoFriendsName()', appInfoFriendsName(lang));
     }
 
     final file = File('test/l10n/strings_snapshot.json');

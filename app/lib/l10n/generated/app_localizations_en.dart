@@ -1454,4 +1454,59 @@ class AppLocalizationsEn extends AppLocalizations {
     });
     return '$_temp0';
   }
+
+  @override
+  String guideLabelPrefix(String label) {
+    return '$label: ';
+  }
+
+  @override
+  String get positionTitle => 'Location';
+
+  @override
+  String get positionNoPartnerMessage => 'Invite your partner';
+
+  @override
+  String get positionNoPartnerSecondary =>
+      'Once they join, you\'ll see each other on the map.';
+
+  @override
+  String get positionInvitePartner => 'Invite';
+
+  @override
+  String get positionEnableSharingMessage => 'Turn on location';
+
+  @override
+  String get positionEnableSharingSecondary =>
+      'Allow location access in your phone\'s settings.';
+
+  @override
+  String get positionOpenSettings => 'Open settings';
+
+  @override
+  String get positionReloadTooltip => 'Refresh';
+
+  @override
+  String get positionReloadDone => 'Up to date';
+
+  @override
+  String get positionMapPhoneOnly => 'The map shows on phones.';
+
+  @override
+  String get positionTogether => 'Together ❤️';
+
+  @override
+  String get positionTogetherTitle => 'Together';
+
+  @override
+  String get positionMe => 'Me';
+
+  @override
+  String get positionSeeAll => 'See all';
+
+  @override
+  String get positionPartnerFallback => 'Partner';
+
+  @override
+  String get appInfoFriendsName => 'Friends';
 }

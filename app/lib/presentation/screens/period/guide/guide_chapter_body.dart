@@ -219,8 +219,7 @@ class _Line extends StatelessWidget {
         TextSpan(
           children: [
             TextSpan(
-              // French puts a space before the colon.
-              text: lang == 'fr' ? '$label : ' : '$label: ',
+              text: guideLabelPrefix(lang, label),
               style: const TextStyle(fontWeight: FontWeight.w600),
             ),
             TextSpan(text: text),

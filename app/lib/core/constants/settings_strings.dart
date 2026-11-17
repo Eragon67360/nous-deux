@@ -106,3 +106,4 @@ String settingsLanguageUpdated(String lang) =>
 String settingsEditUsername(String lang) => l10nFor(lang).settingsEditUsername;
 String settingsSave(String lang) => l10nFor(lang).settingsSave;
 String settingsCancel(String lang) => l10nFor(lang).settingsCancel;
+String appInfoFriendsName(String lang) => l10nFor(lang).appInfoFriendsName;
