@@ -2,7 +2,7 @@
 
 Goal: make a language a matter of files and translation, not code, while French and English stay exactly as they are today. Once this is done, adding Spanish, German or Portuguese means adding files, translating and reviewing, without touching screens, services or functions.
 
-Written 2026-11-17. Phases 1 to 5 and 7 are done (the app's language list, ARB strings, content files, iOS system texts, server push catalog, store copy files); phase 6 (website hardening) is not merged yet.
+Written 2026-11-17. Phases 1 to 7 are done (the app's language list, ARB strings, content files, iOS system texts, server push catalog, website hardening, store copy files); phase 8 waits for a third language.
 
 ## Where we start
 

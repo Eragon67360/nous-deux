@@ -17,6 +17,9 @@ export const SITE_NAME = "Nous Deux";
 /** When the privacy policy last changed: the policy page and the sitemap. */
 export const POLICY_LAST_UPDATED_ISO = "2026-11-17";
 
+/** Open Graph locale of each language, for og:locale and og:locale:alternate. */
+const OG_LOCALES: Record<Locale, string> = { fr: "fr_FR", en: "en_US" };
+
 /** Absolute URL of a page in one language; `path` is "" for home or "/beta". */
 export function pageUrl(lang: Locale, path: string): string {
   return `${SITE_URL}/${lang}${path}`;
@@ -70,8 +73,10 @@ export function pageMetadata({
       url,
       title,
       description,
-      locale: lang === "fr" ? "fr_FR" : "en_US",
-      alternateLocale: lang === "fr" ? "en_US" : "fr_FR",
+      locale: OG_LOCALES[lang],
+      alternateLocale: locales
+        .filter((l) => l !== lang)
+        .map((l) => OG_LOCALES[l]),
       images: [image],
     },
     twitter: {

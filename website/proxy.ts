@@ -4,6 +4,16 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { type Locale, defaultLocale, hasLocale, locales } from "@/lib/i18n";
 
+/** False for "*" and malformed tags, which make the matcher throw. */
+function isLanguageTag(tag: string): boolean {
+  try {
+    Intl.getCanonicalLocales(tag);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function getLocale(request: NextRequest): Locale {
   const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
   if (cookieLocale && hasLocale(cookieLocale)) return cookieLocale;
@@ -12,7 +22,7 @@ function getLocale(request: NextRequest): Locale {
   const negotiator = new Negotiator({
     headers: { "accept-language": acceptLanguage },
   });
-  const languages = negotiator.languages();
+  const languages = negotiator.languages().filter(isLanguageTag);
   const matched = match(languages, [...locales], defaultLocale);
   return (matched ?? defaultLocale) as Locale;
 }

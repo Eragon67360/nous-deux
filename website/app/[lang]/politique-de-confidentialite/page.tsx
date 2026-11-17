@@ -202,6 +202,7 @@ export default async function PolitiqueDeConfidentialitePage({
             <p>
               {p.sections.effective.body} {p.effectiveDate}.
             </p>
+            <p className="mt-4">{p.sections.effective.languageVersion}</p>
           </section>
         </article>
 
