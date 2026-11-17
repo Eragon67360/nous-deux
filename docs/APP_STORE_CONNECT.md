@@ -51,6 +51,90 @@ Export compliance: `ITSAppUsesNonExemptEncryption` is `false` in `Info.plist` (H
 ### Groups
 - **Bêta publique**: external group, public link https://testflight.apple.com/join/kScrT3Sk (no tester limit), shared on nous-deux.app/beta and in `promo/`. The workflow adds every build and submits the first build of each version for beta review. Created on 2026-11-15 through the App Store Connect API: the web page offered no external group even with the test information complete.
 
+## App Store product page
+
+Filled on 2026-11-17 for version « 1.0 » (not submitted). French is the primary language; English (United States) was added then, with its own name, subtitle, texts and screenshots.
+
+### App Information (all versions)
+
+| Field | French | English (US) |
+| --- | --- | --- |
+| Name (30) | Nous Deux : app de couple | Nous Deux: app for couples |
+| Subtitle (30) | Agenda, cycle et petits mots | Calendar, cycle, little notes |
+| Privacy policy URL | `https://nous-deux.app/fr/politique-de-confidentialite` | `https://nous-deux.app/en/politique-de-confidentialite` |
+
+- **Category:** Lifestyle (« Style de vie »), secondary Productivity (« Productivité »), like Play.
+- **Price:** free (US base price $0.00, 175 countries). It takes effect once the app is "Ready for Sale".
+
+### Version page
+
+| Field | French | English (US) |
+| --- | --- | --- |
+| Promotional text (170, can change without review) | Nouveau : écrivez vos propres petits mots et vos propres ressentis du jour. Gratuit, sans publicité, vos données restent sur nos serveurs en Allemagne. | New: write your own little notes and your own daily states. Free, no ads, and your data stays on our own servers in Germany. |
+| Keywords (100, commas, no words from the name) | `amoureux,agenda partagé,calendrier,règles,cycle menstruel,position,liste de courses,petit mot` | `couples,relationship,shared calendar,period tracker,cycle,location sharing,grocery list,love notes` |
+| Support URL | `https://nous-deux.app/fr/beta` (the contact address is on it) | `https://nous-deux.app/en/beta` |
+| Marketing URL | `https://nous-deux.app/fr` | `https://nous-deux.app/en` |
+
+- **Copyright:** 2026 Thomas Moser
+- **Release:** manual (« Publier cette version manuellement »), so an approval doesn't put the app live by itself.
+- **App Review:** sign-in required with `review1@nous-deux.app`; the notes are the TestFlight ones above. The two passwords (review1 in the field, review2 in the notes) and the contact are Thomas's to enter.
+
+**Description, French**
+
+> Nous Deux réunit vos deux vies sur le même écran, et rien d'autre.
+>
+> Calendrier : un agenda pour deux, chaque événement garde la couleur de la personne qui l'a ajouté. Importez vos événements depuis le calendrier du téléphone, changez de mois d'un glissement et suivez le compte à rebours jusqu'au prochain rendez-vous.
+>
+> Cycle : la personne qui suit son cycle choisit ce que son partenaire voit. Dates, ressenti du jour, avec vos propres mots si vous voulez, et un guide pour chacun des deux, écrit à partir de sources de santé publique. Les notes restent privées.
+>
+> Position : en direct, seulement quand vous l'activez. Aucun historique.
+>
+> Listes : courses, choses à faire, idées, cochées des deux côtés en direct.
+>
+> Petits mots : « Je pense à toi », « Bonne nuit », « J'arrive », ou vos propres mots, envoyés d'un geste.
+>
+> Vos jours : le compte de vos jours ensemble.
+>
+> Pas de fil d'actualité, pas de publicité, pas d'inconnus. L'application est gratuite. Vos données sont sur nos propres serveurs en Allemagne et ne sont jamais revendues. Vous pouvez supprimer votre compte depuis l'application.
+
+**Description, English**
+
+> Nous Deux puts your two lives on one screen, and nothing else.
+>
+> Calendar: one calendar for two, where each event keeps the colour of whoever added it. Import events from your phone's calendar, swipe between months and count down to your next date.
+>
+> Cycle: whoever tracks their cycle chooses what their partner sees. Dates, how you feel each day, in your own words if you like, and a guide for each of you, written from public health sources. Notes stay private.
+>
+> Location: live, only when you turn it on. No history.
+>
+> Lists: groceries, to-dos, ideas, ticked off on both phones at once.
+>
+> Little notes: "Thinking of you", "Good night", "On my way", or your own words, sent with one tap.
+>
+> Your days: how many days you've been together.
+>
+> No feed, no ads, no strangers. The app is free. Your data lives on our own servers in Germany and is never sold. You can delete your account from the app.
+
+### Screenshots
+
+The iPhone class App Store Connect asks for is now « iPhone avec Dynamic Island (écran moyen) », the 6.1/6.3-inch screens: 1206 × 2622 (or 1179 × 2556). Apple scales them for the other iPhones. iPad, iPhone Duo and Apple Watch are not needed: the app is iPhone only.
+
+`python3 app/store/appstore/render.py` renders them from the site's captures (`website/public/screenshots/`, English from its `en/` folder) in the Play graphics' look. Upload them one at a time to keep the order. The French set is the shared one. The English set was uploaded with the page switched to English, where it replaces « Utilisation des ressources existantes ».
+
+| Order | French | English |
+| --- | --- | --- |
+| 1 | `fr/01-nous.png` | `en/01-us.png` |
+| 2 | `fr/02-calendrier.png` | `en/02-calendar.png` |
+| 3 | `fr/03-cycle.png` | `en/03-cycle.png` |
+| 4 | `fr/04-petits-mots.png` | `en/04-notes.png` |
+| 5 | `fr/05-listes.png` | `en/05-lists.png` |
+
+The Position capture was left out: the French one still shows the old light map.
+
+### « En-tête et résultats de recherche » (optional)
+
+A newer tab next to the screenshots. **En-tête** is one wide banner at the top of the product page (5244 × 2950 or 3840 × 1646). **Résultats de recherche** is one landscape image shown in App Store search results (5244 × 2950, 3840 × 2560 or 1920 × 1280); without it, search results show the screenshots. Neither is needed to submit; none is set yet.
+
 ## App Privacy
 
 Same facts as Play's Data safety table, in Apple's terms. Apple counts crash and diagnostic data under **App Functionality** ("minimize app crashes"), where Play calls it Analytics. Nothing is used for tracking, and nothing goes to data brokers or advertisers.
@@ -65,11 +149,13 @@ Same facts as Play's Data safety table, in Apple's terms. Apple counts crash and
 | Health & Fitness › Health | Yes | No | App Functionality | Period dates, daily symptoms and mood, private cycle notes; only with cycle tracking on |
 | Location › Precise Location | Yes | No | App Functionality | Latest position only, while sharing is on |
 | User Content › Photos or Videos | Yes | No | App Functionality | Profile photo |
-| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, little notes (latest per person), the relationship's start date |
+| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, little notes (latest per person, preset or written), the relationship's start date |
 | Other Data › Other Data Types | Yes | No | App Functionality | Gender, chosen at onboarding |
 | Identifiers › User ID | Yes | No | App Functionality | Account id |
 | Identifiers › Device ID | Yes | No | App Functionality | Push notification token |
 | Diagnostics › Crash Data | No | No | App Functionality | Crash and error reports to our GlitchTip, kept 30 days, no account, IP or location |
 | Diagnostics › Other Diagnostic Data | No | No | App Functionality | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 
-**Not collected:** phone number (phone sign-in is off), physical address, other contact info, financial info, contacts, emails or text messages (little notes are preset phrases, counted under Other User Content), audio, gameplay, customer support, browsing or search history, purchases, usage data (no analytics), advertising data, performance data, sensitive info, coarse location.
+**Open question (2026-11-17):** since build 26 a little note can be a text the person writes (40 characters at most, only the latest kept). That makes it a short message between the two partners, which Apple's « E-mails ou SMS » (contents of a message) and Play's "Messages › Other in-app messages" may describe better than Other User Content. The published answers still say Other User Content; changing them is Thomas's call.
+
+**Not collected:** phone number (phone sign-in is off), physical address, other contact info, financial info, contacts, emails or text messages (little notes are counted under Other User Content; see below), audio, gameplay, customer support, browsing or search history, purchases, usage data (no analytics), advertising data, performance data, sensitive info, coarse location.
