@@ -10,6 +10,7 @@ class CalendarEventModel {
     this.endTime,
     required this.createdBy,
     this.isCountdown = false,
+    this.sourceKey,
     this.createdAt,
     this.updatedAt,
   });
@@ -24,6 +25,9 @@ class CalendarEventModel {
 
   /// Counted down to on the Nous tab.
   final bool isCountdown;
+
+  /// See [CalendarEventEntity.sourceKey].
+  final String? sourceKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -42,6 +46,7 @@ class CalendarEventModel {
           : null,
       createdBy: json['created_by'] as String,
       isCountdown: json['is_countdown'] as bool? ?? false,
+      sourceKey: json['source_key'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String).toLocal()
           : null,
@@ -61,6 +66,7 @@ class CalendarEventModel {
       'end_time': endTime?.toUtc().toIso8601String(),
       'created_by': createdBy,
       'is_countdown': isCountdown,
+      'source_key': sourceKey,
       'created_at': createdAt?.toUtc().toIso8601String(),
       'updated_at': updatedAt?.toUtc().toIso8601String(),
     };
@@ -76,6 +82,7 @@ class CalendarEventModel {
       endTime: endTime,
       createdBy: createdBy,
       isCountdown: isCountdown,
+      sourceKey: sourceKey,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

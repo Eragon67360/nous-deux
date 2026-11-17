@@ -10,6 +10,7 @@ class CalendarEventEntity extends Equatable {
     this.endTime,
     required this.createdBy,
     this.isCountdown = false,
+    this.sourceKey,
     this.createdAt,
     this.updatedAt,
   });
@@ -24,8 +25,14 @@ class CalendarEventEntity extends Equatable {
 
   /// Counted down to on the Nous tab.
   final bool isCountdown;
+
+  /// Set when the event is a copy from its author's followed phone calendar
+  /// (docs/CALENDAR_SYNC.md); such events are changed on that phone.
+  final String? sourceKey;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+
+  bool get isSynced => sourceKey != null;
 
   @override
   List<Object?> get props => [
@@ -37,6 +44,7 @@ class CalendarEventEntity extends Equatable {
     endTime,
     createdBy,
     isCountdown,
+    sourceKey,
     createdAt,
     updatedAt,
   ];
