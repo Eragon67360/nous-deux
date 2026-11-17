@@ -702,6 +702,9 @@ class FakePingRepository implements PingRepository {
   final List<PingEntity> _pings;
   final _controller = StreamController<List<PingEntity>>.broadcast();
   final sent = <PingKind>[];
+
+  /// The words of each note sent, null for a preset.
+  final sentTexts = <String?>[];
   Failure? nextFailure;
 
   /// Replace both people's latest notes and push them to listeners.
@@ -719,8 +722,9 @@ class FakePingRepository implements PingRepository {
   }
 
   @override
-  Future<PingResult> send(PingKind kind) async {
+  Future<PingResult> send(PingKind kind, {String? text}) async {
     sent.add(kind);
+    sentTexts.add(text);
     final failure = nextFailure;
     nextFailure = null;
     if (failure != null) return (ping: null, failure: failure);
@@ -729,6 +733,7 @@ class FakePingRepository implements PingRepository {
         coupleId: coupleId,
         senderId: meId,
         kind: kind,
+        text: text,
         sentAt: DateTime(2026, 11, 10, 18),
       ),
       failure: null,

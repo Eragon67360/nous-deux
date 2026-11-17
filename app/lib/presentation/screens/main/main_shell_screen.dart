@@ -17,6 +17,7 @@ import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/realtime_provider.dart';
+import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
 import 'package:nousdeux/presentation/widgets/text_tab_bar.dart';
@@ -172,6 +173,27 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         tab != 3;
     final incoming = _incomingPing;
     final partnerName = ref.watch(partnerProfileProvider).valueOrNull?.username;
+    final name = (partnerName?.trim().isNotEmpty ?? false)
+        ? partnerName!.trim()
+        : nousPartnerFallback(lang);
+    // A note of one's own carries its words in the notes stream only (the
+    // push leaves them out), so it waits for them before showing.
+    final String? incomingText;
+    if (incoming?.kind == PingKind.custom) {
+      final last = ref.watch(partnerLastPingProvider);
+      incomingText =
+          last != null &&
+              last.kind == PingKind.custom &&
+              !last.sentAt.isBefore(incoming!.sentAt)
+          ? last.text
+          : null;
+    } else {
+      incomingText = null;
+    }
+    final showIncoming =
+        incoming != null &&
+        !_celebrating &&
+        (incoming.kind != PingKind.custom || incomingText != null);
 
     return Stack(
       children: [
@@ -183,16 +205,17 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               onDismissed: () => setState(() => _celebrating = false),
             ),
           ),
-        if (incoming != null && !_celebrating)
+        if (showIncoming)
           Positioned.fill(
             child: PingReceived(
               key: ValueKey(incoming.sentAt),
               lang: lang,
-              partnerName: (partnerName?.trim().isNotEmpty ?? false)
-                  ? partnerName!.trim()
-                  : nousPartnerFallback(lang),
+              partnerName: name,
               kind: incoming.kind,
+              text: incomingText,
               onReply: _reply,
+              onWrite: () =>
+                  showNoteComposer(context, lang: lang, partnerName: name),
               onDismissed: () => setState(() => _incomingPing = null),
             ),
           ),

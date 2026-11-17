@@ -8,7 +8,8 @@ abstract class PingRepository {
   /// not paired.
   Stream<List<PingEntity>> watchPings();
 
-  /// Send a note to the partner. Fails with [PingFailure] on the 30-second
-  /// limit or when not paired.
-  Future<PingResult> send(PingKind kind);
+  /// Send a note to the partner: a preset [kind], or [PingKind.custom] with
+  /// its [text]. Fails with [PingFailure] on the 30-second limit or when not
+  /// paired.
+  Future<PingResult> send(PingKind kind, {String? text});
 }

@@ -26,16 +26,19 @@ String nousStartSaved(String lang) =>
 
 String nousSendNote(String lang) =>
     lang == 'fr' ? 'Envoyer un petit mot' : 'Send a little note';
-String pingLabel(String lang, PingKind kind) => switch (kind) {
+
+/// The words of a note: a preset's, or the [text] of one's own.
+String pingLabel(String lang, PingKind kind, {String? text}) => switch (kind) {
   PingKind.thinkingOfYou => lang == 'fr' ? 'Je pense à toi' : 'Thinking of you',
   PingKind.goodNight => lang == 'fr' ? 'Bonne nuit' : 'Good night',
   PingKind.onMyWay => lang == 'fr' ? "J'arrive" : 'On my way',
   PingKind.missYou => lang == 'fr' ? 'Tu me manques' : 'Miss you',
   PingKind.kiss => lang == 'fr' ? 'Bisou' : 'Kiss',
+  PingKind.custom => text ?? '',
 };
-String nousNoteSent(String lang, PingKind kind) => lang == 'fr'
-    ? 'Envoyé : ${pingLabel(lang, kind)}'
-    : 'Sent: ${pingLabel(lang, kind)}';
+String nousNoteSent(String lang, PingKind kind, {String? text}) => lang == 'fr'
+    ? 'Envoyé : ${pingLabel(lang, kind, text: text)}'
+    : 'Sent: ${pingLabel(lang, kind, text: text)}';
 String nousNoteCooldown(String lang) => lang == 'fr'
     ? 'Un petit mot toutes les 30 secondes au plus. Réessayez dans un instant.'
     : 'One little note every 30 seconds at most. Try again in a moment.';
@@ -44,12 +47,16 @@ String nousNoteFailed(String lang) => lang == 'fr'
     : "The note didn't go through. Try again.";
 
 /// What to say after sending [kind]: sent, wait a moment, or it failed.
-String pingResultMessage(String lang, PingKind kind, Failure? failure) =>
-    switch (failure) {
-      null => nousNoteSent(lang, kind),
-      PingFailure(problem: PingProblem.cooldown) => nousNoteCooldown(lang),
-      _ => nousNoteFailed(lang),
-    };
+String pingResultMessage(
+  String lang,
+  PingKind kind,
+  Failure? failure, {
+  String? text,
+}) => switch (failure) {
+  null => nousNoteSent(lang, kind, text: text),
+  PingFailure(problem: PingProblem.cooldown) => nousNoteCooldown(lang),
+  _ => nousNoteFailed(lang),
+};
 
 /// "Camille : Je pense à toi, il y a 12 min" /
 /// "Camille: Thinking of you, 12 min ago".
@@ -58,8 +65,9 @@ String nousReceivedLine(
   String name,
   PingKind kind,
   DateTime sentAt,
-  DateTime now,
-) {
+  DateTime now, {
+  String? text,
+}) {
   final ago = now.difference(sentAt);
   final String when;
   if (ago.inMinutes < 1) {
@@ -76,16 +84,18 @@ String nousReceivedLine(
         : 'on ${DateFormat('MMM d', 'en_US').format(sentAt.toLocal())}';
   }
   // French puts a (non-breaking) space before the colon.
-  final note = pingLabel(lang, kind);
+  final note = pingLabel(lang, kind, text: text);
   return lang == 'fr' ? '$name : $note, $when' : '$name: $note, $when';
 }
 
-/// The full-screen moment and the push body when a note arrives.
+/// The full-screen moment and the push body when a note arrives. A note of
+/// one's own is its [text] alone: [pingSignature] says who wrote it.
 String pingReceivedTitle(
   String lang,
   PingKind kind,
-  String name,
-) => switch (kind) {
+  String name, {
+  String? text,
+}) => switch (kind) {
   PingKind.thinkingOfYou =>
     lang == 'fr' ? '$name pense à toi.' : '$name is thinking of you.',
   PingKind.goodNight =>
@@ -95,7 +105,52 @@ String pingReceivedTitle(
     lang == 'fr' ? '$name : tu me manques.' : '$name misses you.',
   PingKind.kiss =>
     lang == 'fr' ? "$name t'envoie un bisou." : '$name sends you a kiss.',
+  PingKind.custom => text ?? '',
 };
+
+/// Under a note of one's own, like a signature: "Camille · À l'instant".
+String pingSignature(String lang, String name) =>
+    '$name · ${pingJustNow(lang)}';
+String pingWriteBack(String lang) =>
+    lang == 'fr' ? 'Répondre par un mot' : 'Reply with a note';
+
+// Writing a note of one's own.
+String nousWrite(String lang) => lang == 'fr' ? 'Écrire…' : 'Write…';
+String nousMyWords(String lang) => lang == 'fr' ? 'Mes mots' : 'My notes';
+String nousWriteTo(String lang, String name) =>
+    lang == 'fr' ? 'Un petit mot pour $name' : 'A little note for $name';
+String nousWriteHint(String lang) =>
+    lang == 'fr' ? 'Votre petit mot' : 'Your little note';
+String nousWriteReplaces(String lang) => lang == 'fr'
+    ? 'Il remplace votre dernier mot, comme les autres.'
+    : 'It replaces your last note, like the others.';
+String nousKeepWord(String lang) =>
+    lang == 'fr' ? 'Le garder dans mes mots' : 'Keep it in my notes';
+String nousSend(String lang) => lang == 'fr' ? 'Envoyer' : 'Send';
+
+// The notes shown on Nous, chosen in "Mes mots".
+String myWordsTitle(String lang) =>
+    lang == 'fr' ? 'Mes petits mots' : 'My little notes';
+String myWordsHelp(String lang) => lang == 'fr'
+    ? "Ceux qui sont cochés s'affichent sur Nous, dans cet ordre. "
+          'Six au plus.'
+    : 'The ticked ones show on Nous, in this order. Six at most.';
+String myWordsAddHint(String lang) =>
+    lang == 'fr' ? 'Ajouter un mot…' : 'Add a note…';
+String myWordsAdd(String lang) => lang == 'fr' ? 'Ajouter' : 'Add';
+String myWordsRemove(String lang, String word) =>
+    lang == 'fr' ? 'Retirer « $word »' : 'Remove "$word"';
+String myWordsMove(String lang, String word) =>
+    lang == 'fr' ? 'Déplacer « $word »' : 'Move "$word"';
+String myWordsFull(String lang) => lang == 'fr'
+    ? "Six mots au plus sur Nous. Décochez-en un d'abord."
+    : 'Six notes at most on Nous. Untick one first.';
+String myWordsAlready(String lang) => lang == 'fr'
+    ? 'Ce mot est déjà dans la liste.'
+    : 'That note is already there.';
+String myWordsDrag(String lang) => lang == 'fr'
+    ? "Glissez la poignée à droite pour changer l'ordre."
+    : 'Drag the handle on the right to change the order.';
 String pingJustNow(String lang) => lang == 'fr' ? "À l'instant" : 'Just now';
 String pingReplyMeToo(String lang) => lang == 'fr' ? 'Moi aussi' : 'Me too';
 String pingTapToClose(String lang) =>

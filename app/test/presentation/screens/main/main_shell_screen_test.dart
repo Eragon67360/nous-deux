@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
@@ -383,6 +384,55 @@ void main() {
       deps.pings.emit([note(evening, PingKind.kiss)]);
       await tester.pumpAndSettle();
       expect(find.byType(PingReceived), findsNothing);
+    });
+
+    PingEntity written(DateTime at, String text) => PingEntity(
+      coupleId: coupleId,
+      senderId: partnerId,
+      kind: PingKind.custom,
+      text: text,
+      sentAt: at,
+    );
+
+    testWidgets("a written note shows its words, signed, once they arrive", (
+      tester,
+    ) async {
+      final deps = paired();
+      await _pumpShell(tester, deps);
+      final evening = DateTime(2026, 11, 10, 18);
+
+      // The push leaves the words out: nothing to show until the notes
+      // stream brings them.
+      deps.openedNotes.add((kind: PingKind.custom, sentAt: evening));
+      await tester.pumpAndSettle();
+      expect(find.byType(PingReceived), findsNothing);
+
+      deps.pings.emit([written(evening, 'Bonne journée, mon cœur')]);
+      await tester.pumpAndSettle();
+      expect(find.text('Bonne journée, mon cœur'), findsOneWidget);
+      expect(
+        find.text(pingSignature('fr', 'Alex').toUpperCase()),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('"Reply with a note" closes the moment and opens the sheet', (
+      tester,
+    ) async {
+      final deps = paired(pings: [note(DateTime(2026, 11, 10, 9))]);
+      await _pumpShell(tester, deps);
+      deps.pings.emit([written(DateTime(2026, 11, 10, 18), 'Courage')]);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(pingWriteBack('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(PingReceived), findsNothing);
+      expect(find.byType(NoteComposer), findsOneWidget);
+      expect(
+        find.text(nousWriteTo('fr', 'Alex').toUpperCase()),
+        findsOneWidget,
+      );
     });
   });
 }

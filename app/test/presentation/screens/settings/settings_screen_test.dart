@@ -225,6 +225,8 @@ void main() {
         periodPartnerReminderEnabledKey: true,
         calendarNotificationsEnabledKey: true,
         guideReadChaptersKey: <String>['cycle'],
+        noteWordsKey: '[{"t":"Bonne journée","on":true}]',
+        ownStatesKey: '["Besoin de chocolat"]',
         'unrelated': 'kept',
       });
       final (deps, _) = await _pumpSettings(tester, lang: 'en');
@@ -554,6 +556,10 @@ void main() {
     });
 
     testWidgets('or delete all of it: consent withdrawn', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        ownStatesKey: '["Besoin de chocolat"]',
+        noteWordsKey: '[{"t":"Bonne journée","on":true}]',
+      });
       final (deps, _) = await _pumpSettings(tester, tracksCycle: true);
 
       await tester.tap(find.text(settingsTracksCycle('fr')));
@@ -564,6 +570,10 @@ void main() {
       expect(deps.cycle.deleteAllCalls, 1);
       expect(deps.profiles.cycleSettingsCalls.single.tracksCycle, isFalse);
       expect(find.text(cycleDataDeleted('fr')), findsOneWidget);
+      // The states written for the check-in go with the cycle data; the
+      // little notes are not cycle data and stay.
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getKeys(), {noteWordsKey});
     });
 
     testWidgets('a failed deletion keeps tracking on', (tester) async {

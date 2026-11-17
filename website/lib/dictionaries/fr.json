@@ -170,8 +170,8 @@
       "description": "Les données que collecte Nous Deux, à quoi elles servent, où elles sont hébergées (nos serveurs en Allemagne, dans l'UE) et comment exercer vos droits."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "15 novembre 2026",
-    "effectiveDateISO": "2026-11-15",
+    "effectiveDate": "16 novembre 2026",
+    "effectiveDateISO": "2026-11-16",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
@@ -196,7 +196,7 @@
           },
           {
             "label": "Suivi des règles",
-            "text": "si vous choisissez de suivre votre cycle : les dates de début et de fin de vos règles, votre ressenti du jour si vous le notez (symptômes, humeur) et vos notes. Ce sont des données de santé. Votre partenaire voit vos dates et votre ressenti tant que vous les partagez : deux interrupteurs dans l'onglet Règles, activés par défaut, que vous pouvez couper à tout moment. Vos notes ne sont jamais partagées : personne d'autre que vous ne peut les lire."
+            "text": "si vous choisissez de suivre votre cycle : les dates de début et de fin de vos règles, votre ressenti du jour si vous le notez (symptômes, humeur, et les états que vous écrivez vous-même, comme « Besoin de chocolat ») et vos notes. Ce sont des données de santé. Votre partenaire voit vos dates et votre ressenti tant que vous les partagez : deux interrupteurs dans l'onglet Règles, activés par défaut, que vous pouvez couper à tout moment. Les états que vous écrivez sont enregistrés et partagés comme les autres : votre partenaire ne les voit que si vous partagez « Mon ressenti du jour ». Les états que vous gardez pour les retrouver d'un jour à l'autre restent sur votre téléphone ; nous ne recevons que ceux que vous notez pour une journée. Vos notes ne sont jamais partagées : personne d'autre que vous ne peut les lire."
           },
           {
             "label": "Position (optionnelle)",
@@ -208,7 +208,7 @@
           },
           {
             "label": "Petits mots",
-            "text": "le dernier petit mot envoyé par chacun de vous (son type et son heure), pour l'afficher à votre partenaire. Aucun historique n'est conservé."
+            "text": "le dernier petit mot envoyé par chacun de vous, pour l'afficher à votre partenaire : son type et son heure, et son texte si vous l'avez écrit vous-même (40 caractères au plus). Chaque nouveau petit mot remplace le précédent : aucun historique n'est conservé. La notification d'un mot que vous avez écrit n'en contient pas le texte : il ne passe donc pas par les serveurs de notification de Google et d'Apple. Les mots que vous gardez pour les renvoyer plus tard restent sur votre téléphone ; nous ne recevons que celui que vous envoyez."
           },
           {
             "label": "Vos jours ensemble",

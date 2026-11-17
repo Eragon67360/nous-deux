@@ -31,9 +31,13 @@ Future<void> _pump(
   required String lang,
   required PingKind kind,
   required String name,
+  String? text,
+  VoidCallback? onWrite,
+  VoidCallback? onDismissed,
+  // An iPhone 16 Plus by default.
+  Size size = const Size(430, 932),
 }) async {
-  // An iPhone 16 Plus: 430 × 932 points.
-  tester.view.physicalSize = const Size(1290, 2796);
+  tester.view.physicalSize = size * 3;
   tester.view.devicePixelRatio = 3;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -44,8 +48,10 @@ Future<void> _pump(
           lang: lang,
           partnerName: name,
           kind: kind,
+          text: text,
           onReply: (_) {},
-          onDismissed: () {},
+          onWrite: onWrite,
+          onDismissed: onDismissed ?? () {},
         ),
       ),
     ),
@@ -94,7 +100,7 @@ void main() {
 
   for (final lang in ['fr', 'en']) {
     for (final name in ['Camille', 'Marie-Charlotte']) {
-      for (final kind in PingKind.values) {
+      for (final kind in PingKind.presets) {
         testWidgets('[$lang] "${pingReceivedTitle(lang, kind, name)}" stays '
             'inside the rings', (tester) async {
           await _pump(tester, lang: lang, kind: kind, name: name);
@@ -123,6 +129,112 @@ void main() {
       }
     }
   }
+
+  for (final width in [360.0, 320.0]) {
+    testWidgets('on a phone ${width.toInt()} points wide, the rings, the dot '
+        'and the note share one centre and fit on screen', (tester) async {
+      await _pump(
+        tester,
+        lang: 'fr',
+        kind: PingKind.kiss,
+        name: 'Evah',
+        size: Size(width, 780),
+      );
+      final title = pingReceivedTitle('fr', PingKind.kiss, 'Evah');
+      final centres = _ringCentres(tester);
+      final ringsMid = (centres[0].dx + centres[1].dx) / 2;
+      final dot = tester.getRect(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Container &&
+              w.constraints == BoxConstraints.tight(const Size(18, 18)),
+        ),
+      );
+      expect(ringsMid, moreOrLessEquals(width / 2, epsilon: 0.5));
+      expect(dot.center.dx, moreOrLessEquals(width / 2, epsilon: 0.5));
+      expect(
+        tester.getCenter(find.text(title)).dx,
+        moreOrLessEquals(width / 2, epsilon: 0.5),
+      );
+      // Both rings drawn whole: the frame holding them is on screen.
+      for (final e
+          in find
+              .byWidgetPredicate(
+                (w) =>
+                    w is Container &&
+                    w.constraints == BoxConstraints.tight(const Size(260, 260)),
+              )
+              .evaluate()) {
+        final ring = tester.getRect(find.byWidget(e.widget));
+        expect(ring.left, greaterThanOrEqualTo(0));
+        expect(ring.right, lessThanOrEqualTo(width));
+      }
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final text in [
+    'Merci',
+    'Bonne journée, mon cœur',
+    // 40 characters, the most a note of one's own holds.
+    'Je pense fort à toi pour ton examen bébé',
+    'Anticonstitutionnellement, je t’adore !',
+    'Bon courage pour ta réunion de 14 h 30 !',
+  ]) {
+    testWidgets('a note of one\'s own, "$text", stays inside the rings', (
+      tester,
+    ) async {
+      await _pump(
+        tester,
+        lang: 'fr',
+        kind: PingKind.custom,
+        name: 'Marie-Charlotte',
+        text: text,
+      );
+      final centres = _ringCentres(tester);
+      for (final corner in _titleLineCorners(tester, text)) {
+        for (final c in centres) {
+          final d = sqrt(pow(corner.dx - c.dx, 2) + pow(corner.dy - c.dy, 2));
+          expect(d, lessThanOrEqualTo(inner), reason: '$corner');
+        }
+      }
+      expect(
+        tester.renderObject<RenderParagraph>(find.text(text)).didExceedMaxLines,
+        isFalse,
+      );
+      // Signed underneath, in place of "just now".
+      expect(
+        find.text(pingSignature('fr', 'Marie-Charlotte').toUpperCase()),
+        findsOneWidget,
+      );
+      expect(find.text(pingJustNow('fr').toUpperCase()), findsNothing);
+    });
+  }
+
+  testWidgets('"Reply with a note" shows only when it can open the sheet', (
+    tester,
+  ) async {
+    var dismissed = false;
+    var wrote = false;
+    await _pump(tester, lang: 'fr', kind: PingKind.kiss, name: 'Evah');
+    expect(find.text(pingWriteBack('fr')), findsNothing);
+
+    await _pump(
+      tester,
+      lang: 'fr',
+      kind: PingKind.kiss,
+      name: 'Evah',
+      onDismissed: () => dismissed = true,
+      onWrite: () {
+        // Closed first, so the sheet opens on the tab, not over the note.
+        expect(dismissed, isTrue);
+        wrote = true;
+      },
+    );
+    await tester.tap(find.text(pingWriteBack('fr')));
+    await tester.pumpAndSettle();
+    expect(wrote, isTrue);
+  });
 
   testWidgets('a short title keeps the full 26-point size', (tester) async {
     await _pump(tester, lang: 'fr', kind: PingKind.onMyWay, name: 'Léo');

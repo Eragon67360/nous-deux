@@ -15,7 +15,7 @@ export const SITE_URL = "https://nous-deux.app";
 export const SITE_NAME = "Nous Deux";
 
 /** When the privacy policy last changed: the policy page and the sitemap. */
-export const POLICY_LAST_UPDATED_ISO = "2026-11-15";
+export const POLICY_LAST_UPDATED_ISO = "2026-11-16";
 
 /** Absolute URL of a page in one language; `path` is "" for home or "/beta". */
 export function pageUrl(lang: Locale, path: string): string {

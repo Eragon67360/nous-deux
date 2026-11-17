@@ -168,6 +168,19 @@ String cycleShortDate(String lang, DateTime day) => DateFormat(
   lang == 'fr' ? 'd MMM' : 'MMM d',
   lang == 'fr' ? 'fr_FR' : 'en_US',
 ).format(day);
+// States of one's own in today's check-in ("Besoin de chocolat").
+String cycleOtherState(String lang) => lang == 'fr' ? '+ Autre' : '+ Other';
+String cycleNewStateHint(String lang) =>
+    lang == 'fr' ? 'Votre ressenti' : 'How you feel';
+String cycleAddState(String lang) => lang == 'fr' ? 'Ajouter' : 'Add';
+String cycleOwnStateHint(String lang) =>
+    lang == 'fr' ? 'retirer de vos ressentis' : 'remove from your list';
+String cycleStateRemoved(String lang, String state) => lang == 'fr'
+    ? '« $state » ne sera plus proposé.'
+    : '"$state" won\'t be offered any more.';
+String cycleTooManyStates(String lang) => lang == 'fr'
+    ? 'Douze ressentis au plus par jour.'
+    : 'Twelve at most a day.';
 String cycleSaveFailed(String lang) => lang == 'fr'
     ? 'Ça n\'a pas été enregistré. Réessayez.'
     : 'That wasn\'t saved. Try again.';
