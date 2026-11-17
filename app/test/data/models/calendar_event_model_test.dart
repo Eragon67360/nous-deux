@@ -108,10 +108,20 @@ void main() {
       'end_time': '2026-03-14T22:00:00.000Z',
       'created_by': 'u1',
       'is_countdown': false,
+      'source_key': null,
       'created_at': '2026-03-01T08:00:00.000Z',
       'updated_at': '2026-03-02T08:00:00.000Z',
     });
     expect(CalendarEventModel.fromJson(json).toJson(), json);
+  });
+
+  test('a synced copy keeps its source key both ways', () {
+    final key = 'a' * 64;
+    final m = CalendarEventModel.fromJson({...fullJson, 'source_key': key});
+    expect(m.toEntity().sourceKey, key);
+    expect(m.toEntity().isSynced, isTrue);
+    expect(m.toJson()['source_key'], key);
+    expect(CalendarEventModel.fromJson(fullJson).toEntity().isSynced, isFalse);
   });
 
   test('toJson writes nulls for missing optional values', () {

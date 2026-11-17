@@ -31,6 +31,13 @@ abstract class ProfileRepository {
     bool? shareCheckins,
   });
 
+  /// Names [device] (an install id) as the phone that follows calendars for
+  /// me, or null when I follow none.
+  Future<ProfileResult> setCalendarSyncDevice(String? device);
+
+  /// Records that my phone just synced the calendars it follows.
+  Future<ProfileResult> markCalendarSynced();
+
   /// Update FCM token for push notifications.
   Future<ProfileResult> updateFcmToken(String? token);
 }

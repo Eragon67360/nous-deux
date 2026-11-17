@@ -164,6 +164,8 @@ class FakeProfileRepository implements ProfileRepository {
       tracksCycle: tracksCycle ?? p.tracksCycle,
       shareCycle: shareCycle ?? p.shareCycle,
       shareCheckins: shareCheckins ?? p.shareCheckins,
+      calendarSyncDevice: p.calendarSyncDevice,
+      calendarSyncedAt: p.calendarSyncedAt,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     );
@@ -251,6 +253,49 @@ class FakeProfileRepository implements ProfileRepository {
   Future<ProfileResult> updateFcmToken(String? token) async {
     return (profile: mine, failure: null);
   }
+
+  @override
+  Future<ProfileResult> setCalendarSyncDevice(String? device) async {
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _withSync(mine!, device: device, syncedAt: mine!.calendarSyncedAt);
+    return (profile: mine, failure: null);
+  }
+
+  int markSyncedCalls = 0;
+
+  @override
+  Future<ProfileResult> markCalendarSynced() async {
+    markSyncedCalls++;
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _withSync(
+      mine!,
+      device: mine!.calendarSyncDevice,
+      syncedAt: DateTime.now(),
+    );
+    return (profile: mine, failure: null);
+  }
+
+  ProfileEntity _withSync(
+    ProfileEntity p, {
+    required String? device,
+    required DateTime? syncedAt,
+  }) => ProfileEntity(
+    id: p.id,
+    username: p.username,
+    partnerId: p.partnerId,
+    language: p.language,
+    avatarUrl: p.avatarUrl,
+    onboardingCompletedAt: p.onboardingCompletedAt,
+    tracksCycle: p.tracksCycle,
+    shareCycle: p.shareCycle,
+    shareCheckins: p.shareCheckins,
+    calendarSyncDevice: device,
+    calendarSyncedAt: syncedAt,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  );
 }
 
 class FakePairingRepository implements PairingRepository {
@@ -389,6 +434,7 @@ class FakeCalendarRepository implements CalendarRepository {
     required DateTime startTime,
     DateTime? endTime,
     bool isCountdown = false,
+    String? sourceKey,
   }) async {
     createCalls.add((
       title: title,
@@ -398,12 +444,23 @@ class FakeCalendarRepository implements CalendarRepository {
     ));
     final failure = _takeFailure();
     if (failure != null) return (event: null, failure: failure);
+    // calendar_events_source_key: one copy per author and source key.
+    if (sourceKey != null &&
+        events.any((e) => e.createdBy == meId && e.sourceKey == sourceKey)) {
+      return (
+        event: null,
+        failure: const ServerFailure(
+          'duplicate key value violates unique constraint',
+        ),
+      );
+    }
     final created = event(
       id: 'event-${events.length + 1}',
       title: title,
       description: description,
       start: startTime,
       end: endTime,
+      sourceKey: sourceKey,
     );
     events.add(created);
     return (event: created, failure: null);
@@ -428,6 +485,57 @@ class FakeCalendarRepository implements CalendarRepository {
     final failure = _takeFailure();
     if (failure != null) return (event: null, failure: failure);
     return (event: events.firstWhere((e) => e.id == id), failure: null);
+  }
+
+  @override
+  Future<CalendarEventsResult> getMySyncedEvents({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    return (
+      events: [
+        for (final e in events)
+          if (e.createdBy == meId &&
+              e.sourceKey != null &&
+              !e.startTime.isBefore(from) &&
+              !e.startTime.isAfter(to))
+            e,
+      ],
+      failure: null,
+    );
+  }
+
+  final syncedUpdateCalls =
+      <({String id, String title, DateTime startTime, DateTime? endTime})>[];
+
+  @override
+  Future<CalendarEventResult> updateSyncedEvent({
+    required String id,
+    required String title,
+    required DateTime startTime,
+    DateTime? endTime,
+  }) async {
+    syncedUpdateCalls.add((
+      id: id,
+      title: title,
+      startTime: startTime,
+      endTime: endTime,
+    ));
+    final failure = _takeFailure();
+    if (failure != null) return (event: null, failure: failure);
+    final i = events.indexWhere((e) => e.id == id);
+    final old = events[i];
+    events[i] = event(
+      id: old.id,
+      title: title,
+      description: old.description,
+      start: startTime,
+      end: endTime,
+      createdBy: old.createdBy,
+      isCountdown: old.isCountdown,
+      sourceKey: old.sourceKey,
+    );
+    return (event: events[i], failure: null);
   }
 
   @override

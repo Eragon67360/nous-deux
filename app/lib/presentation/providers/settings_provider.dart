@@ -11,6 +11,7 @@ import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
+import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -139,6 +140,8 @@ Future<Failure?> deleteMyAccount(WidgetRef ref) async {
     guideReadChaptersKey,
     noteWordsKey,
     ownStatesKey,
+    calendarFollowedKey,
+    calendarInstallIdKey,
   ]) {
     await prefs.remove(key);
   }

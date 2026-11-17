@@ -23,6 +23,7 @@ ProfileEntity profile({
   bool? tracksCycle,
   bool shareCycle = true,
   bool shareCheckins = true,
+  String? calendarSyncDevice,
 }) {
   return ProfileEntity(
     id: id,
@@ -34,6 +35,7 @@ ProfileEntity profile({
     tracksCycle: tracksCycle,
     shareCycle: shareCycle,
     shareCheckins: shareCheckins,
+    calendarSyncDevice: calendarSyncDevice,
   );
 }
 
@@ -79,6 +81,7 @@ CalendarEventEntity event({
   DateTime? end,
   String createdBy = meId,
   bool isCountdown = false,
+  String? sourceKey,
 }) {
   return CalendarEventEntity(
     id: id,
@@ -89,6 +92,7 @@ CalendarEventEntity event({
     endTime: end,
     createdBy: createdBy,
     isCountdown: isCountdown,
+    sourceKey: sourceKey,
   );
 }
 

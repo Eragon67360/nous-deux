@@ -53,7 +53,7 @@ These are settled so the work doesn't stall. Each can be changed before its task
 2. **Leaving the couple or deleting the account** must still delete synced events, including the partner's, although the new trigger forbids deleting a partner's synced event. Test in Task 1.
 3. **A recurring event:** each occurrence in the window is its own row; moving one occurrence on the phone replaces only that one. Test in Task 3.
 4. **The same person on two phones:** only the phone named in `calendar_sync_device` syncs; the other stops following and deletes nothing. Test in Task 4.
-5. **An all-day event** keeps its day for the partner in another time zone or at midnight boundaries (start stored as the phone's local midnight). Test in Task 3 with a `TZDateTime` fixture in `Europe/Paris`.
+5. **An all-day event** keeps its day in the phone's own time zone, as the plugin really delivers it: Android brings the date back to midnight UTC, iPhone gives no time zone so it arrives in UTC (start stored as the phone's local midnight). Tests in Task 3 use both shapes. A partner in another time zone still sees it shifted, since `calendar_events` has no all-day flag; adding one is left for later.
 
 ---
 
@@ -214,6 +214,8 @@ The payload, since the headers decide whether iOS wakes the app:
   - **Opening the calendar tab** calls `requestPartnerCalendarSync` once.
   - **The freshness line** shows when the partner follows.
   - **Permission denied** shows the existing settings flow.
+  - **A followed calendar no longer on the phone** (a full sync can change its id): the `noAccess` outcome shows a notice and offers to drop the ids that are gone, instead of silently syncing nothing.
+  - **The countdown switch on a synced event** saves through a countdown-only update (new `CalendarRepository.setCountdown(id, bool)`), since the form's full update would send an end time the trigger refuses for the partner.
 - [ ] **Step 2:** Run. Expected: FAIL.
 - [ ] **Step 3:** Implement from the chosen wireframes, in the Carnet style.
 - [ ] **Step 4:** Run the whole suite and the analyzer. Expected: pass, 7 infos.
