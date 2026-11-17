@@ -45,3 +45,6 @@ verify_jwt = false
 
 [functions.apple-tokens]
 verify_jwt = false
+
+[functions.wake-partner-calendar]
+verify_jwt = false

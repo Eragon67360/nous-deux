@@ -12,7 +12,7 @@ container=$(ssh "$host" "docker ps --format '{{.Names}}' | grep -E '(^|-)supabas
 dir=$(ssh "$host" "docker inspect -f '{{range .Mounts}}{{if eq .Destination \"/home/deno/functions\"}}{{.Source}}{{end}}{{end}}' $container")
 [[ -n "$dir" ]] || { echo "functions folder not found on $container" >&2; exit 1; }
 
-functions="_shared notify-partner-period notify-partner-ping apple-tokens"
+functions="_shared notify-partner-period notify-partner-ping apple-tokens wake-partner-calendar"
 for f in $functions; do
   rsync -a --delete --exclude README.md --exclude '*_test.ts' "supabase/functions/$f/" "$host:$dir/$f/"
 done

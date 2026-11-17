@@ -51,6 +51,41 @@ export async function sendPush(
     data?: Record<string, string>;
   },
 ): Promise<{ ok: boolean; detail?: string }> {
+  return await postMessage(sa, {
+    token: message.token,
+    notification: { title: message.title, body: message.body },
+    data: message.data ?? {},
+    apns: { payload: { aps: { sound: "default" } } },
+  });
+}
+
+/// A push that shows nothing and asks the app to do some work: background
+/// and low priority on iOS (Apple throttles these, a few an hour at most),
+/// normal priority on Android.
+export function backgroundMessage(token: string, data: Record<string, string>) {
+  return {
+    token,
+    data,
+    android: { priority: "normal" },
+    apns: {
+      headers: { "apns-push-type": "background", "apns-priority": "5" },
+      payload: { aps: { "content-available": 1 } },
+    },
+  };
+}
+
+export async function sendBackgroundPush(
+  sa: FirebaseServiceAccount,
+  token: string,
+  data: Record<string, string>,
+): Promise<{ ok: boolean; detail?: string }> {
+  return await postMessage(sa, backgroundMessage(token, data));
+}
+
+async function postMessage(
+  sa: FirebaseServiceAccount,
+  message: Record<string, unknown>,
+): Promise<{ ok: boolean; detail?: string }> {
   const accessToken = await getAccessToken(sa);
   const res = await fetch(
     `https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`,
@@ -60,14 +95,7 @@ export async function sendPush(
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
       },
-      body: JSON.stringify({
-        message: {
-          token: message.token,
-          notification: { title: message.title, body: message.body },
-          data: message.data ?? {},
-          apns: { payload: { aps: { sound: "default" } } },
-        },
-      }),
+      body: JSON.stringify({ message }),
     },
   );
   return res.ok ? { ok: true } : { ok: false, detail: await res.text() };
