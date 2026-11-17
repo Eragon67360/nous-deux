@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-"""Renders the App Store screenshots from src/screen.html with headless Chrome.
+"""Renders the App Store screenshots (src/screen.html) and the search results
+image (src/search.html) with headless Chrome.
 
 Usage: python3 app/store/appstore/render.py  (outputs in app/store/appstore/out/)
-Same look as the Google Play graphics (../play), at the iPhone 6.3" size App
-Store Connect asks for (1206 × 2622), from the site's app captures in
-website/public/screenshots/ (English ones in its en/ folder).
+Same look as the Google Play graphics (../play). Screenshots at the iPhone
+6.3" size App Store Connect asks for (1206 × 2622); the search results image
+at 3840 × 2560. Both from the site's app captures in website/public/screenshots/
+(English ones in its en/ folder).
 """
 import pathlib, subprocess, urllib.parse
 
@@ -31,17 +33,30 @@ SCREENS = {
     ],
 }
 
+SEARCH = {
+    "fr": ("Agenda · Cycle · Listes", "Votre espace à deux, gratuit et sans publicité."),
+    "en": ("Calendar · Cycle · Lists", "A space for just the two of you, free and ad-free."),
+}
+
+
+def shot(page, query, out, size, scale=1):
+    url = (HERE / "src" / page).as_uri() + "?" + urllib.parse.urlencode(query)
+    subprocess.run(
+        [CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
+         "--allow-file-access-from-files", f"--force-device-scale-factor={scale}",
+         f"--window-size={size[0]},{size[1]}", "--virtual-time-budget=4000",
+         f"--screenshot={out}", url],
+        check=True, capture_output=True,
+    )
+    print(out.relative_to(HERE))
+
+
 for lang, screens in SCREENS.items():
     (OUT / lang).mkdir(parents=True, exist_ok=True)
     for name, capture, label, title in screens:
-        query = urllib.parse.urlencode({"label": label, "title": title, "shot": capture})
-        url = (HERE / "src" / "screen.html").as_uri() + "?" + query
-        out = OUT / lang / f"{name}.png"
-        subprocess.run(
-            [CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars",
-             "--allow-file-access-from-files", "--force-device-scale-factor=1",
-             f"--window-size={SIZE[0]},{SIZE[1]}", "--virtual-time-budget=4000",
-             f"--screenshot={out}", url],
-            check=True, capture_output=True,
-        )
-        print(out.relative_to(HERE))
+        shot("screen.html", {"label": label, "title": title, "shot": capture},
+             OUT / lang / f"{name}.png", SIZE)
+    # Search results: 1920 × 1280 at 2×, so 3840 × 2560, one of Apple's sizes.
+    label, tag = SEARCH[lang]
+    shot("search.html", {"label": label, "tag": tag, "lang": lang},
+         OUT / lang / "search.png", (1920, 1280), scale=2)
