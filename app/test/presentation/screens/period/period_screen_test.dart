@@ -8,6 +8,7 @@ import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/cycle_checkin_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
@@ -52,7 +53,7 @@ void main() {
   String label(String text) => text.toUpperCase();
 
   group('who tracks', () {
-    for (final lang in ['fr', 'en']) {
+    for (final lang in AppLanguages.supported) {
       testWidgets('[$lang] asks once, then becomes my tracker', (tester) async {
         final deps = await pumpRegles(tester, tracks: null, lang: lang);
 

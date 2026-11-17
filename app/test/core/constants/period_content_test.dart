@@ -5,6 +5,7 @@ import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/guide_chapters.dart';
 import 'package:nousdeux/core/constants/period_options.dart';
 import 'package:nousdeux/core/constants/period_verified_sources.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 
 void main() {
   group('guideChaptersMatching', () {
@@ -85,7 +86,7 @@ void main() {
 
   test('every cycle phase has a label and tips in both languages', () {
     for (final phase in CyclePhase.values) {
-      for (final lang in ['fr', 'en']) {
+      for (final lang in AppLanguages.supported) {
         expect(cyclePhaseLabel(lang, phase), isNotEmpty);
         expect(cycleSelfTip(lang, phase), isNotEmpty);
         expect(cyclePartnerTips(lang, phase), hasLength(3));
@@ -104,7 +105,7 @@ void main() {
     test(
       'filtering by language keeps sources in that language or unscoped',
       () {
-        for (final lang in ['fr', 'en']) {
+        for (final lang in AppLanguages.supported) {
           final sources = periodVerifiedSourcesForLang(lang);
           expect(sources, isNotEmpty);
           for (final s in sources) {

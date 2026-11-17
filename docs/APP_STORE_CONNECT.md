@@ -182,12 +182,13 @@ Same facts as Play's Data safety table, in Apple's terms. Apple counts crash and
 | Location › Precise Location | Yes | No | App Functionality | Latest position only, while sharing is on |
 | User Content › Photos or Videos | Yes | No | App Functionality | Profile photo |
 | User Content › Emails or Text Messages | Yes | No | App Functionality | Little notes: a preset or a text the person writes (40 characters at most), only the latest per person; never in the push |
-| User Content › Other User Content | Yes | No | App Functionality | Calendar events (imported ones too), shared lists, the relationship's start date |
-| Other Data › Other Data Types | Yes | No | App Functionality | Gender, chosen at onboarding |
+| User Content › Other User Content | Yes | No | App Functionality | Calendar events (copied from followed phone calendars too: title and times), shared lists, the relationship's start date |
 | Identifiers › User ID | Yes | No | App Functionality | Account id |
-| Identifiers › Device ID | Yes | No | App Functionality | Push notification token |
+| Identifiers › Device ID | Yes | No | App Functionality | Push notification token; a random id of the phone that follows calendars |
 | Diagnostics › Crash Data | No | No | App Functionality | Crash and error reports to our GlitchTip, kept 30 days, no account, IP or location |
 | Diagnostics › Other Diagnostic Data | No | No | App Functionality | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
+
+Gender is no longer collected (2026-11-17): the app stopped asking (#124) and the server cleared the stored values and drops what builds up to 26 still send (migration `20261117100000_gender_cleared`), so **Other Data › Other Data Types** is no longer declared.
 
 Since build 26 (2026-11-17) a little note can be a text the person writes, so notes are declared as **Emails or Text Messages** (« E-mails ou SMS », the contents of a message), as Play's "Messages › Other in-app messages" already does. Before, as preset phrases, they were under Other User Content.
 

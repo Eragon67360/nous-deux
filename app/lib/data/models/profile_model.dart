@@ -6,7 +6,6 @@ class ProfileModel {
   ProfileModel({
     required this.id,
     this.username,
-    required this.gender,
     this.partnerId,
     this.language = 'fr',
     this.avatarUrl,
@@ -15,13 +14,14 @@ class ProfileModel {
     this.tracksCycle,
     this.shareCycle = true,
     this.shareCheckins = true,
+    this.calendarSyncDevice,
+    this.calendarSyncedAt,
     this.createdAt,
     this.updatedAt,
   });
 
   final String id;
   final String? username;
-  final String gender;
   final String? partnerId;
   final String language;
   final String? avatarUrl;
@@ -30,6 +30,8 @@ class ProfileModel {
   final bool? tracksCycle;
   final bool shareCycle;
   final bool shareCheckins;
+  final String? calendarSyncDevice;
+  final DateTime? calendarSyncedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -37,7 +39,6 @@ class ProfileModel {
     return ProfileModel(
       id: json['id'] as String,
       username: json['username'] as String?,
-      gender: json['gender'] as String? ?? 'woman',
       partnerId: json['partner_id'] as String?,
       language: json['language'] as String? ?? 'fr',
       avatarUrl: trustedAvatarUrl(
@@ -51,6 +52,10 @@ class ProfileModel {
       tracksCycle: json['tracks_cycle'] as bool?,
       shareCycle: json['share_cycle'] as bool? ?? true,
       shareCheckins: json['share_checkins'] as bool? ?? true,
+      calendarSyncDevice: json['calendar_sync_device'] as String?,
+      calendarSyncedAt: json['calendar_synced_at'] != null
+          ? DateTime.parse(json['calendar_synced_at'] as String).toLocal()
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -64,7 +69,6 @@ class ProfileModel {
     return {
       'id': id,
       'username': username,
-      'gender': gender,
       'partner_id': partnerId,
       'language': language,
       'avatar_url': avatarUrl,
@@ -79,7 +83,6 @@ class ProfileModel {
     return ProfileEntity(
       id: id,
       username: username,
-      gender: gender,
       partnerId: partnerId,
       language: language,
       avatarUrl: avatarUrl,
@@ -87,6 +90,8 @@ class ProfileModel {
       tracksCycle: tracksCycle,
       shareCycle: shareCycle,
       shareCheckins: shareCheckins,
+      calendarSyncDevice: calendarSyncDevice,
+      calendarSyncedAt: calendarSyncedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -96,7 +101,6 @@ class ProfileModel {
     return ProfileModel(
       id: e.id,
       username: e.username,
-      gender: e.gender,
       partnerId: e.partnerId,
       language: e.language,
       avatarUrl: e.avatarUrl,
@@ -104,6 +108,8 @@ class ProfileModel {
       tracksCycle: e.tracksCycle,
       shareCycle: e.shareCycle,
       shareCheckins: e.shareCheckins,
+      calendarSyncDevice: e.calendarSyncDevice,
+      calendarSyncedAt: e.calendarSyncedAt,
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,
     );

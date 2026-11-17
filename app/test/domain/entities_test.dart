@@ -27,35 +27,21 @@ void main() {
 
   group('ProfileEntity', () {
     test('defaults to French', () {
-      const p = ProfileEntity(id: 'a', gender: 'woman');
+      const p = ProfileEntity(id: 'a');
       expect(p.language, 'fr');
     });
 
     test('hasPartner ignores null and empty partner ids', () {
-      expect(const ProfileEntity(id: 'a', gender: 'woman').hasPartner, isFalse);
-      expect(
-        const ProfileEntity(id: 'a', gender: 'woman', partnerId: '').hasPartner,
-        isFalse,
-      );
-      expect(
-        const ProfileEntity(
-          id: 'a',
-          gender: 'woman',
-          partnerId: 'b',
-        ).hasPartner,
-        isTrue,
-      );
+      expect(const ProfileEntity(id: 'a').hasPartner, isFalse);
+      expect(const ProfileEntity(id: 'a', partnerId: '').hasPartner, isFalse);
+      expect(const ProfileEntity(id: 'a', partnerId: 'b').hasPartner, isTrue);
     });
 
     test('hasCompletedOnboarding follows onboardingCompletedAt', () {
-      expect(
-        const ProfileEntity(id: 'a', gender: 'woman').hasCompletedOnboarding,
-        isFalse,
-      );
+      expect(const ProfileEntity(id: 'a').hasCompletedOnboarding, isFalse);
       expect(
         ProfileEntity(
           id: 'a',
-          gender: 'woman',
           onboardingCompletedAt: DateTime.utc(2026),
         ).hasCompletedOnboarding,
         isTrue,
@@ -64,12 +50,12 @@ void main() {
 
     test('compares by value', () {
       expect(
-        const ProfileEntity(id: 'a', gender: 'man', username: 'Alex'),
-        const ProfileEntity(id: 'a', gender: 'man', username: 'Alex'),
+        const ProfileEntity(id: 'a', username: 'Alex'),
+        const ProfileEntity(id: 'a', username: 'Alex'),
       );
       expect(
-        const ProfileEntity(id: 'a', gender: 'man', language: 'en'),
-        isNot(const ProfileEntity(id: 'a', gender: 'man')),
+        const ProfileEntity(id: 'a', language: 'en'),
+        isNot(const ProfileEntity(id: 'a')),
       );
     });
   });

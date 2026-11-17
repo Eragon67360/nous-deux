@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +14,8 @@ import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/calendar_provider.dart';
+import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
@@ -30,7 +34,11 @@ class MainShellScreen extends ConsumerStatefulWidget {
   ConsumerState<MainShellScreen> createState() => _MainShellScreenState();
 }
 
-class _MainShellScreenState extends ConsumerState<MainShellScreen> {
+class _MainShellScreenState extends ConsumerState<MainShellScreen>
+    with WidgetsBindingObserver {
+  /// The calendar's tab in [AppRoutes.tabs].
+  static const _calendarTab = 1;
+
   RealtimeChannel? _profileChannel;
   String? _subscribedUserId;
   bool _celebrating = false;
@@ -45,6 +53,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    // The phone calendars this phone follows, brought up to date at start.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncCalendars());
     ref.listenManual<AsyncValue<List<PingEntity>>>(
       couplePingsProvider,
       (_, next) => _onPings(next),
@@ -130,7 +141,13 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           callback: (payload) {
             final newRecord = payload.newRecord;
             final partnerId = newRecord['partner_id'];
-            if (partnerId != null && partnerId.toString().isNotEmpty) {
+            // Realtime sends the whole row on any update (a calendar sync
+            // writes it too): only the change from unpaired is a joining.
+            final wasPaired =
+                ref.read(myProfileProvider).valueOrNull?.hasPartner ?? false;
+            if (!wasPaired &&
+                partnerId != null &&
+                partnerId.toString().isNotEmpty) {
               ref.invalidate(myProfileProvider);
               ref.invalidate(myCoupleProvider);
               if (mounted) setState(() => _celebrating = true);
@@ -141,7 +158,31 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    _syncCalendars();
+    if (widget.navigationShell.currentIndex == _calendarTab) {
+      _wakePartnerCalendar();
+    }
+  }
+
+  /// Syncs the phone calendars this phone follows (docs/CALENDAR_SYNC.md).
+  /// Best effort: the next resume tries again.
+  void _syncCalendars() {
+    unawaited(ref.read(calendarSyncServiceProvider).run());
+  }
+
+  /// Opening the calendar asks the server to wake the partner's phone, so
+  /// their latest events arrive while it is open.
+  void _wakePartnerCalendar() {
+    unawaited(
+      ref.read(calendarRepositoryProvider).requestPartnerCalendarSync(),
+    );
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _profileChannel?.unsubscribe();
     super.dispose();
   }
@@ -289,6 +330,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             onSelected: (i) {
               final current = widget.navigationShell.currentIndex;
               if (i != current) HapticFeedback.selectionClick();
+              if (i == _calendarTab && i != current) _wakePartnerCalendar();
               // Tapping the current tab again returns to its first screen.
               widget.navigationShell.goBranch(i, initialLocation: i == current);
             },

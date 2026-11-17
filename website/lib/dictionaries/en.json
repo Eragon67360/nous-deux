@@ -18,7 +18,6 @@
       "storesLabel": "Availability",
       "appStore": "App Store",
       "googlePlay": "Google Play",
-      "soon": "Coming soon",
       "join": "Join the beta"
     },
     "chapters": {
@@ -52,7 +51,7 @@
             "name": "Calendar",
             "facts": [
               "One calendar for two.",
-              "Imports from your phone's calendar."
+              "Follows your phone's calendar and keeps it up to date."
             ]
           },
           {
@@ -167,8 +166,8 @@
       "description": "What data Nous Deux collects and why, where it is stored (our own servers in Germany, in the EU), and how to use your rights."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "16 November 2026",
-    "effectiveDateISO": "2026-11-16",
+    "effectiveDate": "17 November 2026",
+    "effectiveDateISO": "2026-11-17",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -185,11 +184,11 @@
           },
           {
             "label": "Profile",
-            "text": "display name, gender, app language, profile picture (avatar), link to your partner when you form a couple."
+            "text": "display name, app language, profile picture (avatar), link to your partner when you form a couple."
           },
           {
             "label": "Shared calendar",
-            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. Visible only within the couple."
+            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. If you follow a calendar of your phone: the titles, dates and times of its events from last month to six months ahead, copied and kept up to date by your phone when you open the app, plus a random identifier of that phone and when it last synced. Nothing else from your calendar leaves your phone. Unfollowing a calendar removes its copies from last month on, and turning them all off removes every copy. Visible only within the couple."
           },
           {
             "label": "Period tracking",
@@ -315,7 +314,7 @@
       },
       {
         "label": "An event",
-        "text": "on the Calendar tab, long-press the event, then tap Delete."
+        "text": "on the Calendar tab, long-press the event, then tap Delete. An event copied from a followed phone calendar is deleted on your phone, or removed by unfollowing that calendar."
       },
       {
         "label": "Lists",

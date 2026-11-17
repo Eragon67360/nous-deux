@@ -12,6 +12,8 @@ import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
+import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
@@ -93,7 +95,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] renders every section', (tester) async {
       await _pumpSettings(tester, lang: lang);
 
@@ -227,6 +229,8 @@ void main() {
         guideReadChaptersKey: <String>['cycle'],
         noteWordsKey: '[{"t":"Bonne journée","on":true}]',
         ownStatesKey: '["Besoin de chocolat"]',
+        calendarFollowedKey: <String>['cal-1'],
+        calendarInstallIdKey: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
         'unrelated': 'kept',
       });
       final (deps, _) = await _pumpSettings(tester, lang: 'en');
@@ -378,17 +382,17 @@ void main() {
     tester,
   ) async {
     final (deps, _) = await _pumpSettings(tester);
-    expect(find.text(settingsLanguageFrench('fr')), findsOneWidget);
+    expect(find.text(AppLanguages.nativeName('fr')), findsOneWidget);
 
     await tester.tap(find.text(settingsLanguage('fr')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text(settingsLanguageEnglish('fr')));
+    await tester.tap(find.text(AppLanguages.nativeName('en')));
     await tester.pumpAndSettle();
 
     expect(deps.profiles.updateCalls.single.language, 'en');
     expect(find.text(settingsLanguageUpdated('en')), findsOneWidget);
     expect(find.text(settingsTitle('en')), findsOneWidget);
-    expect(find.text(settingsLanguageEnglish('en')), findsOneWidget);
+    expect(find.text(AppLanguages.nativeName('en')), findsOneWidget);
   });
 
   group('location sharing switch', () {

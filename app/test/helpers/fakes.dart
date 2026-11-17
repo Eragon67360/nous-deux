@@ -1,3 +1,6 @@
+import 'package:nousdeux/domain/calendar/phone_event.dart';
+import 'package:nousdeux/data/calendar_sync/phone_calendar.dart';
+import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'dart:async';
 
 import 'package:nousdeux/domain/repositories/lists_repository.dart';
@@ -134,17 +137,9 @@ class FakeProfileRepository implements ProfileRepository {
   Failure? loadFailure;
 
   int getOrCreateCalls = 0;
-  final completeOnboardingCalls =
-      <({String username, String gender, String language})>[];
+  final completeOnboardingCalls = <({String username, String language})>[];
   final updateCalls =
-      <
-        ({
-          String? username,
-          String? gender,
-          String? language,
-          String? avatarUrl,
-        })
-      >[];
+      <({String? username, String? language, String? avatarUrl})>[];
 
   Failure? _takeFailure() {
     final f = nextFailure;
@@ -155,7 +150,6 @@ class FakeProfileRepository implements ProfileRepository {
   ProfileEntity _copy(
     ProfileEntity p, {
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
     DateTime? onboardingCompletedAt,
@@ -166,7 +160,6 @@ class FakeProfileRepository implements ProfileRepository {
     return ProfileEntity(
       id: p.id,
       username: username ?? p.username,
-      gender: gender ?? p.gender,
       partnerId: p.partnerId,
       language: language ?? p.language,
       avatarUrl: avatarUrl ?? p.avatarUrl,
@@ -174,6 +167,8 @@ class FakeProfileRepository implements ProfileRepository {
       tracksCycle: tracksCycle ?? p.tracksCycle,
       shareCycle: shareCycle ?? p.shareCycle,
       shareCheckins: shareCheckins ?? p.shareCheckins,
+      calendarSyncDevice: p.calendarSyncDevice,
+      calendarSyncedAt: p.calendarSyncedAt,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     );
@@ -196,13 +191,11 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<ProfileResult> updateProfile({
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
   }) async {
     updateCalls.add((
       username: username,
-      gender: gender,
       language: language,
       avatarUrl: avatarUrl,
     ));
@@ -211,7 +204,6 @@ class FakeProfileRepository implements ProfileRepository {
     mine = _copy(
       mine!,
       username: username,
-      gender: gender,
       language: language,
       avatarUrl: avatarUrl,
     );
@@ -246,20 +238,14 @@ class FakeProfileRepository implements ProfileRepository {
   @override
   Future<ProfileResult> completeOnboarding({
     required String username,
-    required String gender,
     required String language,
   }) async {
-    completeOnboardingCalls.add((
-      username: username,
-      gender: gender,
-      language: language,
-    ));
+    completeOnboardingCalls.add((username: username, language: language));
     final failure = _takeFailure();
     if (failure != null) return (profile: null, failure: failure);
     mine = _copy(
       mine ?? profile(onboarded: false),
       username: username,
-      gender: gender,
       language: language,
       onboardingCompletedAt: DateTime.utc(2026, 1, 2),
     );
@@ -270,6 +256,49 @@ class FakeProfileRepository implements ProfileRepository {
   Future<ProfileResult> updateFcmToken(String? token) async {
     return (profile: mine, failure: null);
   }
+
+  @override
+  Future<ProfileResult> setCalendarSyncDevice(String? device) async {
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _withSync(mine!, device: device, syncedAt: mine!.calendarSyncedAt);
+    return (profile: mine, failure: null);
+  }
+
+  int markSyncedCalls = 0;
+
+  @override
+  Future<ProfileResult> markCalendarSynced() async {
+    markSyncedCalls++;
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _withSync(
+      mine!,
+      device: mine!.calendarSyncDevice,
+      syncedAt: DateTime.now(),
+    );
+    return (profile: mine, failure: null);
+  }
+
+  ProfileEntity _withSync(
+    ProfileEntity p, {
+    required String? device,
+    required DateTime? syncedAt,
+  }) => ProfileEntity(
+    id: p.id,
+    username: p.username,
+    partnerId: p.partnerId,
+    language: p.language,
+    avatarUrl: p.avatarUrl,
+    onboardingCompletedAt: p.onboardingCompletedAt,
+    tracksCycle: p.tracksCycle,
+    shareCycle: p.shareCycle,
+    shareCheckins: p.shareCheckins,
+    calendarSyncDevice: device,
+    calendarSyncedAt: syncedAt,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+  );
 }
 
 class FakePairingRepository implements PairingRepository {
@@ -408,6 +437,7 @@ class FakeCalendarRepository implements CalendarRepository {
     required DateTime startTime,
     DateTime? endTime,
     bool isCountdown = false,
+    String? sourceKey,
   }) async {
     createCalls.add((
       title: title,
@@ -417,12 +447,23 @@ class FakeCalendarRepository implements CalendarRepository {
     ));
     final failure = _takeFailure();
     if (failure != null) return (event: null, failure: failure);
+    // calendar_events_source_key: one copy per author and source key.
+    if (sourceKey != null &&
+        events.any((e) => e.createdBy == meId && e.sourceKey == sourceKey)) {
+      return (
+        event: null,
+        failure: const ServerFailure(
+          'duplicate key value violates unique constraint',
+        ),
+      );
+    }
     final created = event(
       id: 'event-${events.length + 1}',
       title: title,
       description: description,
       start: startTime,
       end: endTime,
+      sourceKey: sourceKey,
     );
     events.add(created);
     return (event: created, failure: null);
@@ -447,6 +488,88 @@ class FakeCalendarRepository implements CalendarRepository {
     final failure = _takeFailure();
     if (failure != null) return (event: null, failure: failure);
     return (event: events.firstWhere((e) => e.id == id), failure: null);
+  }
+
+  @override
+  Future<CalendarEventsResult> getMySyncedEvents({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    return (
+      events: [
+        for (final e in events)
+          if (e.createdBy == meId &&
+              e.sourceKey != null &&
+              !e.startTime.isBefore(from) &&
+              !e.startTime.isAfter(to))
+            e,
+      ],
+      failure: null,
+    );
+  }
+
+  final syncedUpdateCalls =
+      <({String id, String title, DateTime startTime, DateTime? endTime})>[];
+
+  @override
+  Future<CalendarEventResult> updateSyncedEvent({
+    required String id,
+    required String title,
+    required DateTime startTime,
+    DateTime? endTime,
+  }) async {
+    syncedUpdateCalls.add((
+      id: id,
+      title: title,
+      startTime: startTime,
+      endTime: endTime,
+    ));
+    final failure = _takeFailure();
+    if (failure != null) return (event: null, failure: failure);
+    final i = events.indexWhere((e) => e.id == id);
+    final old = events[i];
+    events[i] = event(
+      id: old.id,
+      title: title,
+      description: old.description,
+      start: startTime,
+      end: endTime,
+      createdBy: old.createdBy,
+      isCountdown: old.isCountdown,
+      sourceKey: old.sourceKey,
+    );
+    return (event: events[i], failure: null);
+  }
+
+  final countdownCalls = <({String id, bool on})>[];
+
+  @override
+  Future<CalendarEventResult> setCountdown(String id, bool on) async {
+    countdownCalls.add((id: id, on: on));
+    final failure = _takeFailure();
+    if (failure != null) return (event: null, failure: failure);
+    final i = events.indexWhere((e) => e.id == id);
+    final old = events[i];
+    events[i] = event(
+      id: old.id,
+      title: old.title,
+      description: old.description,
+      start: old.startTime,
+      end: old.endTime,
+      createdBy: old.createdBy,
+      isCountdown: on,
+      sourceKey: old.sourceKey,
+    );
+    return (event: events[i], failure: null);
+  }
+
+  int partnerSyncRequests = 0;
+  String? partnerSyncAnswer = 'sent';
+
+  @override
+  Future<String?> requestPartnerCalendarSync() async {
+    partnerSyncRequests++;
+    return partnerSyncAnswer;
   }
 
   @override
@@ -885,5 +1008,52 @@ class FakeListsRepository implements ListsRepository {
     items.removeWhere((x) => x.listId == listId && x.checked);
     _publish();
     return null;
+  }
+}
+
+/// Plays the phone's calendars: [phoneCalendars] to choose from, the events
+/// of each calendar id ([perCalendar], null: they can't be read), and
+/// whether the app may read them. [hold] keeps a read waiting; [error] makes
+/// it throw.
+class FakePhoneCalendar implements PhoneCalendar {
+  FakePhoneCalendar({
+    List<Calendar>? calendars,
+    Map<String, List<PhoneEvent>>? events = const {},
+    this.allowed = true,
+  }) : phoneCalendars = calendars ?? [Calendar(id: 'cal-1', name: 'Personnel')],
+       perCalendar = events == null ? null : {...events};
+
+  List<Calendar> phoneCalendars;
+  Map<String, List<PhoneEvent>>? perCalendar;
+  bool allowed;
+  bool grantOnRequest = true;
+  Completer<void>? hold;
+  Object? error;
+  int reads = 0;
+  int accessRequests = 0;
+
+  @override
+  Future<List<Calendar>?> calendars() async =>
+      allowed ? [...phoneCalendars] : null;
+
+  @override
+  Future<bool> requestAccess() async {
+    accessRequests++;
+    if (grantOnRequest) allowed = true;
+    return allowed;
+  }
+
+  @override
+  Future<List<PhoneEvent>?> events(
+    Set<String> calendarIds,
+    DateTime from,
+    DateTime to,
+  ) async {
+    reads++;
+    if (hold != null) await hold!.future;
+    if (error != null) throw error!;
+    final per = perCalendar;
+    if (!allowed || per == null) return null;
+    return [for (final id in calendarIds) ...?per[id]];
   }
 }

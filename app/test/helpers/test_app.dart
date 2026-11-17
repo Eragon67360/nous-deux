@@ -6,7 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
@@ -58,7 +60,9 @@ class TestDeps {
     List<ListItemEntity>? listItems,
     DateTime? now,
     this.deviceLanguage = 'fr',
+    FakePhoneCalendar? phoneCalendar,
   }) : now = now ?? DateTime(2026, 11, 10, 18),
+       phoneCalendar = phoneCalendar ?? FakePhoneCalendar(),
        pings = FakePingRepository(pings),
        lists = FakeListsRepository(lists: lists, items: listItems),
        auth = FakeAuthRepository(user: user),
@@ -85,6 +89,7 @@ class TestDeps {
   final FakeRealtime realtime = FakeRealtime();
   final FakePingRepository pings;
   final FakeListsRepository lists;
+  final FakePhoneCalendar phoneCalendar;
 
   /// Add a note to it to tap that note's notification.
   final StreamController<OpenedNote> openedNotes =
@@ -107,6 +112,7 @@ class TestDeps {
     realtimeChannelFactoryProvider.overrideWithValue(realtime.open),
     pingRepositoryProvider.overrideWithValue(pings),
     listsRepositoryProvider.overrideWithValue(lists),
+    phoneCalendarProvider.overrideWithValue(phoneCalendar),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
     openedNotesProvider.overrideWith((ref) => openedNotes.stream),
@@ -118,7 +124,7 @@ const _localizationsDelegates = [
   GlobalWidgetsLocalizations.delegate,
   GlobalCupertinoLocalizations.delegate,
 ];
-const _supportedLocales = [Locale('fr'), Locale('en')];
+final _supportedLocales = AppLanguages.locales;
 
 TransitionBuilder _motion(bool reducedMotion) => (context, child) {
   if (!reducedMotion) return child!;

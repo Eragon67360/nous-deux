@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/onboarding/onboarding_screen.dart';
 
@@ -20,30 +21,36 @@ void main() {
     return deps;
   }
 
-  testWidgets('starts in French with woman preselected, whatever the device', (
-    tester,
-  ) async {
+  testWidgets('starts in French, whatever the device', (tester) async {
     await pumpOnboarding(tester);
 
     expect(find.text(onboardingTitle('fr')), findsOneWidget);
     expect(find.text(onboardingDisplayNameLabel('fr')), findsOneWidget);
     expect(find.text(onboardingContinue('fr')), findsOneWidget);
+  });
 
-    final gender = tester.widget<SegmentedButton<String>>(
-      find.byType(SegmentedButton<String>).first,
+  testWidgets('asks only for a name and a language', (tester) async {
+    await pumpOnboarding(tester);
+
+    expect(find.byType(TextField), findsOneWidget);
+    final pickers = tester.widgetList<SegmentedButton<String>>(
+      find.byType(SegmentedButton<String>),
     );
-    expect(gender.selected, {'woman'});
+    expect(pickers, hasLength(1));
+    expect(pickers.single.selected, {'fr'});
+    for (final code in AppLanguages.supported) {
+      expect(find.text(AppLanguages.nativeName(code)), findsOneWidget);
+    }
   });
 
   testWidgets('switching to English relabels the screen', (tester) async {
     await pumpOnboarding(tester);
 
-    await tester.tap(find.text(onboardingEnglish('fr')));
+    await tester.tap(find.text(AppLanguages.nativeName('en')));
     await tester.pumpAndSettle();
 
     expect(find.text(onboardingTitle('en')), findsOneWidget);
     expect(find.text(onboardingContinue('en')), findsOneWidget);
-    expect(find.text(onboardingWoman('en')), findsOneWidget);
   });
 
   testWidgets('an empty name shows an error in the chosen language', (
@@ -55,7 +62,7 @@ void main() {
     await tester.pump();
     expect(find.text(onboardingErrorDisplayName('fr')), findsOneWidget);
 
-    await tester.tap(find.text(onboardingEnglish('fr')));
+    await tester.tap(find.text(AppLanguages.nativeName('en')));
     await tester.enterText(find.byType(TextField), '   ');
     await tester.tap(find.text(onboardingContinue('en')));
     await tester.pump();
@@ -72,22 +79,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(deps.profiles.completeOnboardingCalls, [
-      (username: 'Camille', gender: 'woman', language: 'fr'),
+      (username: 'Camille', language: 'fr'),
     ]);
   });
 
-  testWidgets('sends the chosen gender and language', (tester) async {
+  testWidgets('sends the chosen language', (tester) async {
     final deps = await pumpOnboarding(tester);
 
     await tester.enterText(find.byType(TextField), 'Alex');
-    await tester.tap(find.text(onboardingMan('fr')));
-    await tester.tap(find.text(onboardingEnglish('fr')));
+    await tester.tap(find.text(AppLanguages.nativeName('en')));
     await tester.pumpAndSettle();
     await tester.tap(find.text(onboardingContinue('en')));
     await tester.pumpAndSettle();
 
     expect(deps.profiles.completeOnboardingCalls, [
-      (username: 'Alex', gender: 'man', language: 'en'),
+      (username: 'Alex', language: 'en'),
     ]);
   });
 

@@ -4,17 +4,19 @@ import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
-import 'package:nousdeux/presentation/screens/calendar/calendar_import_screen.dart';
+import 'package:nousdeux/presentation/screens/calendar/calendar_follow_screen.dart';
 import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/empty_state.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
+import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// The calendar as a diary: one month at a time, each day that has something
 /// planned written as a large number with its events beside it.
@@ -99,6 +101,9 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
     final partnerName = partnerProfile?.username?.trim().isNotEmpty == true
         ? partnerProfile!.username!.trim()
         : calendarPartner(lang);
+    final partnerSyncedAt = partnerProfile?.calendarSyncDevice == null
+        ? null
+        : partnerProfile?.calendarSyncedAt;
 
     return Scaffold(
       body: SafeArea(
@@ -111,8 +116,15 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
               onPrevious: () => _shiftMonth(-1),
               onNext: () => _shiftMonth(1),
               onToday: () => _showMonth(_monthOf(DateTime.now())),
-              onImport: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CalendarImportScreen()),
+              partnerFresh: partnerSyncedAt == null
+                  ? null
+                  : calendarPartnerFresh(
+                      lang,
+                      partnerName,
+                      calendarAgo(lang, partnerSyncedAt, DateTime.now()),
+                    ),
+              onFollow: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CalendarFollowScreen()),
               ),
               onAdd: () => _openEventForm(context),
             ),
@@ -158,7 +170,9 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
                             icon: Icons.event_note_outlined,
                             message: calendarNothingInMonth(
                               lang,
-                              DateFormat.MMMM(_locale(lang)).format(_month),
+                              DateFormat.MMMM(
+                                AppLanguages.dateLocale(lang),
+                              ).format(_month),
                             ),
                             actionLabel: calendarCreateEvent(lang),
                             onAction: () => _openEventForm(context),
@@ -182,10 +196,12 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
                                 last: i == days.length - 1,
                                 currentUserId: currentUserId,
                                 partnerName: partnerName,
-                                onOpen: (event) =>
-                                    _openEventForm(context, event: event),
-                                onDelete: (event) =>
-                                    _confirmDelete(context, event),
+                                onOpen: (event) => event.isSynced
+                                    ? _openSynced(context, event, partnerName)
+                                    : _openEventForm(context, event: event),
+                                onDelete: (event) => event.isSynced
+                                    ? _openSynced(context, event, partnerName)
+                                    : _confirmDelete(context, event),
                               ),
                             const SizedBox(height: AppSpacing.sm),
                             _Legend(lang: lang, partnerName: partnerName),
@@ -206,8 +222,6 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
     );
   }
 
-  static String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
-
   void _openEventForm(BuildContext context, {CalendarEventEntity? event}) {
     // A new event starts today in the current month, else on the 1st.
     final initialDate = _isCurrentMonth ? DateTime.now() : _month;
@@ -219,6 +233,28 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
           ),
         )
         .then((_) => ref.invalidate(calendarEventsProvider));
+  }
+
+  /// A copy from a followed phone calendar: shown read-only, since it is
+  /// changed on its owner's phone; only its countdown can be switched.
+  void _openSynced(
+    BuildContext context,
+    CalendarEventEntity event,
+    String partnerName,
+  ) {
+    final lang = ref.read(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final mine =
+        event.createdBy == ref.read(currentUserProvider).valueOrNull?.id;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (_) => _SyncedEventSheet(
+        lang: lang,
+        event: event,
+        mine: mine,
+        partnerName: partnerName,
+      ),
+    ).then((_) => ref.invalidate(calendarEventsProvider));
   }
 
   void _confirmDelete(BuildContext context, CalendarEventEntity event) {
@@ -260,8 +296,9 @@ class _DiaryHeader extends StatelessWidget {
     required this.onPrevious,
     required this.onNext,
     required this.onToday,
-    required this.onImport,
+    required this.onFollow,
     required this.onAdd,
+    this.partnerFresh,
   });
 
   final String lang;
@@ -269,14 +306,17 @@ class _DiaryHeader extends StatelessWidget {
   final VoidCallback onPrevious;
   final VoidCallback onNext;
   final VoidCallback onToday;
-  final VoidCallback onImport;
+  final VoidCallback onFollow;
   final VoidCallback onAdd;
+
+  /// When the partner's followed calendars last synced, if they follow any.
+  final String? partnerFresh;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final outlined = IconButton.styleFrom(
       side: BorderSide(color: scheme.outlineVariant),
     );
@@ -313,6 +353,24 @@ class _DiaryHeader extends StatelessWidget {
               ),
             ],
           ),
+          if (partnerFresh != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Row(
+                children: [
+                  Icon(Icons.sync, size: 14, color: scheme.onSurfaceVariant),
+                  const SizedBox(width: 4),
+                  Flexible(
+                    child: Text(
+                      partnerFresh!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           Row(
             children: [
               Expanded(
@@ -339,10 +397,10 @@ class _DiaryHeader extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               IconButton(
-                onPressed: onImport,
-                tooltip: calendarImportTooltip(lang),
+                onPressed: onFollow,
+                tooltip: calendarFollowLabel(lang),
                 style: outlined,
-                icon: const Icon(Icons.upload_file_outlined, size: 20),
+                icon: const Icon(Icons.sync, size: 20),
               ),
               const SizedBox(width: 6),
               IconButton(
@@ -389,7 +447,7 @@ class _DiaryDay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final isToday = day == today;
 
     return Opacity(
@@ -478,56 +536,79 @@ class _DiaryEvent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final quiet = theme.textTheme.bodyMedium?.copyWith(
       color: scheme.onSurfaceVariant,
     );
 
+    final row = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            event.title,
+            softWrap: true,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontSize: 19,
+              fontWeight: FontWeight.w500,
+              color: event.isCountdown ? scheme.primary : scheme.onSurface,
+            ),
+          ),
+          if (event.description?.isNotEmpty == true) ...[
+            const SizedBox(height: 2),
+            Text(event.description!, softWrap: true, style: quiet),
+          ],
+          const SizedBox(height: 6),
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 8,
+            runSpacing: 4,
+            children: [
+              OwnerDot(isMine: isMine),
+              Text(
+                event.looksAllDay
+                    ? calendarAllDay(lang)
+                    : DateFormat.Hm(locale).format(event.startTime),
+                style: quiet,
+              ),
+              Text(isMine ? calendarMe(lang) : partnerName, style: quiet),
+              if (event.isCountdown)
+                Text(
+                  calendarEventCountdown(lang),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: scheme.primary,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
     return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              event.title,
-              softWrap: true,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontSize: 19,
-                fontWeight: FontWeight.w500,
-                color: event.isCountdown ? scheme.primary : scheme.onSurface,
-              ),
-            ),
-            if (event.description?.isNotEmpty == true) ...[
-              const SizedBox(height: 2),
-              Text(event.description!, softWrap: true, style: quiet),
-            ],
-            const SizedBox(height: 6),
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 8,
-              runSpacing: 4,
+      child: !event.isSynced
+          ? row
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                OwnerDot(isMine: isMine),
-                Text(
-                  DateFormat.Hm(locale).format(event.startTime),
-                  style: quiet,
-                ),
-                Text(isMine ? calendarMe(lang) : partnerName, style: quiet),
-                if (event.isCountdown)
-                  Text(
-                    calendarEventCountdown(lang),
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: scheme.primary,
+                Expanded(child: row),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, left: 8),
+                  child: Icon(
+                    Icons.smartphone_outlined,
+                    size: 16,
+                    color: scheme.onSurfaceVariant,
+                    semanticLabel: calendarSyncedFrom(
+                      lang,
+                      partnerName,
+                      mine: isMine,
                     ),
                   ),
+                ),
               ],
             ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -589,6 +670,100 @@ class _Legend extends StatelessWidget {
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A synced event, read-only: where it comes from, when, its countdown
+/// switch, and where it is changed.
+class _SyncedEventSheet extends ConsumerStatefulWidget {
+  const _SyncedEventSheet({
+    required this.lang,
+    required this.event,
+    required this.mine,
+    required this.partnerName,
+  });
+
+  final String lang;
+  final CalendarEventEntity event;
+  final bool mine;
+  final String partnerName;
+
+  @override
+  ConsumerState<_SyncedEventSheet> createState() => _SyncedEventSheetState();
+}
+
+class _SyncedEventSheetState extends ConsumerState<_SyncedEventSheet> {
+  late bool _countdown = widget.event.isCountdown;
+
+  Future<void> _setCountdown(bool on) async {
+    setState(() => _countdown = on);
+    final result = await ref
+        .read(calendarRepositoryProvider)
+        .setCountdown(widget.event.id, on);
+    if (result.failure != null && mounted) setState(() => _countdown = !on);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final lang = widget.lang;
+    final e = widget.event;
+    final locale = AppLanguages.dateLocale(lang);
+    final day = DateFormat.MMMEd(locale).format(e.startTime);
+    final hours = e.looksAllDay
+        ? calendarAllDay(lang)
+        : e.endTime == null
+        ? DateFormat.Hm(locale).format(e.startTime)
+        : '${DateFormat.Hm(locale).format(e.startTime)} – '
+              '${DateFormat.Hm(locale).format(e.endTime!)}';
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            NotebookLabel(
+              calendarSyncedFrom(lang, widget.partnerName, mine: widget.mine),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              e.title,
+              softWrap: true,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              '$day · $hours',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+            const NotebookRule(space: 14),
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(calendarEventCountdown(lang)),
+              value: _countdown,
+              onChanged: _setCountdown,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              calendarSyncedReadOnly(
+                lang,
+                widget.partnerName,
+                mine: widget.mine,
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

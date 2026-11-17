@@ -18,7 +18,6 @@
       "storesLabel": "Disponibilité",
       "appStore": "App Store",
       "googlePlay": "Google Play",
-      "soon": "Bientôt",
       "join": "Rejoindre la bêta"
     },
     "chapters": {
@@ -52,7 +51,7 @@
             "name": "Calendrier",
             "facts": [
               "Un agenda pour deux.",
-              "Import depuis le calendrier du téléphone."
+              "Suit l'agenda de votre téléphone et le tient à jour."
             ]
           },
           {
@@ -170,8 +169,8 @@
       "description": "Les données que collecte Nous Deux, à quoi elles servent, où elles sont hébergées (nos serveurs en Allemagne, dans l'UE) et comment exercer vos droits."
     },
     "lastUpdated": "Dernière mise à jour :",
-    "effectiveDate": "16 novembre 2026",
-    "effectiveDateISO": "2026-11-16",
+    "effectiveDate": "17 novembre 2026",
+    "effectiveDateISO": "2026-11-17",
     "backHome": "Retour à l'accueil",
     "sections": {
       "editor": {
@@ -188,11 +187,11 @@
           },
           {
             "label": "Profil",
-            "text": "nom d'affichage, genre, langue de l'application, photo de profil (avatar), lien avec le partenaire lorsque vous formez un couple."
+            "text": "nom d'affichage, langue de l'application, photo de profil (avatar), lien avec le partenaire lorsque vous formez un couple."
           },
           {
             "label": "Calendrier partagé",
-            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, et l'option « compte à rebours » si vous l'activez sur un événement. Visibles uniquement au sein du couple."
+            "text": "titres, descriptions, dates et heures des événements que vous ou votre partenaire créez, et l'option « compte à rebours » si vous l'activez sur un événement. Si vous suivez un agenda de votre téléphone : les titres, dates et heures de ses événements, du mois dernier aux six prochains mois, copiés et tenus à jour par votre téléphone quand vous ouvrez l'app, ainsi qu'un identifiant aléatoire de ce téléphone et l'heure de sa dernière mise à jour. Rien d'autre de votre agenda ne quitte votre téléphone. Ne plus suivre un agenda retire ses copies à partir du mois dernier, et tout arrêter les retire toutes. Visibles uniquement au sein du couple."
           },
           {
             "label": "Suivi des règles",
@@ -318,7 +317,7 @@
       },
       {
         "label": "Un événement",
-        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer."
+        "text": "dans l'onglet Calendrier, restez appuyé sur l'événement, puis touchez Supprimer. Un événement copié d'un agenda suivi se supprime sur votre téléphone, ou disparaît quand vous ne suivez plus cet agenda."
       },
       {
         "label": "Les listes",

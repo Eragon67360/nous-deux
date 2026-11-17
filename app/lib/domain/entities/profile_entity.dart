@@ -4,7 +4,6 @@ class ProfileEntity extends Equatable {
   const ProfileEntity({
     required this.id,
     this.username,
-    required this.gender,
     this.partnerId,
     this.language = 'fr',
     this.avatarUrl,
@@ -12,13 +11,14 @@ class ProfileEntity extends Equatable {
     this.tracksCycle,
     this.shareCycle = true,
     this.shareCheckins = true,
+    this.calendarSyncDevice,
+    this.calendarSyncedAt,
     this.createdAt,
     this.updatedAt,
   });
 
   final String id;
   final String? username;
-  final String gender;
   final String? partnerId;
   final String language;
   final String? avatarUrl;
@@ -33,6 +33,13 @@ class ProfileEntity extends Equatable {
 
   /// The partner may see this person's daily check-ins.
   final bool shareCheckins;
+
+  /// Install id of the phone that follows calendars for this person, null
+  /// when they follow none (docs/CALENDAR_SYNC.md).
+  final String? calendarSyncDevice;
+
+  /// When that phone last synced the followed calendars.
+  final DateTime? calendarSyncedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -44,7 +51,6 @@ class ProfileEntity extends Equatable {
   List<Object?> get props => [
     id,
     username,
-    gender,
     partnerId,
     language,
     avatarUrl,
@@ -52,6 +58,8 @@ class ProfileEntity extends Equatable {
     tracksCycle,
     shareCycle,
     shareCheckins,
+    calendarSyncDevice,
+    calendarSyncedAt,
     createdAt,
     updatedAt,
   ];

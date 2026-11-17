@@ -16,7 +16,6 @@ const me = UserEntity(id: meId, phone: '+33612345678');
 ProfileEntity profile({
   String id = meId,
   String? username = 'Camille',
-  String gender = 'woman',
   String? partner,
   String language = 'fr',
   String? avatarUrl,
@@ -24,11 +23,12 @@ ProfileEntity profile({
   bool? tracksCycle,
   bool shareCycle = true,
   bool shareCheckins = true,
+  String? calendarSyncDevice,
+  DateTime? calendarSyncedAt,
 }) {
   return ProfileEntity(
     id: id,
     username: username,
-    gender: gender,
     partnerId: partner,
     language: language,
     avatarUrl: avatarUrl,
@@ -36,12 +36,15 @@ ProfileEntity profile({
     tracksCycle: tracksCycle,
     shareCycle: shareCycle,
     shareCheckins: shareCheckins,
+    calendarSyncDevice: calendarSyncDevice,
+    calendarSyncedAt: calendarSyncedAt,
   );
 }
 
 ProfileEntity partnerProfile({
   String? username = 'Alex',
   String language = 'fr',
+  DateTime? calendarSyncedAt,
   bool? tracksCycle,
   bool shareCycle = true,
   bool shareCheckins = true,
@@ -49,12 +52,15 @@ ProfileEntity partnerProfile({
   return profile(
     id: partnerId,
     username: username,
-    gender: 'man',
     partner: meId,
     language: language,
     tracksCycle: tracksCycle,
     shareCycle: shareCycle,
     shareCheckins: shareCheckins,
+    calendarSyncDevice: calendarSyncedAt == null
+        ? null
+        : '00000000-0000-4000-8000-0000000000aa',
+    calendarSyncedAt: calendarSyncedAt,
   );
 }
 
@@ -82,6 +88,7 @@ CalendarEventEntity event({
   DateTime? end,
   String createdBy = meId,
   bool isCountdown = false,
+  String? sourceKey,
 }) {
   return CalendarEventEntity(
     id: id,
@@ -92,6 +99,7 @@ CalendarEventEntity event({
     endTime: end,
     createdBy: createdBy,
     isCountdown: isCountdown,
+    sourceKey: sourceKey,
   );
 }
 

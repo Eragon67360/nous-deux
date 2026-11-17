@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/core/constants/lists_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
@@ -76,7 +77,7 @@ void main() {
     expect(find.text('stub:${AppRoutes.pairing}'), findsOneWidget);
   });
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] counts the days together since the start date', (
       tester,
     ) async {

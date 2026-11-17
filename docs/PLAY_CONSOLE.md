@@ -34,6 +34,8 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 
 > On the sign-in screen, tap "Sign in with email" (French: "Se connecter avec un e-mail"). Most features (calendar, cycle, location, lists, notes) appear only once two accounts are paired, so sign in with the other account on a second device. On one device choose "Generate a code", on the other "I have a code" and type the 6 characters or scan the QR code. To pair again, use Settings > Leave couple.
 
+**Pre-launch report robots.** After each upload to a testing track, Google runs the build on a few test phones, each signed in to its own Gmail account. The crawler taps "Continue with Google", so every phone becomes a new user, and types the login above into the onboarding name field. They never come back, but each leaves a profile, a waiting couple and whatever it tapped in (23 accounts from 15 to 17 November 2026, deleted). About an hour after an upload, list them with `scripts/delete-play-robots.sh nous-deux` and delete them with `--delete`. The real `review1`/`review2` accounts never match.
+
 ### Content rating (IARC questionnaire)
 - **Category:** Utility, Productivity, Communication, or Other.
 - **Violence, fear, sexual content, crude language, drugs, alcohol, tobacco, gambling:** No to all. The cycle guide is health information, not sexual content.
@@ -66,7 +68,7 @@ This keeps the app outside the Families policy. The app pairs adults and stores 
 None of the permissions with their own Play declaration are used: no background location, no exact alarms, no SMS or call log, no broad photo or file access. The built app requests:
 - **Fine location:** sharing where you are with your partner, only after you turn it on.
 - **Camera:** scanning the pairing QR code.
-- **Calendar read and write:** importing events from the phone's calendar.
+- **Calendar read and write:** following phone calendars: the events of the ones the person chooses are copied into the couple's calendar and kept up to date, also in the background (docs/CALENDAR_SYNC.md).
 - **Notifications and push (FCM):** reminders and your partner's notes.
 - **Network, wake lock, vibrate.**
 
@@ -87,21 +89,20 @@ Nothing is **shared** in Play's sense:
 - the server is your own;
 - Firebase (push), OpenFreeMap (map tiles) and Google/Apple (sign-in) act as service providers. The map is MapLibre, which sends no telemetry.
 
-Nothing is processed only temporarily (ephemeral) either; everything below is stored.
+Nothing is processed only temporarily (ephemeral) either; everything below is stored. Gender is no longer collected (2026-11-17): the app stopped asking (#124), and the server cleared the stored values and drops what builds up to 26 still send (migration `20261117100000_gender_cleared`), so **Personal info › Other info** is no longer declared.
 
 | Category › type | Required or optional | Purposes | What it is |
 | --- | --- | --- | --- |
 | Personal info › Name | Required | App functionality, Account management | Display name entered at onboarding |
 | Personal info › Email address | Required | Account management | From Google or Apple sign-in |
 | Personal info › User IDs | Required | App functionality, Account management | Account id |
-| Personal info › Other info | Required | App functionality | Gender, chosen at onboarding |
 | Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms (preset or written by the person) and mood, private cycle notes |
 | Location › Precise location | Optional | App functionality | Latest position only, no history; erased when sharing stops |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
 | Messages › Other in-app messages | Optional | App functionality | Little notes, latest one per person: a preset or, since build 26, a text the person writes (40 characters at most). The push never carries the text. |
-| Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |
+| Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones copied from a followed phone calendar (title and times only) and kept up to date |
 | App activity › Other user-generated content | Optional | App functionality | Shared lists and items, the date the relationship started |
-| Device or other IDs | Optional | App functionality | Push notification token |
+| Device or other IDs | Optional | App functionality | Push notification token; a random id of the phone that follows calendars |
 | App info and performance › Crash logs | Required | Analytics | Crash and error reports to our GlitchTip (`errors.nous-deux.app`), kept 30 days: what failed and where in the code, the app version. No account, name, IP address or location; there's no setting to turn them off. |
 | App info and performance › Diagnostics | Required | Analytics | Sent with each report: phone model, system version, memory, storage, battery, network, language, time zone |
 

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/nous_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
@@ -98,7 +99,7 @@ void main() {
   // Inside both rings, a few points clear of their 1.5-point stroke.
   const inner = 130 - 1.5 - 4;
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     for (final name in ['Camille', 'Marie-Charlotte']) {
       for (final kind in PingKind.presets) {
         testWidgets('[$lang] "${pingReceivedTitle(lang, kind, name)}" stays '

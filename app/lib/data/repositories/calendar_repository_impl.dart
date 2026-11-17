@@ -69,6 +69,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
     required DateTime startTime,
     DateTime? endTime,
     bool isCountdown = false,
+    String? sourceKey,
   }) async {
     try {
       final coupleId = await _getCoupleId();
@@ -82,6 +83,7 @@ class CalendarRepositoryImpl implements CalendarRepository {
         startTime: startTime,
         endTime: endTime,
         isCountdown: isCountdown,
+        sourceKey: sourceKey,
       );
       return (event: model.toEntity(), failure: null);
     } on PostgrestException catch (e) {
@@ -114,6 +116,79 @@ class CalendarRepositoryImpl implements CalendarRepository {
       return (event: null, failure: ServerFailure(e.message));
     } catch (e) {
       return (event: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<CalendarEventsResult> getMySyncedEvents({
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    try {
+      final coupleId = await _getCoupleId();
+      if (coupleId == null) {
+        return (events: <CalendarEventEntity>[], failure: null);
+      }
+      final list = await _calendar.getMySynced(
+        coupleId: coupleId,
+        from: from,
+        to: to,
+      );
+      return (events: list.map((e) => e.toEntity()).toList(), failure: null);
+    } on PostgrestException catch (e) {
+      return (
+        events: <CalendarEventEntity>[],
+        failure: ServerFailure(e.message),
+      );
+    } catch (e) {
+      return (
+        events: <CalendarEventEntity>[],
+        failure: UnknownFailure(e.toString()),
+      );
+    }
+  }
+
+  @override
+  Future<CalendarEventResult> updateSyncedEvent({
+    required String id,
+    required String title,
+    required DateTime startTime,
+    DateTime? endTime,
+  }) async {
+    try {
+      final model = await _calendar.updateSynced(
+        id: id,
+        title: title,
+        startTime: startTime,
+        endTime: endTime,
+      );
+      return (event: model.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (event: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (event: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<CalendarEventResult> setCountdown(String id, bool on) async {
+    try {
+      final model = await _calendar.setCountdown(id, on);
+      return (event: model.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (event: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (event: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<String?> requestPartnerCalendarSync() async {
+    try {
+      return await _calendar.requestPartnerSync();
+    } catch (_) {
+      // Best effort: the partner's phone also syncs when it opens the app.
+      return null;
     }
   }
 

@@ -10,18 +10,16 @@ abstract class ProfileRepository {
   /// Get profile by id (own or partner only, by RLS).
   Future<ProfileResult> getProfile(String profileId);
 
-  /// Update my profile (username, gender, language, avatarUrl).
+  /// Update my profile (username, language, avatarUrl).
   Future<ProfileResult> updateProfile({
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
   });
 
-  /// Complete onboarding: set username, gender, language and onboarding_completed_at.
+  /// Complete onboarding: set username, language and onboarding_completed_at.
   Future<ProfileResult> completeOnboarding({
     required String username,
-    required String gender,
     required String language,
   });
 
@@ -32,6 +30,13 @@ abstract class ProfileRepository {
     bool? shareCycle,
     bool? shareCheckins,
   });
+
+  /// Names [device] (an install id) as the phone that follows calendars for
+  /// me, or null when I follow none.
+  Future<ProfileResult> setCalendarSyncDevice(String? device);
+
+  /// Records that my phone just synced the calendars it follows.
+  Future<ProfileResult> markCalendarSynced();
 
   /// Update FCM token for push notifications.
   Future<ProfileResult> updateFcmToken(String? token);

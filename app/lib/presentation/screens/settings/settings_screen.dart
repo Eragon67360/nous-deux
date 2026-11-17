@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/onboarding_strings.dart';
@@ -453,9 +454,7 @@ class _LanguageTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final currentLabel = lang == 'fr'
-        ? settingsLanguageFrench(lang)
-        : settingsLanguageEnglish(lang);
+    final currentLabel = AppLanguages.nativeName(lang);
 
     return InkWell(
       onTap: () => _showLanguageDialog(context, ref, lang),
@@ -505,20 +504,14 @@ class _LanguageTile extends ConsumerWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RadioListTile<String>(
-                title: Text(settingsLanguageFrench(currentLang)),
-                value: 'fr',
-                groupValue: currentLang,
-                onChanged: (v) =>
-                    _selectLanguage(screenContext, dialogContext, ref, v!),
-              ),
-              RadioListTile<String>(
-                title: Text(settingsLanguageEnglish(currentLang)),
-                value: 'en',
-                groupValue: currentLang,
-                onChanged: (v) =>
-                    _selectLanguage(screenContext, dialogContext, ref, v!),
-              ),
+              for (final code in AppLanguages.supported)
+                RadioListTile<String>(
+                  title: Text(AppLanguages.nativeName(code)),
+                  value: code,
+                  groupValue: currentLang,
+                  onChanged: (v) =>
+                      _selectLanguage(screenContext, dialogContext, ref, v!),
+                ),
             ],
           ),
         );

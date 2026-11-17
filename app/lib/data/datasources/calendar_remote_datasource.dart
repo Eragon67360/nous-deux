@@ -51,6 +51,7 @@ class CalendarRemoteDatasource {
     required DateTime startTime,
     DateTime? endTime,
     bool isCountdown = false,
+    String? sourceKey,
   }) async {
     final uid = _userId;
     if (uid == null) throw Exception('Not signed in');
@@ -64,6 +65,7 @@ class CalendarRemoteDatasource {
           'end_time': endTime?.toUtc().toIso8601String(),
           'is_countdown': isCountdown,
           'created_by': uid,
+          'source_key': ?sourceKey,
         })
         .select()
         .single();
@@ -93,6 +95,64 @@ class CalendarRemoteDatasource {
         .single();
     return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
   }
+
+  /// The caller's synced copies in [coupleId] starting between [from] and
+  /// [to].
+  Future<List<CalendarEventModel>> getMySynced({
+    required String coupleId,
+    required DateTime from,
+    required DateTime to,
+  }) async {
+    final uid = _userId;
+    if (uid == null) throw Exception('Not signed in');
+    final res = await _client
+        .from(_table)
+        .select()
+        .eq('couple_id', coupleId)
+        .eq('created_by', uid)
+        .not('source_key', 'is', null)
+        .gte('start_time', from.toUtc().toIso8601String())
+        .lte('start_time', to.toUtc().toIso8601String());
+    return (res as List)
+        .map(
+          (e) =>
+              CalendarEventModel.fromJson(Map<String, dynamic>.from(e as Map)),
+        )
+        .toList();
+  }
+
+  /// Title and times of a synced copy; nothing else changes.
+  Future<CalendarEventModel> updateSynced({
+    required String id,
+    required String title,
+    required DateTime startTime,
+    DateTime? endTime,
+  }) async {
+    final res = await _client
+        .from(_table)
+        .update({
+          'title': title,
+          'start_time': startTime.toUtc().toIso8601String(),
+          'end_time': endTime?.toUtc().toIso8601String(),
+        })
+        .eq('id', id)
+        .select()
+        .single();
+    return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  Future<CalendarEventModel> setCountdown(String id, bool on) async {
+    final res = await _client
+        .from(_table)
+        .update({'is_countdown': on})
+        .eq('id', id)
+        .select()
+        .single();
+    return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  Future<String> requestPartnerSync() async =>
+      await _client.rpc('request_partner_calendar_sync') as String;
 
   Future<void> delete(String id) async {
     await _client.from(_table).delete().eq('id', id);

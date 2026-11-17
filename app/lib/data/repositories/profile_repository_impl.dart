@@ -22,7 +22,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
       var profile = await _datasource.getById(uid);
       profile ??= await _datasource.upsert({
         'id': uid,
-        'gender': 'woman',
         'language': 'fr',
         // Do not set onboarding_completed_at so first-time users see onboarding
       });
@@ -49,7 +48,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<ProfileResult> updateProfile({
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
   }) async {
@@ -60,7 +58,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final data = <String, dynamic>{};
       if (username != null) data['username'] = username;
-      if (gender != null) data['gender'] = gender;
       if (language != null) data['language'] = language;
       if (avatarUrl != null) data['avatar_url'] = avatarUrl;
       if (data.isEmpty) {
@@ -108,7 +105,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<ProfileResult> completeOnboarding({
     required String username,
-    required String gender,
     required String language,
   }) async {
     final uid = _userId;
@@ -118,10 +114,33 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final profile = await _datasource.update(uid, {
         'username': username,
-        'gender': gender,
         'language': language,
         'onboarding_completed_at': DateTime.now().toUtc().toIso8601String(),
       });
+      return (profile: profile.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (profile: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (profile: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<ProfileResult> setCalendarSyncDevice(String? device) =>
+      _updateMine({'calendar_sync_device': device});
+
+  @override
+  Future<ProfileResult> markCalendarSynced() => _updateMine({
+    'calendar_synced_at': DateTime.now().toUtc().toIso8601String(),
+  });
+
+  Future<ProfileResult> _updateMine(Map<String, dynamic> data) async {
+    final uid = _userId;
+    if (uid == null) {
+      return (profile: null, failure: const AuthFailure('Not signed in'));
+    }
+    try {
+      final profile = await _datasource.update(uid, data);
       return (profile: profile.toEntity(), failure: null);
     } on PostgrestException catch (e) {
       return (profile: null, failure: ServerFailure(e.message));

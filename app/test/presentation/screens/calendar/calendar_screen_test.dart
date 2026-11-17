@@ -3,12 +3,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/models/calendar_event_model.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
+import 'package:nousdeux/presentation/screens/calendar/calendar_follow_screen.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_screen.dart';
 
 import '../../../helpers/fixtures.dart';
@@ -30,8 +33,6 @@ DateTime _nextMonth({int hour = 0}) {
   return DateTime(now.year, now.month + 1, 10, hour);
 }
 
-String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
-
 Finder _ownerDots({required bool mine}) =>
     find.byWidgetPredicate((w) => w is OwnerDot && w.isMine == mine);
 
@@ -42,10 +43,14 @@ void main() {
     String lang = 'fr',
     String? partnerName = 'Alex',
     List<Override> overrides = const [],
+    DateTime? partnerSyncedAt,
   }) async {
     final deps = TestDeps(
       myProfile: profile(language: lang, partner: partnerId),
-      partner: partnerProfile(username: partnerName),
+      partner: partnerProfile(
+        username: partnerName,
+        calendarSyncedAt: partnerSyncedAt,
+      ),
       events: events,
     );
     await pumpScreen(
@@ -57,7 +62,7 @@ void main() {
     return deps;
   }
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] the title stays on one line on a narrow phone', (
       tester,
     ) async {
@@ -88,7 +93,7 @@ void main() {
         find.text(
           DateFormat(
             'MMMM y',
-            _locale(lang),
+            AppLanguages.dateLocale(lang),
           ).format(DateTime.now()).toUpperCase(),
         ),
         findsOneWidget,
@@ -100,7 +105,9 @@ void main() {
       tester,
     ) async {
       await pumpCalendar(tester, lang: lang);
-      final month = DateFormat.MMMM(_locale(lang)).format(DateTime.now());
+      final month = DateFormat.MMMM(
+        AppLanguages.dateLocale(lang),
+      ).format(DateTime.now());
 
       expect(find.text(calendarNothingInMonth(lang, month)), findsOneWidget);
       expect(find.text(calendarCreateEvent(lang)), findsOneWidget);
@@ -112,15 +119,20 @@ void main() {
   ) async {
     await pumpCalendar(tester);
     final next = DateTime(DateTime.now().year, DateTime.now().month + 1);
-    String label(DateTime m) =>
-        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
+    String label(DateTime m) => DateFormat(
+      'MMMM y',
+      AppLanguages.dateLocale('fr'),
+    ).format(m).toUpperCase();
 
     await tester.tap(find.byTooltip(calendarNextMonth('fr')));
     await tester.pumpAndSettle();
     expect(find.text(label(next)), findsOneWidget);
     expect(
       find.text(
-        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(next)),
+        calendarNothingInMonth(
+          'fr',
+          DateFormat.MMMM(AppLanguages.dateLocale('fr')).format(next),
+        ),
       ),
       findsOneWidget,
     );
@@ -141,12 +153,17 @@ void main() {
       'before', (tester) async {
     await pumpCalendar(tester);
     final now = DateTime.now();
-    String label(DateTime m) =>
-        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
+    String label(DateTime m) => DateFormat(
+      'MMMM y',
+      AppLanguages.dateLocale('fr'),
+    ).format(m).toUpperCase();
 
     await tester.fling(
       find.text(
-        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(now)),
+        calendarNothingInMonth(
+          'fr',
+          DateFormat.MMMM(AppLanguages.dateLocale('fr')).format(now),
+        ),
       ),
       const Offset(-200, 0),
       800,
@@ -171,7 +188,10 @@ void main() {
     await pumpCalendar(tester);
     final now = DateTime.now();
     final month = find.text(
-      DateFormat('MMMM y', 'fr_FR').format(now).toUpperCase(),
+      DateFormat(
+        'MMMM y',
+        AppLanguages.dateLocale('fr'),
+      ).format(now).toUpperCase(),
     );
 
     await tester.drag(
@@ -357,6 +377,122 @@ void main() {
       expect(deps.calendar.deletedIds, ['mine']);
       expect(find.text('Cinéma'), findsNothing);
       expect(find.text('Dentiste'), findsOneWidget);
+    });
+  });
+
+  group('events from a followed phone calendar', () {
+    final synced = event(
+      id: 'synced',
+      title: 'Dentiste',
+      start: _today(hour: 9),
+      end: _today(hour: 10),
+      createdBy: partnerId,
+      sourceKey: 'k-dentiste',
+    );
+
+    for (final lang in AppLanguages.supported) {
+      testWidgets('[$lang] show a phone and open read-only, countdown aside', (
+        tester,
+      ) async {
+        final deps = await pumpCalendar(tester, events: [synced], lang: lang);
+        final from = calendarSyncedFrom(lang, 'Alex', mine: false);
+        expect(
+          find.byWidgetPredicate((w) => w is Icon && w.semanticLabel == from),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.text('Dentiste'));
+        await tester.pumpAndSettle();
+
+        expect(find.text(calendarEventEdit(lang)), findsNothing);
+        expect(find.text(from.toUpperCase()), findsOneWidget);
+        expect(
+          find.text(calendarSyncedReadOnly(lang, 'Alex', mine: false)),
+          findsOneWidget,
+        );
+        await tester.tap(
+          find.widgetWithText(SwitchListTile, calendarEventCountdown(lang)),
+        );
+        await tester.pumpAndSettle();
+        expect(deps.calendar.countdownCalls, [(id: 'synced', on: true)]);
+      });
+
+      testWidgets(
+        '[$lang] the partner\'s calendar freshness is in the header',
+        (tester) async {
+          final at = DateTime.now().subtract(const Duration(minutes: 5));
+          await pumpCalendar(tester, lang: lang, partnerSyncedAt: at);
+
+          expect(
+            find.text(
+              calendarPartnerFresh(
+                lang,
+                'Alex',
+                calendarAgo(lang, at, DateTime.now()),
+              ),
+            ),
+            findsOneWidget,
+          );
+        },
+      );
+    }
+
+    for (final lang in AppLanguages.supported) {
+      testWidgets('[$lang] an all-day event says so instead of 00:00', (
+        tester,
+      ) async {
+        final birthday = event(
+          id: 'birthday',
+          title: 'Anniversaire',
+          start: _today(),
+          end: _today(),
+          sourceKey: 'k-birthday',
+        );
+        await pumpCalendar(tester, events: [birthday], lang: lang);
+
+        expect(find.text(calendarAllDay(lang)), findsOneWidget);
+        expect(find.text('00:00'), findsNothing);
+
+        await tester.tap(find.text('Anniversaire'));
+        await tester.pumpAndSettle();
+        expect(find.textContaining(calendarAllDay(lang)), findsNWidgets(2));
+        expect(find.textContaining('00:00'), findsNothing);
+      });
+    }
+
+    testWidgets('long-press opens the same sheet, never a delete', (
+      tester,
+    ) async {
+      final deps = await pumpCalendar(tester, events: [synced]);
+
+      await tester.longPress(find.text('Dentiste'));
+      await tester.pumpAndSettle();
+
+      expect(find.text(calendarDeleteEventTitle('fr')), findsNothing);
+      expect(
+        find.text(calendarSyncedReadOnly('fr', 'Alex', mine: false)),
+        findsOneWidget,
+      );
+      expect(deps.calendar.deletedIds, isEmpty);
+    });
+
+    testWidgets('no freshness line while the partner follows nothing', (
+      tester,
+    ) async {
+      await pumpCalendar(tester);
+      expect(find.textContaining('Alex ·'), findsNothing);
+    });
+
+    testWidgets('the phone calendar button opens the follow screen', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      await pumpCalendar(tester);
+
+      await tester.tap(find.byTooltip(calendarFollowLabel('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CalendarFollowScreen), findsOneWidget);
     });
   });
 
