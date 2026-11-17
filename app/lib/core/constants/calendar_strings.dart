@@ -22,45 +22,16 @@ String calendarNothingInMonth(String lang, String month) =>
     lang == 'fr' ? 'Rien de prévu en $month' : 'Nothing planned in $month';
 String calendarCreateEvent(String lang) =>
     lang == 'fr' ? 'Ajouter un événement' : 'Add an event';
-String calendarImportTooltip(String lang) =>
-    lang == 'fr' ? 'Importer' : 'Import';
-
 String calendarPreviousMonth(String lang) =>
     lang == 'fr' ? 'Mois précédent' : 'Previous month';
 String calendarNextMonth(String lang) =>
     lang == 'fr' ? 'Mois suivant' : 'Next month';
 
-// Import screen
-String calendarImportTitle(String lang) =>
-    lang == 'fr' ? 'Importer depuis l\'agenda' : 'Import from calendar';
-String calendarImportLoading(String lang) =>
-    lang == 'fr' ? 'Chargement des agendas…' : 'Loading calendars…';
-String calendarImportIntro(String lang) =>
-    lang == 'fr'
-        ? 'Choisissez un agenda et une période : les événements seront copiés dans Nous Deux.'
-        : 'Pick a calendar and a date range. The events will be copied into Nous Deux.';
-String calendarImportPermissionMessage(String lang) =>
-    lang == 'fr'
-        ? "Nous Deux a besoin d'accéder à votre calendrier pour importer des événements. Si la demande ne s'affiche pas, autorisez l'accès dans les réglages."
-        : 'Nous Deux needs access to your calendar to import events. If no prompt appears, allow access in Settings.';
-String calendarImportVerifying(String lang) =>
-    lang == 'fr' ? 'Vérification…' : 'Verifying…';
+// Calendar access, asked on the follow screen
 String calendarImportAllowAccess(String lang) =>
     lang == 'fr' ? 'Autoriser l\'accès au calendrier' : 'Allow calendar access';
 String calendarImportOpenSettings(String lang) =>
     lang == 'fr' ? 'Ouvrir les réglages' : 'Open settings';
-String calendarImportNoCalendars(String lang) =>
-    lang == 'fr'
-        ? 'Aucun calendrier trouvé sur cet appareil.'
-        : 'No calendars found on this device.';
-String calendarImportCalendarLabel(String lang) =>
-    lang == 'fr' ? 'Agenda' : 'Calendar';
-String calendarImportFrom(String lang) => lang == 'fr' ? 'Du' : 'From';
-String calendarImportTo(String lang) => lang == 'fr' ? 'Au' : 'To';
-String calendarImportImporting(String lang) =>
-    lang == 'fr' ? 'Importation…' : 'Importing…';
-String calendarImportButton(String lang) =>
-    lang == 'fr' ? 'Importer' : 'Import';
 String calendarImportRestartMessage(String lang) =>
     lang == 'fr'
         ? 'Redémarrez complètement l\'app (arrêt puis relance) pour que le bouton Réglages fonctionne.'

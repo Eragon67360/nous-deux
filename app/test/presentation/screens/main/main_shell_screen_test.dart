@@ -1,8 +1,12 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/l10n/app_languages.dart';
+import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
+import 'package:nousdeux/domain/calendar/phone_event.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
 import 'package:nousdeux/core/errors/failures.dart';
@@ -15,6 +19,7 @@ import 'package:nousdeux/presentation/screens/main/main_shell_screen.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 import 'package:nousdeux/presentation/widgets/text_tab_bar.dart';
 
+import '../../../helpers/fakes.dart';
 import '../../../helpers/fixtures.dart';
 import '../../../helpers/test_app.dart';
 
@@ -434,6 +439,80 @@ void main() {
         find.text(nousWriteTo('fr', 'Alex').toUpperCase()),
         findsOneWidget,
       );
+    });
+  });
+
+  group('phone calendar sync', () {
+    TestDeps followingDeps() {
+      SharedPreferences.setMockInitialValues({
+        calendarFollowedKey: ['cal-1'],
+        calendarInstallIdKey: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+      });
+      return TestDeps(
+        myProfile: profile(
+          partner: partnerId,
+          calendarSyncDevice: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
+        ),
+        partner: partnerProfile(),
+        phoneCalendar: FakePhoneCalendar(
+          events: {
+            'cal-1': [
+              PhoneEvent(
+                key: 'k-yoga',
+                title: 'Yoga',
+                start: DateTime.now().add(const Duration(days: 2)),
+              ),
+            ],
+          },
+        ),
+      );
+    }
+
+    testWidgets('opening the app syncs the calendars this phone follows', (
+      tester,
+    ) async {
+      final deps = followingDeps();
+      await _pumpShell(tester, deps);
+      await tester.pumpAndSettle();
+
+      expect(deps.calendar.events.map((e) => e.sourceKey), ['k-yoga']);
+    });
+
+    testWidgets('coming back to the app syncs again', (tester) async {
+      final deps = followingDeps();
+      final yoga = deps.phoneCalendar.perCalendar!['cal-1']!.single;
+      deps.phoneCalendar.perCalendar!['cal-1'] = [];
+      await _pumpShell(tester, deps);
+      await tester.pumpAndSettle();
+      expect(deps.calendar.events, isEmpty);
+
+      deps.phoneCalendar.perCalendar!['cal-1'] = [yoga];
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+
+      expect(deps.calendar.events.map((e) => e.sourceKey), ['k-yoga']);
+    });
+
+    testWidgets('opening the calendar tab asks to wake the partner\'s phone', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({});
+      final deps = TestDeps(
+        myProfile: profile(partner: partnerId),
+        partner: partnerProfile(),
+      );
+      await _pumpShell(tester, deps);
+      await tester.pumpAndSettle();
+      expect(deps.calendar.partnerSyncRequests, 0);
+
+      await tester.tap(find.text(mainNavCalendar('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.calendar.partnerSyncRequests, 1);
+
+      await tester.tap(find.text(nousTitle('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.calendar.partnerSyncRequests, 1);
     });
   });
 }
