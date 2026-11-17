@@ -53,7 +53,7 @@ Export compliance: `ITSAppUsesNonExemptEncryption` is `false` in `Info.plist` (H
 
 ## App Store product page
 
-Filled on 2026-11-17 for version « 1.0 » (not submitted). French is the primary language; English (United States) was added then, with its own name, subtitle, texts and screenshots.
+Filled on 2026-11-17 for version « 1.0 » (not submitted, no build yet). French is the primary language; English (United States) was added then, with its own name, subtitle, texts and screenshots.
 
 ### App Information (all versions)
 
@@ -64,7 +64,7 @@ Filled on 2026-11-17 for version « 1.0 » (not submitted). French is the primar
 | Privacy policy URL | `https://nous-deux.app/fr/politique-de-confidentialite` | `https://nous-deux.app/en/politique-de-confidentialite` |
 
 - **Category:** Lifestyle (« Style de vie »), secondary Productivity (« Productivité »), like Play.
-- **Price:** free (US base price $0.00, 175 countries). It takes effect once the app is "Ready for Sale".
+- **Price:** free (US base price $0.00). It takes effect once the app is "Ready for Sale".
 
 ### Version page
 
@@ -133,7 +133,34 @@ The Position capture was left out: the French one still shows the old light map.
 
 ### « En-tête et résultats de recherche » (optional)
 
-A newer tab next to the screenshots. **En-tête** is one wide banner at the top of the product page (5244 × 2950 or 3840 × 1646). **Résultats de recherche** is one landscape image shown in App Store search results (5244 × 2950, 3840 × 2560 or 1920 × 1280); without it, search results show the screenshots. Neither is needed to submit; none is set yet.
+A newer tab next to the screenshots, about the App Store only (not web search engines). **En-tête** is one wide banner at the top of the product page (5244 × 2950 or 3840 × 1646); none is set. **Résultats de recherche** is one landscape image shown in the app's row in App Store search results (5244 × 2950, 3840 × 2560 or 1920 × 1280); without it, search results show the first screenshots.
+
+Set on 2026-11-17: `out/fr/search.png` and `out/en/search.png` (3840 × 2560, from `src/search.html` in the same render script): the rings, « Nous Deux », a tagline, and the Nous, Calendrier and Règles captures. French was uploaded first; with the page switched to English, its own English image replaces « Ressource de résultats de recherche utilisée : Français ». Apple's « Aperçu » showed it whole, under the name and subtitle.
+
+### Age rating (set 2026-11-17)
+
+Apple's questionnaire (7 steps) computed **13+**; it is raised to **18+** (« Remplacer par une classification d'âge plus élevée »), as on Play: the app pairs adults and stores health data, and in France under-15s can't consent to health-data processing alone. Shown: 18+ in 173 countries, 19+ in South Korea, 17+ on systems older than 26.
+
+| Question | Answer | Why |
+| --- | --- | --- |
+| Parental controls, age assurance | No | |
+| Unrestricted web access | No | Only fixed links (guide sources, policy) |
+| User-generated content, social networking | No | Nothing is distributed beyond the one partner |
+| Messaging and chat | **Yes** | Little notes, written ones included, go between the two partners |
+| Advertising | No | |
+| Profanity, horror, alcohol/tobacco/drugs | None | |
+| Medical or treatment information | **Infrequent** | The cycle guide gives care advice and "see a doctor if…", no diagnosis |
+| Health or wellness topics | **Yes** | The cycle guide and the weekly tips |
+| Mature or suggestive themes | **Infrequent** | A couple's app with links to sexual and reproductive health sources; rated up rather than down |
+| Sexual content or nudity, violence, weapons, gambling, contests, loot boxes | None / No | |
+
+### Other settings (2026-11-17)
+
+- **Content rights:** "Yes, it contains third-party content and I have the rights": the map shows OpenFreeMap tiles built from OpenStreetMap (ODbL), credited in MapLibre's « ⓘ » button.
+- **Availability:** 174 countries or regions, all but mainland China, which needs a security assessment and an AI-content declaration (« Conformité de l'app »). New countries are added automatically.
+- **Version:** left at Apple's default « 1.0 » with no build. Thomas plans to ship the App Store release as 1.0.0 once the app is ready (2026-11-17); the build number freeze at 0.3.6 ends then.
+- **App Review information:** contact and both review accounts entered by Thomas.
+- **Conformité de l'app:** the Digital Services Act trader information is still to configure. It is account-wide (the same Apple team holds Le Bon Tempérament's apps), so it is Thomas's. No medical-device declaration is needed (category Lifestyle, medical information "infrequent").
 
 ## App Privacy
 
