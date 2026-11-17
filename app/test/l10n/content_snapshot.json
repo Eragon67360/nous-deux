@@ -1,0 +1,1477 @@
+{
+  "fr": {
+    "guide": {
+      "chapterTitles": {
+        "cycle": "Le cycle en 4 phases",
+        "bodyMind": "Corps et humeur",
+        "support": "Soutenir sans s'imposer",
+        "talking": "En parler à deux",
+        "myths": "Idées reçues",
+        "faq": "Questions fréquentes",
+        "sources": "Sources et limites"
+      },
+      "search": {
+        "": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "cycle": [
+          "cycle",
+          "bodyMind",
+          "talking",
+          "myths",
+          "faq"
+        ],
+        "ovulation": [
+          "cycle"
+        ],
+        "œstrogène": [
+          "cycle"
+        ],
+        "estrogen": [],
+        "PMDD": [
+          "bodyMind"
+        ],
+        "spm": [
+          "faq"
+        ],
+        "bouillotte": [
+          "support"
+        ],
+        "heat pack": [],
+        "partenaire": [
+          "talking",
+          "faq"
+        ],
+        "partner": [],
+        "règles": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "period": [],
+        "nhs": [],
+        "flo": [],
+        "lumni": [
+          "sources"
+        ],
+        "disclaimer": [],
+        "avertissement": [
+          "sources"
+        ],
+        "zzqxw": []
+      }
+    },
+    "education": {
+      "periodScreenTitle": "Règles",
+      "sectionCycleTitle": "Comprendre le cycle menstruel",
+      "sectionCycleSubtitle": "Quatre phases, des hormones qui varient. Chaque cycle est unique.",
+      "sectionCycleIntro": "Un cycle dure en moyenne 28 jours, mais entre 21 et 35 jours est normal. Les hormones (œstrogène, progestérone) pilotent les phases et influencent le corps et l'humeur.",
+      "phases": [
+        {
+          "dayRange": "1–5",
+          "name": "Menstruation",
+          "description": "Les règles : la muqueuse utérine est évacuée. C'est la phase la plus visible du cycle.",
+          "hormoneHint": "Œstrogène et progestérone au plus bas.",
+          "physical": [
+            "Saignement",
+            "Crampes possibles",
+            "Fatigue",
+            "Douleurs au dos ou à la tête"
+          ],
+          "emotional": [
+            "Besoin de repos",
+            "Parfois plus sensible",
+            "Envie de calme"
+          ]
+        },
+        {
+          "dayRange": "6–12",
+          "name": "Folliculaire",
+          "description": "Les follicules ovariens mûrissent. L'œstrogène remonte, l'énergie souvent aussi.",
+          "hormoneHint": "Œstrogène en hausse.",
+          "physical": [
+            "Plus d'énergie",
+            "Peau souvent plus nette",
+            "Endurance possible"
+          ],
+          "emotional": [
+            "Meilleure humeur",
+            "Plus sociable",
+            "Concentration facilitée"
+          ]
+        },
+        {
+          "dayRange": "13–15",
+          "name": "Ovulation",
+          "description": "Libération de l'ovule. Pic d'œstrogène ; beaucoup ressentent un pic d'énergie et de libido.",
+          "hormoneHint": "Pic d'œstrogène ; LH déclenche l'ovulation.",
+          "physical": [
+            "Énergie élevée",
+            "Libido souvent plus forte",
+            "Glaires cervicales plus fluides"
+          ],
+          "emotional": [
+            "Confiance",
+            "Ouverture aux autres",
+            "Optimisme"
+          ]
+        },
+        {
+          "dayRange": "16–28",
+          "name": "Lutéale",
+          "description": "Après l'ovulation, la progestérone monte. Cela peut entraîner fatigue et sensibilité émotionnelle avant les règles.",
+          "hormoneHint": "Progestérone élevée, puis chute avant les règles.",
+          "physical": [
+            "Fatigue possible",
+            "Ballonnements",
+            "Seins sensibles",
+            "Fringales possibles"
+          ],
+          "emotional": [
+            "Sensibilité émotionnelle",
+            "PMS possible",
+            "Besoin de réconfort"
+          ]
+        }
+      ],
+      "sectionPhysicalEmotionalTitle": "Corps et émotions au fil du cycle",
+      "sectionPhysicalEmotionalSubtitle": "Les symptômes et l'humeur varient selon la phase. C'est biologique et normal.",
+      "sectionPsychologicalTitle": "Impact psychologique",
+      "sectionPsychologicalIntro": "Les changements d'humeur avant et pendant les règles sont réels et liés aux hormones. Les valider aide à mieux vivre le cycle.",
+      "pmsDefinition": "PMS (syndrome prémenstruel) : symptômes physiques et émotionnels les jours avant les règles (fatigue, irritabilité, tristesse, ballonnements). Très courant.",
+      "pmddDefinition": "PMDD (trouble dysphorique prémenstruel) : forme plus sévère, avec impact important sur l'humeur et la vie quotidienne. Moins fréquent, mais à prendre au sérieux.",
+      "whenToSeekHelp": "Consulter un professionnel si : symptômes très invalidants, idées noires, conflits répétés, ou si vous avez des doutes.",
+      "sectionPartnerSupportSubtitle": "Actions concrètes et attitudes qui aident, phase par phase.",
+      "sectionPartnerSupportIntro": "Chaque personne est différente. L'idéal est d'en parler ensemble : ce qui fait du bien, les limites, et ce qu'il vaut mieux éviter.",
+      "partnerDoSay": "À dire : « Comment tu te sens ? », « Tu veux que je te prépare quelque chose ? », « Je suis là si tu as besoin. »",
+      "partnerDontSay": "À éviter : « C'est encore tes règles ? », « Tu exagères », ou minimiser la douleur.",
+      "comfortKitTitle": "Créer un « kit confort » ensemble",
+      "comfortKitBody": "Par exemple : bouillotte, tisane, snacks préférés, antidouleur si OK pour elle/lui, couverture. À adapter selon les préférences.",
+      "sectionCommunicationSubtitle": "Formuler les questions et le soutien avec respect.",
+      "communicationTemplates": [
+        {
+          "avoid": "C'est encore tes règles ?",
+          "tryInstead": "Comment tu te sens aujourd'hui ? Tu as besoin de quelque chose ?"
+        },
+        {
+          "avoid": "Tu exagères.",
+          "tryInstead": "Je vois que c'est difficile. Je suis là."
+        },
+        {
+          "avoid": "C'est dans ta tête.",
+          "tryInstead": "Tes symptômes sont réels. On peut en parler."
+        },
+        {
+          "avoid": "Dépêche-toi, on a des trucs à faire.",
+          "tryInstead": "On peut décaler / alléger si tu préfères."
+        }
+      ],
+      "expressingNeedsTitle": "Exprimer ses besoins",
+      "expressingNeedsBody": "La personne qui a ses règles peut dire : « J'ai besoin de repos », « J'aimerais qu'on reste à la maison », « Pas de dispute aujourd'hui si possible ». Le partenaire peut proposer des options sans forcer.",
+      "boundariesTitle": "Poser des limites avec respect",
+      "boundariesBody": "Les deux peuvent fixer des limites : « J'ai besoin d'un moment seul », « On en reparle ce soir ». Écouter et ne pas prendre pour un rejet.",
+      "planningTogetherTitle": "Planifier ensemble",
+      "planningTogetherBody": "Connaître les grandes phases aide à planifier : sorties, charge de travail, moments de récupération. Sans que le cycle dicte tout, il peut être pris en compte.",
+      "sectionMythBustersSubtitle": "Démêler le vrai du faux.",
+      "mythBusters": [
+        {
+          "myth": "Les règles, c'est « juste » des crampes.",
+          "fact": "Les douleurs peuvent inclure le dos, la tête, les seins, les troubles digestifs. Ces symptômes sont réels et méritent attention et soins."
+        },
+        {
+          "myth": "C'est psychologique / elle exagère.",
+          "fact": "Les changements sont liés aux hormones. La sensibilité et la fatigue sont biologiques. Les invalider aggrave souvent le mal-être."
+        },
+        {
+          "myth": "Toutes les femmes ont le même cycle.",
+          "fact": "Chaque cycle est différent (durée, intensité, symptômes). Ce qui est normal pour une personne ne l'est pas forcément pour une autre."
+        },
+        {
+          "myth": "On ne peut rien faire pour aider.",
+          "fact": "Écouter, proposer du réconfort, alléger les tâches et éviter les remarques blessantes font une vraie différence."
+        }
+      ],
+      "sectionQuickRefTitle": "Aide-mémoire",
+      "quickRefCards": [
+        {
+          "title": "Menstruation (j1–5)",
+          "bullets": [
+            "Règles, fatigue possible",
+            "Soutien : repos, chaleur, pas de pression"
+          ]
+        },
+        {
+          "title": "Folliculaire (j6–12)",
+          "bullets": [
+            "Plus d'énergie, humeur souvent bonne",
+            "Idéal pour projets et sorties"
+          ]
+        },
+        {
+          "title": "Ovulation (j13–15)",
+          "bullets": [
+            "Pic d'énergie et de libido",
+            "Respecter le rythme si besoin"
+          ]
+        },
+        {
+          "title": "Lutéale (j16–28)",
+          "bullets": [
+            "Progestérone haute → fatigue, sensibilité",
+            "Soutien : écoute, réconfort, partage des tâches"
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "question": "Qu'est-ce que le SPM ?",
+          "answer": "Le syndrome prémenstruel regroupe des symptômes physiques et émotionnels dans les jours avant les règles (fatigue, irritabilité, ballonnements, etc.). C'est courant et variable d'une personne à l'autre."
+        },
+        {
+          "question": "Comment savoir si c'est du SPM ou autre chose ?",
+          "answer": "Si les symptômes reviennent de façon cyclique avant les règles et s'atténuent après, c'est souvent lié au cycle. En cas de doute ou si ça impacte beaucoup la vie, un professionnel peut aider."
+        },
+        {
+          "question": "Mon partenaire peut-il voir mes entrées ?",
+          "answer": "C'est vous qui choisissez. Dans Règles, « Ce que … voit » a deux interrupteurs : votre cycle (jour, phase, date prévue) et votre ressenti du jour. Vos notes restent toujours privées : personne d'autre ne peut les lire."
+        },
+        {
+          "question": "Les règles rendent-elles vraiment plus irritable ?",
+          "answer": "Les hormones (notamment la chute de progestérone avant les règles) peuvent augmenter la sensibilité et la réactivité. Ce n'est pas une « excuse » : c'est physiologique. Le soutien et la compréhension aident."
+        }
+      ],
+      "disclaimerTitle": "Avertissement",
+      "disclaimerBody": "Ce contenu est à but informatif uniquement et ne constitue pas un avis médical. Pour toute question de santé ou décision personnelle, consultez un professionnel de santé.",
+      "periodLogNew": "Nouvel enregistrement",
+      "periodLogEdit": "Modifier l'enregistrement",
+      "periodDeleteConfirmTitle": "Supprimer cet enregistrement ?",
+      "periodCancel": "Annuler",
+      "periodDelete": "Supprimer",
+      "periodSave": "Enregistrer",
+      "periodStartDate": "Date de début",
+      "periodEndDate": "Date de fin (optionnel)",
+      "periodReminderNotificationTitle": "Règles prévues demain",
+      "periodReminderNotificationBody": "D'après son cycle, les règles de votre partenaire devraient commencer demain.",
+      "moodLabels": {
+        "good": "Bien",
+        "tired": "Fatigué(e)",
+        "anxious": "Anxieux(se)",
+        "irritable": "Irrité(e)",
+        "not-a-mood": "not-a-mood"
+      },
+      "symptomLabels": {
+        "cramps": "Crampes",
+        "headache": "Maux de tête",
+        "acne": "Acné",
+        "pain": "Douleurs",
+        "bloating": "Ballonnements",
+        "not-a-symptom": "not-a-symptom"
+      }
+    },
+    "sources": {
+      "all": [
+        {
+          "url": "https://www.nhs.uk/conditions/periods/",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Règles",
+          "credential": "NHS (Royaume-Uni)",
+          "summary": "Vue d’ensemble officielle du NHS sur les règles."
+        },
+        {
+          "url": "https://www.nhsinform.scot/healthy-living/womens-health/girls-and-young-women-puberty-to-around-25/periods-and-menstrual-health/periods-menstruation",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS Inform – Le cycle menstruel",
+          "credential": "NHS Écosse",
+          "summary": "Informations factuelles sur les règles et quand consulter."
+        },
+        {
+          "url": "https://www.mayoclinic.org/healthy-lifestyle/womens-health/in-depth/menstrual-cycle/art-20047186",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Mayo Clinic – Cycle menstruel",
+          "credential": "Mayo Clinic",
+          "summary": "Fonctionnement du cycle et ce qui est normal."
+        },
+        {
+          "url": "https://www.lumni.fr/video/les-regles-comment-ca-marche",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Lumni – Les règles, comment ça marche ?",
+          "credential": "France Télévisions",
+          "summary": "Vidéo courte sur les règles et le cycle menstruel (Dr Jimmy Mohamed)."
+        },
+        {
+          "url": "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Ministère de la Santé – Santé reproductive",
+          "credential": "Ministère de la Santé",
+          "summary": "Info officielle sur la santé sexuelle et reproductive."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=QYdYpKc9icQ",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Dr. Jen Gunter – Science des règles",
+          "credential": "Gynécologue, factuelle",
+          "summary": "Vue d’ensemble factuelle d’environ 10 min ; démêle mythes et réalités."
+        },
+        {
+          "url": "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "OMS – Santé menstruelle",
+          "credential": "Organisation mondiale de la santé",
+          "summary": "OMS Europe : santé menstruelle comme droit fondamental."
+        },
+        {
+          "url": "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "UNFPA – Menstruations, questions fréquentes",
+          "credential": "UNFPA",
+          "summary": "FAQ complète sur les règles, le cycle, le SPM et les droits."
+        },
+        {
+          "url": "https://www.unicef.org/wash/menstrual-hygiene",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "UNICEF – Hygiène menstruelle",
+          "credential": "UNICEF",
+          "summary": "Guide mondial sur la dignité et l’éducation menstruelle."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=obbIteVnxUw",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "Plan International France – Santé menstruelle",
+          "credential": "Plan International France",
+          "summary": "Vidéo : c’est quoi la santé menstruelle ?"
+        },
+        {
+          "url": "https://www.instagram.com/gynaegeek/",
+          "platform": "instagram",
+          "platformLabel": "Instagram",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "Gynae Geek",
+          "credential": "Gynécologie factuelle",
+          "summary": "Contenu cycle et règles basé sur les preuves."
+        },
+        {
+          "url": "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Lil-Lets – Guide pour les hommes",
+          "credential": "Lil-Lets (Royaume-Uni)",
+          "summary": "Un guide simple et direct sur les règles, conçu pour les hommes."
+        },
+        {
+          "url": "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Flo – Aider sa partenaire",
+          "credential": "Flo Health",
+          "summary": "Flo for Partners : partager son suivi avec son partenaire."
+        },
+        {
+          "url": "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Planned Parenthood – Santé sexuelle",
+          "credential": "Planned Parenthood",
+          "summary": "Guide complet sur la menstruation et les relations."
+        },
+        {
+          "url": "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "pms",
+          "locales": [
+            "en"
+          ],
+          "name": "Cleveland Clinic – SPM",
+          "credential": "Cleveland Clinic",
+          "summary": "Vue médicale du SPM et quand consulter."
+        }
+      ],
+      "forLanguage": [
+        "https://www.lumni.fr/video/les-regles-comment-ca-marche",
+        "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive",
+        "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+        "https://www.youtube.com/watch?v=obbIteVnxUw"
+      ],
+      "byTopic": {
+        "cycleBasics": [
+          "https://www.lumni.fr/video/les-regles-comment-ca-marche",
+          "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive"
+        ],
+        "pms": [],
+        "partnerSupport": [],
+        "whenToSeekHelp": [],
+        "general": [
+          "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+          "https://www.youtube.com/watch?v=obbIteVnxUw"
+        ]
+      },
+      "whenToSeekHelp": [
+        "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+        "https://www.youtube.com/watch?v=obbIteVnxUw"
+      ],
+      "partnerSupport": [
+        "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+        "https://www.youtube.com/watch?v=obbIteVnxUw"
+      ]
+    }
+  },
+  "en": {
+    "guide": {
+      "chapterTitles": {
+        "cycle": "The cycle in 4 phases",
+        "bodyMind": "Body and mood",
+        "support": "Supporting without taking over",
+        "talking": "Talking about it",
+        "myths": "Myths",
+        "faq": "Common questions",
+        "sources": "Sources and limits"
+      },
+      "search": {
+        "": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "cycle": [
+          "cycle",
+          "bodyMind",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "ovulation": [
+          "cycle"
+        ],
+        "œstrogène": [],
+        "estrogen": [
+          "cycle"
+        ],
+        "PMDD": [
+          "bodyMind"
+        ],
+        "spm": [],
+        "bouillotte": [],
+        "heat pack": [
+          "support"
+        ],
+        "partenaire": [],
+        "partner": [
+          "talking",
+          "faq",
+          "sources"
+        ],
+        "règles": [],
+        "period": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "nhs": [
+          "sources"
+        ],
+        "flo": [
+          "sources"
+        ],
+        "lumni": [],
+        "disclaimer": [
+          "sources"
+        ],
+        "avertissement": [],
+        "zzqxw": []
+      }
+    },
+    "education": {
+      "periodScreenTitle": "Period",
+      "sectionCycleTitle": "Understanding the Menstrual Cycle",
+      "sectionCycleSubtitle": "Four phases, changing hormones. Every cycle is unique.",
+      "sectionCycleIntro": "A cycle averages 28 days, but 21–35 days is normal. Hormones (estrogen, progesterone) drive the phases and affect body and mood.",
+      "phases": [
+        {
+          "dayRange": "1–5",
+          "name": "Menstrual",
+          "description": "Your period: the uterine lining is shed. This is the most visible phase.",
+          "hormoneHint": "Estrogen and progesterone at their lowest.",
+          "physical": [
+            "Bleeding",
+            "Possible cramps",
+            "Fatigue",
+            "Back or head pain"
+          ],
+          "emotional": [
+            "Need for rest",
+            "Sometimes more sensitive",
+            "Craving calm"
+          ]
+        },
+        {
+          "dayRange": "6–12",
+          "name": "Follicular",
+          "description": "Ovarian follicles mature. Estrogen rises; energy often does too.",
+          "hormoneHint": "Estrogen rising.",
+          "physical": [
+            "More energy",
+            "Skin often clearer",
+            "Stamina may increase"
+          ],
+          "emotional": [
+            "Better mood",
+            "More sociable",
+            "Easier to focus"
+          ]
+        },
+        {
+          "dayRange": "13–15",
+          "name": "Ovulation",
+          "description": "Egg is released. Estrogen peaks; many feel a peak in energy and libido.",
+          "hormoneHint": "Estrogen peak; LH triggers ovulation.",
+          "physical": [
+            "High energy",
+            "Libido often higher",
+            "More fluid cervical mucus"
+          ],
+          "emotional": [
+            "Confidence",
+            "Openness to others",
+            "Optimism"
+          ]
+        },
+        {
+          "dayRange": "16–28",
+          "name": "Luteal",
+          "description": "After ovulation, progesterone rises. This can cause fatigue and mood sensitivity before your period.",
+          "hormoneHint": "Progesterone high, then drops before period.",
+          "physical": [
+            "Possible fatigue",
+            "Bloating",
+            "Tender breasts",
+            "Possible cravings"
+          ],
+          "emotional": [
+            "Emotional sensitivity",
+            "PMS possible",
+            "Need for comfort"
+          ]
+        }
+      ],
+      "sectionPhysicalEmotionalTitle": "Physical & Emotional Changes Throughout the Cycle",
+      "sectionPhysicalEmotionalSubtitle": "Symptoms and mood vary by phase. This is biological and normal.",
+      "sectionPsychologicalTitle": "Psychological impact",
+      "sectionPsychologicalIntro": "Mood changes before and during your period are real and hormone-related. Validating them helps.",
+      "pmsDefinition": "PMS (premenstrual syndrome): physical and emotional symptoms in the days before your period (fatigue, irritability, sadness, bloating). Very common.",
+      "pmddDefinition": "PMDD (premenstrual dysphoric disorder): a more severe form, with a major impact on mood and daily life. Less common but serious.",
+      "whenToSeekHelp": "See a healthcare provider if: symptoms are very disabling, dark thoughts, repeated conflict, or if you have any doubts.",
+      "sectionPartnerSupportSubtitle": "Practical actions and attitudes that help, phase by phase.",
+      "sectionPartnerSupportIntro": "Everyone is different. The best approach is to talk together: what helps, boundaries, and what to avoid.",
+      "partnerDoSay": "Say: \"How are you feeling?\", \"Want me to get you something?\", \"I'm here if you need me.\"",
+      "partnerDontSay": "Avoid: \"Is it that time of the month?\", \"You're overreacting,\" or downplaying pain.",
+      "comfortKitTitle": "Creating a \"period comfort kit\" together",
+      "comfortKitBody": "E.g. heat pack, herbal tea, favorite snacks, pain relief if they're okay with it, blanket. Adapt to their preferences.",
+      "sectionCommunicationSubtitle": "Asking and supporting with respect.",
+      "communicationTemplates": [
+        {
+          "avoid": "Is it that time of the month?",
+          "tryInstead": "How are you feeling today? Is there anything I can do to support you?"
+        },
+        {
+          "avoid": "You're overreacting.",
+          "tryInstead": "I see this is hard. I'm here for you."
+        },
+        {
+          "avoid": "It's all in your head.",
+          "tryInstead": "Your symptoms are real. We can talk about it."
+        },
+        {
+          "avoid": "Hurry up, we have things to do.",
+          "tryInstead": "We can reschedule or take it easy if you prefer."
+        }
+      ],
+      "expressingNeedsTitle": "Expressing needs",
+      "expressingNeedsBody": "The person on their period can say: \"I need rest,\" \"I'd like to stay in,\" \"Let's avoid arguments today if possible.\" The partner can offer options without pushing.",
+      "boundariesTitle": "Setting boundaries respectfully",
+      "boundariesBody": "Both can set boundaries: \"I need some time alone,\" \"Let's talk about it tonight.\" Listen and don't take it as rejection.",
+      "planningTogetherTitle": "Planning around the cycle together",
+      "planningTogetherBody": "Knowing the main phases helps with planning: outings, workload, recovery time. The cycle doesn't have to rule everything, but it can be part of the picture.",
+      "sectionMythBustersSubtitle": "Separating fact from fiction.",
+      "mythBusters": [
+        {
+          "myth": "Period pain is \"just\" cramps.",
+          "fact": "Period pain can include back pain, headaches, breast tenderness, and digestive issues. These symptoms are valid and deserve care."
+        },
+        {
+          "myth": "It's psychological / they're exaggerating.",
+          "fact": "Changes are hormone-related. Sensitivity and fatigue are biological. Invalidating them often makes things worse."
+        },
+        {
+          "myth": "Everyone has the same cycle.",
+          "fact": "Every cycle is different (length, intensity, symptoms). What's normal for one person may not be for another."
+        },
+        {
+          "myth": "There's nothing you can do to help.",
+          "fact": "Listening, offering comfort, easing tasks, and avoiding hurtful comments make a real difference."
+        }
+      ],
+      "sectionQuickRefTitle": "Quick Reference Cards",
+      "quickRefCards": [
+        {
+          "title": "Menstrual (day 1–5)",
+          "bullets": [
+            "Period, possible fatigue",
+            "Support: rest, heat, no pressure"
+          ]
+        },
+        {
+          "title": "Follicular (day 6–12)",
+          "bullets": [
+            "More energy, mood often better",
+            "Good time for projects and outings"
+          ]
+        },
+        {
+          "title": "Ovulation (day 13–15)",
+          "bullets": [
+            "Peak energy and libido",
+            "Respect their pace if needed"
+          ]
+        },
+        {
+          "title": "Luteal (day 16–28)",
+          "bullets": [
+            "Progesterone up → fatigue, sensitivity",
+            "Support: listen, comfort, share tasks"
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "question": "What is PMS?",
+          "answer": "Premenstrual syndrome includes physical and emotional symptoms in the days before your period (fatigue, irritability, bloating, etc.). It's common and varies from person to person."
+        },
+        {
+          "question": "How do I know if it's PMS or something else?",
+          "answer": "If symptoms come back in a cycle before your period and ease after, it's often cycle-related. When in doubt or if it greatly affects your life, a healthcare provider can help."
+        },
+        {
+          "question": "Can my partner see my entries?",
+          "answer": "You choose. In Period, \"What … sees\" has two switches: your cycle (day, phase, expected date) and how you feel each day. Your notes always stay private: nobody else can read them."
+        },
+        {
+          "question": "Do periods really make you more irritable?",
+          "answer": "Hormones (especially the drop in progesterone before your period) can increase sensitivity and reactivity. It's not an \"excuse\": it's physiological. Support and understanding help."
+        }
+      ],
+      "disclaimerTitle": "Disclaimer",
+      "disclaimerBody": "This content is for educational purposes only and is not medical advice. For any health question or personal decision, please consult a healthcare provider.",
+      "periodLogNew": "New entry",
+      "periodLogEdit": "Edit entry",
+      "periodDeleteConfirmTitle": "Delete this entry?",
+      "periodCancel": "Cancel",
+      "periodDelete": "Delete",
+      "periodSave": "Save",
+      "periodStartDate": "Start date",
+      "periodEndDate": "End date (optional)",
+      "periodReminderNotificationTitle": "Period expected tomorrow",
+      "periodReminderNotificationBody": "Going by their cycle, your partner's period should start tomorrow.",
+      "moodLabels": {
+        "good": "Good",
+        "tired": "Tired",
+        "anxious": "Anxious",
+        "irritable": "Irritable",
+        "not-a-mood": "not-a-mood"
+      },
+      "symptomLabels": {
+        "cramps": "Cramps",
+        "headache": "Headache",
+        "acne": "Acne",
+        "pain": "Pain",
+        "bloating": "Bloating",
+        "not-a-symptom": "not-a-symptom"
+      }
+    },
+    "sources": {
+      "all": [
+        {
+          "url": "https://www.nhs.uk/conditions/periods/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Periods",
+          "credential": "NHS (UK)",
+          "summary": "Official NHS overview of periods and menstrual health."
+        },
+        {
+          "url": "https://www.nhsinform.scot/healthy-living/womens-health/girls-and-young-women-puberty-to-around-25/periods-and-menstrual-health/periods-menstruation",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS Inform – The Menstrual Cycle",
+          "credential": "NHS Scotland",
+          "summary": "Evidence-based information on periods and when to seek help."
+        },
+        {
+          "url": "https://www.mayoclinic.org/healthy-lifestyle/womens-health/in-depth/menstrual-cycle/art-20047186",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Mayo Clinic – Menstrual cycle",
+          "credential": "Mayo Clinic",
+          "summary": "How the menstrual cycle works and what’s normal."
+        },
+        {
+          "url": "https://www.lumni.fr/video/les-regles-comment-ca-marche",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Lumni – How periods work",
+          "credential": "France Télévisions",
+          "summary": "Short video on periods and the menstrual cycle."
+        },
+        {
+          "url": "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Ministry of Health – Reproductive health",
+          "credential": "French Ministry of Health",
+          "summary": "Official French info on reproductive and sexual health."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=QYdYpKc9icQ",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Dr. Jen Gunter – Science of menstruation",
+          "credential": "OB-GYN, evidence-based",
+          "summary": "Evidence-based 10‑minute overview; debunks common myths."
+        },
+        {
+          "url": "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "WHO – Menstrual Health",
+          "credential": "World Health Organization",
+          "summary": "WHO Europe on menstrual health as a human right and key facts."
+        },
+        {
+          "url": "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "UNFPA – Menstruations FAQ",
+          "credential": "UNFPA",
+          "summary": "Comprehensive FAQ on menstruation and rights (French)."
+        },
+        {
+          "url": "https://www.unicef.org/wash/menstrual-hygiene",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "UNICEF – Menstrual Hygiene",
+          "credential": "UNICEF",
+          "summary": "Global guide on menstruation dignity and education."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=obbIteVnxUw",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "Plan International France – Menstrual health",
+          "credential": "Plan International France",
+          "summary": "Video: what is menstrual health? (French)."
+        },
+        {
+          "url": "https://www.instagram.com/gynaegeek/",
+          "platform": "instagram",
+          "platformLabel": "Instagram",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "Gynae Geek",
+          "credential": "Evidence-based gynaecology",
+          "summary": "Evidence-based cycle and menstrual content."
+        },
+        {
+          "url": "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Lil-Lets – A Guy’s Guide",
+          "credential": "Lil-Lets (UK)",
+          "summary": "A simple, no-nonsense guide to periods specifically for men."
+        },
+        {
+          "url": "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Flo – Helping your partner",
+          "credential": "Flo Health",
+          "summary": "Flo for Partners: share your cycle with your partner."
+        },
+        {
+          "url": "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Planned Parenthood – Sexual Health",
+          "credential": "Planned Parenthood",
+          "summary": "Comprehensive guide to menstruation and relationships."
+        },
+        {
+          "url": "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "pms",
+          "locales": [
+            "en"
+          ],
+          "name": "Cleveland Clinic – PMS",
+          "credential": "Cleveland Clinic",
+          "summary": "Medical overview of PMS and when to see a doctor."
+        }
+      ],
+      "forLanguage": [
+        "https://www.nhs.uk/conditions/periods/",
+        "https://www.nhsinform.scot/healthy-living/womens-health/girls-and-young-women-puberty-to-around-25/periods-and-menstrual-health/periods-menstruation",
+        "https://www.mayoclinic.org/healthy-lifestyle/womens-health/in-depth/menstrual-cycle/art-20047186",
+        "https://www.youtube.com/watch?v=QYdYpKc9icQ",
+        "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+        "https://www.unicef.org/wash/menstrual-hygiene",
+        "https://www.instagram.com/gynaegeek/",
+        "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+        "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+        "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation",
+        "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome"
+      ],
+      "byTopic": {
+        "cycleBasics": [
+          "https://www.nhs.uk/conditions/periods/",
+          "https://www.nhsinform.scot/healthy-living/womens-health/girls-and-young-women-puberty-to-around-25/periods-and-menstrual-health/periods-menstruation",
+          "https://www.mayoclinic.org/healthy-lifestyle/womens-health/in-depth/menstrual-cycle/art-20047186",
+          "https://www.youtube.com/watch?v=QYdYpKc9icQ"
+        ],
+        "pms": [
+          "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome"
+        ],
+        "partnerSupport": [
+          "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+          "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+          "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation"
+        ],
+        "whenToSeekHelp": [],
+        "general": [
+          "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+          "https://www.unicef.org/wash/menstrual-hygiene",
+          "https://www.instagram.com/gynaegeek/"
+        ]
+      },
+      "whenToSeekHelp": [
+        "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+        "https://www.unicef.org/wash/menstrual-hygiene",
+        "https://www.instagram.com/gynaegeek/",
+        "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome"
+      ],
+      "partnerSupport": [
+        "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+        "https://www.unicef.org/wash/menstrual-hygiene",
+        "https://www.instagram.com/gynaegeek/",
+        "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+        "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+        "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation"
+      ]
+    }
+  },
+  "xx": {
+    "guide": {
+      "chapterTitles": {
+        "cycle": "The cycle in 4 phases",
+        "bodyMind": "Body and mood",
+        "support": "Supporting without taking over",
+        "talking": "Talking about it",
+        "myths": "Myths",
+        "faq": "Common questions",
+        "sources": "Sources and limits"
+      },
+      "search": {
+        "": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq",
+          "sources"
+        ],
+        "cycle": [
+          "cycle",
+          "bodyMind",
+          "talking",
+          "myths",
+          "faq"
+        ],
+        "ovulation": [
+          "cycle"
+        ],
+        "œstrogène": [],
+        "estrogen": [
+          "cycle"
+        ],
+        "PMDD": [
+          "bodyMind"
+        ],
+        "spm": [],
+        "bouillotte": [],
+        "heat pack": [
+          "support"
+        ],
+        "partenaire": [],
+        "partner": [
+          "talking",
+          "faq"
+        ],
+        "règles": [],
+        "period": [
+          "cycle",
+          "bodyMind",
+          "support",
+          "talking",
+          "myths",
+          "faq"
+        ],
+        "nhs": [],
+        "flo": [],
+        "lumni": [],
+        "disclaimer": [
+          "sources"
+        ],
+        "avertissement": [],
+        "zzqxw": []
+      }
+    },
+    "education": {
+      "periodScreenTitle": "Period",
+      "sectionCycleTitle": "Understanding the Menstrual Cycle",
+      "sectionCycleSubtitle": "Four phases, changing hormones. Every cycle is unique.",
+      "sectionCycleIntro": "A cycle averages 28 days, but 21–35 days is normal. Hormones (estrogen, progesterone) drive the phases and affect body and mood.",
+      "phases": [
+        {
+          "dayRange": "1–5",
+          "name": "Menstrual",
+          "description": "Your period: the uterine lining is shed. This is the most visible phase.",
+          "hormoneHint": "Estrogen and progesterone at their lowest.",
+          "physical": [
+            "Bleeding",
+            "Possible cramps",
+            "Fatigue",
+            "Back or head pain"
+          ],
+          "emotional": [
+            "Need for rest",
+            "Sometimes more sensitive",
+            "Craving calm"
+          ]
+        },
+        {
+          "dayRange": "6–12",
+          "name": "Follicular",
+          "description": "Ovarian follicles mature. Estrogen rises; energy often does too.",
+          "hormoneHint": "Estrogen rising.",
+          "physical": [
+            "More energy",
+            "Skin often clearer",
+            "Stamina may increase"
+          ],
+          "emotional": [
+            "Better mood",
+            "More sociable",
+            "Easier to focus"
+          ]
+        },
+        {
+          "dayRange": "13–15",
+          "name": "Ovulation",
+          "description": "Egg is released. Estrogen peaks; many feel a peak in energy and libido.",
+          "hormoneHint": "Estrogen peak; LH triggers ovulation.",
+          "physical": [
+            "High energy",
+            "Libido often higher",
+            "More fluid cervical mucus"
+          ],
+          "emotional": [
+            "Confidence",
+            "Openness to others",
+            "Optimism"
+          ]
+        },
+        {
+          "dayRange": "16–28",
+          "name": "Luteal",
+          "description": "After ovulation, progesterone rises. This can cause fatigue and mood sensitivity before your period.",
+          "hormoneHint": "Progesterone high, then drops before period.",
+          "physical": [
+            "Possible fatigue",
+            "Bloating",
+            "Tender breasts",
+            "Possible cravings"
+          ],
+          "emotional": [
+            "Emotional sensitivity",
+            "PMS possible",
+            "Need for comfort"
+          ]
+        }
+      ],
+      "sectionPhysicalEmotionalTitle": "Physical & Emotional Changes Throughout the Cycle",
+      "sectionPhysicalEmotionalSubtitle": "Symptoms and mood vary by phase. This is biological and normal.",
+      "sectionPsychologicalTitle": "Psychological impact",
+      "sectionPsychologicalIntro": "Mood changes before and during your period are real and hormone-related. Validating them helps.",
+      "pmsDefinition": "PMS (premenstrual syndrome): physical and emotional symptoms in the days before your period (fatigue, irritability, sadness, bloating). Very common.",
+      "pmddDefinition": "PMDD (premenstrual dysphoric disorder): a more severe form, with a major impact on mood and daily life. Less common but serious.",
+      "whenToSeekHelp": "See a healthcare provider if: symptoms are very disabling, dark thoughts, repeated conflict, or if you have any doubts.",
+      "sectionPartnerSupportSubtitle": "Practical actions and attitudes that help, phase by phase.",
+      "sectionPartnerSupportIntro": "Everyone is different. The best approach is to talk together: what helps, boundaries, and what to avoid.",
+      "partnerDoSay": "Say: \"How are you feeling?\", \"Want me to get you something?\", \"I'm here if you need me.\"",
+      "partnerDontSay": "Avoid: \"Is it that time of the month?\", \"You're overreacting,\" or downplaying pain.",
+      "comfortKitTitle": "Creating a \"period comfort kit\" together",
+      "comfortKitBody": "E.g. heat pack, herbal tea, favorite snacks, pain relief if they're okay with it, blanket. Adapt to their preferences.",
+      "sectionCommunicationSubtitle": "Asking and supporting with respect.",
+      "communicationTemplates": [
+        {
+          "avoid": "Is it that time of the month?",
+          "tryInstead": "How are you feeling today? Is there anything I can do to support you?"
+        },
+        {
+          "avoid": "You're overreacting.",
+          "tryInstead": "I see this is hard. I'm here for you."
+        },
+        {
+          "avoid": "It's all in your head.",
+          "tryInstead": "Your symptoms are real. We can talk about it."
+        },
+        {
+          "avoid": "Hurry up, we have things to do.",
+          "tryInstead": "We can reschedule or take it easy if you prefer."
+        }
+      ],
+      "expressingNeedsTitle": "Expressing needs",
+      "expressingNeedsBody": "The person on their period can say: \"I need rest,\" \"I'd like to stay in,\" \"Let's avoid arguments today if possible.\" The partner can offer options without pushing.",
+      "boundariesTitle": "Setting boundaries respectfully",
+      "boundariesBody": "Both can set boundaries: \"I need some time alone,\" \"Let's talk about it tonight.\" Listen and don't take it as rejection.",
+      "planningTogetherTitle": "Planning around the cycle together",
+      "planningTogetherBody": "Knowing the main phases helps with planning: outings, workload, recovery time. The cycle doesn't have to rule everything, but it can be part of the picture.",
+      "sectionMythBustersSubtitle": "Separating fact from fiction.",
+      "mythBusters": [
+        {
+          "myth": "Period pain is \"just\" cramps.",
+          "fact": "Period pain can include back pain, headaches, breast tenderness, and digestive issues. These symptoms are valid and deserve care."
+        },
+        {
+          "myth": "It's psychological / they're exaggerating.",
+          "fact": "Changes are hormone-related. Sensitivity and fatigue are biological. Invalidating them often makes things worse."
+        },
+        {
+          "myth": "Everyone has the same cycle.",
+          "fact": "Every cycle is different (length, intensity, symptoms). What's normal for one person may not be for another."
+        },
+        {
+          "myth": "There's nothing you can do to help.",
+          "fact": "Listening, offering comfort, easing tasks, and avoiding hurtful comments make a real difference."
+        }
+      ],
+      "sectionQuickRefTitle": "Quick Reference Cards",
+      "quickRefCards": [
+        {
+          "title": "Menstrual (day 1–5)",
+          "bullets": [
+            "Period, possible fatigue",
+            "Support: rest, heat, no pressure"
+          ]
+        },
+        {
+          "title": "Follicular (day 6–12)",
+          "bullets": [
+            "More energy, mood often better",
+            "Good time for projects and outings"
+          ]
+        },
+        {
+          "title": "Ovulation (day 13–15)",
+          "bullets": [
+            "Peak energy and libido",
+            "Respect their pace if needed"
+          ]
+        },
+        {
+          "title": "Luteal (day 16–28)",
+          "bullets": [
+            "Progesterone up → fatigue, sensitivity",
+            "Support: listen, comfort, share tasks"
+          ]
+        }
+      ],
+      "faq": [
+        {
+          "question": "What is PMS?",
+          "answer": "Premenstrual syndrome includes physical and emotional symptoms in the days before your period (fatigue, irritability, bloating, etc.). It's common and varies from person to person."
+        },
+        {
+          "question": "How do I know if it's PMS or something else?",
+          "answer": "If symptoms come back in a cycle before your period and ease after, it's often cycle-related. When in doubt or if it greatly affects your life, a healthcare provider can help."
+        },
+        {
+          "question": "Can my partner see my entries?",
+          "answer": "You choose. In Period, \"What … sees\" has two switches: your cycle (day, phase, expected date) and how you feel each day. Your notes always stay private: nobody else can read them."
+        },
+        {
+          "question": "Do periods really make you more irritable?",
+          "answer": "Hormones (especially the drop in progesterone before your period) can increase sensitivity and reactivity. It's not an \"excuse\": it's physiological. Support and understanding help."
+        }
+      ],
+      "disclaimerTitle": "Disclaimer",
+      "disclaimerBody": "This content is for educational purposes only and is not medical advice. For any health question or personal decision, please consult a healthcare provider.",
+      "periodLogNew": "New entry",
+      "periodLogEdit": "Edit entry",
+      "periodDeleteConfirmTitle": "Delete this entry?",
+      "periodCancel": "Cancel",
+      "periodDelete": "Delete",
+      "periodSave": "Save",
+      "periodStartDate": "Start date",
+      "periodEndDate": "End date (optional)",
+      "periodReminderNotificationTitle": "Period expected tomorrow",
+      "periodReminderNotificationBody": "Going by their cycle, your partner's period should start tomorrow.",
+      "moodLabels": {
+        "good": "Good",
+        "tired": "Tired",
+        "anxious": "Anxious",
+        "irritable": "Irritable",
+        "not-a-mood": "not-a-mood"
+      },
+      "symptomLabels": {
+        "cramps": "Cramps",
+        "headache": "Headache",
+        "acne": "Acne",
+        "pain": "Pain",
+        "bloating": "Bloating",
+        "not-a-symptom": "not-a-symptom"
+      }
+    },
+    "sources": {
+      "all": [
+        {
+          "url": "https://www.nhs.uk/conditions/periods/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Periods",
+          "credential": "NHS (UK)",
+          "summary": "Official NHS overview of periods and menstrual health."
+        },
+        {
+          "url": "https://www.nhsinform.scot/healthy-living/womens-health/girls-and-young-women-puberty-to-around-25/periods-and-menstrual-health/periods-menstruation",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS Inform – The Menstrual Cycle",
+          "credential": "NHS Scotland",
+          "summary": "Evidence-based information on periods and when to seek help."
+        },
+        {
+          "url": "https://www.mayoclinic.org/healthy-lifestyle/womens-health/in-depth/menstrual-cycle/art-20047186",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Mayo Clinic – Menstrual cycle",
+          "credential": "Mayo Clinic",
+          "summary": "How the menstrual cycle works and what’s normal."
+        },
+        {
+          "url": "https://www.lumni.fr/video/les-regles-comment-ca-marche",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Lumni – How periods work",
+          "credential": "France Télévisions",
+          "summary": "Short video on periods and the menstrual cycle."
+        },
+        {
+          "url": "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "cycleBasics",
+          "locales": [
+            "fr"
+          ],
+          "name": "Ministry of Health – Reproductive health",
+          "credential": "French Ministry of Health",
+          "summary": "Official French info on reproductive and sexual health."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=QYdYpKc9icQ",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "cycleBasics",
+          "locales": [
+            "en"
+          ],
+          "name": "Dr. Jen Gunter – Science of menstruation",
+          "credential": "OB-GYN, evidence-based",
+          "summary": "Evidence-based 10‑minute overview; debunks common myths."
+        },
+        {
+          "url": "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "WHO – Menstrual Health",
+          "credential": "World Health Organization",
+          "summary": "WHO Europe on menstrual health as a human right and key facts."
+        },
+        {
+          "url": "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "UNFPA – Menstruations FAQ",
+          "credential": "UNFPA",
+          "summary": "Comprehensive FAQ on menstruation and rights (French)."
+        },
+        {
+          "url": "https://www.unicef.org/wash/menstrual-hygiene",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "UNICEF – Menstrual Hygiene",
+          "credential": "UNICEF",
+          "summary": "Global guide on menstruation dignity and education."
+        },
+        {
+          "url": "https://www.youtube.com/watch?v=obbIteVnxUw",
+          "platform": "youtube",
+          "platformLabel": "YouTube",
+          "topic": "general",
+          "locales": [
+            "fr"
+          ],
+          "name": "Plan International France – Menstrual health",
+          "credential": "Plan International France",
+          "summary": "Video: what is menstrual health? (French)."
+        },
+        {
+          "url": "https://www.instagram.com/gynaegeek/",
+          "platform": "instagram",
+          "platformLabel": "Instagram",
+          "topic": "general",
+          "locales": [
+            "en"
+          ],
+          "name": "Gynae Geek",
+          "credential": "Evidence-based gynaecology",
+          "summary": "Evidence-based cycle and menstrual content."
+        },
+        {
+          "url": "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Lil-Lets – A Guy’s Guide",
+          "credential": "Lil-Lets (UK)",
+          "summary": "A simple, no-nonsense guide to periods specifically for men."
+        },
+        {
+          "url": "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Flo – Helping your partner",
+          "credential": "Flo Health",
+          "summary": "Flo for Partners: share your cycle with your partner."
+        },
+        {
+          "url": "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "partnerSupport",
+          "locales": [
+            "en"
+          ],
+          "name": "Planned Parenthood – Sexual Health",
+          "credential": "Planned Parenthood",
+          "summary": "Comprehensive guide to menstruation and relationships."
+        },
+        {
+          "url": "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "pms",
+          "locales": [
+            "en"
+          ],
+          "name": "Cleveland Clinic – PMS",
+          "credential": "Cleveland Clinic",
+          "summary": "Medical overview of PMS and when to see a doctor."
+        }
+      ],
+      "forLanguage": [],
+      "byTopic": {
+        "cycleBasics": [],
+        "pms": [],
+        "partnerSupport": [],
+        "whenToSeekHelp": [],
+        "general": []
+      },
+      "whenToSeekHelp": [],
+      "partnerSupport": []
+    }
+  }
+}

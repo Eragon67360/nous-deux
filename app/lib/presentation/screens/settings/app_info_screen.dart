@@ -103,7 +103,7 @@ class AppInfoScreen extends ConsumerWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               _ContributorCard(
-                name: lang == 'fr' ? 'Les amis' : 'Friends',
+                name: appInfoFriendsName(lang),
                 role: appInfoFriends(lang),
               ),
 

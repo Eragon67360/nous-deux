@@ -2,7 +2,7 @@
 
 Goal: make a language a matter of files and translation, not code, while French and English stay exactly as they are today. Once this is done, adding Spanish, German or Portuguese means adding files, translating and reviewing, without touching screens, services or functions.
 
-Written 2026-11-17. Phase 1 is done (`app/lib/core/l10n/app_languages.dart`); the later phases are not started.
+Written 2026-11-17. Phases 1 to 7 are done (the app's language list, ARB strings, content files, iOS system texts, server push catalog, website hardening, store copy files); phase 8 waits for a third language.
 
 ## Where we start
 
@@ -32,7 +32,7 @@ Written 2026-11-17. Phase 1 is done (`app/lib/core/l10n/app_languages.dart`); th
   - The Open Graph locale is a `fr ? fr_FR : en_US` choice.
   - `defaultLocale` is `'fr'`, so a German visitor gets French, while the app and `x-default` would give them English.
 
-**Store images:** `app/store/play/render.py` and `app/store/appstore/render.py` hold their captions per language in Python dictionaries. The captures live in `website/public/screenshots/` (French) and `…/en/` (English), and are taken on the local stack in `~/perso/nous-deux/rehearsal/`.
+**Store images:** `app/store/play/render.py` and `app/store/appstore/render.py` read their captions from `app/store/copy/<lang>.json` (phase 7; before, they were Python dictionaries in each script). The captures live in `website/public/screenshots/` (French) and `…/en/` (English), and are taken on the local stack in `~/perso/nous-deux/rehearsal/`.
 
 ## Decisions
 
@@ -85,6 +85,8 @@ The guide chapters, the weekly tips and the source descriptions are paragraphs, 
 
 Done when no `fr ?` is left in the content files, and the guide reads the same in both languages.
 
+Done (PR 3): `app/lib/core/constants/content/` holds `guide_{en,fr}.dart` and `education_{en,fr}.dart`, typed by `GuideText` and `EducationText`. The per-phase tips shown in the guide (`cycleSelfTip`, `cyclePartnerTips`) were in `cycle_strings.dart`, so they moved to ARB with phase 2.
+
 ## Phase 4: iOS system texts
 
 1. **Add `fr` to `knownRegions`.**
@@ -121,7 +123,7 @@ Not needed while only French and English exist:
 ## Adding a language once this is done
 
 1. Add its code: `AppLanguages`, `website/lib/i18n.ts`, the server catalog.
-2. `app_xx.arb`, `guide_xx.dart` and the other content files, `xx.lproj/InfoPlist.strings` and `knownRegions`.
+2. `app_xx.arb`; `guide_xx.dart` and `education_xx.dart` (listed in `guideTexts` and `educationTexts`) and an `'xx'` text for each verified source; `xx.lproj/InfoPlist.strings` and `knownRegions`.
 3. `website/lib/dictionaries/xx.json`, including the translated privacy policy.
 4. `supabase/functions/_shared/i18n/xx.json`, then deploy the functions.
 5. The store listings (Play and App Store) and `app/store/copy/xx.json`; the seed file and captures.

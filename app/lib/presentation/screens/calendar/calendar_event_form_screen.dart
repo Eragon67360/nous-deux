@@ -122,10 +122,8 @@ class _CalendarEventFormScreenState
   String _formatDateTime(BuildContext context, DateTime dt) {
     final language = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
     final locale = AppLanguages.dateLocale(language);
-    final dateFormat = language == 'fr'
-        ? DateFormat('d MMM y HH:mm', locale)
-        : DateFormat('MMM d, y h:mm a', locale);
-    return dateFormat.format(dt.toLocal());
+    // The locale's own date and time order (French: 17 nov. 2026 14:05).
+    return DateFormat.yMMMd(locale).add_jm().format(dt.toLocal());
   }
 
   @override

@@ -9,19 +9,12 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fromDatabase, json } from "../_shared/database.ts";
 import { readServiceAccount, sendPush } from "../_shared/fcm.ts";
-
-type PingKind =
-  | "thinking_of_you"
-  | "good_night"
-  | "on_my_way"
-  | "miss_you"
-  | "kiss"
-  | "custom";
+import { pingPush } from "./message.ts";
 
 interface PingRecord {
   couple_id: string;
   sender_id: string;
-  kind: PingKind;
+  kind: string;
   sent_at: string;
 }
 
@@ -30,26 +23,6 @@ interface WebhookPayload {
   table: string;
   record: PingRecord | null;
 }
-
-// Same wording as the app (lib/core/constants/nous_strings.dart).
-const BODIES: Record<"fr" | "en", Record<PingKind, (name: string) => string>> = {
-  fr: {
-    thinking_of_you: (n) => `${n} pense à toi`,
-    good_night: (n) => `${n} te souhaite bonne nuit`,
-    on_my_way: (n) => `${n} arrive`,
-    miss_you: (n) => `${n} : tu me manques`,
-    kiss: (n) => `${n} t'envoie un bisou`,
-    custom: (n) => `${n} t'a écrit un petit mot`,
-  },
-  en: {
-    thinking_of_you: (n) => `${n} is thinking of you`,
-    good_night: (n) => `${n} says good night`,
-    on_my_way: (n) => `${n} is on the way`,
-    miss_you: (n) => `${n} misses you`,
-    kiss: (n) => `${n} sends you a kiss`,
-    custom: (n) => `${n} wrote you a little note`,
-  },
-};
 
 Deno.serve(async (req) => {
   if (!fromDatabase(req)) return new Response("forbidden", { status: 403 });
@@ -107,16 +80,12 @@ Deno.serve(async (req) => {
     const sa = readServiceAccount();
     if (!sa) return json({ ok: true, skipped: "FIREBASE_SERVICE_ACCOUNT_JSON not set" });
 
-    const lang = partner.language === "en" ? "en" : "fr";
-    const name = sender?.username?.trim() ||
-      (lang === "fr" ? "Votre partenaire" : "Your partner");
-    const body = BODIES[lang][record.kind]?.(name);
-    if (!body) return json({ ok: true, skipped: "unknown kind" });
+    const text = pingPush(partner.language, sender?.username, record.kind);
+    if (!text) return json({ ok: true, skipped: "unknown kind" });
 
     const result = await sendPush(sa, {
       token: partner.fcm_token,
-      title: "Nous Deux",
-      body,
+      ...text,
       data: { type: "ping", kind: record.kind, sent_at: record.sent_at },
     });
     if (!result.ok) console.error("FCM error", result.detail);

@@ -1,0 +1,44 @@
+{
+  "screens": [
+    {
+      "file": "01-nous",
+      "shot": "nous",
+      "label": "Nous",
+      "title": "Votre espace à deux, et rien d'autre."
+    },
+    {
+      "file": "02-calendrier",
+      "shot": "calendar",
+      "label": "Calendrier",
+      "title": "Un agenda pour deux, chacun sa couleur."
+    },
+    {
+      "file": "03-cycle",
+      "shot": "cycle",
+      "label": "Règles",
+      "title": "Le cycle, partagé comme vous le choisissez."
+    },
+    {
+      "file": "04-petits-mots",
+      "shot": "ping",
+      "label": "Petits mots",
+      "title": "«\u00a0Je\u00a0pense\u00a0à\u00a0toi\u00a0», ou vos propres mots."
+    },
+    {
+      "file": "05-listes",
+      "shot": "lists",
+      "label": "Listes",
+      "title": "Les courses, cochées des deux côtés."
+    }
+  ],
+  "play": {
+    "featureLabel": "Calendrier · Cycle · Listes",
+    "featureTag": "Votre espace à deux."
+  },
+  "appstore": {
+    "headerLabel": "Agenda · Cycle · Listes · Petits mots",
+    "headerTitle": "Votre espace à deux,\net rien d'autre.",
+    "searchLabel": "Agenda · Cycle · Listes",
+    "searchTag": "Votre espace à deux, gratuit et sans publicité."
+  }
+}

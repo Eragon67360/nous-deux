@@ -1,20 +1,16 @@
+import 'package:nousdeux/core/l10n/l10n.dart';
+
 /// Onboarding screen strings. Use lang 'fr' or 'en'.
-String onboardingTitle(String lang) =>
-    lang == 'fr' ? 'Présentez-vous' : 'Introduce yourself';
-String onboardingSubtitle(String lang) => lang == 'fr'
-    ? 'Votre partenaire verra ce prénom. Vous pourrez le changer plus tard dans les réglages.'
-    : 'Your partner will see this name. You can change it later in Settings.';
+String onboardingTitle(String lang) => l10nFor(lang).onboardingTitle;
+String onboardingSubtitle(String lang) => l10nFor(lang).onboardingSubtitle;
 String onboardingDisplayNameLabel(String lang) =>
-    lang == 'fr' ? 'Prénom ou surnom' : 'Name or nickname';
+    l10nFor(lang).onboardingDisplayNameLabel;
 String onboardingDisplayNameHint(String lang) =>
-    lang == 'fr' ? 'Camille' : 'Alex';
+    l10nFor(lang).onboardingDisplayNameHint;
 String onboardingLanguageLabel(String lang) =>
-    lang == 'fr' ? 'Langue' : 'Language';
-String onboardingContinue(String lang) =>
-    lang == 'fr' ? 'Continuer' : 'Continue';
-String onboardingErrorDisplayName(String lang) => lang == 'fr'
-    ? 'Indiquez le prénom que votre partenaire verra.'
-    : 'Add the name your partner will see.';
-String onboardingErrorGeneric(String lang) => lang == 'fr'
-    ? "L'enregistrement n'a pas abouti. Réessayez."
-    : "Couldn't save that. Try again.";
+    l10nFor(lang).onboardingLanguageLabel;
+String onboardingContinue(String lang) => l10nFor(lang).onboardingContinue;
+String onboardingErrorDisplayName(String lang) =>
+    l10nFor(lang).onboardingErrorDisplayName;
+String onboardingErrorGeneric(String lang) =>
+    l10nFor(lang).onboardingErrorGeneric;

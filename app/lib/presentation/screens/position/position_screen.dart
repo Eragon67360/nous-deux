@@ -15,6 +15,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
+import 'package:nousdeux/core/constants/position_strings.dart';
 import 'package:nousdeux/core/utils/geo_utils.dart';
 import 'package:nousdeux/core/utils/map_style.dart';
 import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
@@ -181,7 +182,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(_positionReloadDone(_lang())),
+          content: Text(positionReloadDone(_lang())),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 2),
         ),
@@ -228,13 +229,13 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       return _buildScaffold(
         body: EmptyState(
           icon: Icons.location_off_outlined,
-          message: _positionNoPartnerMessage(_lang()),
-          secondary: _positionNoPartnerSecondary(_lang()),
+          message: positionNoPartnerMessage(_lang()),
+          secondary: positionNoPartnerSecondary(_lang()),
         ),
         bottomWidget: FilledButton.icon(
           onPressed: () => context.push(AppRoutes.pairing),
           icon: const Icon(Icons.person_add_outlined),
-          label: Text(_positionInvitePartner(_lang())),
+          label: Text(positionInvitePartner(_lang())),
         ),
       );
     }
@@ -251,13 +252,13 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
       return _buildScaffold(
         body: EmptyState(
           icon: Icons.location_on_outlined,
-          message: _positionEnableSharingMessage(_lang()),
-          secondary: _positionEnableSharingSecondary(_lang()),
+          message: positionEnableSharingMessage(_lang()),
+          secondary: positionEnableSharingSecondary(_lang()),
         ),
         bottomWidget: OutlinedButton.icon(
           onPressed: () => context.push(AppRoutes.settings),
           icon: const Icon(Icons.settings_outlined),
-          label: Text(_positionOpenSettings(_lang())),
+          label: Text(positionOpenSettings(_lang())),
         ),
       );
     }
@@ -303,7 +304,7 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
             child: IconButton(
               icon: const Icon(Icons.refresh),
               onPressed: () => _reload(),
-              tooltip: _positionReloadTooltip(_lang()),
+              tooltip: positionReloadTooltip(_lang()),
             ),
           ),
         ],
@@ -377,12 +378,12 @@ class _PositionScreenState extends ConsumerState<PositionScreen> {
   Scaffold _buildScaffold({required Widget body, Widget? bottomWidget}) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_positionTitle(_lang())),
+        title: Text(positionTitle(_lang())),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => _reload(),
-            tooltip: _positionReloadTooltip(_lang()),
+            tooltip: positionReloadTooltip(_lang()),
           ),
         ],
       ),
@@ -748,7 +749,7 @@ class _CompactDistanceChip extends StatelessWidget {
   final String lang;
 
   String _text() {
-    if (isMerged) return lang == 'fr' ? 'Ensemble ❤️' : 'Together ❤️';
+    if (isMerged) return positionTogether(lang);
     if (distanceM < 1000) return '${distanceM.round()} m';
     return '${(distanceM / 1000).toStringAsFixed(1)} km';
   }
@@ -854,7 +855,7 @@ class _FloatingNamesBar extends StatelessWidget {
             const Icon(Icons.favorite, color: Colors.redAccent, size: 24),
             const SizedBox(width: 8),
             Text(
-              lang == 'fr' ? 'Nous Deux' : 'Together',
+              positionTogetherTitle(lang),
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.colorScheme.onSurface,
@@ -874,7 +875,7 @@ class _FloatingNamesBar extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _AvatarChip(
-          label: lang == 'fr' ? 'Moi' : 'Me',
+          label: positionMe(lang),
           url: myProfile?.avatarUrl,
           isActive: myPos != null,
           onTap: onCenterMy,
@@ -885,7 +886,7 @@ class _FloatingNamesBar extends StatelessWidget {
             child: IconButton(
               icon: const Icon(Icons.fit_screen_outlined, size: 20),
               onPressed: onFitBoth,
-              tooltip: lang == 'fr' ? 'Voir tout' : 'See all',
+              tooltip: positionSeeAll(lang),
               visualDensity: VisualDensity.compact,
             ),
           )
@@ -894,7 +895,7 @@ class _FloatingNamesBar extends StatelessWidget {
         _AvatarChip(
           label:
               partnerProfile?.username ??
-              (lang == 'fr' ? 'Partenaire' : 'Partner'),
+              positionPartnerFallback(lang),
           url: partnerProfile?.avatarUrl,
           isActive: partnerPos != null,
           onTap: onCenterPartner,
@@ -962,28 +963,7 @@ class _MapPhoneOnly extends StatelessWidget {
   final String lang;
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text(_positionMapPhoneOnly(lang)));
+    return Center(child: Text(positionMapPhoneOnly(lang)));
   }
 }
 
-String _positionTitle(String lang) => lang == 'fr' ? 'Position' : 'Location';
-String _positionNoPartnerMessage(String lang) =>
-    lang == 'fr' ? 'Invitez votre partenaire' : 'Invite your partner';
-String _positionNoPartnerSecondary(String lang) => lang == 'fr'
-    ? 'Une fois à deux, vous vous verrez sur la carte.'
-    : "Once they join, you'll see each other on the map.";
-String _positionInvitePartner(String lang) =>
-    lang == 'fr' ? 'Inviter' : 'Invite';
-String _positionEnableSharingMessage(String lang) =>
-    lang == 'fr' ? 'Activez la position' : 'Turn on location';
-String _positionEnableSharingSecondary(String lang) => lang == 'fr'
-    ? "Autorisez l'accès à la position dans les réglages de votre téléphone."
-    : "Allow location access in your phone's settings.";
-String _positionOpenSettings(String lang) =>
-    lang == 'fr' ? 'Ouvrir les réglages' : 'Open settings';
-String _positionReloadTooltip(String lang) =>
-    lang == 'fr' ? 'Actualiser' : 'Refresh';
-String _positionReloadDone(String lang) => lang == 'fr' ? 'À jour' : 'Up to date';
-String _positionMapPhoneOnly(String lang) => lang == 'fr'
-    ? "La carte s'affiche sur téléphone."
-    : 'The map shows on phones.';

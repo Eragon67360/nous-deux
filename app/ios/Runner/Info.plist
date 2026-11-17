@@ -4,6 +4,11 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+		<string>fr</string>
+	</array>
 	<key>CFBundleDisplayName</key>
 	<string>Nous Deux</string>
 	<key>CFBundleExecutable</key>
@@ -72,28 +77,28 @@
 	
 	<!-- Corresponds to android.permission.CAMERA -->
 	<key>NSCameraUsageDescription</key>
-	<string>Nous Deux utilise la caméra pour scanner le QR code d'invitation de votre partenaire.</string>
+	<string>Nous Deux uses the camera to scan your partner's invitation QR code.</string>
 	
 	<!-- Corresponds to android.permission.ACCESS_FINE_LOCATION -->
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel).</string>
+	<string>Nous Deux shows your location to your partner when you turn on sharing (optional).</string>
 	<!-- Apple requires this key because the location plugins can ask for
 	     "always" access (ITMS-90683). The app never asks for it: only while
 	     it is open, and there is no background location mode. -->
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Nous Deux affiche votre position à votre partenaire lorsque vous activez le partage (optionnel), uniquement pendant que vous utilisez l'application.</string>
+	<string>Nous Deux shows your location to your partner when you turn on sharing (optional), only while you are using the app.</string>
 	
 	<!-- Required for iOS gallery access (Android uses intents, but iOS needs this key) -->
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Nous Deux utilise la photo pour définir votre photo de profil.</string>
+	<string>Nous Deux uses the photo you pick as your profile picture.</string>
 
 	<!-- Corresponds to android.permission.READ_CALENDAR & WRITE_CALENDAR -->
 	<!-- Added to match Android capabilities -->
 	<key>NSCalendarsUsageDescription</key>
-	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
+	<string>Nous Deux accesses your calendar to manage and sync your shared events.</string>
 	<!-- Required for iOS 17+ if full access is needed -->
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Nous Deux accède à votre calendrier pour gérer et synchroniser vos événements partagés.</string>
+	<string>Nous Deux accesses your calendar to manage and sync your shared events.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

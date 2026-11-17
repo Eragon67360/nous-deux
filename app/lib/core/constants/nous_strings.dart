@@ -7,47 +7,30 @@ import 'package:intl/intl.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/core/l10n/l10n.dart';
 
-String nousTitle(String lang) => lang == 'fr' ? 'Nous' : 'Us';
-String nousSettingsTooltip(String lang) =>
-    lang == 'fr' ? 'Réglages' : 'Settings';
+String nousTitle(String lang) => l10nFor(lang).nousTitle;
+String nousSettingsTooltip(String lang) => l10nFor(lang).nousSettingsTooltip;
 
-String nousTogetherSince(String lang) =>
-    lang == 'fr' ? 'Ensemble depuis' : 'Together for';
-String nousDaysUnit(String lang, int n) =>
-    lang == 'fr' ? (n > 1 ? 'jours' : 'jour') : (n == 1 ? 'day' : 'days');
-String nousSinceDate(String lang, DateTime day) {
-  final date = DateFormat.yMMMMd(AppLanguages.dateLocale(lang)).format(day);
-  return lang == 'fr' ? 'Depuis le $date' : 'Since $date';
-}
+String nousTogetherSince(String lang) => l10nFor(lang).nousTogetherSince;
+String nousDaysUnit(String lang, int n) => l10nFor(lang).nousDaysUnit(n);
+String nousSinceDate(String lang, DateTime day) => l10nFor(
+  lang,
+).nousSinceDate(DateFormat.yMMMMd(AppLanguages.dateLocale(lang)).format(day));
 
-String nousEdit(String lang) => lang == 'fr' ? 'Modifier' : 'Edit';
-String nousPickStartHelp(String lang) =>
-    lang == 'fr' ? 'Le jour où tout a commencé' : 'The day it all started';
-String nousStartSaved(String lang) =>
-    lang == 'fr' ? 'Date mise à jour.' : 'Date updated.';
+String nousEdit(String lang) => l10nFor(lang).nousEdit;
+String nousPickStartHelp(String lang) => l10nFor(lang).nousPickStartHelp;
+String nousStartSaved(String lang) => l10nFor(lang).nousStartSaved;
 
-String nousSendNote(String lang) =>
-    lang == 'fr' ? 'Envoyer un petit mot' : 'Send a little note';
+String nousSendNote(String lang) => l10nFor(lang).nousSendNote;
 
 /// The words of a note: a preset's, or the [text] of one's own.
-String pingLabel(String lang, PingKind kind, {String? text}) => switch (kind) {
-  PingKind.thinkingOfYou => lang == 'fr' ? 'Je pense à toi' : 'Thinking of you',
-  PingKind.goodNight => lang == 'fr' ? 'Bonne nuit' : 'Good night',
-  PingKind.onMyWay => lang == 'fr' ? "J'arrive" : 'On my way',
-  PingKind.missYou => lang == 'fr' ? 'Tu me manques' : 'Miss you',
-  PingKind.kiss => lang == 'fr' ? 'Bisou' : 'Kiss',
-  PingKind.custom => text ?? '',
-};
-String nousNoteSent(String lang, PingKind kind, {String? text}) => lang == 'fr'
-    ? 'Envoyé : ${pingLabel(lang, kind, text: text)}'
-    : 'Sent: ${pingLabel(lang, kind, text: text)}';
-String nousNoteCooldown(String lang) => lang == 'fr'
-    ? 'Un petit mot toutes les 30 secondes au plus. Réessayez dans un instant.'
-    : 'One little note every 30 seconds at most. Try again in a moment.';
-String nousNoteFailed(String lang) => lang == 'fr'
-    ? "Le petit mot n'est pas parti. Réessayez."
-    : "The note didn't go through. Try again.";
+String pingLabel(String lang, PingKind kind, {String? text}) =>
+    kind == PingKind.custom ? text ?? '' : l10nFor(lang).pingLabel(kind.name);
+String nousNoteSent(String lang, PingKind kind, {String? text}) =>
+    l10nFor(lang).nousNoteSent(pingLabel(lang, kind, text: text));
+String nousNoteCooldown(String lang) => l10nFor(lang).nousNoteCooldown;
+String nousNoteFailed(String lang) => l10nFor(lang).nousNoteFailed;
 
 /// What to say after sending [kind]: sent, wait a moment, or it failed.
 String pingResultMessage(
@@ -71,25 +54,21 @@ String nousReceivedLine(
   DateTime now, {
   String? text,
 }) {
+  final l = l10nFor(lang);
   final ago = now.difference(sentAt);
   final String when;
   if (ago.inMinutes < 1) {
-    when = lang == 'fr' ? "à l'instant" : 'just now';
+    when = l.timeAgoJustNow;
   } else if (ago.inMinutes < 60) {
-    when = lang == 'fr'
-        ? 'il y a ${ago.inMinutes} min'
-        : '${ago.inMinutes} min ago';
+    when = l.timeAgoMinutes(ago.inMinutes);
   } else if (ago.inHours < 24) {
-    when = lang == 'fr' ? 'il y a ${ago.inHours} h' : '${ago.inHours} h ago';
+    when = l.timeAgoHours(ago.inHours);
   } else {
-    final day = DateFormat.MMMd(
-      AppLanguages.dateLocale(lang),
-    ).format(sentAt.toLocal());
-    when = lang == 'fr' ? 'le $day' : 'on $day';
+    when = l.timeAgoOnDay(
+      DateFormat.MMMd(AppLanguages.dateLocale(lang)).format(sentAt.toLocal()),
+    );
   }
-  // French puts a (non-breaking) space before the colon.
-  final note = pingLabel(lang, kind, text: text);
-  return lang == 'fr' ? '$name : $note, $when' : '$name: $note, $when';
+  return l.nousReceivedLine(name, pingLabel(lang, kind, text: text), when);
 }
 
 /// The full-screen moment and the push body when a note arrives. A note of
@@ -99,90 +78,48 @@ String pingReceivedTitle(
   PingKind kind,
   String name, {
   String? text,
-}) => switch (kind) {
-  PingKind.thinkingOfYou =>
-    lang == 'fr' ? '$name pense à toi.' : '$name is thinking of you.',
-  PingKind.goodNight =>
-    lang == 'fr' ? '$name te souhaite bonne nuit.' : '$name says good night.',
-  PingKind.onMyWay => lang == 'fr' ? '$name arrive.' : '$name is on the way.',
-  PingKind.missYou =>
-    lang == 'fr' ? '$name : tu me manques.' : '$name misses you.',
-  PingKind.kiss =>
-    lang == 'fr' ? "$name t'envoie un bisou." : '$name sends you a kiss.',
-  PingKind.custom => text ?? '',
-};
+}) => kind == PingKind.custom
+    ? text ?? ''
+    : l10nFor(lang).pingReceivedTitle(kind.name, name);
 
 /// Under a note of one's own, like a signature: "Camille · À l'instant".
 String pingSignature(String lang, String name) =>
     '$name · ${pingJustNow(lang)}';
-String pingWriteBack(String lang) =>
-    lang == 'fr' ? 'Répondre par un mot' : 'Reply with a note';
+String pingWriteBack(String lang) => l10nFor(lang).pingWriteBack;
 
 // Writing a note of one's own.
-String nousWrite(String lang) => lang == 'fr' ? 'Écrire…' : 'Write…';
-String nousMyWords(String lang) => lang == 'fr' ? 'Mes mots' : 'My notes';
-String nousWriteTo(String lang, String name) =>
-    lang == 'fr' ? 'Un petit mot pour $name' : 'A little note for $name';
-String nousWriteHint(String lang) =>
-    lang == 'fr' ? 'Votre petit mot' : 'Your little note';
-String nousWriteReplaces(String lang) => lang == 'fr'
-    ? 'Il remplace votre dernier mot, comme les autres.'
-    : 'It replaces your last note, like the others.';
-String nousKeepWord(String lang) =>
-    lang == 'fr' ? 'Le garder dans mes mots' : 'Keep it in my notes';
-String nousSend(String lang) => lang == 'fr' ? 'Envoyer' : 'Send';
+String nousWrite(String lang) => l10nFor(lang).nousWrite;
+String nousMyWords(String lang) => l10nFor(lang).nousMyWords;
+String nousWriteTo(String lang, String name) => l10nFor(lang).nousWriteTo(name);
+String nousWriteHint(String lang) => l10nFor(lang).nousWriteHint;
+String nousWriteReplaces(String lang) => l10nFor(lang).nousWriteReplaces;
+String nousKeepWord(String lang) => l10nFor(lang).nousKeepWord;
+String nousSend(String lang) => l10nFor(lang).nousSend;
 
 // The notes shown on Nous, chosen in "Mes mots".
-String myWordsTitle(String lang) =>
-    lang == 'fr' ? 'Mes petits mots' : 'My little notes';
-String myWordsHelp(String lang) => lang == 'fr'
-    ? "Ceux qui sont cochés s'affichent sur Nous, dans cet ordre. "
-          'Six au plus.'
-    : 'The ticked ones show on Nous, in this order. Six at most.';
-String myWordsAddHint(String lang) =>
-    lang == 'fr' ? 'Ajouter un mot…' : 'Add a note…';
-String myWordsAdd(String lang) => lang == 'fr' ? 'Ajouter' : 'Add';
+String myWordsTitle(String lang) => l10nFor(lang).myWordsTitle;
+String myWordsHelp(String lang) => l10nFor(lang).myWordsHelp;
+String myWordsAddHint(String lang) => l10nFor(lang).myWordsAddHint;
+String myWordsAdd(String lang) => l10nFor(lang).myWordsAdd;
 String myWordsRemove(String lang, String word) =>
-    lang == 'fr' ? 'Retirer « $word »' : 'Remove "$word"';
-String myWordsMove(String lang, String word) =>
-    lang == 'fr' ? 'Déplacer « $word »' : 'Move "$word"';
-String myWordsFull(String lang) => lang == 'fr'
-    ? "Six mots au plus sur Nous. Décochez-en un d'abord."
-    : 'Six notes at most on Nous. Untick one first.';
-String myWordsAlready(String lang) => lang == 'fr'
-    ? 'Ce mot est déjà dans la liste.'
-    : 'That note is already there.';
-String myWordsDrag(String lang) => lang == 'fr'
-    ? "Glissez la poignée à droite pour changer l'ordre."
-    : 'Drag the handle on the right to change the order.';
-String pingJustNow(String lang) => lang == 'fr' ? "À l'instant" : 'Just now';
-String pingReplyMeToo(String lang) => lang == 'fr' ? 'Moi aussi' : 'Me too';
-String pingTapToClose(String lang) =>
-    lang == 'fr' ? 'Toucher pour fermer' : 'Tap to close';
-String nousPartnerFallback(String lang) =>
-    lang == 'fr' ? 'Votre partenaire' : 'Your partner';
+    l10nFor(lang).myWordsRemove(word);
+String myWordsMove(String lang, String word) => l10nFor(lang).myWordsMove(word);
+String myWordsFull(String lang) => l10nFor(lang).myWordsFull;
+String myWordsAlready(String lang) => l10nFor(lang).myWordsAlready;
+String myWordsDrag(String lang) => l10nFor(lang).myWordsDrag;
+String pingJustNow(String lang) => l10nFor(lang).pingJustNow;
+String pingReplyMeToo(String lang) => l10nFor(lang).pingReplyMeToo;
+String pingTapToClose(String lang) => l10nFor(lang).pingTapToClose;
+String nousPartnerFallback(String lang) => l10nFor(lang).nousPartnerFallback;
 
-String nousNextPlan(String lang) =>
-    lang == 'fr' ? 'Prochain rendez-vous' : 'Next plan';
-String nousInDays(String lang, int n) => switch (n) {
-  0 => lang == 'fr' ? "aujourd'hui" : 'today',
-  1 => lang == 'fr' ? 'demain' : 'tomorrow',
-  _ => lang == 'fr' ? 'dans $n j' : 'in $n d',
-};
-String nousNoCountdown(String lang) =>
-    lang == 'fr' ? 'Rien de prévu' : 'Nothing planned';
-String nousNoCountdownHint(String lang) => lang == 'fr'
-    ? 'Activez « Compte à rebours » sur un événement.'
-    : 'Turn on Countdown for an event.';
-String nousAnniversary(String lang) =>
-    lang == 'fr' ? 'Anniversaire' : 'Anniversary';
-String nousYearsTogether(String lang, int years) => lang == 'fr'
-    ? '$years ${years > 1 ? 'ans' : 'an'} ensemble'
-    : '$years ${years == 1 ? 'year' : 'years'} together';
+String nousNextPlan(String lang) => l10nFor(lang).nousNextPlan;
+String nousInDays(String lang, int n) => l10nFor(lang).nousInDays(n);
+String nousNoCountdown(String lang) => l10nFor(lang).nousNoCountdown;
+String nousNoCountdownHint(String lang) => l10nFor(lang).nousNoCountdownHint;
+String nousAnniversary(String lang) => l10nFor(lang).nousAnniversary;
+String nousYearsTogether(String lang, int years) =>
+    l10nFor(lang).nousYearsTogether(years);
 
-String nousNoPartnerTitle(String lang) =>
-    lang == 'fr' ? 'Invitez votre partenaire' : 'Invite your partner';
-String nousNoPartnerBody(String lang) => lang == 'fr'
-    ? 'Le compteur démarre le jour où vous êtes deux.'
-    : 'The counter starts on the day there are two of you.';
-String nousInvite(String lang) => lang == 'fr' ? 'Inviter' : 'Invite';
+String nousNoPartnerTitle(String lang) => l10nFor(lang).nousNoPartnerTitle;
+String nousNoPartnerBody(String lang) => l10nFor(lang).nousNoPartnerBody;
+String nousInvite(String lang) => l10nFor(lang).nousInvite;

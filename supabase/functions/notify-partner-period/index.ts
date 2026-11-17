@@ -3,23 +3,19 @@
 // Requires: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUSH_WEBHOOK_SECRET,
 // FIREBASE_SERVICE_ACCOUNT_JSON.
 //
-// The text stays vague on purpose: it goes through Apple's and Google's push
-// services, and period data is health data.
+// The text stays vague on purpose (message.ts): it goes through Apple's and
+// Google's push services, and period data is health data.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { fromDatabase, json } from "../_shared/database.ts";
 import { readServiceAccount, sendPush } from "../_shared/fcm.ts";
+import { periodPush } from "./message.ts";
 
 interface WebhookPayload {
   type: "INSERT" | "UPDATE" | "DELETE";
   table: string;
   record: { id: string } | null;
 }
-
-const BODIES: Record<"fr" | "en", (name: string) => string> = {
-  fr: (n) => `${n} a mis à jour son suivi`,
-  en: (n) => `${n} updated their tracking`,
-};
 
 Deno.serve(async (req) => {
   if (!fromDatabase(req)) return new Response("forbidden", { status: 403 });
@@ -69,13 +65,9 @@ Deno.serve(async (req) => {
     const sa = readServiceAccount();
     if (!sa) return json({ ok: true, skipped: "FIREBASE_SERVICE_ACCOUNT_JSON not set" });
 
-    const lang = partner.language === "en" ? "en" : "fr";
-    const name = author?.username?.trim() ||
-      (lang === "fr" ? "Votre partenaire" : "Your partner");
     const result = await sendPush(sa, {
       token: partner.fcm_token,
-      title: "Nous Deux",
-      body: BODIES[lang](name),
+      ...periodPush(partner.language, author?.username),
       data: { type: "period" },
     });
     if (!result.ok) console.error("FCM error", result.detail);

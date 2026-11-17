@@ -1,0 +1,9 @@
+# Flutter's gen-l10n (docs/LOCALIZATION.md, phase 2). English is the template
+# and the fallback; each language is one ARB file in lib/l10n.
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n/generated
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false
+untranslated-messages-file: build/l10n_untranslated.json

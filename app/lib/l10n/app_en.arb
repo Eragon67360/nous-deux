@@ -1,0 +1,954 @@
+{
+  "@@locale": "en",
+  "splashTagline": "Where stories meet",
+  "mainNoPartnerBubble": "Your partner isn't here yet. Send them an invite.",
+  "pairingCelebrationTitle": "It's the two of you now.",
+  "pairingCelebrationBody": "Your partner is in. Whatever you add here, you now share.",
+  "appSupabaseConfigMessage": "Configure Supabase: set SUPABASE_URL and SUPABASE_ANON_KEY via --dart-define.",
+  "authTitle": "Nous Deux",
+  "authSubtitle": "A space for just the two of you.",
+  "authOr": "or",
+  "authPhoneLabel": "Phone number",
+  "authPhoneHint": "+1 234 567 8900",
+  "authSendCode": "Text me a code",
+  "authContinueWithGoogle": "Continue with Google",
+  "authContinueWithApple": "Continue with Apple",
+  "authWithEmail": "Sign in with email",
+  "authErrorEnterPhone": "Enter your phone number.",
+  "authErrorGeneric": "Couldn't sign you in. Try again.",
+  "authVerifyTitle": "Check your texts",
+  "authVerifyInstructions": "Enter the 6-digit code we sent to {phone}.",
+  "@authVerifyInstructions": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "authVerifyButton": "Confirm",
+  "authVerifyErrorEnterCode": "Enter the code from the text message.",
+  "authVerifyErrorInvalid": "That code didn't work. Check it, or go back to get a new one.",
+  "authEmailTitle": "Sign in with email",
+  "authEmailIntro": "For accounts Nous Deux set up for you, for example to test the app.",
+  "authEmailLabel": "Email address",
+  "authPasswordLabel": "Password",
+  "authEmailButton": "Sign in",
+  "authEmailErrorEmpty": "Enter your email address and password.",
+  "authEmailErrorWrong": "Wrong email address or password.",
+  "calendarTitle": "Calendar",
+  "calendarToday": "Today",
+  "calendarAdd": "Add",
+  "calendarPartner": "Partner",
+  "calendarMe": "Me",
+  "calendarDeleteEventTitle": "Delete event?",
+  "calendarDeleteEventConfirm": "\"{title}\" will be deleted for both of you.",
+  "@calendarDeleteEventConfirm": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCancel": "Cancel",
+  "calendarDelete": "Delete",
+  "calendarNothingInMonth": "Nothing planned in {month}",
+  "@calendarNothingInMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarCreateEvent": "Add an event",
+  "calendarPreviousMonth": "Previous month",
+  "calendarNextMonth": "Next month",
+  "calendarImportAllowAccess": "Allow calendar access",
+  "calendarImportOpenSettings": "Open settings",
+  "calendarEventEdit": "Edit event",
+  "calendarEventNew": "New event",
+  "calendarEventTitleLabel": "Title",
+  "calendarEventTitleRequired": "Add a title.",
+  "calendarEventDescriptionLabel": "Description (optional)",
+  "calendarEventStart": "Start",
+  "calendarEventEnd": "End",
+  "calendarEventSave": "Save",
+  "calendarEventCountdown": "Countdown",
+  "calendarEventCountdownHint": "Shown on the Nous tab until the day comes.",
+  "calendarEventEndBeforeStart": "The end has to come after the start.",
+  "calendarFollowLabel": "Phone calendar",
+  "calendarFollowTitle": "Calendars you follow",
+  "calendarFollowIntro": "Their titles and times are copied into Nous Deux and kept up to date: {partnerName} sees them. Nothing else leaves your phone.",
+  "@calendarFollowIntro": {
+    "placeholders": {
+      "partnerName": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarFollowTip": "Simplest: an “Us” calendar on your phone, for what concerns you both. The rest of your calendar stays yours.",
+  "calendarFollowLastSync": "Last updated",
+  "calendarFollowFootnote": "From last month to six months ahead. Events are changed in your calendar; unfollowing a calendar removes its copies from that period, turning them all off removes every copy.",
+  "calendarFollowOtherPhone": "Your calendars are followed from another phone. Following one here takes over.",
+  "calendarFollowGone": "A followed calendar is no longer on this phone, so nothing is updated.",
+  "calendarFollowDropGone": "Stop following it",
+  "calendarFollowFailed": "The update didn't go through. Try again later.",
+  "calendarFollowNone": "No calendar on this phone.",
+  "calendarFollowPermission": "Nous Deux needs access to your calendars to follow them. If no prompt appears, allow access in Settings.",
+  "calendarAllDay": "All day",
+  "cycleAskTitle": "Do you track your cycle in the app?",
+  "cycleAskBody": "If you do, this tab becomes your tracker. If not, it shows your partner's cycle when they share it.",
+  "cycleConsent": "By tracking your cycle, you agree that the app stores your period dates, how you feel each day and your notes on our servers in Germany. This is health data. Your partner sees your dates and how you feel while you share them; your notes stay private. You can stop and delete everything at any time in Settings.",
+  "cycleConsentTitle": "Track your cycle in the app?",
+  "cycleConsentAccept": "I agree",
+  "cyclePrivacyPolicy": "Privacy policy",
+  "cycleStopTitle": "Stop tracking your cycle?",
+  "cycleStopBody": "You can keep your cycle data in case you start again, or delete it now: dates, check-ins and notes. Deleting can't be undone.",
+  "cycleStopKeep": "Keep my data",
+  "cycleStopDelete": "Delete everything",
+  "cycleDataDeleted": "Your cycle data is deleted.",
+  "cycleAskYes": "Yes, I do",
+  "cycleAskNo": "No",
+  "settingsTracksCycle": "I track my cycle in the app",
+  "cycleDayWord": "day",
+  "cycleOfAbout": "of ~{length}",
+  "@cycleOfAbout": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleRingLabel": "Cycle of about {length} days, today day {day}",
+  "@cycleRingLabel": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleNoDataTitle": "Log your next period",
+  "cycleNoDataBody": "The app learns your rhythm cycle after cycle.",
+  "cycleStarted": "My period started",
+  "cycleEnded": "My period ended",
+  "cycleOtherDay": "It was another day",
+  "cycleToday": "Today",
+  "cycleSeenBy": "{name} can see this",
+  "@cycleSeenBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleSeenByNobody": "Not shared",
+  "cycleNoteLabel": "A note for you",
+  "cycleNoteHint": "Only for you, never shared",
+  "cycleNoteSaved": "Note saved.",
+  "cycleThisWeek": "Good to know this week",
+  "cycleReadChapter": "Read: {title}",
+  "@cycleReadChapter": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleHistoryLink": "Your cycles",
+  "cycleSharingLink": "What {name} sees",
+  "@cycleSharingLink": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerLink": "{name}'s cycle",
+  "@cyclePartnerLink": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleUndo": "Undo",
+  "cycleOtherState": "+ Other",
+  "cycleNewStateHint": "How you feel",
+  "cycleAddState": "Add",
+  "cycleOwnStateHint": "remove from your list",
+  "cycleStateRemoved": "\"{state}\" won't be offered any more.",
+  "@cycleStateRemoved": {
+    "placeholders": {
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleTooManyStates": "Twelve at most a day.",
+  "cycleSaveFailed": "That wasn't saved. Try again.",
+  "cycleNeedsCouple": "Tracking is saved in your couple: invite your partner first.",
+  "cycleSheetStarted": "Period started",
+  "cycleSheetEnded": "Period ended",
+  "cycleSheetWhen": "When?",
+  "cycleYesterday": "Yesterday",
+  "cycleAnotherDay": "Another day…",
+  "cycleSave": "Save",
+  "cycleSheetFootnote": "When it stops, the button becomes \"My period ended\".",
+  "cycleHistoryTitle": "Your cycles",
+  "cycleAverage": "Average cycle",
+  "cyclePeriod": "Period",
+  "cycleDaysWord": "days",
+  "cycleNeedTwo": "Two full cycles are needed for an average; until then the app counts 28 days.",
+  "cycleCurrentRow": "now · day {day}",
+  "@cycleCurrentRow": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleRestOfCycle": "Rest of the cycle",
+  "cycleHistoryHint": "Tap a cycle to fix it, long-press to delete it.",
+  "cycleHistoryEmpty": "Your cycles will appear here month after month.",
+  "cyclePartnerLabel": "Period · {name}",
+  "@cyclePartnerLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerNotShared": "{name} isn't sharing their cycle right now.",
+  "@cyclePartnerNotShared": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerNothingYet": "{name} hasn't logged anything yet.",
+  "@cyclePartnerNothingYet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerNotTracking": "{name} doesn't track a cycle in the app.",
+  "@cyclePartnerNotTracking": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleNoPartner": "Here you'll follow your partner's cycle, if they share it, with ideas for being there at the right time.",
+  "cycleWhatHelps": "What tends to help this week",
+  "cyclePartnerNoted": "{name} noted today",
+  "@cyclePartnerNoted": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleLittleNote": "A little note?",
+  "cycleRemindMe": "Remind me the day before",
+  "cycleRemindNoDate": "As soon as a date is expected",
+  "cycleSharingTitle": "What {name} sees",
+  "@cycleSharingTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleSharingIntro": "You choose what your partner sees. It changes on their phone right away.",
+  "cycleShareCycle": "My cycle",
+  "cycleShareCycleHint": "Day, phase, expected date and the reminder",
+  "cycleShareCheckins": "How I feel each day",
+  "cycleShareCheckinsHint": "What you check each day",
+  "cycleNotesRow": "Your notes",
+  "cycleNotesAlwaysPrivate": "Always private",
+  "cycleStopSharing": "Stop sharing everything",
+  "guideLabel": "Guide",
+  "guideTitle": "Understanding the cycle",
+  "guideForYouNow": "For you now · day {day}",
+  "@guideForYouNow": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "guideForPartnerNow": "For {name} now · day {day}",
+  "@guideForPartnerNow": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "guideChapter": "Chapter {n}",
+  "@guideChapter": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "guideRead": "read",
+  "guideFootnote": "Based on public health sources. Not medical advice.",
+  "guideContents": "Contents",
+  "guideNext": "Next: {title}",
+  "@guideNext": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "guideSearch": "Search the guide",
+  "guideNoMatch": "No chapter mentions \"{query}\".",
+  "@guideNoMatch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "guideBody": "In the body",
+  "guideMood": "Mood",
+  "guideWhatHelps": "What helps",
+  "guideYouAreHere": "you are here",
+  "guidePartnerIsHere": "{name} is here",
+  "@guidePartnerIsHere": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guideSources": "Sources",
+  "guideDaysShort": "days {range}",
+  "@guideDaysShort": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "listsTitle": "Lists",
+  "listsSubtitle": "Shared with {partnerName}, live.",
+  "@listsSubtitle": {
+    "placeholders": {
+      "partnerName": {
+        "type": "String"
+      }
+    }
+  },
+  "listsSeeAll": "See all",
+  "listsNew": "New list",
+  "listsEmptyTitle": "No lists yet",
+  "listsEmptyBody": "Groceries, to-dos, weekend ideas: whatever you add shows up on your partner's phone too.",
+  "listsNameLabel": "List name",
+  "listsNameHint": "Groceries",
+  "listsIconLabel": "Icon",
+  "listsCreate": "Create",
+  "listsRename": "Rename",
+  "listsDelete": "Delete list",
+  "listsDeleteConfirm": "\"{name}\" and all its items will be deleted for both of you.",
+  "@listsDeleteConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listsCancel": "Cancel",
+  "listsSave": "Save",
+  "listsOptions": "List options",
+  "listsBack": "Back",
+  "listsAddLabel": "Add an item",
+  "listsAddHint": "Oat milk, bread…",
+  "listsAddButton": "Add",
+  "listsChecked": "Ticked ({n})",
+  "@listsChecked": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "listsClearChecked": "Clear all",
+  "listsAddedByMe": "Added by you",
+  "listsAddedBy": "Added by {name}",
+  "@listsAddedBy": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listsItemDeleted": "\"{text}\" deleted.",
+  "@listsItemDeleted": {
+    "placeholders": {
+      "text": {
+        "type": "String"
+      }
+    }
+  },
+  "listsUndo": "Undo",
+  "listsDeleteItem": "Delete",
+  "listsGoneTitle": "This list is gone",
+  "listsGoneBody": "It was probably deleted on the other phone.",
+  "listsAll": "All lists",
+  "listsEmptyListBody": "Add the first item above.",
+  "listsError": "That didn't work. Try again.",
+  "nousTitle": "Us",
+  "nousSettingsTooltip": "Settings",
+  "nousTogetherSince": "Together for",
+  "nousEdit": "Edit",
+  "nousPickStartHelp": "The day it all started",
+  "nousStartSaved": "Date updated.",
+  "nousSendNote": "Send a little note",
+  "nousNoteCooldown": "One little note every 30 seconds at most. Try again in a moment.",
+  "nousNoteFailed": "The note didn't go through. Try again.",
+  "pingWriteBack": "Reply with a note",
+  "nousWrite": "Write…",
+  "nousMyWords": "My notes",
+  "nousWriteTo": "A little note for {name}",
+  "@nousWriteTo": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nousWriteHint": "Your little note",
+  "nousWriteReplaces": "It replaces your last note, like the others.",
+  "nousKeepWord": "Keep it in my notes",
+  "nousSend": "Send",
+  "myWordsTitle": "My little notes",
+  "myWordsHelp": "The ticked ones show on Nous, in this order. Six at most.",
+  "myWordsAddHint": "Add a note…",
+  "myWordsAdd": "Add",
+  "myWordsRemove": "Remove \"{word}\"",
+  "@myWordsRemove": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "myWordsMove": "Move \"{word}\"",
+  "@myWordsMove": {
+    "placeholders": {
+      "word": {
+        "type": "String"
+      }
+    }
+  },
+  "myWordsFull": "Six notes at most on Nous. Untick one first.",
+  "myWordsAlready": "That note is already there.",
+  "myWordsDrag": "Drag the handle on the right to change the order.",
+  "pingJustNow": "Just now",
+  "pingReplyMeToo": "Me too",
+  "pingTapToClose": "Tap to close",
+  "nousPartnerFallback": "Your partner",
+  "nousNextPlan": "Next plan",
+  "nousNoCountdown": "Nothing planned",
+  "nousNoCountdownHint": "Turn on Countdown for an event.",
+  "nousAnniversary": "Anniversary",
+  "nousNoPartnerTitle": "Invite your partner",
+  "nousNoPartnerBody": "The counter starts on the day there are two of you.",
+  "nousInvite": "Invite",
+  "onboardingTitle": "Introduce yourself",
+  "onboardingSubtitle": "Your partner will see this name. You can change it later in Settings.",
+  "onboardingDisplayNameLabel": "Name or nickname",
+  "onboardingDisplayNameHint": "Alex",
+  "onboardingLanguageLabel": "Language",
+  "onboardingContinue": "Continue",
+  "onboardingErrorDisplayName": "Add the name your partner will see.",
+  "onboardingErrorGeneric": "Couldn't save that. Try again.",
+  "pairingInviteTitle": "Invite your partner",
+  "pairingIntro": "Generate a code and show it to your partner. They can scan the QR code or type the 6 characters.",
+  "pairingGenerateCode": "Generate a code",
+  "pairingScanQrPrompt": "Scan this with your partner's phone:",
+  "pairingOrEnterCode": "Or type this code:",
+  "pairingAlreadyHaveCode": "Already invited by your partner?",
+  "pairingJoinWithCode": "I have a code",
+  "pairingScanQr": "Scan a QR code",
+  "pairingAlreadyPaired": "You're already paired. Taking you back…",
+  "pairingError": "That didn't work. Try again.",
+  "pairingJoinTitle": "Join your partner",
+  "pairingJoinInstructions": "Type the 6-character code shown on your partner's phone.",
+  "pairingJoinCodeLabel": "Code",
+  "pairingJoinButton": "Join",
+  "pairingJoinErrorCode": "Type your partner's code.",
+  "pairingJoinErrorUsed": "This code has already been used. Ask your partner for a new one.",
+  "pairingJoinErrorOwnCode": "That's your own code. Your partner needs to enter it.",
+  "pairingJoinErrorInvalid": "That code doesn't match an invite. Check it with your partner.",
+  "pairingJoinErrorAlreadyPaired": "You're already in a couple in the app. Leave it in Settings before joining another.",
+  "pairingJoinErrorTooManyAttempts": "Too many wrong codes. Try again in 10 minutes.",
+  "pairingScanTitle": "Scan the QR code",
+  "pairingScanConnecting": "Connecting…",
+  "periodLearnMore": "Learn more",
+  "periodCouldNotOpenLink": "Could not open link",
+  "mainNavCalendar": "Calendar",
+  "mainNavPeriod": "Period",
+  "mainNavPosition": "Location",
+  "settingsTitle": "Settings",
+  "settingsAboutApp": "About",
+  "settingsUsername": "Name or nickname",
+  "settingsProfilePhoto": "Profile photo",
+  "settingsChangePhoto": "Change photo",
+  "settingsPermissions": "Permissions",
+  "settingsOpenAppSettings": "Open app settings",
+  "settingsNotifications": "Notifications",
+  "settingsPeriodReminder": "Remind me the day before my partner's period",
+  "settingsCalendarReminders": "Calendar reminders",
+  "settingsCalendarRemindersSubtitle": "Coming soon",
+  "settingsPermissionGranted": "Granted",
+  "settingsPermissionDenied": "Denied",
+  "settingsPermissionRestricted": "Restricted",
+  "settingsPermissionPermanentDenied": "Blocked",
+  "settingsCalendars": "Calendar",
+  "settingsNotificationsPerm": "Notifications",
+  "settingsLocation": "Location",
+  "settingsPermissionsReloadTooltip": "Refresh permissions",
+  "settingsPermissionsReloadDone": "Permissions updated",
+  "settingsShareMyLocation": "Share my location",
+  "settingsShareMyLocationSubtitle": "Your partner sees where you are on the map. No history is kept.",
+  "settingsLocationRequiredForSharing": "Allow location access to share where you are.",
+  "settingsCamera": "Camera",
+  "settingsCoupleGroup": "Couple",
+  "settingsLeaveCouple": "Leave couple",
+  "settingsLeaveCoupleSubtitle": "Unlinks you from your partner and deletes what you share: calendar, cycle, location, lists and little notes.",
+  "settingsLeaveCoupleConfirmTitle": "Leave the couple?",
+  "settingsLeaveCoupleConfirmMessage": "Your calendar, cycle, location, lists and little notes will be deleted for both of you. This can't be undone.",
+  "settingsLeaveCoupleConfirm": "Leave",
+  "settingsLeaveCoupleSuccess": "You've left the couple.",
+  "settingsAccountGroup": "Account",
+  "settingsSignOut": "Sign out",
+  "settingsSignOutConfirmTitle": "Sign out?",
+  "settingsSignOutConfirmMessage": "Your couple and what you share stay as they are. Sign in with the same account to find them again.",
+  "settingsDeleteAccount": "Delete my account",
+  "settingsDeleteAccountConfirmTitle": "Delete your account?",
+  "settingsDeleteAccountConfirm": "Delete",
+  "settingsDeleteAccountDone": "Your account has been deleted.",
+  "settingsDeleteAccountFailed": "Your account couldn't be deleted. Check your connection and try again.",
+  "appInfoTitle": "About the app",
+  "appInfoDescription": "Nous Deux is a private app for couples: a shared calendar, cycle tracking and, if you want it, location sharing.",
+  "appInfoFree": "The project is free and will stay free. There will never be ads.",
+  "appInfoSource": "Source code",
+  "appInfoContributors": "Contributors",
+  "appInfoThomasMoser": "Development",
+  "appInfoEvahBaumlin": "Content, scientific explanations and a woman's perspective",
+  "appInfoFriends": "Support along the way",
+  "settingsLanguage": "Language",
+  "settingsLanguageUpdated": "Language updated",
+  "settingsEditUsername": "Edit name",
+  "settingsSave": "Save",
+  "settingsCancel": "Cancel",
+  "timeAgoJustNow": "just now",
+  "timeAgoMinutes": "{minutes} min ago",
+  "@timeAgoMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoHours": "{hours} h ago",
+  "@timeAgoHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "timeAgoOnDay": "on {day}",
+  "@timeAgoOnDay": {
+    "description": "{day} is a short date, like \"Mar 1\".",
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSyncedFromMine": "From your calendar",
+  "calendarSyncedFrom": "{nameStart, select, other{From {name}'s calendar}}",
+  "@calendarSyncedFrom": {
+    "description": "nameStart is \"vowel\" when the name starts with a vowel or h, for French elision.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "nameStart": {
+        "type": "String"
+      }
+    }
+  },
+  "calendarSyncedReadOnlyMine": "This event follows your phone's calendar: change or delete it there.",
+  "calendarSyncedReadOnly": "This event follows {name}'s phone calendar: it is changed or deleted there.",
+  "@calendarSyncedReadOnly": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerFallback": "Your partner",
+  "cyclePhaseLabel": "{phase, select, menstrual{Period} follicular{Follicular phase} ovulation{Ovulation} luteal{Luteal phase} other{}}",
+  "@cyclePhaseLabel": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleHeadlineOngoing": "Period, day {day}",
+  "@cycleHeadlineOngoing": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleHeadlineIn": "{days, plural, =0{Period expected today} =1{Period expected tomorrow} other{Period in ~{days} days}}",
+  "@cycleHeadlineIn": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleHeadlineLate": "{days, plural, one{Period expected {days} day ago} other{Period expected {days} days ago}}",
+  "@cycleHeadlineLate": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleBasis": "{cyclesUsed, plural, =0{around {date}, assuming 28 days until there is more to go on} =1{around {date}, based on your last cycle} other{around {date}, based on your last {cyclesUsed} cycles}}",
+  "@cycleBasis": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "cyclesUsed": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleLoggedStart": "Start logged: {date}",
+  "@cycleLoggedStart": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleLoggedEnd": "End logged: {date}",
+  "@cycleLoggedEnd": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleSelfTip": "{phase, select, menstrual{Heat, rest and water often help during your period. Pain that stops you from living normally is worth a doctor's opinion.} follicular{Energy often rises after your period: a good time for things that need drive.} ovulation{Around ovulation many feel at their best. Slight discomfort on one side of the belly can happen too.} luteal{Late in the cycle, lighter sleep and lower energy are common. Nothing unusual.} other{}}",
+  "@cycleSelfTip": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleRegularitySame": "Your last {count} cycles all lasted {days} days.",
+  "@cycleRegularitySame": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleRegularityRange": "Your last {count} cycles lasted {shortest} to {longest} days.",
+  "@cycleRegularityRange": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shortest": {
+        "type": "int"
+      },
+      "longest": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleSpanRow": "{length} d",
+  "@cycleSpanRow": {
+    "description": "A past cycle's length in days, abbreviated.",
+    "placeholders": {
+      "length": {
+        "type": "int"
+      }
+    }
+  },
+  "cycleSpanRowWithPeriod": "{length} d · period {periodDays} d",
+  "@cycleSpanRowWithPeriod": {
+    "placeholders": {
+      "length": {
+        "type": "int"
+      },
+      "periodDays": {
+        "type": "int"
+      }
+    }
+  },
+  "cyclePartnerHeadlineOngoing": "{name} has their period, day {day}",
+  "@cyclePartnerHeadlineOngoing": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "cyclePartnerHeadlineDay": "{name} is on day {day}",
+  "@cyclePartnerHeadlineDay": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "cyclePartnerNextLate": "The period was expected around {date}.",
+  "@cyclePartnerNextLate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerNext": "Next period around {date}.",
+  "@cyclePartnerNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cycleRemindOn": "on the evening of {date}",
+  "@cycleRemindOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerTip1": "{phase, select, menstrual{Offer a heat pack or a hot drink without waiting to be asked.} follicular{Energy often comes back: a good time for a plan together.} ovulation{Many feel at their best these days: enjoy it together.} luteal{Keep evenings calm if tiredness shows.} other{}}",
+  "@cyclePartnerTip1": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerTip2": "{phase, select, menstrual{Lighten the day: take on the shopping or dinner.} follicular{Suggest something you've been putting off.} ovulation{A little lower-belly discomfort can happen; just ask how they feel.} luteal{Offer rather than ask: \"Shall I make dinner?\"} other{}}",
+  "@cyclePartnerTip2": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "cyclePartnerTip3": "{phase, select, menstrual{Ask \"What do you need?\" rather than guess.} follicular{Follow their pace without pushing it.} ovulation{Keep listening: every cycle is different.} luteal{Don't put everything down to hormones: listen to what is said.} other{}}",
+  "@cyclePartnerTip3": {
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "guideNowTitle": "{phase}: what happens, what helps",
+  "@guideNowTitle": {
+    "description": "{phase} is a cycle phase name, like \"Luteal phase\".",
+    "placeholders": {
+      "phase": {
+        "type": "String"
+      }
+    }
+  },
+  "listsCountsEmpty": "Empty",
+  "listsCountsAllDone": "All done",
+  "listsCounts": "{open} left of {total}",
+  "@listsCounts": {
+    "placeholders": {
+      "open": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "listsIconName": "{icon, select, list{List} cart{Shopping} star{Wishes} home{Home} gift{Gifts} other{}}",
+  "@listsIconName": {
+    "placeholders": {
+      "icon": {
+        "type": "String"
+      }
+    }
+  },
+  "nousDaysUnit": "{days, plural, one{day} other{days}}",
+  "@nousDaysUnit": {
+    "description": "The unit after a number of days, without the number.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "nousSinceDate": "Since {date}",
+  "@nousSinceDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pingLabel": "{kind, select, thinkingOfYou{Thinking of you} goodNight{Good night} onMyWay{On my way} missYou{Miss you} kiss{Kiss} other{}}",
+  "@pingLabel": {
+    "description": "A ready-made little note.",
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "nousNoteSent": "Sent: {note}",
+  "@nousNoteSent": {
+    "placeholders": {
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "pingReceivedTitle": "{kind, select, thinkingOfYou{{name} is thinking of you.} goodNight{{name} says good night.} onMyWay{{name} is on the way.} missYou{{name} misses you.} kiss{{name} sends you a kiss.} other{}}",
+  "@pingReceivedTitle": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "nousReceivedLine": "{name}: {note}, {when}",
+  "@nousReceivedLine": {
+    "description": "French puts a non-breaking space before the colon.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      },
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "nousInDays": "{days, plural, =0{today} =1{tomorrow} other{in {days} d}}",
+  "@nousInDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "nousYearsTogether": "{years, plural, one{{years} year together} other{{years} years together}}",
+  "@nousYearsTogether": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "settingsDeleteAccountConfirmPaired": "Your account, profile, photo and cycle notes will be deleted. You'll also leave the couple: your calendar, cycle, location, lists and little notes will be deleted for both of you. This can't be undone.",
+  "settingsDeleteAccountConfirmSolo": "Your account, profile, photo and cycle notes will be deleted. This can't be undone.",
+  "periodScreenTitle": "Period",
+  "periodLogNew": "New entry",
+  "periodLogEdit": "Edit entry",
+  "periodDeleteConfirmTitle": "Delete this entry?",
+  "periodCancel": "Cancel",
+  "periodDelete": "Delete",
+  "periodSave": "Save",
+  "periodStartDate": "Start date",
+  "periodEndDate": "End date (optional)",
+  "periodReminderNotificationTitle": "Period expected tomorrow",
+  "periodReminderNotificationBody": "Going by their cycle, your partner's period should start tomorrow.",
+  "periodMoodLabel": "{value, select, good{Good} tired{Tired} anxious{Anxious} irritable{Irritable} other{{value}}}",
+  "periodSymptomLabel": "{value, select, cramps{Cramps} headache{Headache} acne{Acne} pain{Pain} bloating{Bloating} other{{value}}}",
+  "@periodReminderNotificationTitle": {
+    "description": "Local notification to the partner, the evening before the expected period."
+  },
+  "@periodMoodLabel": {
+    "description": "A mood from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@periodSymptomLabel": {
+    "description": "A symptom from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "guideLabelPrefix": "{label}: ",
+  "@guideLabelPrefix": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "positionTitle": "Location",
+  "positionNoPartnerMessage": "Invite your partner",
+  "positionNoPartnerSecondary": "Once they join, you'll see each other on the map.",
+  "positionInvitePartner": "Invite",
+  "positionEnableSharingMessage": "Turn on location",
+  "positionEnableSharingSecondary": "Allow location access in your phone's settings.",
+  "positionOpenSettings": "Open settings",
+  "positionReloadTooltip": "Refresh",
+  "positionReloadDone": "Up to date",
+  "positionMapPhoneOnly": "The map shows on phones.",
+  "positionTogether": "Together ❤️",
+  "positionTogetherTitle": "Together",
+  "positionMe": "Me",
+  "positionSeeAll": "See all",
+  "positionPartnerFallback": "Partner",
+  "appInfoFriendsName": "Friends"
+}

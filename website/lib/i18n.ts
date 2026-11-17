@@ -1,7 +1,12 @@
 export const locales = ["fr", "en"] as const;
 export type Locale = (typeof locales)[number];
 
-export const defaultLocale: Locale = "fr";
+/**
+ * The language for visitors whose browser accepts none of `locales` (or sends
+ * no preference): English, like x-default and the app. Only the proxy's
+ * negotiation reads it; a remembered choice (the NEXT_LOCALE cookie) wins.
+ */
+export const defaultLocale: Locale = "en";
 
 export function hasLocale(locale: string): locale is Locale {
   return locales.includes(locale as Locale);

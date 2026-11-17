@@ -1,0 +1,44 @@
+{
+  "screens": [
+    {
+      "file": "01-us",
+      "shot": "en/nous",
+      "label": "Us",
+      "title": "A space for just the two of you."
+    },
+    {
+      "file": "02-calendar",
+      "shot": "en/calendar",
+      "label": "Calendar",
+      "title": "One calendar for two, a colour each."
+    },
+    {
+      "file": "03-cycle",
+      "shot": "en/cycle",
+      "label": "Period",
+      "title": "The cycle, shared the way you choose."
+    },
+    {
+      "file": "04-notes",
+      "shot": "en/ping",
+      "label": "Little notes",
+      "title": "“Thinking\u00a0of\u00a0you”, or your own words."
+    },
+    {
+      "file": "05-lists",
+      "shot": "en/lists",
+      "label": "Lists",
+      "title": "Groceries, ticked off on both phones."
+    }
+  ],
+  "play": {
+    "featureLabel": "Calendar · Cycle · Lists",
+    "featureTag": "A space for just the two of you."
+  },
+  "appstore": {
+    "headerLabel": "Calendar · Cycle · Lists · Notes",
+    "headerTitle": "A space for just\nthe two of you.",
+    "searchLabel": "Calendar · Cycle · Lists",
+    "searchTag": "A space for just the two of you, free and ad-free."
+  }
+}
