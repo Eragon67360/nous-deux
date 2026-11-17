@@ -176,13 +176,24 @@ final partnerCycleSettingsLiveProvider = Provider<void>((ref) {
         callback: (payload) {
           final row = payload.newRecord;
           final known = ref.read(partnerProfileProvider).valueOrNull;
-          if (known != null &&
+          final cycleSame =
+              known != null &&
               row['tracks_cycle'] == known.tracksCycle &&
               row['share_cycle'] == known.shareCycle &&
-              row['share_checkins'] == known.shareCheckins) {
-            return;
-          }
+              row['share_checkins'] == known.shareCheckins;
+          // Their followed calendars synced: the calendar's freshness line.
+          final syncedAt = DateTime.tryParse(
+            row['calendar_synced_at']?.toString() ?? '',
+          );
+          final calendarSame =
+              known != null &&
+              row['calendar_sync_device'] == known.calendarSyncDevice &&
+              (syncedAt == null
+                  ? known.calendarSyncedAt == null
+                  : known.calendarSyncedAt?.isAtSameMomentAs(syncedAt) == true);
+          if (cycleSame && calendarSame) return;
           ref.invalidate(partnerProfileProvider);
+          if (cycleSame) return;
           ref.invalidate(periodLogsProvider);
           ref.invalidate(cycleCheckinsProvider);
         },

@@ -169,7 +169,7 @@ void main() {
   });
 
   test(
-    'stopFollowing removes my copies in the window, and only those',
+    'stopFollowing removes all my copies, older ones too, and only mine',
     () async {
       final ordinary = event(id: 'id-own', start: DateTime(2026, 11, 21));
       await setUpWith(
@@ -183,7 +183,7 @@ void main() {
       );
 
       expect(await service.stopFollowing(), isTrue);
-      expect(calendar.deletedIds, ['id-mine']);
+      expect(calendar.deletedIds, unorderedEquals(['id-mine', 'id-old']));
       expect(await prefs.followed(), isEmpty);
       expect(profiles.mine!.calendarSyncDevice, isNull);
     },

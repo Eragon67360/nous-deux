@@ -32,11 +32,6 @@ String calendarImportAllowAccess(String lang) =>
     lang == 'fr' ? 'Autoriser l\'accès au calendrier' : 'Allow calendar access';
 String calendarImportOpenSettings(String lang) =>
     lang == 'fr' ? 'Ouvrir les réglages' : 'Open settings';
-String calendarImportRestartMessage(String lang) =>
-    lang == 'fr'
-        ? 'Redémarrez complètement l\'app (arrêt puis relance) pour que le bouton Réglages fonctionne.'
-        : 'Fully restart the app (quit then relaunch) for the Settings button to work.';
-
 // Event form
 String calendarEventEdit(String lang) =>
     lang == 'fr' ? 'Modifier l\'événement' : 'Edit event';
@@ -75,8 +70,8 @@ String calendarFollowTip(String lang) => lang == 'fr'
 String calendarFollowLastSync(String lang) =>
     lang == 'fr' ? 'Dernière mise à jour' : 'Last updated';
 String calendarFollowFootnote(String lang) => lang == 'fr'
-    ? 'Du mois dernier aux six prochains mois. Les événements se modifient dans votre agenda ; ne plus suivre un agenda retire ses copies.'
-    : 'From last month to six months ahead. Events are changed in your calendar; unfollowing a calendar removes its copies.';
+    ? 'Du mois dernier aux six prochains mois. Les événements se modifient dans votre agenda ; ne plus suivre un agenda retire ses copies de cette période, tout arrêter les retire toutes.'
+    : 'From last month to six months ahead. Events are changed in your calendar; unfollowing a calendar removes its copies from that period, turning them all off removes every copy.';
 String calendarFollowOtherPhone(String lang) => lang == 'fr'
     ? 'Vos agendas sont suivis depuis un autre téléphone. En suivre un ici prend le relais.'
     : 'Your calendars are followed from another phone. Following one here takes over.';
@@ -137,3 +132,6 @@ String calendarSyncedReadOnly(String lang, String name, {required bool mine}) {
       ? 'This event follows your phone\'s calendar: change or delete it there.'
       : 'This event follows $name\'s phone calendar: it is changed or deleted there.';
 }
+
+String calendarAllDay(String lang) =>
+    lang == 'fr' ? 'Toute la journée' : 'All day';

@@ -51,7 +51,7 @@
             "name": "Calendar",
             "facts": [
               "One calendar for two.",
-              "Imports from your phone's calendar."
+              "Follows your phone's calendar and keeps it up to date."
             ]
           },
           {
@@ -188,7 +188,7 @@
           },
           {
             "label": "Shared calendar",
-            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. If you follow a calendar of your phone: the titles, dates and times of its events from last month to six months ahead, copied and kept up to date by your phone, also in the background, plus a random identifier of that phone and when it last synced. Nothing else from your calendar leaves your phone, and unfollowing removes the copies. Visible only within the couple."
+            "text": "titles, descriptions, dates and times of the events you or your partner create, and the countdown option if you turn it on for an event. If you follow a calendar of your phone: the titles, dates and times of its events from last month to six months ahead, copied and kept up to date by your phone when you open the app, plus a random identifier of that phone and when it last synced. Nothing else from your calendar leaves your phone. Unfollowing a calendar removes its copies from last month on, and turning them all off removes every copy. Visible only within the couple."
           },
           {
             "label": "Period tracking",

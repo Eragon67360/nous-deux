@@ -65,8 +65,8 @@ class CalendarSyncService {
     return run();
   }
 
-  /// Stops following from this phone and removes my copies in the window
-  /// (older ones stay as history); true when done. A phone that another of
+  /// Stops following from this phone and removes all my copies, older ones
+  /// too; true when done. A phone that another of
   /// mine has replaced only forgets its settings: the copies are that
   /// phone's. When a delete fails, this phone keeps following, so stopping
   /// can be tried again and no copy is left without a phone to update it.
@@ -86,8 +86,11 @@ class CalendarSyncService {
       return false;
     }
 
-    final (:from, :to) = _window();
-    final synced = await _calendar.getMySyncedEvents(from: from, to: to);
+    // Every copy goes, past ones too: nothing is left that no phone updates.
+    final synced = await _calendar.getMySyncedEvents(
+      from: DateTime.utc(1970),
+      to: DateTime.utc(9999),
+    );
     if (synced.failure != null) return keepFollowing();
     for (final e in synced.events) {
       if (await _calendar.deleteEvent(e.id) != null) return keepFollowing();

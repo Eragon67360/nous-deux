@@ -141,7 +141,13 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
           callback: (payload) {
             final newRecord = payload.newRecord;
             final partnerId = newRecord['partner_id'];
-            if (partnerId != null && partnerId.toString().isNotEmpty) {
+            // Realtime sends the whole row on any update (a calendar sync
+            // writes it too): only the change from unpaired is a joining.
+            final wasPaired =
+                ref.read(myProfileProvider).valueOrNull?.hasPartner ?? false;
+            if (!wasPaired &&
+                partnerId != null &&
+                partnerId.toString().isNotEmpty) {
               ref.invalidate(myProfileProvider);
               ref.invalidate(myCoupleProvider);
               if (mounted) setState(() => _celebrating = true);

@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -104,6 +107,24 @@ void main() {
       );
     });
 
+    testWidgets('[$lang] a slow first copy shows the switch on and progress', (
+      tester,
+    ) async {
+      final phone = _phone();
+      phone.hold = Completer<void>();
+      await pumpFollow(tester, lang: lang, phone: phone);
+
+      await tester.tap(switchOf('Nous'));
+      await tester.pump();
+      expect(tester.widget<SwitchListTile>(switchOf('Nous')).value, isTrue);
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+
+      phone.hold!.complete();
+      await tester.pumpAndSettle();
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      expect(tester.widget<SwitchListTile>(switchOf('Nous')).value, isTrue);
+    });
+
     testWidgets('[$lang] unfollowing the last calendar removes its copies', (
       tester,
     ) async {
@@ -147,6 +168,25 @@ void main() {
       expect(phone.accessRequests, 1);
       expect(switchOf('Nous'), findsOneWidget);
       expect(find.text(calendarFollowPermission(lang)), findsNothing);
+    });
+
+    testWidgets('[$lang] without access, "open settings" opens them', (
+      tester,
+    ) async {
+      final calls = <String>[];
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        const MethodChannel('flutter.baseflow.com/permissions/methods'),
+        (call) async {
+          calls.add(call.method);
+          return true;
+        },
+      );
+      await pumpFollow(tester, lang: lang, phone: _phone(allowed: false));
+
+      await tester.tap(find.text(calendarImportOpenSettings(lang)));
+      await tester.pumpAndSettle();
+
+      expect(calls, ['openAppSettings']);
     });
 
     testWidgets('[$lang] when another phone follows, it says so', (

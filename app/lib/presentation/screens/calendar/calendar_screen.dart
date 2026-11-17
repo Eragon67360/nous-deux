@@ -566,7 +566,12 @@ class _DiaryEvent extends StatelessWidget {
             runSpacing: 4,
             children: [
               OwnerDot(isMine: isMine),
-              Text(DateFormat.Hm(locale).format(event.startTime), style: quiet),
+              Text(
+                event.looksAllDay
+                    ? calendarAllDay(lang)
+                    : DateFormat.Hm(locale).format(event.startTime),
+                style: quiet,
+              ),
               Text(isMine ? calendarMe(lang) : partnerName, style: quiet),
               if (event.isCountdown)
                 Text(
@@ -708,7 +713,9 @@ class _SyncedEventSheetState extends ConsumerState<_SyncedEventSheet> {
     final e = widget.event;
     final locale = AppLanguages.dateLocale(lang);
     final day = DateFormat.MMMEd(locale).format(e.startTime);
-    final hours = e.endTime == null
+    final hours = e.looksAllDay
+        ? calendarAllDay(lang)
+        : e.endTime == null
         ? DateFormat.Hm(locale).format(e.startTime)
         : '${DateFormat.Hm(locale).format(e.startTime)} – '
               '${DateFormat.Hm(locale).format(e.endTime!)}';

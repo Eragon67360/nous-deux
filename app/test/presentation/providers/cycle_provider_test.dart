@@ -165,5 +165,32 @@ void main() {
 
       expect(deps.period.watchCalls, before);
     });
+
+    test('a calendar sync refreshes the partner, not their cycle', () async {
+      final deps = paired();
+      final c = await load(deps);
+      c.listen(partnerCycleSettingsLiveProvider, (_, _) {});
+      c.listen(partnerProfileProvider, (_, _) {});
+      await c.read(partnerProfileProvider.future);
+      final before = deps.period.watchCalls;
+      final syncedAt = DateTime.utc(2026, 11, 17, 15);
+      deps.profiles.others[partnerId] = partnerProfile(
+        calendarSyncedAt: syncedAt,
+      );
+
+      deps.realtime.named('profile-cycle-$partnerId').emitUpdate({
+        'id': partnerId,
+        'tracks_cycle': null,
+        'share_cycle': true,
+        'share_checkins': true,
+        'calendar_sync_device': '00000000-0000-4000-8000-0000000000aa',
+        'calendar_synced_at': '2026-11-17T15:00:00+00:00',
+      });
+      final partner = await c.read(partnerProfileProvider.future);
+      await c.read(periodLogsProvider.future);
+
+      expect(partner?.calendarSyncedAt, syncedAt);
+      expect(deps.period.watchCalls, before);
+    });
   });
 }

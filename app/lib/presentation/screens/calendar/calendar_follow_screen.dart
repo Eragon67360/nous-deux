@@ -1,7 +1,8 @@
 import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart'
+    show openAppSettings;
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_sync_service.dart';
@@ -31,12 +32,11 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
   String? _installId;
   bool _busy = false;
 
+  /// The calendars just switched, shown while the first copy runs.
+  Set<String>? _pending;
+
   /// Set when the person went to the app's settings, to look again on return.
   bool _openedSettings = false;
-
-  static const _settingsChannel = MethodChannel(
-    'com.nousdeux.android/settings',
-  );
 
   @override
   void initState() {
@@ -80,21 +80,18 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
     if (mounted) setState(() => _busy = false);
   }
 
-  Future<void> _openSettings(String lang) async {
+  /// The app's page in the phone's settings, on iPhone and Android.
+  Future<void> _openSettings() async {
     _openedSettings = true;
-    try {
-      await _settingsChannel.invokeMethod<void>('openAppSettings');
-    } on MissingPluginException catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(calendarImportRestartMessage(lang))),
-      );
-    }
+    await openAppSettings();
   }
 
   /// Follows [ids] from this phone, then shows what changed.
   Future<void> _follow(Set<String> ids, String lang) async {
-    setState(() => _busy = true);
+    setState(() {
+      _busy = true;
+      _pending = ids;
+    });
     final outcome = await ref.read(calendarSyncServiceProvider).follow(ids);
     if (!mounted) return;
     ref
@@ -106,7 +103,12 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
       ).showSnackBar(SnackBar(content: Text(calendarFollowFailed(lang))));
     }
     await _load();
-    if (mounted) setState(() => _busy = false);
+    if (mounted) {
+      setState(() {
+        _busy = false;
+        _pending = null;
+      });
+    }
   }
 
   @override
@@ -184,7 +186,7 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
                   Align(
                     alignment: AlignmentDirectional.centerStart,
                     child: TextButton(
-                      onPressed: _busy ? null : () => _openSettings(lang),
+                      onPressed: _busy ? null : _openSettings,
                       child: Text(calendarImportOpenSettings(lang)),
                     ),
                   ),
@@ -207,6 +209,11 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
                     ),
                     const SizedBox(height: 8),
                   ],
+                  if (_pending != null)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: LinearProgressIndicator(minHeight: 2),
+                    ),
                   if (calendars.isEmpty)
                     Text(calendarFollowNone(lang), style: quiet),
                   for (final c in calendars)
@@ -226,7 +233,9 @@ class _CalendarFollowScreenState extends ConsumerState<CalendarFollowScreen>
                       subtitle: c.accountName == null
                           ? null
                           : Text(c.accountName!),
-                      value: thisPhone && _followed.contains(c.id),
+                      value:
+                          _pending?.contains(c.id) ??
+                          (thisPhone && _followed.contains(c.id)),
                       onChanged: _busy || c.id == null
                           ? null
                           : (on) {
