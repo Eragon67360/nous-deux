@@ -85,6 +85,8 @@ The guide chapters, the weekly tips and the source descriptions are paragraphs, 
 
 Done when no `fr ?` is left in the content files, and the guide reads the same in both languages.
 
+Done (PR 3): `app/lib/core/constants/content/` holds `guide_{en,fr}.dart` and `education_{en,fr}.dart`, typed by `GuideText` and `EducationText`. The per-phase tips shown in the guide (`cycleSelfTip`, `cyclePartnerTips`) were in `cycle_strings.dart`, so they moved to ARB with phase 2.
+
 ## Phase 4: iOS system texts
 
 1. **Add `fr` to `knownRegions`.**
@@ -121,7 +123,7 @@ Not needed while only French and English exist:
 ## Adding a language once this is done
 
 1. Add its code: `AppLanguages`, `website/lib/i18n.ts`, the server catalog.
-2. `app_xx.arb`, `guide_xx.dart` and the other content files, `xx.lproj/InfoPlist.strings` and `knownRegions`.
+2. `app_xx.arb`; `guide_xx.dart` and `education_xx.dart` (listed in `guideTexts` and `educationTexts`) and an `'xx'` text for each verified source; `xx.lproj/InfoPlist.strings` and `knownRegions`.
 3. `website/lib/dictionaries/xx.json`, including the translated privacy policy.
 4. `supabase/functions/_shared/i18n/xx.json`, then deploy the functions.
 5. The store listings (Play and App Store) and `app/store/copy/xx.json`; the seed file and captures.

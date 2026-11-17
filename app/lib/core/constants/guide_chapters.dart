@@ -1,20 +1,32 @@
+import 'package:nousdeux/core/constants/content/guide_en.dart';
+import 'package:nousdeux/core/constants/content/guide_fr.dart';
+import 'package:nousdeux/core/constants/content/guide_text.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_verified_sources.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 
 /// The guide's chapters, in reading order.
 enum GuideChapter { cycle, bodyMind, support, talking, myths, faq, sources }
 
+/// The guide in each language the app speaks, by language code. A new
+/// language adds its file here (test/l10n/content_completeness_test.dart
+/// checks every language in [AppLanguages.supported] has one).
+const Map<String, GuideText> guideTexts = {'fr': guideFr, 'en': guideEn};
+
+/// The guide in [lang], or in English when [lang] has no guide file.
+GuideText guideTextFor(String lang) =>
+    guideTexts[lang] ?? guideTexts[AppLanguages.fallback]!;
+
 String guideChapterTitle(GuideChapter chapter, String lang) {
-  final fr = lang == 'fr';
+  final text = guideTextFor(lang);
   return switch (chapter) {
-    GuideChapter.cycle => fr ? 'Le cycle en 4 phases' : 'The cycle in 4 phases',
-    GuideChapter.bodyMind => fr ? 'Corps et humeur' : 'Body and mood',
-    GuideChapter.support =>
-      fr ? 'Soutenir sans s\'imposer' : 'Supporting without taking over',
-    GuideChapter.talking => fr ? 'En parler à deux' : 'Talking about it',
-    GuideChapter.myths => fr ? 'Idées reçues' : 'Myths',
-    GuideChapter.faq => fr ? 'Questions fréquentes' : 'Common questions',
-    GuideChapter.sources => fr ? 'Sources et limites' : 'Sources and limits',
+    GuideChapter.cycle => text.cycleTitle,
+    GuideChapter.bodyMind => text.bodyMindTitle,
+    GuideChapter.support => text.supportTitle,
+    GuideChapter.talking => text.talkingTitle,
+    GuideChapter.myths => text.mythsTitle,
+    GuideChapter.faq => text.faqTitle,
+    GuideChapter.sources => text.sourcesTitle,
   };
 }
 
