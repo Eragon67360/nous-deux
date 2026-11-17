@@ -95,10 +95,10 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 | Personal info › Email address | Required | Account management | From Google or Apple sign-in |
 | Personal info › User IDs | Required | App functionality, Account management | Account id |
 | Personal info › Other info | Required | App functionality | Gender, chosen at onboarding |
-| Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms and mood, private cycle notes |
+| Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms (preset or written by the person) and mood, private cycle notes |
 | Location › Precise location | Optional | App functionality | Latest position only, no history; erased when sharing stops |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
-| Messages › Other in-app messages | Optional | App functionality | Little notes (latest one per person) |
+| Messages › Other in-app messages | Optional | App functionality | Little notes, latest one per person: a preset or, since build 26, a text the person writes (40 characters at most). The push never carries the text. |
 | Calendar › Calendar events | Optional | App functionality | Shared calendar events, including ones imported from the phone |
 | App activity › Other user-generated content | Optional | App functionality | Shared lists and items, the date the relationship started |
 | Device or other IDs | Optional | App functionality | Push notification token |
@@ -122,15 +122,15 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 
 > Nous Deux réunit vos deux vies sur le même écran, et rien d'autre.
 >
-> Calendrier : un agenda pour deux, chaque événement garde la couleur de la personne qui l'a ajouté. Importez vos événements depuis le calendrier du téléphone et suivez le compte à rebours jusqu'au prochain rendez-vous.
+> Calendrier : un agenda pour deux, chaque événement garde la couleur de la personne qui l'a ajouté. Importez vos événements depuis le calendrier du téléphone, changez de mois d'un glissement et suivez le compte à rebours jusqu'au prochain rendez-vous.
 >
-> Cycle : la personne qui suit son cycle choisit ce que son partenaire voit. Dates, ressenti du jour et un guide pour chacun des deux, écrit à partir de sources de santé publique. Les notes restent privées.
+> Cycle : la personne qui suit son cycle choisit ce que son partenaire voit. Dates, ressenti du jour, avec vos propres mots si vous voulez, et un guide pour chacun des deux, écrit à partir de sources de santé publique. Les notes restent privées.
 >
 > Position : en direct, seulement quand vous l'activez. Aucun historique.
 >
 > Listes : courses, choses à faire, idées, cochées des deux côtés en direct.
 >
-> Petits mots : « Je pense à toi », « Bonne nuit », « J'arrive », envoyés d'un geste.
+> Petits mots : « Je pense à toi », « Bonne nuit », « J'arrive », ou vos propres mots, envoyés d'un geste.
 >
 > Vos jours : le compte de vos jours ensemble.
 >
@@ -140,21 +140,21 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 
 > Nous Deux puts your two lives on one screen, and nothing else.
 >
-> Calendar: one calendar for two, where each event keeps the colour of whoever added it. Import events from your phone's calendar and count down to your next date.
+> Calendar: one calendar for two, where each event keeps the colour of whoever added it. Import events from your phone's calendar, swipe between months and count down to your next date.
 >
-> Cycle: whoever tracks their cycle chooses what their partner sees. Dates, how you feel each day, and a guide for each of you, written from public health sources. Notes stay private.
+> Cycle: whoever tracks their cycle chooses what their partner sees. Dates, how you feel each day, in your own words if you like, and a guide for each of you, written from public health sources. Notes stay private.
 >
 > Location: live, only when you turn it on. No history.
 >
 > Lists: groceries, to-dos, ideas, ticked off on both phones at once.
 >
-> Little notes: "Thinking of you", "Good night", "On my way", sent with one tap.
+> Little notes: "Thinking of you", "Good night", "On my way", or your own words, sent with one tap.
 >
 > Your days: how many days you've been together.
 >
 > No feed, no ads, no strangers. The app is free. Your data lives on our own servers in Germany and is never sold. You can delete your account from the app.
 
-The quoted note labels are the app's own, in both languages.
+The quoted note labels are the app's own, in both languages. The App Store description is the same text (see [APP_STORE_CONNECT.md](APP_STORE_CONNECT.md)).
 
 ### Graphics
 Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/render.py` (headless Chrome) from the HTML in `app/store/play/src/` and the app captures in `website/public/screenshots/`.
@@ -163,8 +163,9 @@ Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/rend
 | --- | --- | --- |
 | App icon, 512×512 | `icon-512.png` | inherited from French |
 | Feature graphic, 1024×500 | `fr/feature.png` | `en/feature.png` |
-| Phone screenshots, 1080×1920, in this order | `fr/01-nous` … `fr/05-listes` | `en/01-us` … `en/05-lists` |
+| Phone screenshots, 1080×1920, in this order | `fr/01-nous` … `fr/05-listes` | `en/01-us` … `en/05-lists` (English captures since 2026-11-17; before, they showed the French app) |
 
+- **Build 26 captures (2026-11-17):** both sets were replaced by renders of the build 26 captures (#117; files uploaded as `*-1117.png`; `05-listes` matched the identical library image). Saved in the listing and shown on `/publishing` as 2 changes not yet sent for review; the next « Envoyer … pour examen », or the next CI upload of a release, sends them.
 - **Order:** uploading several screenshots at once lands them in a random order. Upload them one at a time, or reorder them in the asset panel.
 - **AI content declaration:** "Don't label". The graphics are app captures laid out in HTML and CSS, with no generated images.
 - **Later:** captures from an Android phone would look more natural than the iPhone ones inside the frames.

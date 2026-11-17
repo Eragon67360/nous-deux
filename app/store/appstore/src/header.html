@@ -1,0 +1,46 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../play/src/common.css">
+<style>
+  /* App Store product page header: 2622 × 1475 CSS px, rendered at 2× (5244 × 2950).
+     On an iPhone held upright the App Store shows only the middle ~54% of the
+     width and the top ~70% of the height, with the back and share buttons on
+     either side at about 28% down, and the Dynamic Island over the top ~6%. So the rings, the label and the line (two
+     short lines) stay in that window; the five phones fanned out below show
+     whole in landscape and on iPad, and only their tops on an upright iPhone. */
+  body { width: 2622px; height: 1475px; position: relative; }
+  .text { position: absolute; left: 0; right: 0; top: 175px; text-align: center; }
+  svg { display: block; margin: 0 auto 36px; }
+  .label { font-size: 30px; }
+  h1 { margin-top: 28px; font-weight: 200; font-size: 116px; letter-spacing: -.02em; line-height: 1.05; white-space: pre-line; }
+  .phone { position: absolute; top: 660px; width: 400px; border-radius: 52px; border: 2px solid #44403C;
+           overflow: hidden; box-shadow: 0 30px 90px rgba(0,0,0,.55); background: #1C1917; }
+  .phone img { display: block; width: 100%; }
+  .p1 { left: 371px;  top: 840px; opacity: .45; }
+  .p2 { left: 791px;  top: 770px; opacity: .75; }
+  .p3 { left: 1111px; top: 700px; width: 400px; z-index: 2; }
+  .p4 { left: 1431px; top: 770px; opacity: .75; }
+  .p5 { left: 1851px; top: 840px; opacity: .45; }
+</style></head>
+<body>
+  <div class="text">
+    <svg width="126" height="96" viewBox="0 0 210 160" aria-hidden="true">
+      <circle cx="78.8" cy="80" r="67.2" fill="none" stroke="#C4A77D" stroke-width="8.8"/>
+      <circle cx="131.2" cy="80" r="67.2" fill="none" stroke="#F5F0EB" stroke-width="8.8"/>
+      <circle cx="105.0" cy="80" r="14.1" fill="#FF8FA3"/>
+    </svg>
+    <div class="label" id="label"></div>
+    <h1 id="title"></h1>
+  </div>
+  <div class="phone p1"><img id="s1"></div>
+  <div class="phone p2"><img id="s2"></div>
+  <div class="phone p4"><img id="s4"></div>
+  <div class="phone p5"><img id="s5"></div>
+  <div class="phone p3"><img id="s3"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const dir = '../../../../website/public/screenshots/' + (q.get('lang') === 'en' ? 'en/' : '');
+  document.getElementById('label').textContent = q.get('label');
+  document.getElementById('title').textContent = q.get('title');
+  ['lists', 'calendar', 'nous', 'cycle', 'ping'].forEach((s, i) => {
+    document.getElementById('s' + (i + 1)).src = dir + s + '.png';
+  });
+</script></body></html>

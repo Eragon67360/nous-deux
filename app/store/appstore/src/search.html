@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="../../play/src/common.css">
+<style>
+  /* App Store search results image: 1920 × 1280 CSS px, rendered at 2× (3840 × 2560).
+     Apple crops it differently by device and orientation, so the text and the
+     middle phone stay well inside the edges. */
+  body { width: 1920px; height: 1280px; position: relative; }
+  .text { position: absolute; left: 190px; top: 50%; transform: translateY(-50%); width: 760px; }
+  svg { display: block; margin-bottom: 52px; }
+  .label { font-size: 24px; margin-bottom: 30px; }
+  h1 { font-weight: 200; font-size: 150px; letter-spacing: -.025em; line-height: .95; }
+  p { margin-top: 40px; font-weight: 300; font-size: 50px; line-height: 1.2; color: #D6D3D1; text-wrap: balance; }
+  .phone { position: absolute; border-radius: 52px; border: 2px solid #44403C; overflow: hidden;
+           box-shadow: 0 30px 90px rgba(0,0,0,.55); background: #1C1917; }
+  .phone img { display: block; width: 100%; }
+  .back { width: 400px; top: 210px; opacity: .55; }
+  .left { left: 1000px; }
+  .right { left: 1400px; }
+  .front { width: 470px; left: 1175px; top: 140px; z-index: 2; }
+</style></head>
+<body>
+  <div class="text">
+    <svg width="168" height="128" viewBox="0 0 210 160" aria-hidden="true">
+      <circle cx="78.8" cy="80" r="67.2" fill="none" stroke="#C4A77D" stroke-width="8.8"/>
+      <circle cx="131.2" cy="80" r="67.2" fill="none" stroke="#F5F0EB" stroke-width="8.8"/>
+      <circle cx="105.0" cy="80" r="14.1" fill="#FF8FA3"/>
+    </svg>
+    <div class="label" id="label"></div>
+    <h1>Nous Deux</h1>
+    <p id="tag"></p>
+  </div>
+  <div class="phone back left"><img id="a"></div>
+  <div class="phone back right"><img id="b"></div>
+  <div class="phone front"><img id="c"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const dir = '../../../../website/public/screenshots/' + (q.get('lang') === 'en' ? 'en/' : '');
+  document.getElementById('label').textContent = q.get('label');
+  document.getElementById('tag').textContent = q.get('tag');
+  document.getElementById('a').src = dir + 'calendar.png';
+  document.getElementById('b').src = dir + 'cycle.png';
+  document.getElementById('c').src = dir + 'nous.png';
+</script></body></html>
