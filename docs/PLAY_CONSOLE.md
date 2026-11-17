@@ -34,6 +34,8 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 
 > On the sign-in screen, tap "Sign in with email" (French: "Se connecter avec un e-mail"). Most features (calendar, cycle, location, lists, notes) appear only once two accounts are paired, so sign in with the other account on a second device. On one device choose "Generate a code", on the other "I have a code" and type the 6 characters or scan the QR code. To pair again, use Settings > Leave couple.
 
+**Pre-launch report robots.** After each upload to a testing track, Google runs the build on a few test phones, each signed in to its own Gmail account. The crawler taps "Continue with Google", so every phone becomes a new user, and types the login above into the onboarding name field. They never come back, but each leaves a profile, a waiting couple and whatever it tapped in (23 accounts from 15 to 17 November 2026, deleted). About an hour after an upload, list them with `scripts/delete-play-robots.sh nous-deux` and delete them with `--delete`. The real `review1`/`review2` accounts never match.
+
 ### Content rating (IARC questionnaire)
 - **Category:** Utility, Productivity, Communication, or Other.
 - **Violence, fear, sexual content, crude language, drugs, alcohol, tobacco, gambling:** No to all. The cycle guide is health information, not sexual content.
