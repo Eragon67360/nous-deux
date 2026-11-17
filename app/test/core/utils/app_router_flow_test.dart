@@ -66,7 +66,6 @@ void main() {
         // What the onboarding screen does once the form is saved.
         await deps.profiles.completeOnboarding(
           username: 'Camille',
-          gender: 'woman',
           language: 'fr',
         );
         container.invalidate(myProfileProvider);

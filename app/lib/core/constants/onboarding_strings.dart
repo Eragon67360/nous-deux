@@ -8,13 +8,8 @@ String onboardingDisplayNameLabel(String lang) =>
     lang == 'fr' ? 'Prénom ou surnom' : 'Name or nickname';
 String onboardingDisplayNameHint(String lang) =>
     lang == 'fr' ? 'Camille' : 'Alex';
-String onboardingGender(String lang) => lang == 'fr' ? 'Genre' : 'Gender';
-String onboardingWoman(String lang) => lang == 'fr' ? 'Femme' : 'Woman';
-String onboardingMan(String lang) => lang == 'fr' ? 'Homme' : 'Man';
 String onboardingLanguageLabel(String lang) =>
     lang == 'fr' ? 'Langue' : 'Language';
-String onboardingFrench(String lang) => lang == 'fr' ? 'Français' : 'French';
-String onboardingEnglish(String lang) => lang == 'fr' ? 'Anglais' : 'English';
 String onboardingContinue(String lang) =>
     lang == 'fr' ? 'Continuer' : 'Continue';
 String onboardingErrorDisplayName(String lang) => lang == 'fr'

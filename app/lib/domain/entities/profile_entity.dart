@@ -4,7 +4,6 @@ class ProfileEntity extends Equatable {
   const ProfileEntity({
     required this.id,
     this.username,
-    required this.gender,
     this.partnerId,
     this.language = 'fr',
     this.avatarUrl,
@@ -18,7 +17,6 @@ class ProfileEntity extends Equatable {
 
   final String id;
   final String? username;
-  final String gender;
   final String? partnerId;
   final String language;
   final String? avatarUrl;
@@ -44,7 +42,6 @@ class ProfileEntity extends Equatable {
   List<Object?> get props => [
     id,
     username,
-    gender,
     partnerId,
     language,
     avatarUrl,

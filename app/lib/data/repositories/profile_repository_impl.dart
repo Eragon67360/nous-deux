@@ -22,7 +22,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
       var profile = await _datasource.getById(uid);
       profile ??= await _datasource.upsert({
         'id': uid,
-        'gender': 'woman',
         'language': 'fr',
         // Do not set onboarding_completed_at so first-time users see onboarding
       });
@@ -49,7 +48,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<ProfileResult> updateProfile({
     String? username,
-    String? gender,
     String? language,
     String? avatarUrl,
   }) async {
@@ -60,7 +58,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final data = <String, dynamic>{};
       if (username != null) data['username'] = username;
-      if (gender != null) data['gender'] = gender;
       if (language != null) data['language'] = language;
       if (avatarUrl != null) data['avatar_url'] = avatarUrl;
       if (data.isEmpty) {
@@ -108,7 +105,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<ProfileResult> completeOnboarding({
     required String username,
-    required String gender,
     required String language,
   }) async {
     final uid = _userId;
@@ -118,7 +114,6 @@ class ProfileRepositoryImpl implements ProfileRepository {
     try {
       final profile = await _datasource.update(uid, {
         'username': username,
-        'gender': gender,
         'language': language,
         'onboarding_completed_at': DateTime.now().toUtc().toIso8601String(),
       });

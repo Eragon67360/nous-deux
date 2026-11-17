@@ -16,7 +16,6 @@ const me = UserEntity(id: meId, phone: '+33612345678');
 ProfileEntity profile({
   String id = meId,
   String? username = 'Camille',
-  String gender = 'woman',
   String? partner,
   String language = 'fr',
   String? avatarUrl,
@@ -28,7 +27,6 @@ ProfileEntity profile({
   return ProfileEntity(
     id: id,
     username: username,
-    gender: gender,
     partnerId: partner,
     language: language,
     avatarUrl: avatarUrl,
@@ -49,7 +47,6 @@ ProfileEntity partnerProfile({
   return profile(
     id: partnerId,
     username: username,
-    gender: 'man',
     partner: meId,
     language: language,
     tracksCycle: tracksCycle,

@@ -7,7 +7,6 @@ void main() {
   final fullJson = <String, dynamic>{
     'id': 'u1',
     'username': 'Camille',
-    'gender': 'woman',
     'partner_id': 'u2',
     'language': 'en',
     // Tests have no backend URL configured, so no avatar URL is trusted
@@ -23,7 +22,6 @@ void main() {
     final m = ProfileModel.fromJson(fullJson);
     expect(m.id, 'u1');
     expect(m.username, 'Camille');
-    expect(m.gender, 'woman');
     expect(m.partnerId, 'u2');
     expect(m.language, 'en');
     expect(m.avatarUrl, isNull);
@@ -41,13 +39,20 @@ void main() {
     expect(m.avatarUrl, isNull);
   });
 
-  test('fromJson defaults gender to woman and language to fr', () {
+  test('fromJson defaults language to fr', () {
     final m = ProfileModel.fromJson({'id': 'u1'});
-    expect(m.gender, 'woman');
     expect(m.language, 'fr');
     expect(m.username, isNull);
     expect(m.partnerId, isNull);
     expect(m.onboardingCompletedAt, isNull);
+  });
+
+  test('a row that still has a gender reads the same', () {
+    // Builds up to 0.3.6+26 still write one; the app ignores it.
+    expect(
+      ProfileModel.fromJson({...fullJson, 'gender': 'woman'}).toJson(),
+      ProfileModel.fromJson(fullJson).toJson(),
+    );
   });
 
   test('toJson round-trips', () {
@@ -62,7 +67,6 @@ void main() {
       ProfileEntity(
         id: 'u1',
         username: 'Camille',
-        gender: 'woman',
         partnerId: 'u2',
         language: 'en',
         onboardingCompletedAt: DateTime.utc(2026, 3, 1, 8),
