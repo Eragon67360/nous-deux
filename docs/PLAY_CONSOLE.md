@@ -87,14 +87,13 @@ Nothing is **shared** in Play's sense:
 - the server is your own;
 - Firebase (push), OpenFreeMap (map tiles) and Google/Apple (sign-in) act as service providers. The map is MapLibre, which sends no telemetry.
 
-Nothing is processed only temporarily (ephemeral) either; everything below is stored.
+Nothing is processed only temporarily (ephemeral) either; everything below is stored. Gender is no longer collected (2026-11-17): the app stopped asking (#124), and the server cleared the stored values and drops what builds up to 26 still send (migration `20261117100000_gender_cleared`), so **Personal info › Other info** is no longer declared.
 
 | Category › type | Required or optional | Purposes | What it is |
 | --- | --- | --- | --- |
 | Personal info › Name | Required | App functionality, Account management | Display name entered at onboarding |
 | Personal info › Email address | Required | Account management | From Google or Apple sign-in |
 | Personal info › User IDs | Required | App functionality, Account management | Account id |
-| Personal info › Other info | Required | App functionality | Gender, chosen at onboarding |
 | Health and fitness › Health info | Optional | App functionality | Period dates, daily symptoms (preset or written by the person) and mood, private cycle notes |
 | Location › Precise location | Optional | App functionality | Latest position only, no history; erased when sharing stops |
 | Photos and videos › Photos | Optional | App functionality | Profile photo |
