@@ -7,6 +7,7 @@ import 'package:nousdeux/core/constants/content/education_en.dart';
 import 'package:nousdeux/core/constants/content/education_fr.dart';
 import 'package:nousdeux/core/constants/content/education_text.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
+import 'package:nousdeux/core/l10n/l10n.dart';
 
 /// The education content in each language the app speaks, by language code.
 /// A new language adds its file here (test/l10n/content_completeness_test.dart
@@ -25,8 +26,7 @@ EducationText get _reference => educationTexts[AppLanguages.fallback]!;
 
 // --- Screen & tab labels ---
 
-String periodScreenTitle(String lang) =>
-    educationTextFor(lang).periodScreenTitle;
+String periodScreenTitle(String lang) => l10nFor(lang).periodScreenTitle;
 
 // --- Section: Understanding the Menstrual Cycle ---
 
@@ -218,25 +218,25 @@ String disclaimerBody(String lang) => educationTextFor(lang).disclaimerBody;
 
 // --- Period log form & list strings ---
 
-String periodLogNew(String lang) => educationTextFor(lang).periodLogNew;
-String periodLogEdit(String lang) => educationTextFor(lang).periodLogEdit;
+String periodLogNew(String lang) => l10nFor(lang).periodLogNew;
+String periodLogEdit(String lang) => l10nFor(lang).periodLogEdit;
 String periodDeleteConfirmTitle(String lang) =>
-    educationTextFor(lang).periodDeleteConfirmTitle;
-String periodCancel(String lang) => educationTextFor(lang).periodCancel;
-String periodDelete(String lang) => educationTextFor(lang).periodDelete;
-String periodSave(String lang) => educationTextFor(lang).periodSave;
-String periodStartDate(String lang) => educationTextFor(lang).periodStartDate;
-String periodEndDate(String lang) => educationTextFor(lang).periodEndDate;
+    l10nFor(lang).periodDeleteConfirmTitle;
+String periodCancel(String lang) => l10nFor(lang).periodCancel;
+String periodDelete(String lang) => l10nFor(lang).periodDelete;
+String periodSave(String lang) => l10nFor(lang).periodSave;
+String periodStartDate(String lang) => l10nFor(lang).periodStartDate;
+String periodEndDate(String lang) => l10nFor(lang).periodEndDate;
 
 // Partner reminder (the evening before)
 String periodReminderNotificationTitle(String lang) =>
-    educationTextFor(lang).periodReminderNotificationTitle;
+    l10nFor(lang).periodReminderNotificationTitle;
 String periodReminderNotificationBody(String lang) =>
-    educationTextFor(lang).periodReminderNotificationBody;
+    l10nFor(lang).periodReminderNotificationBody;
 
 // Mood/symptom labels by language (value is same in DB)
 String periodMoodOptionLabel(String value, String lang) =>
-    educationTextFor(lang).moodLabels[value] ?? value;
+    l10nFor(lang).periodMoodLabel(value);
 
 String periodSymptomOptionLabel(String value, String lang) =>
-    educationTextFor(lang).symptomLabels[value] ?? value;
+    l10nFor(lang).periodSymptomLabel(value);

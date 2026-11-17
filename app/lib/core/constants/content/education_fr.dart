@@ -2,8 +2,6 @@ import 'package:nousdeux/core/constants/content/education_text.dart';
 
 /// The cycle education content in French.
 const educationFr = EducationText(
-  periodScreenTitle: 'Règles',
-
   // --- Understanding the cycle ---
   sectionCycleTitle: 'Comprendre le cycle menstruel',
   sectionCycleSubtitle:
@@ -203,30 +201,4 @@ const educationFr = EducationText(
   disclaimerTitle: 'Avertissement',
   disclaimerBody:
       'Ce contenu est à but informatif uniquement et ne constitue pas un avis médical. Pour toute question de santé ou décision personnelle, consultez un professionnel de santé.',
-
-  // --- Period log and reminder ---
-  periodLogNew: 'Nouvel enregistrement',
-  periodLogEdit: 'Modifier l\'enregistrement',
-  periodDeleteConfirmTitle: 'Supprimer cet enregistrement ?',
-  periodCancel: 'Annuler',
-  periodDelete: 'Supprimer',
-  periodSave: 'Enregistrer',
-  periodStartDate: 'Date de début',
-  periodEndDate: 'Date de fin (optionnel)',
-  periodReminderNotificationTitle: 'Règles prévues demain',
-  periodReminderNotificationBody:
-      "D'après son cycle, les règles de votre partenaire devraient commencer demain.",
-  moodLabels: {
-    'good': 'Bien',
-    'tired': 'Fatigué(e)',
-    'anxious': 'Anxieux(se)',
-    'irritable': 'Irrité(e)',
-  },
-  symptomLabels: {
-    'cramps': 'Crampes',
-    'headache': 'Maux de tête',
-    'acne': 'Acné',
-    'pain': 'Douleurs',
-    'bloating': 'Ballonnements',
-  },
 );
