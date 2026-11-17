@@ -1395,4 +1395,63 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsDeleteAccountConfirmSolo =>
       'Your account, profile, photo and cycle notes will be deleted. This can\'t be undone.';
+
+  @override
+  String get periodScreenTitle => 'Period';
+
+  @override
+  String get periodLogNew => 'New entry';
+
+  @override
+  String get periodLogEdit => 'Edit entry';
+
+  @override
+  String get periodDeleteConfirmTitle => 'Delete this entry?';
+
+  @override
+  String get periodCancel => 'Cancel';
+
+  @override
+  String get periodDelete => 'Delete';
+
+  @override
+  String get periodSave => 'Save';
+
+  @override
+  String get periodStartDate => 'Start date';
+
+  @override
+  String get periodEndDate => 'End date (optional)';
+
+  @override
+  String get periodReminderNotificationTitle => 'Period expected tomorrow';
+
+  @override
+  String get periodReminderNotificationBody =>
+      'Going by their cycle, your partner\'s period should start tomorrow.';
+
+  @override
+  String periodMoodLabel(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'good': 'Good',
+      'tired': 'Tired',
+      'anxious': 'Anxious',
+      'irritable': 'Irritable',
+      'other': '$value',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String periodSymptomLabel(String value) {
+    String _temp0 = intl.Intl.selectLogic(value, {
+      'cramps': 'Cramps',
+      'headache': 'Headache',
+      'acne': 'Acne',
+      'pain': 'Pain',
+      'bloating': 'Bloating',
+      'other': '$value',
+    });
+    return '$_temp0';
+  }
 }

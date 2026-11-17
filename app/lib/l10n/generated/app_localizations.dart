@@ -2275,6 +2275,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your account, profile, photo and cycle notes will be deleted. This can\'t be undone.'**
   String get settingsDeleteAccountConfirmSolo;
+
+  /// No description provided for @periodScreenTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Period'**
+  String get periodScreenTitle;
+
+  /// No description provided for @periodLogNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New entry'**
+  String get periodLogNew;
+
+  /// No description provided for @periodLogEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit entry'**
+  String get periodLogEdit;
+
+  /// No description provided for @periodDeleteConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this entry?'**
+  String get periodDeleteConfirmTitle;
+
+  /// No description provided for @periodCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get periodCancel;
+
+  /// No description provided for @periodDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get periodDelete;
+
+  /// No description provided for @periodSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get periodSave;
+
+  /// No description provided for @periodStartDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Start date'**
+  String get periodStartDate;
+
+  /// No description provided for @periodEndDate.
+  ///
+  /// In en, this message translates to:
+  /// **'End date (optional)'**
+  String get periodEndDate;
+
+  /// Local notification to the partner, the evening before the expected period.
+  ///
+  /// In en, this message translates to:
+  /// **'Period expected tomorrow'**
+  String get periodReminderNotificationTitle;
+
+  /// No description provided for @periodReminderNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Going by their cycle, your partner\'s period should start tomorrow.'**
+  String get periodReminderNotificationBody;
+
+  /// A mood from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, good{Good} tired{Tired} anxious{Anxious} irritable{Irritable} other{{value}}}'**
+  String periodMoodLabel(String value);
+
+  /// A symptom from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.
+  ///
+  /// In en, this message translates to:
+  /// **'{value, select, cramps{Cramps} headache{Headache} acne{Acne} pain{Pain} bloating{Bloating} other{{value}}}'**
+  String periodSymptomLabel(String value);
 }
 
 class _AppLocalizationsDelegate

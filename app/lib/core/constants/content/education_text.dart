@@ -20,8 +20,8 @@ typedef QuickRefText = ({String title, List<String> bullets});
 typedef FaqText = ({String question, String answer});
 
 /// The cycle education content in one language: the guide's paragraphs, the
-/// four phases, the tips, the myths and the FAQ, plus the period log's
-/// labels.
+/// four phases, the tips, the myths and the FAQ. Short UI labels (the
+/// period log's, the mood and symptom names) are in the ARB files.
 ///
 /// Each language is one file (`education_en.dart`, `education_fr.dart`, …)
 /// holding a const [EducationText], listed in `educationTexts`
@@ -30,7 +30,6 @@ typedef FaqText = ({String question, String answer});
 /// same order (test/l10n/content_completeness_test.dart).
 class EducationText {
   const EducationText({
-    required this.periodScreenTitle,
     required this.sectionCycleTitle,
     required this.sectionCycleSubtitle,
     required this.sectionCycleIntro,
@@ -66,21 +65,7 @@ class EducationText {
     required this.faq,
     required this.disclaimerTitle,
     required this.disclaimerBody,
-    required this.periodLogNew,
-    required this.periodLogEdit,
-    required this.periodDeleteConfirmTitle,
-    required this.periodCancel,
-    required this.periodDelete,
-    required this.periodSave,
-    required this.periodStartDate,
-    required this.periodEndDate,
-    required this.periodReminderNotificationTitle,
-    required this.periodReminderNotificationBody,
-    required this.moodLabels,
-    required this.symptomLabels,
   });
-
-  final String periodScreenTitle;
 
   // --- Understanding the cycle ---
   final String sectionCycleTitle;
@@ -128,21 +113,4 @@ class EducationText {
   // --- Sources and limits ---
   final String disclaimerTitle;
   final String disclaimerBody;
-
-  // --- Period log and reminder ---
-  final String periodLogNew;
-  final String periodLogEdit;
-  final String periodDeleteConfirmTitle;
-  final String periodCancel;
-  final String periodDelete;
-  final String periodSave;
-  final String periodStartDate;
-  final String periodEndDate;
-  final String periodReminderNotificationTitle;
-  final String periodReminderNotificationBody;
-
-  /// Labels of the moods and symptoms stored in `cycle_checkins`, by stored
-  /// value (period_options.dart).
-  final Map<String, String> moodLabels;
-  final Map<String, String> symptomLabels;
 }

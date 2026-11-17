@@ -894,5 +894,37 @@
     }
   },
   "settingsDeleteAccountConfirmPaired": "Your account, profile, photo and cycle notes will be deleted. You'll also leave the couple: your calendar, cycle, location, lists and little notes will be deleted for both of you. This can't be undone.",
-  "settingsDeleteAccountConfirmSolo": "Your account, profile, photo and cycle notes will be deleted. This can't be undone."
+  "settingsDeleteAccountConfirmSolo": "Your account, profile, photo and cycle notes will be deleted. This can't be undone.",
+  "periodScreenTitle": "Period",
+  "periodLogNew": "New entry",
+  "periodLogEdit": "Edit entry",
+  "periodDeleteConfirmTitle": "Delete this entry?",
+  "periodCancel": "Cancel",
+  "periodDelete": "Delete",
+  "periodSave": "Save",
+  "periodStartDate": "Start date",
+  "periodEndDate": "End date (optional)",
+  "periodReminderNotificationTitle": "Period expected tomorrow",
+  "periodReminderNotificationBody": "Going by their cycle, your partner's period should start tomorrow.",
+  "periodMoodLabel": "{value, select, good{Good} tired{Tired} anxious{Anxious} irritable{Irritable} other{{value}}}",
+  "periodSymptomLabel": "{value, select, cramps{Cramps} headache{Headache} acne{Acne} pain{Pain} bloating{Bloating} other{{value}}}",
+  "@periodReminderNotificationTitle": {
+    "description": "Local notification to the partner, the evening before the expected period."
+  },
+  "@periodMoodLabel": {
+    "description": "A mood from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@periodSymptomLabel": {
+    "description": "A symptom from the daily check-in, by its stored value (period_options.dart). Unknown values show as stored.",
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  }
 }

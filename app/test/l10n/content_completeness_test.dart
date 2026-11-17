@@ -48,14 +48,6 @@ void main() {
         ]) {
           expect(items, hasLength(inEnglish.length), reason: name);
         }
-        for (final (name, labels, values) in [
-          ('moodLabels', text.moodLabels, periodMoods),
-          ('symptomLabels', text.symptomLabels, periodSymptoms),
-        ]) {
-          for (final value in values) {
-            expect(labels, contains(value), reason: '$name: $value');
-          }
-        }
         for (final phase in cyclePhasesData) {
           expect(phase.physical(lang), isNotEmpty, reason: phase.phase.name);
           expect(phase.emotional(lang), isNotEmpty, reason: phase.phase.name);

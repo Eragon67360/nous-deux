@@ -362,5 +362,18 @@
   "nousInDays": "{days, plural, =0{aujourd'hui} =1{demain} other{dans {days} j}}",
   "nousYearsTogether": "{years, plural, one{{years} an ensemble} other{{years} ans ensemble}}",
   "settingsDeleteAccountConfirmPaired": "Votre compte, votre profil, votre photo et vos notes de cycle seront supprimés. Vous quitterez aussi le couple : le calendrier, le cycle, la position, les listes et les petits mots seront supprimés pour vous deux. Impossible de revenir en arrière.",
-  "settingsDeleteAccountConfirmSolo": "Votre compte, votre profil, votre photo et vos notes de cycle seront supprimés. Impossible de revenir en arrière."
+  "settingsDeleteAccountConfirmSolo": "Votre compte, votre profil, votre photo et vos notes de cycle seront supprimés. Impossible de revenir en arrière.",
+  "periodScreenTitle": "Règles",
+  "periodLogNew": "Nouvel enregistrement",
+  "periodLogEdit": "Modifier l'enregistrement",
+  "periodDeleteConfirmTitle": "Supprimer cet enregistrement ?",
+  "periodCancel": "Annuler",
+  "periodDelete": "Supprimer",
+  "periodSave": "Enregistrer",
+  "periodStartDate": "Date de début",
+  "periodEndDate": "Date de fin (optionnel)",
+  "periodReminderNotificationTitle": "Règles prévues demain",
+  "periodReminderNotificationBody": "D'après son cycle, les règles de votre partenaire devraient commencer demain.",
+  "periodMoodLabel": "{value, select, good{Bien} tired{Fatigué(e)} anxious{Anxieux(se)} irritable{Irrité(e)} other{{value}}}",
+  "periodSymptomLabel": "{value, select, cramps{Crampes} headache{Maux de tête} acne{Acné} pain{Douleurs} bloating{Ballonnements} other{{value}}}"
 }

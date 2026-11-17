@@ -3,8 +3,6 @@ import 'package:nousdeux/core/constants/content/education_text.dart';
 /// The cycle education content in English, the reference other languages
 /// are translated from.
 const educationEn = EducationText(
-  periodScreenTitle: 'Period',
-
   // --- Understanding the cycle ---
   sectionCycleTitle: 'Understanding the Menstrual Cycle',
   sectionCycleSubtitle:
@@ -188,30 +186,4 @@ const educationEn = EducationText(
   disclaimerTitle: 'Disclaimer',
   disclaimerBody:
       'This content is for educational purposes only and is not medical advice. For any health question or personal decision, please consult a healthcare provider.',
-
-  // --- Period log and reminder ---
-  periodLogNew: 'New entry',
-  periodLogEdit: 'Edit entry',
-  periodDeleteConfirmTitle: 'Delete this entry?',
-  periodCancel: 'Cancel',
-  periodDelete: 'Delete',
-  periodSave: 'Save',
-  periodStartDate: 'Start date',
-  periodEndDate: 'End date (optional)',
-  periodReminderNotificationTitle: 'Period expected tomorrow',
-  periodReminderNotificationBody:
-      "Going by their cycle, your partner's period should start tomorrow.",
-  moodLabels: {
-    'good': 'Good',
-    'tired': 'Tired',
-    'anxious': 'Anxious',
-    'irritable': 'Irritable',
-  },
-  symptomLabels: {
-    'cramps': 'Cramps',
-    'headache': 'Headache',
-    'acne': 'Acne',
-    'pain': 'Pain',
-    'bloating': 'Bloating',
-  },
 );
