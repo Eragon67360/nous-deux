@@ -143,15 +143,12 @@ void main() {
     test('platform labels', () {
       VerifiedSource on(VerifiedSourcePlatform p) => VerifiedSource(
         platform: p,
-        nameEn: 'n',
-        nameFr: 'n',
+        names: const {'en': 'n'},
         url: 'https://example.test',
         topic: VerifiedSourceTopic.general,
         locales: const [],
-        credentialEn: 'c',
-        credentialFr: 'c',
-        summaryEn: 's',
-        summaryFr: 's',
+        credentials: const {'en': 'c'},
+        summaries: const {'en': 's'},
       );
       expect(on(VerifiedSourcePlatform.web).platformLabel('fr'), 'Site web');
       expect(on(VerifiedSourcePlatform.web).platformLabel('en'), 'Website');
