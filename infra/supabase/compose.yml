@@ -959,10 +959,10 @@ services:
         source: ./volumes/functions/main/index.ts
         target: /home/deno/functions/main/index.ts
         content: |
-          // Routes the database's requests to the push functions and apple-tokens.
+          // Routes the database's requests to the push functions, wake-partner-calendar and apple-tokens.
           // There is no public route to this service; each function also checks
           // the shared secret.
-          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping', 'apple-tokens'])
+          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping', 'apple-tokens', 'wake-partner-calendar'])
           const PASSED_ENV = [
             'SUPABASE_URL',
             'SUPABASE_SERVICE_ROLE_KEY',
