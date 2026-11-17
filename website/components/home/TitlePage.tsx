@@ -36,13 +36,13 @@ export default function TitlePage({
       <div className="nd-title__foot">
         <p className="nd-title__line">{dict.line}</p>
         <ul className="nd-stores" aria-label={dict.storesLabel}>
+          {/* Both betas are open: each badge leads to its steps on the join page. */}
           <li>
-            <span className="nd-store" aria-disabled="true">
+            <LocaleLink href="/beta#iphone" locale={lang} className="nd-store nd-store--live">
               <span className="nd-store__name">{dict.appStore}</span>
-              <span className="nd-store__soon">{dict.soon}</span>
-            </span>
+              <span className="nd-store__soon">{dict.join}</span>
+            </LocaleLink>
           </li>
-          {/* The Android beta is open: this badge leads to the join page. */}
           <li>
             <LocaleLink href="/beta" locale={lang} className="nd-store nd-store--live">
               <span className="nd-store__name">{dict.googlePlay}</span>
