@@ -83,7 +83,7 @@ Filled on 2026-11-17 for version « 1.0 » (not submitted, no build yet). French
 
 > Nous Deux réunit vos deux vies sur le même écran, et rien d'autre.
 >
-> Calendrier : un agenda pour deux, chaque événement garde la couleur de la personne qui l'a ajouté. Importez vos événements depuis le calendrier du téléphone, changez de mois d'un glissement et suivez le compte à rebours jusqu'au prochain rendez-vous.
+> Calendrier : un agenda pour deux, chaque événement garde la couleur de la personne qui l'a ajouté. Reliez un agenda de votre téléphone et ses événements restent à jour, changez de mois d'un glissement et suivez le compte à rebours jusqu'au prochain rendez-vous.
 >
 > Cycle : la personne qui suit son cycle choisit ce que son partenaire voit. Dates, ressenti du jour, avec vos propres mots si vous voulez, et un guide pour chacun des deux, écrit à partir de sources de santé publique. Les notes restent privées.
 >
@@ -101,7 +101,7 @@ Filled on 2026-11-17 for version « 1.0 » (not submitted, no build yet). French
 
 > Nous Deux puts your two lives on one screen, and nothing else.
 >
-> Calendar: one calendar for two, where each event keeps the colour of whoever added it. Import events from your phone's calendar, swipe between months and count down to your next date.
+> Calendar: one calendar for two, where each event keeps the colour of whoever added it. Link a calendar from your phone and its events stay up to date, swipe between months and count down to your next date.
 >
 > Cycle: whoever tracks their cycle chooses what their partner sees. Dates, how you feel each day, in your own words if you like, and a guide for each of you, written from public health sources. Notes stay private.
 >
