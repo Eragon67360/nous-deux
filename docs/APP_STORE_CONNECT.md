@@ -119,7 +119,7 @@ Filled on 2026-11-17 for version « 1.0 » (not submitted, no build yet). French
 
 The iPhone class App Store Connect asks for is now « iPhone avec Dynamic Island (écran moyen) », the 6.1/6.3-inch screens: 1206 × 2622 (or 1179 × 2556). Apple scales them for the other iPhones. iPad, iPhone Duo and Apple Watch are not needed: the app is iPhone only.
 
-`python3 app/store/appstore/render.py` renders them from the site's captures (`website/public/screenshots/`, English from its `en/` folder) in the Play graphics' look. Upload them one at a time to keep the order. The French set is the shared one. The English set was uploaded with the page switched to English, where it replaces « Utilisation des ressources existantes ».
+`python3 app/store/appstore/render.py` renders them, with the captions in `app/store/copy/<lang>.json`, from the site's captures (`website/public/screenshots/`, English from its `en/` folder) in the Play graphics' look. Upload them one at a time to keep the order. The French set is the shared one. The English set was uploaded with the page switched to English, where it replaces « Utilisation des ressources existantes ».
 
 | Order | French | English |
 | --- | --- | --- |

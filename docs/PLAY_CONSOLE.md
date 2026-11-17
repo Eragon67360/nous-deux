@@ -158,7 +158,7 @@ Nothing is processed only temporarily (ephemeral) either; everything below is st
 The quoted note labels are the app's own, in both languages. The App Store description is the same text (see [APP_STORE_CONNECT.md](APP_STORE_CONNECT.md)).
 
 ### Graphics
-Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/render.py` (headless Chrome) from the HTML in `app/store/play/src/` and the app captures in `website/public/screenshots/`.
+Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/render.py` (headless Chrome) from the HTML in `app/store/play/src/`, the captions in `app/store/copy/<lang>.json` and the app captures in `website/public/screenshots/`.
 
 | Asset | French (default) | English (en-US) |
 | --- | --- | --- |
