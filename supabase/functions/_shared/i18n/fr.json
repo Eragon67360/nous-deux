@@ -1,0 +1,11 @@
+{
+  "push.title": "Nous Deux",
+  "push.partner": "Votre partenaire",
+  "ping.thinking_of_you": "{name} pense à toi",
+  "ping.good_night": "{name} te souhaite bonne nuit",
+  "ping.on_my_way": "{name} arrive",
+  "ping.miss_you": "{name} : tu me manques",
+  "ping.kiss": "{name} t'envoie un bisou",
+  "ping.custom": "{name} t'a écrit un petit mot",
+  "period.updated": "{name} a mis à jour son suivi"
+}
