@@ -165,6 +165,7 @@ Everything is in `app/store/play/out/`, rendered by `python3 app/store/play/rend
 | Feature graphic, 1024×500 | `fr/feature.png` | `en/feature.png` |
 | Phone screenshots, 1080×1920, in this order | `fr/01-nous` … `fr/05-listes` | `en/01-us` … `en/05-lists` (English captures since 2026-11-17; before, they showed the French app) |
 
+- **Build 26 captures (2026-11-17):** both sets were replaced by renders of the build 26 captures (#117; files uploaded as `*-1117.png`; `05-listes` matched the identical library image). Saved in the listing and shown on `/publishing` as 2 changes not yet sent for review; the next « Envoyer … pour examen », or the next CI upload of a release, sends them.
 - **Order:** uploading several screenshots at once lands them in a random order. Upload them one at a time, or reorder them in the asset panel.
 - **AI content declaration:** "Don't label". The graphics are app captures laid out in HTML and CSS, with no generated images.
 - **Later:** captures from an Android phone would look more natural than the iPhone ones inside the frames.

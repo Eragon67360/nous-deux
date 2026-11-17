@@ -129,7 +129,7 @@ The iPhone class App Store Connect asks for is now « iPhone avec Dynamic Island
 | 4 | `fr/04-petits-mots.png` | `en/04-notes.png` |
 | 5 | `fr/05-listes.png` | `en/05-lists.png` |
 
-The Position capture was left out: the French one still shows the old light map.
+The Position capture is left out of the store sets. On 2026-11-17 all ten screenshots, both search images and both headers were replaced by renders of the build 26 captures (#117): Camille's written note, « Écrire… », and an own state in Règles. Files were uploaded as `*-1117.png`; the earlier ones stay in « Bibliothèque de ressources ». Removing a screenshot, header or search image asks for confirmation and keeps it in the library.
 
 ### « En-tête et résultats de recherche » (optional)
 
