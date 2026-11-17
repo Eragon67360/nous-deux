@@ -70,24 +70,47 @@ end
 # Adds a build to the public group and submits it for Apple's beta review
 # when it needs one (the first build of each version does; later builds of
 # the same version usually go through at once). nil sends the newest build.
+# Right after Apple finishes processing a build, App Store Connect can take a
+# few minutes to create its TestFlight details, and distributing it fails with
+# "There is no resource of type 'buildBetaDetails'" (build 28, 2026-11-17).
+# Only that error is retried; any other fails at once.
+SEND_ATTEMPTS = 10
+SEND_WAIT_SECONDS = 30
+
+def retry_until_beta_details(attempts: SEND_ATTEMPTS, wait: SEND_WAIT_SECONDS)
+  attempt = 1
+  begin
+    yield
+  rescue StandardError => e
+    raise unless e.message.include?("buildBetaDetails") && attempt < attempts
+
+    UI.important("The build's TestFlight details aren't ready yet (try #{attempt} of #{attempts}); trying again in #{wait} s.")
+    attempt += 1
+    sleep(wait)
+    retry
+  end
+end
+
 def send_to_testers(key, build_number)
   # pilot skips a group it can't find without saying so: fail instead.
   app = Spaceship::ConnectAPI::App.find(CredentialsManager::AppfileConfig.try_fetch_value(:app_identifier))
   names = app.get_beta_groups.map(&:name)
   UI.user_error!("TestFlight group « #{PUBLIC_GROUP} » not found (groups: #{names.join(', ')})") unless names.include?(PUBLIC_GROUP)
 
-  upload_to_testflight(
-    api_key: key,
-    distribute_only: true,
-    # With no .ipa to read it from, pilot would ask for the platform.
-    app_platform: "ios",
-    build_number: build_number,
-    localized_build_info: WHAT_TO_TEST.transform_values { |path| { whats_new: File.read(path).strip } },
-    distribute_external: true,
-    groups: [PUBLIC_GROUP],
-    submit_beta_review: true,
-    notify_external_testers: true
-  )
+  retry_until_beta_details do
+    upload_to_testflight(
+      api_key: key,
+      distribute_only: true,
+      # With no .ipa to read it from, pilot would ask for the platform.
+      app_platform: "ios",
+      build_number: build_number,
+      localized_build_info: WHAT_TO_TEST.transform_values { |path| { whats_new: File.read(path).strip } },
+      distribute_external: true,
+      groups: [PUBLIC_GROUP],
+      submit_beta_review: true,
+      notify_external_testers: true
+    )
+  end
 end
 
 platform :ios do
