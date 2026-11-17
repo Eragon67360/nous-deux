@@ -1,58 +1,35 @@
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/l10n.dart';
 
 /// Pairing screen strings. Use lang 'fr' or 'en'.
-String pairingInviteTitle(String lang) =>
-    lang == 'fr' ? 'Inviter votre partenaire' : 'Invite your partner';
-String pairingIntro(String lang) => lang == 'fr'
-    ? 'Générez un code et montrez-le à votre partenaire, qui pourra scanner le QR code ou taper les 6 caractères.'
-    : 'Generate a code and show it to your partner. They can scan the QR code or type the 6 characters.';
-String pairingGenerateCode(String lang) =>
-    lang == 'fr' ? 'Générer un code' : 'Generate a code';
-String pairingScanQrPrompt(String lang) => lang == 'fr'
-    ? 'À scanner avec le téléphone de votre partenaire :'
-    : "Scan this with your partner's phone:";
-String pairingOrEnterCode(String lang) =>
-    lang == 'fr' ? 'Ou tapez ce code :' : 'Or type this code:';
-String pairingAlreadyHaveCode(String lang) => lang == 'fr'
-    ? 'Votre partenaire vous a déjà invité ?'
-    : 'Already invited by your partner?';
-String pairingJoinWithCode(String lang) =>
-    lang == 'fr' ? "J'ai un code" : 'I have a code';
-String pairingScanQr(String lang) =>
-    lang == 'fr' ? 'Scanner un QR code' : 'Scan a QR code';
-String pairingAlreadyPaired(String lang) => lang == 'fr'
-    ? "Vous êtes déjà en couple dans l'app. Retour à l'accueil…"
-    : "You're already paired. Taking you back…";
-String pairingError(String lang) => lang == 'fr'
-    ? "Ça n'a pas marché. Réessayez."
-    : "That didn't work. Try again.";
+String pairingInviteTitle(String lang) => l10nFor(lang).pairingInviteTitle;
+String pairingIntro(String lang) => l10nFor(lang).pairingIntro;
+String pairingGenerateCode(String lang) => l10nFor(lang).pairingGenerateCode;
+String pairingScanQrPrompt(String lang) => l10nFor(lang).pairingScanQrPrompt;
+String pairingOrEnterCode(String lang) => l10nFor(lang).pairingOrEnterCode;
+String pairingAlreadyHaveCode(String lang) =>
+    l10nFor(lang).pairingAlreadyHaveCode;
+String pairingJoinWithCode(String lang) => l10nFor(lang).pairingJoinWithCode;
+String pairingScanQr(String lang) => l10nFor(lang).pairingScanQr;
+String pairingAlreadyPaired(String lang) => l10nFor(lang).pairingAlreadyPaired;
+String pairingError(String lang) => l10nFor(lang).pairingError;
 
-String pairingJoinTitle(String lang) =>
-    lang == 'fr' ? 'Rejoindre votre partenaire' : 'Join your partner';
-String pairingJoinInstructions(String lang) => lang == 'fr'
-    ? 'Tapez le code à 6 caractères affiché sur le téléphone de votre partenaire.'
-    : "Type the 6-character code shown on your partner's phone.";
-String pairingJoinCodeLabel(String lang) => lang == 'fr' ? 'Code' : 'Code';
+String pairingJoinTitle(String lang) => l10nFor(lang).pairingJoinTitle;
+String pairingJoinInstructions(String lang) =>
+    l10nFor(lang).pairingJoinInstructions;
+String pairingJoinCodeLabel(String lang) => l10nFor(lang).pairingJoinCodeLabel;
 String pairingJoinCodeHint(String lang) => 'ABC123';
-String pairingJoinButton(String lang) => lang == 'fr' ? 'Rejoindre' : 'Join';
-String pairingJoinErrorCode(String lang) => lang == 'fr'
-    ? 'Tapez le code de votre partenaire.'
-    : "Type your partner's code.";
-String pairingJoinErrorUsed(String lang) => lang == 'fr'
-    ? 'Ce code a déjà servi. Demandez-en un nouveau à votre partenaire.'
-    : 'This code has already been used. Ask your partner for a new one.';
-String pairingJoinErrorOwnCode(String lang) => lang == 'fr'
-    ? "C'est votre propre code : c'est à votre partenaire de le saisir."
-    : "That's your own code. Your partner needs to enter it.";
-String pairingJoinErrorInvalid(String lang) => lang == 'fr'
-    ? 'Ce code ne correspond à aucune invitation. Vérifiez-le avec votre partenaire.'
-    : "That code doesn't match an invite. Check it with your partner.";
-String pairingJoinErrorAlreadyPaired(String lang) => lang == 'fr'
-    ? "Vous êtes déjà en couple dans l'app. Quittez ce couple dans Réglages avant d'en rejoindre un autre."
-    : "You're already in a couple in the app. Leave it in Settings before joining another.";
-String pairingJoinErrorTooManyAttempts(String lang) => lang == 'fr'
-    ? 'Trop de codes erronés. Réessayez dans 10 minutes.'
-    : 'Too many wrong codes. Try again in 10 minutes.';
+String pairingJoinButton(String lang) => l10nFor(lang).pairingJoinButton;
+String pairingJoinErrorCode(String lang) => l10nFor(lang).pairingJoinErrorCode;
+String pairingJoinErrorUsed(String lang) => l10nFor(lang).pairingJoinErrorUsed;
+String pairingJoinErrorOwnCode(String lang) =>
+    l10nFor(lang).pairingJoinErrorOwnCode;
+String pairingJoinErrorInvalid(String lang) =>
+    l10nFor(lang).pairingJoinErrorInvalid;
+String pairingJoinErrorAlreadyPaired(String lang) =>
+    l10nFor(lang).pairingJoinErrorAlreadyPaired;
+String pairingJoinErrorTooManyAttempts(String lang) =>
+    l10nFor(lang).pairingJoinErrorTooManyAttempts;
 
 /// What to tell the person when joining failed.
 String pairingJoinError(Failure failure, String lang) => switch (failure) {
@@ -70,7 +47,6 @@ String pairingJoinError(Failure failure, String lang) => switch (failure) {
   _ => failure.message ?? pairingJoinErrorInvalid(lang),
 };
 
-String pairingScanTitle(String lang) =>
-    lang == 'fr' ? 'Scanner le QR code' : 'Scan the QR code';
+String pairingScanTitle(String lang) => l10nFor(lang).pairingScanTitle;
 String pairingScanConnecting(String lang) =>
-    lang == 'fr' ? 'Connexion…' : 'Connecting…';
+    l10nFor(lang).pairingScanConnecting;
