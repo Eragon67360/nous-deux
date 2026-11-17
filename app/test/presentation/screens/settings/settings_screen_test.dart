@@ -54,6 +54,31 @@ void _answerLocationRequest(WidgetTester tester, PermissionStatus status) {
   );
 }
 
+/// The phone refuses `Permission.location.request()` because an earlier
+/// request never got its answer (seen on iOS, GlitchTip APP-4), and
+/// reports [current] when asked for the status.
+void _locationRequestAlreadyRunning(
+  WidgetTester tester,
+  PermissionStatus current,
+) {
+  tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+    _permissionsChannel,
+    (call) async {
+      if (call.method == 'requestPermissions') {
+        throw PlatformException(code: 'ERROR_ALREADY_REQUESTING_PERMISSIONS');
+      }
+      if (call.method == 'checkPermissionStatus') return current.index;
+      return null;
+    },
+  );
+  addTearDown(
+    () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      _permissionsChannel,
+      null,
+    ),
+  );
+}
+
 Future<(TestDeps, GoRouter)> _pumpSettings(
   WidgetTester tester, {
   String lang = 'fr',
@@ -487,6 +512,43 @@ void main() {
         findsOneWidget,
       );
     });
+    testWidgets(
+      'a request still waiting for its answer falls back to the status',
+      (tester) async {
+        _locationRequestAlreadyRunning(tester, PermissionStatus.granted);
+        final (deps, _) = await _pumpSettings(tester);
+
+        await tester.tap(find.text(settingsShareMyLocation('fr')));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(deps.location.setCalls, [
+          (isSharing: true, coupleId: coupleId, lat: null, lng: null),
+        ]);
+      },
+    );
+
+    testWidgets(
+      'a request still waiting and no answer yet offers the settings',
+      (tester) async {
+        _locationRequestAlreadyRunning(tester, PermissionStatus.denied);
+        final (deps, _) = await _pumpSettings(tester);
+
+        await tester.tap(find.text(settingsShareMyLocation('fr')));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(deps.location.setCalls, isEmpty);
+        expect(
+          find.text(settingsLocationRequiredForSharing('fr')),
+          findsOneWidget,
+        );
+        expect(
+          find.widgetWithText(SnackBarAction, settingsOpenAppSettings('fr')),
+          findsOneWidget,
+        );
+      },
+    );
   });
 
   group('notification switches', () {
