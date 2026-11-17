@@ -1,58 +1,34 @@
+import 'package:nousdeux/core/l10n/l10n.dart';
+
 /// Auth screen strings. Use lang 'fr' or 'en' (e.g. from deviceLanguageProvider).
-String authTitle(String lang) =>
-    lang == 'fr' ? 'Nous Deux' : 'Nous Deux';
-String authSubtitle(String lang) => lang == 'fr'
-    ? "Un espace rien qu'à vous deux."
-    : 'A space for just the two of you.';
-String authOr(String lang) => lang == 'fr' ? 'ou' : 'or';
-String authPhoneLabel(String lang) =>
-    lang == 'fr' ? 'Numéro de téléphone' : 'Phone number';
-String authPhoneHint(String lang) =>
-    lang == 'fr' ? '06 12 34 56 78' : '+1 234 567 8900';
-String authSendCode(String lang) =>
-    lang == 'fr' ? 'Recevoir un code par SMS' : 'Text me a code';
+String authTitle(String lang) => l10nFor(lang).authTitle;
+String authSubtitle(String lang) => l10nFor(lang).authSubtitle;
+String authOr(String lang) => l10nFor(lang).authOr;
+String authPhoneLabel(String lang) => l10nFor(lang).authPhoneLabel;
+String authPhoneHint(String lang) => l10nFor(lang).authPhoneHint;
+String authSendCode(String lang) => l10nFor(lang).authSendCode;
 String authContinueWithGoogle(String lang) =>
-    lang == 'fr' ? 'Continuer avec Google' : 'Continue with Google';
+    l10nFor(lang).authContinueWithGoogle;
 String authContinueWithApple(String lang) =>
-    lang == 'fr' ? 'Continuer avec Apple' : 'Continue with Apple';
-String authWithEmail(String lang) =>
-    lang == 'fr' ? 'Se connecter avec un e-mail' : 'Sign in with email';
-String authErrorEnterPhone(String lang) => lang == 'fr'
-    ? 'Indiquez votre numéro de téléphone.'
-    : 'Enter your phone number.';
-String authErrorGeneric(String lang) => lang == 'fr'
-    ? "La connexion n'a pas abouti. Réessayez."
-    : "Couldn't sign you in. Try again.";
+    l10nFor(lang).authContinueWithApple;
+String authWithEmail(String lang) => l10nFor(lang).authWithEmail;
+String authErrorEnterPhone(String lang) => l10nFor(lang).authErrorEnterPhone;
+String authErrorGeneric(String lang) => l10nFor(lang).authErrorGeneric;
 
-String authVerifyTitle(String lang) =>
-    lang == 'fr' ? 'Code reçu par SMS' : 'Check your texts';
-String authVerifyInstructions(String lang, String phone) => lang == 'fr'
-    ? 'Saisissez le code à 6 chiffres envoyé au $phone.'
-    : 'Enter the 6-digit code we sent to $phone.';
+String authVerifyTitle(String lang) => l10nFor(lang).authVerifyTitle;
+String authVerifyInstructions(String lang, String phone) =>
+    l10nFor(lang).authVerifyInstructions(phone);
 String authVerifyCodeHint(String lang) => '123456';
-String authVerifyButton(String lang) =>
-    lang == 'fr' ? 'Valider' : 'Confirm';
-String authVerifyErrorEnterCode(String lang) => lang == 'fr'
-    ? 'Saisissez le code reçu par SMS.'
-    : 'Enter the code from the text message.';
-String authVerifyErrorInvalid(String lang) => lang == 'fr'
-    ? 'Ce code ne fonctionne pas. Vérifiez-le, ou revenez en arrière pour en recevoir un autre.'
-    : "That code didn't work. Check it, or go back to get a new one.";
+String authVerifyButton(String lang) => l10nFor(lang).authVerifyButton;
+String authVerifyErrorEnterCode(String lang) =>
+    l10nFor(lang).authVerifyErrorEnterCode;
+String authVerifyErrorInvalid(String lang) =>
+    l10nFor(lang).authVerifyErrorInvalid;
 
-String authEmailTitle(String lang) =>
-    lang == 'fr' ? 'Connexion par e-mail' : 'Sign in with email';
-String authEmailIntro(String lang) => lang == 'fr'
-    ? "Pour les comptes que Nous Deux vous a créés, par exemple pour tester l'application."
-    : 'For accounts Nous Deux set up for you, for example to test the app.';
-String authEmailLabel(String lang) =>
-    lang == 'fr' ? 'Adresse e-mail' : 'Email address';
-String authPasswordLabel(String lang) =>
-    lang == 'fr' ? 'Mot de passe' : 'Password';
-String authEmailButton(String lang) =>
-    lang == 'fr' ? 'Se connecter' : 'Sign in';
-String authEmailErrorEmpty(String lang) => lang == 'fr'
-    ? 'Saisissez votre adresse e-mail et votre mot de passe.'
-    : 'Enter your email address and password.';
-String authEmailErrorWrong(String lang) => lang == 'fr'
-    ? 'Adresse e-mail ou mot de passe incorrect.'
-    : 'Wrong email address or password.';
+String authEmailTitle(String lang) => l10nFor(lang).authEmailTitle;
+String authEmailIntro(String lang) => l10nFor(lang).authEmailIntro;
+String authEmailLabel(String lang) => l10nFor(lang).authEmailLabel;
+String authPasswordLabel(String lang) => l10nFor(lang).authPasswordLabel;
+String authEmailButton(String lang) => l10nFor(lang).authEmailButton;
+String authEmailErrorEmpty(String lang) => l10nFor(lang).authEmailErrorEmpty;
+String authEmailErrorWrong(String lang) => l10nFor(lang).authEmailErrorWrong;

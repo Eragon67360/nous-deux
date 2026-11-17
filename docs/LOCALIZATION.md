@@ -2,7 +2,7 @@
 
 Goal: make a language a matter of files and translation, not code, while French and English stay exactly as they are today. Once this is done, adding Spanish, German or Portuguese means adding files, translating and reviewing, without touching screens, services or functions.
 
-Written 2026-11-17. Phase 1 is done (`app/lib/core/l10n/app_languages.dart`); the later phases are not started.
+Written 2026-11-17. Phase 1 is done (`app/lib/core/l10n/app_languages.dart`), and so is phase 2 (the app's strings are in `app/lib/l10n/*.arb`); the later phases are in progress.
 
 ## Where we start
 
