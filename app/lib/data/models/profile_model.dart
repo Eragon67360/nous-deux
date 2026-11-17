@@ -14,6 +14,8 @@ class ProfileModel {
     this.tracksCycle,
     this.shareCycle = true,
     this.shareCheckins = true,
+    this.calendarSyncDevice,
+    this.calendarSyncedAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -28,6 +30,8 @@ class ProfileModel {
   final bool? tracksCycle;
   final bool shareCycle;
   final bool shareCheckins;
+  final String? calendarSyncDevice;
+  final DateTime? calendarSyncedAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -48,6 +52,10 @@ class ProfileModel {
       tracksCycle: json['tracks_cycle'] as bool?,
       shareCycle: json['share_cycle'] as bool? ?? true,
       shareCheckins: json['share_checkins'] as bool? ?? true,
+      calendarSyncDevice: json['calendar_sync_device'] as String?,
+      calendarSyncedAt: json['calendar_synced_at'] != null
+          ? DateTime.parse(json['calendar_synced_at'] as String).toLocal()
+          : null,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -82,6 +90,8 @@ class ProfileModel {
       tracksCycle: tracksCycle,
       shareCycle: shareCycle,
       shareCheckins: shareCheckins,
+      calendarSyncDevice: calendarSyncDevice,
+      calendarSyncedAt: calendarSyncedAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -98,6 +108,8 @@ class ProfileModel {
       tracksCycle: e.tracksCycle,
       shareCycle: e.shareCycle,
       shareCheckins: e.shareCheckins,
+      calendarSyncDevice: e.calendarSyncDevice,
+      calendarSyncedAt: e.calendarSyncedAt,
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,
     );

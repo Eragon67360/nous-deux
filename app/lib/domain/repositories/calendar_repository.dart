@@ -17,13 +17,30 @@ abstract class CalendarRepository {
     required DateTime end,
   });
 
-  /// Create event.
+  /// Create event. [sourceKey] marks a copy from a followed phone calendar.
   Future<CalendarEventResult> createEvent({
     required String title,
     String? description,
     required DateTime startTime,
     DateTime? endTime,
     bool isCountdown = false,
+    String? sourceKey,
+  });
+
+  /// My copies from followed phone calendars that start between [from] and
+  /// [to].
+  Future<CalendarEventsResult> getMySyncedEvents({
+    required DateTime from,
+    required DateTime to,
+  });
+
+  /// Brings a synced copy in line with its phone event; its description and
+  /// countdown stay as they are.
+  Future<CalendarEventResult> updateSyncedEvent({
+    required String id,
+    required String title,
+    required DateTime startTime,
+    DateTime? endTime,
   });
 
   /// Update an event. Every editable field is sent; a null description

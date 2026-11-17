@@ -13,6 +13,7 @@ import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
+import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
@@ -228,6 +229,8 @@ void main() {
         guideReadChaptersKey: <String>['cycle'],
         noteWordsKey: '[{"t":"Bonne journée","on":true}]',
         ownStatesKey: '["Besoin de chocolat"]',
+        calendarFollowedKey: <String>['cal-1'],
+        calendarInstallIdKey: '7c9e6679-7425-40de-944b-e07fc1f90ae7',
         'unrelated': 'kept',
       });
       final (deps, _) = await _pumpSettings(tester, lang: 'en');

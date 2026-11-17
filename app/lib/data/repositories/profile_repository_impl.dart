@@ -126,6 +126,30 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<ProfileResult> setCalendarSyncDevice(String? device) =>
+      _updateMine({'calendar_sync_device': device});
+
+  @override
+  Future<ProfileResult> markCalendarSynced() => _updateMine({
+    'calendar_synced_at': DateTime.now().toUtc().toIso8601String(),
+  });
+
+  Future<ProfileResult> _updateMine(Map<String, dynamic> data) async {
+    final uid = _userId;
+    if (uid == null) {
+      return (profile: null, failure: const AuthFailure('Not signed in'));
+    }
+    try {
+      final profile = await _datasource.update(uid, data);
+      return (profile: profile.toEntity(), failure: null);
+    } on PostgrestException catch (e) {
+      return (profile: null, failure: ServerFailure(e.message));
+    } catch (e) {
+      return (profile: null, failure: UnknownFailure(e.toString()));
+    }
+  }
+
+  @override
   Future<ProfileResult> updateFcmToken(String? token) async {
     final uid = _userId;
     if (uid == null) {
