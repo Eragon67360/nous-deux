@@ -285,7 +285,8 @@
       },
       "effective": {
         "title": "Entrée en vigueur",
-        "body": "La présente politique de confidentialité est entrée en vigueur le"
+        "body": "La présente politique de confidentialité est entrée en vigueur le",
+        "languageVersion": "Cette politique est publiée en français et en anglais. Si les deux versions diffèrent, la version française prévaut, car l'éditeur est établi en France."
       }
     }
   },
