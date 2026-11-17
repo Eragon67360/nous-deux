@@ -9,6 +9,9 @@ abstract class PhoneCalendar {
   /// The phone's calendars, or null when they can't be read (no permission).
   Future<List<Calendar>?> calendars();
 
+  /// Asks for calendar access (shows the system prompt); true when granted.
+  Future<bool> requestAccess();
+
   /// Every occurrence between [from] and [to] in [calendarIds], or null when
   /// any of them can't be read: no permission, an error, or a calendar that
   /// is gone. The sync then changes nothing rather than deleting copies.
@@ -30,6 +33,16 @@ class DevicePhoneCalendar implements PhoneCalendar {
   Future<bool> _allowed() async {
     final result = await _plugin.hasPermissions();
     return result.isSuccess && (result.data ?? false);
+  }
+
+  @override
+  Future<bool> requestAccess() async {
+    try {
+      final result = await _plugin.requestPermissions();
+      return result.isSuccess && (result.data ?? false);
+    } catch (_) {
+      return false;
+    }
   }
 
   @override

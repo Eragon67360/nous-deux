@@ -1,45 +1,16 @@
 import 'dart:async';
 
-import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_sync_service.dart';
-import 'package:nousdeux/data/calendar_sync/phone_calendar.dart';
 import 'package:nousdeux/domain/calendar/phone_event.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 
 import '../../helpers/fakes.dart';
 import '../../helpers/fixtures.dart';
-
-/// Plays the phone's calendars: events per calendar id, or null when they
-/// can't be read. [hold] keeps a read waiting until it completes.
-class FakePhoneCalendar implements PhoneCalendar {
-  FakePhoneCalendar(List<PhoneEvent>? events)
-    : perCalendar = events == null ? null : {'cal-1': events};
-
-  Map<String, List<PhoneEvent>>? perCalendar;
-  Completer<void>? hold;
-  int reads = 0;
-
-  @override
-  Future<List<Calendar>?> calendars() async => [Calendar(id: 'cal-1')];
-
-  @override
-  Future<List<PhoneEvent>?> events(
-    Set<String> calendarIds,
-    DateTime from,
-    DateTime to,
-  ) async {
-    reads++;
-    if (hold != null) await hold!.future;
-    final per = perCalendar;
-    if (per == null) return null;
-    return [for (final id in calendarIds) ...?per[id]];
-  }
-}
 
 final _now = DateTime(2026, 11, 17, 12);
 
@@ -84,7 +55,9 @@ void main() {
     prefs = CalendarFollowPrefs();
     await prefs.setFollowed(followed);
     final install = await prefs.installId();
-    phone = FakePhoneCalendar(events);
+    phone = FakePhoneCalendar(
+      events: events == null ? null : {'cal-1': events},
+    );
     calendar = FakeCalendarRepository(existing);
     profiles = FakeProfileRepository(
       mine: profile(
@@ -300,6 +273,14 @@ void main() {
       expect(calendar.events.where((e) => e.isSynced), isEmpty);
     },
   );
+
+  test('an error while syncing is a failed run, not a crash', () async {
+    await setUpWith(events: [_phone('k1', 'Dentiste')]);
+    phone.error = StateError('plugin gone');
+
+    expect(await service.run(), CalendarSyncOutcome.failed);
+    expect(calendar.createCalls, isEmpty);
+  });
 
   test('the install id is a stable UUID', () async {
     await setUpWith(events: []);

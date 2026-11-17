@@ -141,6 +141,19 @@ class CalendarRemoteDatasource {
     return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
   }
 
+  Future<CalendarEventModel> setCountdown(String id, bool on) async {
+    final res = await _client
+        .from(_table)
+        .update({'is_countdown': on})
+        .eq('id', id)
+        .select()
+        .single();
+    return CalendarEventModel.fromJson(Map<String, dynamic>.from(res as Map));
+  }
+
+  Future<String> requestPartnerSync() async =>
+      await _client.rpc('request_partner_calendar_sync') as String;
+
   Future<void> delete(String id) async {
     await _client.from(_table).delete().eq('id', id);
   }

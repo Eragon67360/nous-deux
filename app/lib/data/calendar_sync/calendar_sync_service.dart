@@ -34,9 +34,18 @@ class CalendarSyncService {
 
   Future<CalendarSyncOutcome>? _running;
 
-  /// One sync at a time: a call during a run gets that run's outcome.
+  /// One sync at a time: a call during a run gets that run's outcome. It
+  /// runs unattended (on resume, from a push), so an error is a failed run.
   Future<CalendarSyncOutcome> run() =>
-      _running ??= _run().whenComplete(() => _running = null);
+      _running ??= _guarded().whenComplete(() => _running = null);
+
+  Future<CalendarSyncOutcome> _guarded() async {
+    try {
+      return await _run();
+    } catch (_) {
+      return CalendarSyncOutcome.failed;
+    }
+  }
 
   /// Follows [calendarIds] from this phone (none: [stopFollowing]), then
   /// syncs them. A sync already running finishes first, so the new set is

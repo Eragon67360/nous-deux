@@ -54,6 +54,15 @@ abstract class CalendarRepository {
     required bool isCountdown,
   });
 
+  /// Switches an event's countdown alone, the one thing the partner may
+  /// change on a synced event.
+  Future<CalendarEventResult> setCountdown(String id, bool on);
+
+  /// Asks the server to wake my partner's phone so it syncs the calendars it
+  /// follows: its answer (`sent`, `fresh`, `recent`, `not_following`,
+  /// `not_paired`), or null when it couldn't be asked.
+  Future<String?> requestPartnerCalendarSync();
+
   /// Delete event.
   Future<Failure?> deleteEvent(String id);
 }
