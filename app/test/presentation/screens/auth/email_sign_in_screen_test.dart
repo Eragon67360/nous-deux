@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/screens/auth/email_sign_in_screen.dart';
 
 import '../../../helpers/test_app.dart';
@@ -22,7 +23,7 @@ Finder get _email => find.byType(TextField).at(0);
 Finder get _password => find.byType(TextField).at(1);
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] shows the form in the device language', (
       tester,
     ) async {

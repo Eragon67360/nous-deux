@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
 
 import '../../../helpers/fixtures.dart';
@@ -31,7 +32,7 @@ List<String> _recordLaunches(WidgetTester tester) {
 }
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] renders the description, source and contributors', (
       tester,
     ) async {

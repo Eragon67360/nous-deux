@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/models/calendar_event_model.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
@@ -29,8 +30,6 @@ DateTime _nextMonth({int hour = 0}) {
   final now = DateTime.now();
   return DateTime(now.year, now.month + 1, 10, hour);
 }
-
-String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
 
 Finder _ownerDots({required bool mine}) =>
     find.byWidgetPredicate((w) => w is OwnerDot && w.isMine == mine);
@@ -57,7 +56,7 @@ void main() {
     return deps;
   }
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] the title stays on one line on a narrow phone', (
       tester,
     ) async {
@@ -88,7 +87,7 @@ void main() {
         find.text(
           DateFormat(
             'MMMM y',
-            _locale(lang),
+            AppLanguages.dateLocale(lang),
           ).format(DateTime.now()).toUpperCase(),
         ),
         findsOneWidget,
@@ -100,7 +99,9 @@ void main() {
       tester,
     ) async {
       await pumpCalendar(tester, lang: lang);
-      final month = DateFormat.MMMM(_locale(lang)).format(DateTime.now());
+      final month = DateFormat.MMMM(
+        AppLanguages.dateLocale(lang),
+      ).format(DateTime.now());
 
       expect(find.text(calendarNothingInMonth(lang, month)), findsOneWidget);
       expect(find.text(calendarCreateEvent(lang)), findsOneWidget);
@@ -112,15 +113,20 @@ void main() {
   ) async {
     await pumpCalendar(tester);
     final next = DateTime(DateTime.now().year, DateTime.now().month + 1);
-    String label(DateTime m) =>
-        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
+    String label(DateTime m) => DateFormat(
+      'MMMM y',
+      AppLanguages.dateLocale('fr'),
+    ).format(m).toUpperCase();
 
     await tester.tap(find.byTooltip(calendarNextMonth('fr')));
     await tester.pumpAndSettle();
     expect(find.text(label(next)), findsOneWidget);
     expect(
       find.text(
-        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(next)),
+        calendarNothingInMonth(
+          'fr',
+          DateFormat.MMMM(AppLanguages.dateLocale('fr')).format(next),
+        ),
       ),
       findsOneWidget,
     );
@@ -141,12 +147,17 @@ void main() {
       'before', (tester) async {
     await pumpCalendar(tester);
     final now = DateTime.now();
-    String label(DateTime m) =>
-        DateFormat('MMMM y', 'fr_FR').format(m).toUpperCase();
+    String label(DateTime m) => DateFormat(
+      'MMMM y',
+      AppLanguages.dateLocale('fr'),
+    ).format(m).toUpperCase();
 
     await tester.fling(
       find.text(
-        calendarNothingInMonth('fr', DateFormat.MMMM('fr_FR').format(now)),
+        calendarNothingInMonth(
+          'fr',
+          DateFormat.MMMM(AppLanguages.dateLocale('fr')).format(now),
+        ),
       ),
       const Offset(-200, 0),
       800,
@@ -171,7 +182,10 @@ void main() {
     await pumpCalendar(tester);
     final now = DateTime.now();
     final month = find.text(
-      DateFormat('MMMM y', 'fr_FR').format(now).toUpperCase(),
+      DateFormat(
+        'MMMM y',
+        AppLanguages.dateLocale('fr'),
+      ).format(now).toUpperCase(),
     );
 
     await tester.drag(

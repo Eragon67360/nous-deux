@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/presentation/screens/period/period_log_form_screen.dart';
 
@@ -51,7 +52,7 @@ Future<void> _save(WidgetTester tester, String lang) async {
 
 void main() {
   group('new entry', () {
-    for (final lang in ['fr', 'en']) {
+    for (final lang in AppLanguages.supported) {
       testWidgets('[$lang] starts today with no end date', (tester) async {
         await _openForm(tester, lang: lang);
         final now = DateTime.now();

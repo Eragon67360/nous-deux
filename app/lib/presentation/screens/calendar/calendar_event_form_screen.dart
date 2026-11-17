@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
@@ -120,7 +121,7 @@ class _CalendarEventFormScreenState
 
   String _formatDateTime(BuildContext context, DateTime dt) {
     final language = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(language);
     final dateFormat = language == 'fr'
         ? DateFormat('d MMM y HH:mm', locale)
         : DateFormat('MMM d, y h:mm a', locale);
@@ -149,10 +150,9 @@ class _CalendarEventFormScreenState
                 labelText: calendarEventTitleLabel(lang),
               ),
               maxLength: AppConstants.eventTitleMaxLength,
-              validator: (v) =>
-                  v?.trim().isEmpty ?? true
-                      ? calendarEventTitleRequired(lang)
-                      : null,
+              validator: (v) => v?.trim().isEmpty ?? true
+                  ? calendarEventTitleRequired(lang)
+                  : null,
             ),
             const SizedBox(height: AppSpacing.sm),
             TextFormField(

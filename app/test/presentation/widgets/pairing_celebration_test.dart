@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/app_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/theme/app_motion.dart';
 import 'package:nousdeux/presentation/widgets/pairing_celebration.dart';
 
@@ -19,7 +20,7 @@ double _wordsOpacity(WidgetTester tester, String lang) {
 }
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] shows the localized title and body', (tester) async {
       await pumpScreen(
         tester,

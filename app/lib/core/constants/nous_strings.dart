@@ -5,6 +5,7 @@
 import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 
 String nousTitle(String lang) => lang == 'fr' ? 'Nous' : 'Us';
@@ -15,9 +16,11 @@ String nousTogetherSince(String lang) =>
     lang == 'fr' ? 'Ensemble depuis' : 'Together for';
 String nousDaysUnit(String lang, int n) =>
     lang == 'fr' ? (n > 1 ? 'jours' : 'jour') : (n == 1 ? 'day' : 'days');
-String nousSinceDate(String lang, DateTime day) => lang == 'fr'
-    ? 'Depuis le ${DateFormat('d MMMM y', 'fr_FR').format(day)}'
-    : 'Since ${DateFormat('MMMM d, y', 'en_US').format(day)}';
+String nousSinceDate(String lang, DateTime day) {
+  final date = DateFormat.yMMMMd(AppLanguages.dateLocale(lang)).format(day);
+  return lang == 'fr' ? 'Depuis le $date' : 'Since $date';
+}
+
 String nousEdit(String lang) => lang == 'fr' ? 'Modifier' : 'Edit';
 String nousPickStartHelp(String lang) =>
     lang == 'fr' ? 'Le jour où tout a commencé' : 'The day it all started';
@@ -79,9 +82,10 @@ String nousReceivedLine(
   } else if (ago.inHours < 24) {
     when = lang == 'fr' ? 'il y a ${ago.inHours} h' : '${ago.inHours} h ago';
   } else {
-    when = lang == 'fr'
-        ? 'le ${DateFormat('d MMM', 'fr_FR').format(sentAt.toLocal())}'
-        : 'on ${DateFormat('MMM d', 'en_US').format(sentAt.toLocal())}';
+    final day = DateFormat.MMMd(
+      AppLanguages.dateLocale(lang),
+    ).format(sentAt.toLocal());
+    when = lang == 'fr' ? 'le $day' : 'on $day';
   }
   // French puts a (non-breaking) space before the colon.
   final note = pingLabel(lang, kind, text: text);

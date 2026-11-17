@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/pairing_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_join_screen.dart';
 
@@ -27,7 +28,7 @@ Future<GoRouter> _pumpJoin(WidgetTester tester, TestDeps deps) {
 }
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] explains what to type', (tester) async {
       await _pumpJoin(tester, TestDeps(myProfile: profile(language: lang)));
 

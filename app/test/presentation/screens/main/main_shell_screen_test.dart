@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
 import 'package:nousdeux/presentation/widgets/ping_received.dart';
 import 'package:nousdeux/core/errors/failures.dart';
@@ -38,7 +39,7 @@ Future<GoRouter> _pumpShell(WidgetTester tester, TestDeps deps) {
 }
 
 void main() {
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] bottom navigation lists the four tabs', (
       tester,
     ) async {

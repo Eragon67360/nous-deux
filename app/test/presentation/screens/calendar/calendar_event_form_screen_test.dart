@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/calendar_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/models/calendar_event_model.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/screens/calendar/calendar_event_form_screen.dart';
@@ -49,7 +50,7 @@ Future<TestDeps> _openForm(
 Finder _field(String label) => find.widgetWithText(TextFormField, label);
 
 void main() {
-  final frFormat = DateFormat('d MMM y HH:mm', 'fr_FR');
+  final frFormat = DateFormat('d MMM y HH:mm', AppLanguages.dateLocale('fr'));
 
   group('new event', () {
     testWidgets('starts at the next full hour and lasts one hour', (

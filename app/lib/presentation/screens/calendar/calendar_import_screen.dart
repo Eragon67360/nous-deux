@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/loading_content.dart';
@@ -163,7 +164,7 @@ class _CalendarImportScreenState extends ConsumerState<CalendarImportScreen>
 
   String _formatDate(BuildContext context, DateTime d) {
     final language = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
-    final locale = language == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(language);
     final dateFormat = language == 'fr'
         ? DateFormat('d MMM y', locale)
         : DateFormat('MMM d, y', locale);

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/calendar_strings.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/entities/calendar_event_entity.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -158,7 +159,9 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
                             icon: Icons.event_note_outlined,
                             message: calendarNothingInMonth(
                               lang,
-                              DateFormat.MMMM(_locale(lang)).format(_month),
+                              DateFormat.MMMM(
+                                AppLanguages.dateLocale(lang),
+                              ).format(_month),
                             ),
                             actionLabel: calendarCreateEvent(lang),
                             onAction: () => _openEventForm(context),
@@ -205,8 +208,6 @@ class _CalendarHomeScreenState extends ConsumerState<CalendarHomeScreen> {
       ),
     );
   }
-
-  static String _locale(String lang) => lang == 'fr' ? 'fr_FR' : 'en_US';
 
   void _openEventForm(BuildContext context, {CalendarEventEntity? event}) {
     // A new event starts today in the current month, else on the 1st.
@@ -276,7 +277,7 @@ class _DiaryHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final outlined = IconButton.styleFrom(
       side: BorderSide(color: scheme.outlineVariant),
     );
@@ -389,7 +390,7 @@ class _DiaryDay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final isToday = day == today;
 
     return Opacity(
@@ -478,7 +479,7 @@ class _DiaryEvent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final locale = lang == 'fr' ? 'fr_FR' : 'en_US';
+    final locale = AppLanguages.dateLocale(lang);
     final quiet = theme.textTheme.bodyMedium?.copyWith(
       color: scheme.onSurfaceVariant,
     );

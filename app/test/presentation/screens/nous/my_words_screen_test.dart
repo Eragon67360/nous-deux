@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/domain/nous/note_words.dart';
 import 'package:nousdeux/presentation/screens/nous/my_words_screen.dart';
@@ -42,7 +43,7 @@ void main() {
       )
       .value!;
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] lists the five notes, all shown', (tester) async {
       await pump(tester, lang: lang);
 

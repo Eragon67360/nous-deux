@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:nousdeux/core/constants/auth_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/presentation/screens/auth/verify_otp_screen.dart';
 
 import '../../../helpers/test_app.dart';
@@ -23,7 +24,7 @@ void main() {
     return deps;
   }
 
-  for (final lang in ['fr', 'en']) {
+  for (final lang in AppLanguages.supported) {
     testWidgets('[$lang] tells where the code was sent', (tester) async {
       await pumpVerify(tester, lang: lang);
       expect(find.text(authVerifyTitle(lang)), findsOneWidget);

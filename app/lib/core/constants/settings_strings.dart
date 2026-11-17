@@ -120,8 +120,6 @@ String appInfoFriends(String lang) => lang == 'fr' ? 'Soutien tout au long du pr
 
 // Language
 String settingsLanguage(String lang) => lang == 'fr' ? 'Langue' : 'Language';
-String settingsLanguageFrench(String lang) => lang == 'fr' ? 'Français' : 'French';
-String settingsLanguageEnglish(String lang) => lang == 'fr' ? 'Anglais' : 'English';
 String settingsLanguageUpdated(String lang) =>
     lang == 'fr' ? 'Langue mise à jour' : 'Language updated';
 
