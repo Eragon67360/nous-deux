@@ -260,6 +260,22 @@ Deno.test("a stale token is cleared and the send carries on", async () => {
   assertEquals(pushes.length, 3);
 });
 
+Deno.test("a push that throws counts as failed and the send carries on", async () => {
+  const { deps } = fakes({
+    stored: { [SLUG]: tested },
+    recipients: [{ token: "offline", language: "fr" }, { token: "fine", language: "en" }],
+  });
+  const flaky: Deps = {
+    ...deps,
+    sendPush: (token, title, body, data) =>
+      token === "offline"
+        ? Promise.reject(new Error("network down"))
+        : deps.sendPush(token, title, body, data),
+  };
+  const answer = await call({ action: "send", slug: SLUG, content: CONTENT }, flaky);
+  assertEquals(answer.body, { ok: true, sent: 1, failed: 1, stale_removed: 0 });
+});
+
 Deno.test("a second send is refused and pushes nothing", async () => {
   const { deps, pushes } = fakes({
     stored: { [SLUG]: tested },

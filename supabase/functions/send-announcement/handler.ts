@@ -107,7 +107,9 @@ async function pushAll(
   for (let i = 0; i < people.length; i += BATCH) {
     await Promise.all(people.slice(i, i + BATCH).map(async ({ token, language }) => {
       const { title, body } = textsFor(content, language);
-      const result = await deps.sendPush(token, title, body, data);
+      // A push that throws (network, Google's sign-in) fails alone.
+      const result = await deps.sendPush(token, title, body, data)
+        .catch(() => ({ ok: false, detail: undefined }));
       if (result.ok) {
         sent++;
         return;
