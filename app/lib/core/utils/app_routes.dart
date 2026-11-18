@@ -28,5 +28,8 @@ abstract final class AppRoutes {
   static const settings = '/settings';
   static const settingsInfo = '/settings/info';
 
+  /// The team's messages (Nouveautés), from Settings or a tapped push.
+  static const settingsNews = '/settings/news';
+
   static const tabs = [home, calendar, period, position];
 }

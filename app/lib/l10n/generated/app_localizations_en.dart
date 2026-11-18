@@ -1519,4 +1519,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileUnavailableRetry => 'Try again';
+
+  @override
+  String get newsTitle => 'What\'s new';
+
+  @override
+  String get newsSignature => 'The Nous Deux team';
+
+  @override
+  String newsUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count unread',
+      one: '$count unread',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get newsEmpty => 'Nothing new yet.';
+
+  @override
+  String get newsLoadFailed =>
+      'The news couldn\'t load. Check your connection and try again.';
+
+  @override
+  String get settingsNewsPush => 'App news';
+
+  @override
+  String get settingsNewsPushSubtitle =>
+      'New features and messages from the Nous Deux team.';
+
+  @override
+  String newsAvatarUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Settings, $count new messages',
+      one: 'Settings, $count new message',
+    );
+    return '$_temp0';
+  }
 }

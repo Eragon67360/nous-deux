@@ -8,12 +8,14 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/constants/cycle_strings.dart';
+import 'package:nousdeux/core/constants/news_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
+import 'package:nousdeux/domain/entities/announcement_entity.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
@@ -86,6 +88,8 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
   bool sharing = false,
   bool inCouple = true,
   bool? tracksCycle,
+  List<AnnouncementEntity> announcements = const [],
+  DateTime? announcementsSeenAt,
 }) async {
   useTallSurface(tester);
   final deps = TestDeps(
@@ -94,7 +98,9 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
       language: lang,
       partner: paired ? partnerId : null,
       tracksCycle: tracksCycle,
+      announcementsSeenAt: announcementsSeenAt,
     ),
+    announcements: announcements,
     partner: paired ? partnerProfile() : null,
     couple: inCouple ? couple(user2Id: paired ? partnerId : null) : null,
     myLocation: location(isSharing: sharing, lat: 48.85, lng: 2.35),
@@ -110,7 +116,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
       screenRoute(
         '/settings',
         const SettingsScreen(),
-        routes: [stubRoute('info')],
+        routes: [stubRoute('info'), stubRoute('news')],
       ),
     ],
   );
@@ -147,6 +153,9 @@ void main() {
         find.text(settingsCalendarRemindersSubtitle(lang)),
         findsOneWidget,
       );
+      expect(find.text(newsTitle(lang)), findsOneWidget);
+      expect(find.text(settingsNewsPush(lang)), findsOneWidget);
+      expect(find.text(settingsNewsPushSubtitle(lang)), findsOneWidget);
     });
   }
 
@@ -168,6 +177,53 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/settings/info');
+  });
+
+  group('Nouveautés', () {
+    final sent = AnnouncementEntity(
+      id: 'a1',
+      sentAt: DateTime.utc(2026, 11, 20, 18),
+      texts: {'fr': (title: 'Les listes', body: 'Courses.')},
+    );
+
+    testWidgets('the row counts what is unread and opens the list', (
+      tester,
+    ) async {
+      final (_, router) = await _pumpSettings(
+        tester,
+        announcements: [sent],
+        announcementsSeenAt: DateTime.utc(2026, 11, 18),
+      );
+
+      expect(find.text(newsUnread('fr', 1)), findsOneWidget);
+      expect(find.byKey(const ValueKey('news-unread-dot')), findsOneWidget);
+      await tester.tap(find.text(newsTitle('fr')));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/settings/news');
+    });
+
+    testWidgets('nothing unread: no count, no dot', (tester) async {
+      await _pumpSettings(
+        tester,
+        announcements: [sent],
+        announcementsSeenAt: DateTime.utc(2026, 11, 21),
+      );
+
+      expect(find.text(newsUnread('fr', 1)), findsNothing);
+      expect(find.byKey(const ValueKey('news-unread-dot')), findsNothing);
+    });
+
+    testWidgets('the switch turns the app-news push off', (tester) async {
+      final (deps, _) = await _pumpSettings(tester);
+
+      final tile = find.widgetWithText(SwitchListTile, settingsNewsPush('fr'));
+      expect(tester.widget<SwitchListTile>(tile).value, isTrue);
+      await tester.tap(tile);
+      await tester.pumpAndSettle();
+
+      expect(deps.profiles.pushCalls, [false]);
+      expect(tester.widget<SwitchListTile>(tile).value, isFalse);
+    });
   });
 
   group('sign out', () {
