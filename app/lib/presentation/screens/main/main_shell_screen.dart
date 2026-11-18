@@ -13,6 +13,7 @@ import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
+import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
@@ -63,10 +64,24 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     );
     // Not fired immediately: a note opened before this shell was built (a
     // shell rebuilt after signing in again) was already shown.
-    ref.listenManual<AsyncValue<OpenedNote>>(openedNotesProvider, (_, next) {
-      final note = next.valueOrNull;
-      if (note != null) _onOpenedNote(note);
+    ref.listenManual<AsyncValue<OpenedPush>>(openedPushesProvider, (_, next) {
+      switch (next.valueOrNull) {
+        case OpenedNotePush(:final note):
+          _onOpenedNote(note);
+        case OpenedAnnouncementPush():
+          _onOpenedAnnouncement();
+        case null:
+          break;
+      }
     });
+  }
+
+  /// A tapped message from the team opens Paramètres › Nouveautés, which
+  /// reads the list again.
+  void _onOpenedAnnouncement() {
+    if (!mounted) return;
+    ref.invalidate(announcementsProvider);
+    context.push(AppRoutes.settingsNews);
   }
 
   /// A tapped notification opens the Nous tab with its note full screen,
@@ -161,6 +176,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
     _syncCalendars();
+    // A message from the team may have come while the app was away.
+    ref.invalidate(announcementsProvider);
     if (widget.navigationShell.currentIndex == _calendarTab) {
       _wakePartnerCalendar();
     }

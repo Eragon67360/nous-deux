@@ -1,10 +1,13 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:nousdeux/core/l10n/app_languages.dart';
+import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/domain/calendar/phone_event.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
@@ -39,6 +42,7 @@ Future<GoRouter> _pumpShell(WidgetTester tester, TestDeps deps) {
         branches: [for (final path in AppRoutes.tabs) branch(path)],
       ),
       stubRoute('/pairing'),
+      stubRoute('/settings', routes: [stubRoute('news')]),
     ],
   );
 }
@@ -359,6 +363,44 @@ void main() {
     });
   });
 
+  group('a message from the team', () {
+    testWidgets('its tapped push opens Nouveautés, read again', (tester) async {
+      final deps = TestDeps();
+      final router = await _pumpShell(tester, deps);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MainShellScreen)),
+      );
+      container.listen(announcementsProvider, (_, _) {});
+      await tester.pumpAndSettle();
+      final before = deps.announcements.reads;
+
+      deps.openedPushes.add(OpenedAnnouncementPush('a1'));
+      await tester.pumpAndSettle();
+
+      expect(router.state.uri.path, AppRoutes.settingsNews);
+      expect(deps.announcements.reads, before + 1);
+    });
+
+    testWidgets('the list is read again when the app comes back', (
+      tester,
+    ) async {
+      final deps = TestDeps();
+      await _pumpShell(tester, deps);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MainShellScreen)),
+      );
+      container.listen(announcementsProvider, (_, _) {});
+      await tester.pumpAndSettle();
+      final before = deps.announcements.reads;
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pumpAndSettle();
+
+      expect(deps.announcements.reads, before + 1);
+    });
+  });
+
   group('tapping a little note\'s notification', () {
     PingEntity note(DateTime at, [PingKind kind = PingKind.thinkingOfYou]) =>
         PingEntity(
@@ -383,7 +425,9 @@ void main() {
       router.go(AppRoutes.tabs[2]);
       await tester.pumpAndSettle();
 
-      deps.openedNotes.add((kind: PingKind.missYou, sentAt: evening));
+      deps.openedPushes.add(
+        OpenedNotePush((kind: PingKind.missYou, sentAt: evening)),
+      );
       await tester.pumpAndSettle();
 
       expect(router.state.uri.path, AppRoutes.tabs[0]);
@@ -403,7 +447,9 @@ void main() {
       await _pumpShell(tester, deps);
       final evening = DateTime(2026, 11, 10, 18);
 
-      deps.openedNotes.add((kind: PingKind.kiss, sentAt: evening));
+      deps.openedPushes.add(
+        OpenedNotePush((kind: PingKind.kiss, sentAt: evening)),
+      );
       await tester.pumpAndSettle();
       await tester.tap(find.text(pingTapToClose('fr')));
       await tester.pumpAndSettle();
@@ -430,7 +476,9 @@ void main() {
 
       // The push leaves the words out: nothing to show until the notes
       // stream brings them.
-      deps.openedNotes.add((kind: PingKind.custom, sentAt: evening));
+      deps.openedPushes.add(
+        OpenedNotePush((kind: PingKind.custom, sentAt: evening)),
+      );
       await tester.pumpAndSettle();
       expect(find.byType(PingReceived), findsNothing);
 

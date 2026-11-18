@@ -96,9 +96,10 @@ class TestDeps {
   final FakeAnnouncementsRepository announcements;
   final FakePhoneCalendar phoneCalendar;
 
-  /// Add a note to it to tap that note's notification.
-  final StreamController<OpenedNote> openedNotes =
-      StreamController<OpenedNote>.broadcast();
+  /// Add a push to it to tap that notification: [OpenedNotePush] for a
+  /// little note, [OpenedAnnouncementPush] for a message from the team.
+  final StreamController<OpenedPush> openedPushes =
+      StreamController<OpenedPush>.broadcast();
 
   /// What the app reads as "now" (clockProvider).
   final DateTime now;
@@ -121,7 +122,7 @@ class TestDeps {
     phoneCalendarProvider.overrideWithValue(phoneCalendar),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
-    openedNotesProvider.overrideWith((ref) => openedNotes.stream),
+    openedPushesProvider.overrideWith((ref) => openedPushes.stream),
   ];
 }
 
