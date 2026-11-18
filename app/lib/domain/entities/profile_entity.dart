@@ -13,6 +13,8 @@ class ProfileEntity extends Equatable {
     this.shareCheckins = true,
     this.calendarSyncDevice,
     this.calendarSyncedAt,
+    this.announcementsPush = true,
+    this.announcementsSeenAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -40,6 +42,12 @@ class ProfileEntity extends Equatable {
 
   /// When that phone last synced the followed calendars.
   final DateTime? calendarSyncedAt;
+
+  /// Whether a push comes with each new message from the team (Nouveautés).
+  final bool announcementsPush;
+
+  /// When this person last read Nouveautés: later messages are unread.
+  final DateTime? announcementsSeenAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -60,6 +68,8 @@ class ProfileEntity extends Equatable {
     shareCheckins,
     calendarSyncDevice,
     calendarSyncedAt,
+    announcementsPush,
+    announcementsSeenAt,
     createdAt,
     updatedAt,
   ];

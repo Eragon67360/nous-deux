@@ -38,6 +38,14 @@ abstract class ProfileRepository {
   /// Records that my phone just synced the calendars it follows.
   Future<ProfileResult> markCalendarSynced();
 
+  /// Turns the push for each new message from the team on or off. The
+  /// Nouveautés list stays readable either way.
+  Future<ProfileResult> setAnnouncementsPush(bool on);
+
+  /// Marks Nouveautés read up to [upTo], the newest message's send time
+  /// (the server's clock, not the phone's).
+  Future<ProfileResult> markAnnouncementsSeen(DateTime upTo);
+
   /// Update FCM token for push notifications.
   Future<ProfileResult> updateFcmToken(String? token);
 }

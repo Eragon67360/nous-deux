@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/domain/entities/announcement_entity.dart';
+import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
@@ -58,6 +60,7 @@ class TestDeps {
     List<PingEntity>? pings,
     List<SharedListEntity>? lists,
     List<ListItemEntity>? listItems,
+    List<AnnouncementEntity>? announcements,
     DateTime? now,
     this.deviceLanguage = 'fr',
     FakePhoneCalendar? phoneCalendar,
@@ -65,6 +68,7 @@ class TestDeps {
        phoneCalendar = phoneCalendar ?? FakePhoneCalendar(),
        pings = FakePingRepository(pings),
        lists = FakeListsRepository(lists: lists, items: listItems),
+       announcements = FakeAnnouncementsRepository(announcements),
        auth = FakeAuthRepository(user: user),
        profiles = FakeProfileRepository(
          mine: myProfile ?? profile(partner: partner?.id),
@@ -89,6 +93,7 @@ class TestDeps {
   final FakeRealtime realtime = FakeRealtime();
   final FakePingRepository pings;
   final FakeListsRepository lists;
+  final FakeAnnouncementsRepository announcements;
   final FakePhoneCalendar phoneCalendar;
 
   /// Add a note to it to tap that note's notification.
@@ -112,6 +117,7 @@ class TestDeps {
     realtimeChannelFactoryProvider.overrideWithValue(realtime.open),
     pingRepositoryProvider.overrideWithValue(pings),
     listsRepositoryProvider.overrideWithValue(lists),
+    announcementsRepositoryProvider.overrideWithValue(announcements),
     phoneCalendarProvider.overrideWithValue(phoneCalendar),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
