@@ -166,8 +166,8 @@
       "description": "What data Nous Deux collects and why, where it is stored (our own servers in Germany, in the EU), and how to use your rights."
     },
     "lastUpdated": "Last updated:",
-    "effectiveDate": "17 November 2026",
-    "effectiveDateISO": "2026-11-17",
+    "effectiveDate": "19 November 2026",
+    "effectiveDateISO": "2026-11-19",
     "backHome": "Back to home",
     "sections": {
       "editor": {
@@ -212,7 +212,7 @@
           },
           {
             "label": "Notifications",
-            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, and word that their period started when they share their cycle."
+            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, word that their period started when they share their cycle, and the team's messages about the app (What's new), unless you turn them off in Settings. For those messages we keep only that choice and how far you have read the list; the messages themselves hold no personal data, and we don't track whether you open them."
           },
           {
             "label": "Crash reports",

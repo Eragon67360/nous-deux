@@ -11,6 +11,9 @@ abstract final class AppRoutes {
   static const pairingJoin = '/pairing/join';
   static const pairingScan = '/pairing/scan';
 
+  /// Signed in, but the profile couldn't load (no network, server error).
+  static const unavailable = '/unavailable';
+
   // The four tabs.
   static const home = '/main';
   static const calendar = '/main/calendar';
@@ -24,6 +27,9 @@ abstract final class AppRoutes {
   /// Opened from the avatar on the Nous tab; not a tab.
   static const settings = '/settings';
   static const settingsInfo = '/settings/info';
+
+  /// The team's messages (Nouveautés), from Settings or a tapped push.
+  static const settingsNews = '/settings/news';
 
   static const tabs = [home, calendar, period, position];
 }

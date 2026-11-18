@@ -31,6 +31,25 @@ void main() {
     expect(m.updatedAt, DateTime.utc(2026, 3, 2, 8));
   });
 
+  test('fromJson reads the app-news switch and last-read time', () {
+    final m = ProfileModel.fromJson({
+      'id': 'u1',
+      'announcements_push': false,
+      'announcements_seen_at': '2026-11-20T18:00:00.000Z',
+    });
+    expect(m.announcementsPush, isFalse);
+    expect(m.announcementsSeenAt, DateTime.utc(2026, 11, 20, 18));
+    final e = m.toEntity();
+    expect(e.announcementsPush, isFalse);
+    expect(e.announcementsSeenAt, DateTime.utc(2026, 11, 20, 18));
+  });
+
+  test('without those columns, pushes are on and nothing was read', () {
+    final m = ProfileModel.fromJson({'id': 'u1'});
+    expect(m.announcementsPush, isTrue);
+    expect(m.announcementsSeenAt, isNull);
+  });
+
   test('fromJson drops an avatar URL outside this backend', () {
     final m = ProfileModel.fromJson({
       'id': 'u1',

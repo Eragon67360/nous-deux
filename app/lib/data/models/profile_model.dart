@@ -16,6 +16,8 @@ class ProfileModel {
     this.shareCheckins = true,
     this.calendarSyncDevice,
     this.calendarSyncedAt,
+    this.announcementsPush = true,
+    this.announcementsSeenAt,
     this.createdAt,
     this.updatedAt,
   });
@@ -32,6 +34,8 @@ class ProfileModel {
   final bool shareCheckins;
   final String? calendarSyncDevice;
   final DateTime? calendarSyncedAt;
+  final bool announcementsPush;
+  final DateTime? announcementsSeenAt;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -56,6 +60,10 @@ class ProfileModel {
       calendarSyncedAt: json['calendar_synced_at'] != null
           ? DateTime.parse(json['calendar_synced_at'] as String).toLocal()
           : null,
+      announcementsPush: json['announcements_push'] as bool? ?? true,
+      announcementsSeenAt: DateTime.tryParse(
+        json['announcements_seen_at'] as String? ?? '',
+      ),
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)
           : null,
@@ -92,6 +100,8 @@ class ProfileModel {
       shareCheckins: shareCheckins,
       calendarSyncDevice: calendarSyncDevice,
       calendarSyncedAt: calendarSyncedAt,
+      announcementsPush: announcementsPush,
+      announcementsSeenAt: announcementsSeenAt,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );
@@ -110,6 +120,8 @@ class ProfileModel {
       shareCheckins: e.shareCheckins,
       calendarSyncDevice: e.calendarSyncDevice,
       calendarSyncedAt: e.calendarSyncedAt,
+      announcementsPush: e.announcementsPush,
+      announcementsSeenAt: e.announcementsSeenAt,
       createdAt: e.createdAt,
       updatedAt: e.updatedAt,
     );

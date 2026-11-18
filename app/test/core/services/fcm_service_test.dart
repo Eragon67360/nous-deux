@@ -57,4 +57,28 @@ void main() {
       expect(openedNoteFrom(const {}), isNull);
     });
   });
+
+  group('what a tapped push opens', () {
+    test('a message from the team opens Nouveautés', () {
+      final push = openedPushFrom({'type': 'announcement', 'id': 'a1'});
+      expect(push, isA<OpenedAnnouncementPush>());
+      expect((push as OpenedAnnouncementPush).id, 'a1');
+    });
+
+    test('a little note still opens the note', () {
+      final push = openedPushFrom({
+        'type': 'ping',
+        'kind': 'kiss',
+        'sent_at': '2026-11-16T18:30:00+00:00',
+      });
+      expect(push, isA<OpenedNotePush>());
+      expect((push as OpenedNotePush).note.kind, PingKind.kiss);
+    });
+
+    test('anything else opens nothing', () {
+      expect(openedPushFrom({'type': 'period'}), isNull);
+      expect(openedPushFrom({'type': 'calendar_sync'}), isNull);
+      expect(openedPushFrom(const {}), isNull);
+    });
+  });
 }

@@ -392,5 +392,16 @@
   "positionMe": "Moi",
   "positionSeeAll": "Voir tout",
   "positionPartnerFallback": "Partenaire",
-  "appInfoFriendsName": "Les amis"
+  "appInfoFriendsName": "Les amis",
+  "profileUnavailableTitle": "Connexion impossible",
+  "profileUnavailableBody": "Nous Deux n'arrive pas à joindre son serveur. Vérifiez votre connexion, puis réessayez.",
+  "profileUnavailableRetry": "Réessayer",
+  "newsTitle": "Nouveautés",
+  "newsSignature": "L'équipe Nous Deux",
+  "newsUnread": "{count, plural, one{{count} non lue} other{{count} non lues}}",
+  "newsEmpty": "Rien de nouveau pour l'instant.",
+  "newsLoadFailed": "Impossible de charger les nouveautés. Vérifiez votre connexion, puis réessayez.",
+  "settingsNewsPush": "Nouveautés de l'app",
+  "settingsNewsPushSubtitle": "Les nouvelles fonctions et les messages de l'équipe Nous Deux.",
+  "newsAvatarUnread": "{count, plural, one{Réglages, {count} nouveauté} other{Réglages, {count} nouveautés}}"
 }

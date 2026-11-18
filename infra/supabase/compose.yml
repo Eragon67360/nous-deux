@@ -959,10 +959,10 @@ services:
         source: ./volumes/functions/main/index.ts
         target: /home/deno/functions/main/index.ts
         content: |
-          // Routes the database's requests to the push functions, wake-partner-calendar and apple-tokens.
-          // There is no public route to this service; each function also checks
+          // Routes the database's requests to the push functions, wake-partner-calendar, apple-tokens
+          // and send-announcement. There is no public route to this service; each function also checks
           // the shared secret.
-          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping', 'apple-tokens', 'wake-partner-calendar'])
+          const FUNCTIONS = new Set(['notify-partner-period', 'notify-partner-ping', 'apple-tokens', 'wake-partner-calendar', 'send-announcement'])
           const PASSED_ENV = [
             'SUPABASE_URL',
             'SUPABASE_SERVICE_ROLE_KEY',
@@ -990,6 +990,8 @@ services:
                 noModuleCache: false,
                 importMapPath: null,
                 envVars: PASSED_ENV.map((k) => [k, Deno.env.get(k) ?? '']),
+                // A send gets its own worker and its full 60 s, not what the preview's has left.
+                forceCreate: name === 'send-announcement',
               })
               return await worker.fetch(req)
             } catch (e) {

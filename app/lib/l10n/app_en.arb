@@ -950,5 +950,36 @@
   "positionMe": "Me",
   "positionSeeAll": "See all",
   "positionPartnerFallback": "Partner",
-  "appInfoFriendsName": "Friends"
+  "appInfoFriendsName": "Friends",
+  "profileUnavailableTitle": "Can't connect",
+  "profileUnavailableBody": "Nous Deux can't reach its server. Check your connection, then try again.",
+  "profileUnavailableRetry": "Try again",
+  "@profileUnavailableTitle": {
+    "description": "Signed in, but the profile could not load (no network or server error)."
+  },
+  "newsTitle": "What's new",
+  "@newsTitle": {
+    "description": "The team's messages to everyone (Settings › What's new), and the screen's title."
+  },
+  "newsSignature": "The Nous Deux team",
+  "newsUnread": "{count, plural, one{{count} unread} other{{count} unread}}",
+  "@newsUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "newsEmpty": "Nothing new yet.",
+  "newsLoadFailed": "The news couldn't load. Check your connection and try again.",
+  "settingsNewsPush": "App news",
+  "settingsNewsPushSubtitle": "New features and messages from the Nous Deux team.",
+  "newsAvatarUnread": "{count, plural, one{Settings, {count} new message} other{Settings, {count} new messages}}",
+  "@newsAvatarUnread": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

@@ -48,3 +48,6 @@ verify_jwt = false
 
 [functions.wake-partner-calendar]
 verify_jwt = false
+
+[functions.send-announcement]
+verify_jwt = false

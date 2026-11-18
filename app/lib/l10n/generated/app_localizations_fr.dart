@@ -1519,4 +1519,56 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appInfoFriendsName => 'Les amis';
+
+  @override
+  String get profileUnavailableTitle => 'Connexion impossible';
+
+  @override
+  String get profileUnavailableBody =>
+      'Nous Deux n\'arrive pas à joindre son serveur. Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get profileUnavailableRetry => 'Réessayer';
+
+  @override
+  String get newsTitle => 'Nouveautés';
+
+  @override
+  String get newsSignature => 'L\'équipe Nous Deux';
+
+  @override
+  String newsUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count non lues',
+      one: '$count non lue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get newsEmpty => 'Rien de nouveau pour l\'instant.';
+
+  @override
+  String get newsLoadFailed =>
+      'Impossible de charger les nouveautés. Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get settingsNewsPush => 'Nouveautés de l\'app';
+
+  @override
+  String get settingsNewsPushSubtitle =>
+      'Les nouvelles fonctions et les messages de l\'équipe Nous Deux.';
+
+  @override
+  String newsAvatarUnread(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Réglages, $count nouveautés',
+      one: 'Réglages, $count nouveauté',
+    );
+    return '$_temp0';
+  }
 }

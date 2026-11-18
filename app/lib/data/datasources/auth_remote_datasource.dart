@@ -120,9 +120,23 @@ class AuthRemoteDatasource {
     );
   }
 
+  /// Signs out on this phone whatever the network does.
+  ///
+  /// gotrue drops the session here before asking the server to revoke it,
+  /// so a failed revoke (a 504, no network: GlitchTip APP-5) only leaves the
+  /// server's copy to expire on its own. Google failing to sign out (no Play
+  /// services) must not keep the session either.
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
-    await _client.auth.signOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint('Google sign-out failed, signing out anyway: $e');
+    }
+    try {
+      await _client.auth.signOut();
+    } on AuthException catch (e) {
+      debugPrint('Session revoke failed, signed out on this phone: $e');
+    }
   }
 
   /// Removes the profile photo through Storage (which refuses direct deletes

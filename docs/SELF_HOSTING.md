@@ -16,7 +16,7 @@ The stack is defined in [`infra/supabase/compose.yml`](../infra/supabase/compose
 | supabase-storage | Avatars, stored on the server's disk | via Kong |
 | supabase-meta | Database API for Studio | via Kong (service key) |
 | supabase-studio | Admin dashboard | **no**: the server's localhost only, over SSH ([Studio](#studio)) |
-| supabase-edge-functions | The two push functions, `wake-partner-calendar` (asks a partner's phone to sync its followed calendars) and `apple-tokens` (revokes Sign in with Apple when an account is deleted) | **no**: only the database calls them |
+| supabase-edge-functions | The two push functions (`notify-partner-*`), `wake-partner-calendar` (asks a partner's phone to sync its followed calendars), `apple-tokens` (revokes Sign in with Apple when an account is deleted) and `send-announcement` (the team's messages to everyone, called by `scripts/announce.sh` through the database) | **no**: only the database calls them |
 
 Left out on purpose:
 - Logflare and Vector, so no request logs are kept.
