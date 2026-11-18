@@ -14,3 +14,13 @@ String pairingCelebrationBody(String lang) =>
 
 String appSupabaseConfigMessage(String lang) =>
     l10nFor(lang).appSupabaseConfigMessage;
+
+// Signed in, but the profile couldn't load (no network, server error).
+String profileUnavailableTitle(String lang) =>
+    l10nFor(lang).profileUnavailableTitle;
+
+String profileUnavailableBody(String lang) =>
+    l10nFor(lang).profileUnavailableBody;
+
+String profileUnavailableRetry(String lang) =>
+    l10nFor(lang).profileUnavailableRetry;

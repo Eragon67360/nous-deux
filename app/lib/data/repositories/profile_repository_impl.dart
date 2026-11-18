@@ -4,6 +4,21 @@ import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/data/datasources/profile_remote_datasource.dart';
 import 'package:nousdeux/domain/repositories/profile_repository.dart';
 
+/// Why loading (or creating) the signed-in person's profile failed.
+///
+/// Only a refused insert because the account no longer exists (foreign key
+/// to `auth.users`, code 23503) means [NotFoundFailure]: the router signs out
+/// for that one. No network, a timeout or a server error is something else,
+/// and the router keeps the session (GlitchTip APP-5).
+Failure profileLoadFailure(Object error) {
+  if (error is PostgrestException) {
+    return error.code == '23503'
+        ? NotFoundFailure(error.message)
+        : ServerFailure(error.message);
+  }
+  return UnknownFailure(error.toString());
+}
+
 class ProfileRepositoryImpl implements ProfileRepository {
   ProfileRepositoryImpl({ProfileRemoteDatasource? datasource})
     : _datasource = datasource ?? ProfileRemoteDatasource();
@@ -26,10 +41,8 @@ class ProfileRepositoryImpl implements ProfileRepository {
         // Do not set onboarding_completed_at so first-time users see onboarding
       });
       return (profile: profile.toEntity(), failure: null);
-    } on PostgrestException catch (e) {
-      return (profile: null, failure: ServerFailure(e.message));
     } catch (e) {
-      return (profile: null, failure: UnknownFailure(e.toString()));
+      return (profile: null, failure: profileLoadFailure(e));
     }
   }
 

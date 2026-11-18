@@ -11,6 +11,9 @@ abstract final class AppRoutes {
   static const pairingJoin = '/pairing/join';
   static const pairingScan = '/pairing/scan';
 
+  /// Signed in, but the profile couldn't load (no network, server error).
+  static const unavailable = '/unavailable';
+
   // The four tabs.
   static const home = '/main';
   static const calendar = '/main/calendar';
