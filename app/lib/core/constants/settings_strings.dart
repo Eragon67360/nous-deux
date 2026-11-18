@@ -107,3 +107,8 @@ String settingsEditUsername(String lang) => l10nFor(lang).settingsEditUsername;
 String settingsSave(String lang) => l10nFor(lang).settingsSave;
 String settingsCancel(String lang) => l10nFor(lang).settingsCancel;
 String appInfoFriendsName(String lang) => l10nFor(lang).appInfoFriendsName;
+
+/// « Envoyer un retour »: opens the phone's mail app (core/services/feedback_mail.dart).
+String settingsFeedback(String lang) => l10nFor(lang).settingsFeedback;
+String settingsFeedbackNoMail(String lang, String email) =>
+    l10nFor(lang).settingsFeedbackNoMail(email);

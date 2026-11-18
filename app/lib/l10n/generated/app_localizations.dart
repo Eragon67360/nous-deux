@@ -2521,6 +2521,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{Settings, {count} new message} other{Settings, {count} new messages}}'**
   String newsAvatarUnread(int count);
+
+  /// Settings row that opens the phone's mail app to write to the team.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get settingsFeedback;
+
+  /// Subject of the feedback mail. device is iPhone or Android.
+  ///
+  /// In en, this message translates to:
+  /// **'Nous Deux · build {build} · {device}'**
+  String feedbackSubject(String build, String device);
+
+  /// No description provided for @settingsFeedbackNoMail.
+  ///
+  /// In en, this message translates to:
+  /// **'No mail app found. Write to {email}.'**
+  String settingsFeedbackNoMail(String email);
 }
 
 class _AppLocalizationsDelegate

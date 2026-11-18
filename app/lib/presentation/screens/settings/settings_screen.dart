@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -11,6 +12,7 @@ import 'package:nousdeux/core/constants/period_education.dart'
     show periodScreenTitle;
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
+import 'package:nousdeux/core/services/feedback_mail.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -98,6 +100,7 @@ class SettingsScreen extends ConsumerWidget {
                     onTap: () => context.push(AppRoutes.settingsInfo),
                   ),
                   const _NewsTile(),
+                  const _FeedbackTile(),
                   _SettingsTile(
                     icon: Icons.settings_applications_outlined,
                     title: settingsOpenAppSettings(lang),
@@ -1092,6 +1095,45 @@ class _NewsTile extends ConsumerWidget {
             ),
       onTap: () => context.push(AppRoutes.settingsNews),
     );
+  }
+}
+
+/// « Envoyer un retour »: the phone's mail app, with the build and the kind
+/// of phone in the subject. Without a mail app, the address is shown.
+class _FeedbackTile extends ConsumerWidget {
+  const _FeedbackTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    return _SettingsTile(
+      icon: Icons.mail_outline,
+      title: settingsFeedback(lang),
+      showChevron: false,
+      trailing: const Icon(Icons.launch, size: 18),
+      onTap: () => _write(context, ref, lang),
+    );
+  }
+
+  Future<void> _write(BuildContext context, WidgetRef ref, String lang) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final build = await ref
+        .read(appBuildProvider.future)
+        .then((b) => b, onError: (_) => '?');
+    final uri = feedbackMailUri(
+      lang: lang,
+      build: build,
+      isIos: defaultTargetPlatform == TargetPlatform.iOS,
+    );
+    final opened = await ref
+        .read(openMailProvider)(uri)
+        .then((ok) => ok, onError: (_) => false);
+    if (opened) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(settingsFeedbackNoMail(lang, feedbackEmail))),
+      );
   }
 }
 

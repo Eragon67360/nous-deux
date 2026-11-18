@@ -981,5 +981,29 @@
         "type": "int"
       }
     }
+  },
+  "settingsFeedback": "Send feedback",
+  "@settingsFeedback": {
+    "description": "Settings row that opens the phone's mail app to write to the team."
+  },
+  "feedbackSubject": "Nous Deux · build {build} · {device}",
+  "@feedbackSubject": {
+    "description": "Subject of the feedback mail. device is iPhone or Android.",
+    "placeholders": {
+      "build": {
+        "type": "String"
+      },
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsFeedbackNoMail": "No mail app found. Write to {email}.",
+  "@settingsFeedbackNoMail": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
   }
 }

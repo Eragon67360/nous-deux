@@ -175,7 +175,8 @@
     "sections": {
       "editor": {
         "title": "Éditeur et contact",
-        "body": "Nous Deux est une application gratuite et sans publicité pour les couples : calendrier partagé, suivi des règles, partage de position si vous l'activez, listes et petits mots. Pour toute question sur cette politique ou sur vos données, écrivez-nous via le dépôt du projet :"
+        "body": "Nous Deux est une application gratuite et sans publicité pour les couples : calendrier partagé, suivi des règles, partage de position si vous l'activez, listes et petits mots. Pour toute question sur cette politique ou sur vos données, écrivez-nous via le dépôt du projet :",
+        "feedback": "Depuis l'application, Paramètres › Envoyer un retour ouvre votre messagerie : le message part de votre adresse e-mail, avec la version de l'app et le type de téléphone (iPhone ou Android) dans l'objet. Rien n'est envoyé sans vous."
       },
       "dataCollected": {
         "title": "Données collectées",
@@ -215,7 +216,7 @@
           },
           {
             "label": "Notifications",
-            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, l'annonce de ses règles lorsque votre partenaire partage son cycle, et les messages de l'équipe sur l'application (Nouveautés), sauf si vous les coupez dans les paramètres. Pour ces messages, nous gardons seulement ce choix et jusqu'à quel message vous avez lu la liste ; les messages eux-mêmes ne contiennent aucune donnée personnelle, et nous ne suivons pas leur ouverture."
+            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, l'annonce de ses règles lorsque votre partenaire partage son cycle, et les messages de l'équipe sur l'application (Nouveautés), sauf si vous les coupez dans les paramètres. Pour ces messages, nous gardons seulement ce choix et jusqu'à quel message vous avez lu la liste ; les messages eux-mêmes ne contiennent aucune donnée personnelle, et nous ne suivons pas leur ouverture."
           },
           {
             "label": "Rapports de plantage",
