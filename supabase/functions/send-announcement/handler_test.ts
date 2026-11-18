@@ -276,6 +276,76 @@ Deno.test("a push that throws counts as failed and the send carries on", async (
   assertEquals(answer.body, { ok: true, sent: 1, failed: 1, stale_removed: 0 });
 });
 
+Deno.test("a phone signed into two accounts gets the message once", async () => {
+  // The app keeps a phone's token on the account it left: both rows carry it.
+  const { deps, pushes } = fakes({
+    stored: { [SLUG]: tested },
+    testers: [{ token: "shared", language: "fr" }, { token: "shared", language: "en" }],
+    recipients: [
+      { token: "shared", language: "fr" },
+      { token: "other", language: "en" },
+      { token: "shared", language: "en" },
+    ],
+  });
+  assertEquals((await call({ action: "preview", slug: SLUG, content: CONTENT }, deps)).body, {
+    ok: true,
+    recipients: 2,
+    opted_out: 0,
+  });
+  const answer = await call({ action: "send", slug: SLUG, content: CONTENT }, deps);
+  assertEquals(answer.body, { ok: true, sent: 2, failed: 0, stale_removed: 0 });
+  // The first row wins: index.ts lists the most recently updated profile first.
+  assertEquals(pushes.map((p) => [p.token, p.title]), [
+    ["shared", CONTENT.fr.title],
+    ["other", CONTENT.en.title],
+  ]);
+
+  const { deps: testDeps, pushes: testPushes } = fakes({
+    testers: [{ token: "shared", language: "fr" }, { token: "shared", language: "en" }],
+  });
+  assertEquals((await call({ action: "test", slug: SLUG, content: CONTENT }, testDeps)).body, {
+    ok: true,
+    sent: 1,
+    failed: 0,
+  });
+  assertEquals(testPushes.length, 1);
+});
+
+Deno.test("the recipients are read before the message is marked sent", async () => {
+  const { deps, rows } = fakes({ stored: { [SLUG]: tested } });
+  let marked = 0;
+  const failing: Deps = {
+    ...deps,
+    recipients: () => Promise.reject(new Error("database down")),
+    markSent: (slug) => {
+      marked++;
+      return deps.markSent(slug);
+    },
+  };
+  let threw = false;
+  try {
+    await handleAnnouncement(request({ action: "send", slug: SLUG, content: CONTENT }), failing);
+  } catch {
+    threw = true;
+  }
+  assertEquals(threw, true);
+  // Nothing recorded, so the send can simply run again.
+  assertEquals(marked, 0);
+  assertEquals(rows[SLUG].sent_at, null);
+});
+
+Deno.test("a stale token that can't be cleared doesn't stop the send", async () => {
+  const recipients = [
+    { token: "gone", language: "fr" },
+    ...Array.from({ length: 25 }, (_, i) => ({ token: `t${i}`, language: "fr" })),
+  ];
+  const { deps, pushes } = fakes({ stored: { [SLUG]: tested }, recipients, stale: ["gone"] });
+  const stuck: Deps = { ...deps, clearToken: () => Promise.reject(new Error("database down")) };
+  const answer = await call({ action: "send", slug: SLUG, content: CONTENT }, stuck);
+  assertEquals(answer.body, { ok: true, sent: 25, failed: 1, stale_removed: 0 });
+  assertEquals(pushes.length, 26);
+});
+
 Deno.test("a second send is refused and pushes nothing", async () => {
   const { deps, pushes } = fakes({
     stored: { [SLUG]: tested },

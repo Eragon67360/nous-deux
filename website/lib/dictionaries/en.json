@@ -212,7 +212,7 @@
           },
           {
             "label": "Notifications",
-            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, word that their period started when they share their cycle, and the team's messages about the app (What's new), unless you turn them off in Settings. For those messages we keep only that choice and when you last opened the list; the messages themselves hold no personal data, and we don't track whether you open them."
+            "text": "notification token (FCM) to send you the reminders you turn on (for example the reminder the evening before your partner's period), your partner's little notes, word that their period started when they share their cycle, and the team's messages about the app (What's new), unless you turn them off in Settings. For those messages we keep only that choice and how far you have read the list; the messages themselves hold no personal data, and we don't track whether you open them."
           },
           {
             "label": "Crash reports",

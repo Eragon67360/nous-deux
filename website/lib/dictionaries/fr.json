@@ -215,7 +215,7 @@
           },
           {
             "label": "Notifications",
-            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, l'annonce de ses règles lorsque votre partenaire partage son cycle, et les messages de l'équipe sur l'application (Nouveautés), sauf si vous les coupez dans les paramètres. Pour ces messages, nous gardons seulement ce choix et le moment où vous avez ouvert la liste pour la dernière fois ; les messages eux-mêmes ne contiennent aucune donnée personnelle, et nous ne suivons pas leur ouverture."
+            "text": "jeton de notification (FCM) pour vous envoyer les rappels que vous activez (par exemple le rappel la veille des règles de votre partenaire), les petits mots de votre partenaire, l'annonce de ses règles lorsque votre partenaire partage son cycle, et les messages de l'équipe sur l'application (Nouveautés), sauf si vous les coupez dans les paramètres. Pour ces messages, nous gardons seulement ce choix et jusqu'à quel message vous avez lu la liste ; les messages eux-mêmes ne contiennent aucune donnée personnelle, et nous ne suivons pas leur ouverture."
           },
           {
             "label": "Rapports de plantage",

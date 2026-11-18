@@ -5,8 +5,8 @@
 -- Paramètres › Nouveautés.
 --
 -- A message holds no personal data. Per person, the profile keeps whether
--- app-news pushes are on and when the list was last opened; opens aren't
--- tracked.
+-- app-news pushes are on and how far they have read the list (the newest
+-- message's send time when they opened it); opens aren't tracked.
 
 -- ---------------------------------------------------------------------------
 -- 1. The messages. A row is a draft once its test send went to the team
@@ -56,8 +56,9 @@ REVOKE ALL ON TABLE public.announcement_testers FROM PUBLIC, anon, authenticated
 GRANT ALL ON TABLE public.announcement_testers TO service_role;
 
 -- ---------------------------------------------------------------------------
--- 3. Each person's switch and last-read time. Pushes are on for everyone,
---    existing accounts included; turning them off leaves the list readable.
+-- 3. Each person's switch and how far they have read. Pushes are on for
+--    everyone, existing accounts included; turning them off leaves the list
+--    readable.
 --    The last-read time starts when the profile is created, so someone who
 --    joins later sees every older message without them all marked unread.
 -- ---------------------------------------------------------------------------
@@ -68,7 +69,7 @@ ALTER TABLE public.profiles
 COMMENT ON COLUMN public.profiles.announcements_push IS
   'Whether this person gets a push for each new message from the team.';
 COMMENT ON COLUMN public.profiles.announcements_seen_at IS
-  'When this person last opened Nouveautés; later messages show as unread.';
+  'Send time of the newest message this person has read in Nouveautés (creation time until then); later messages show as unread.';
 
 GRANT INSERT (announcements_push, announcements_seen_at),
       UPDATE (announcements_push, announcements_seen_at)

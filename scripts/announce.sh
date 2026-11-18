@@ -107,5 +107,9 @@ read -r -p "Tapez ENVOYER pour envoyer à tout le monde : " confirm || confirm="
 [[ "$confirm" == ENVOYER ]] || die "Rien n'est parti."
 
 echo "Enregistré dans Nouveautés · envoi…"
-answer=$(call send); check "$answer"
+# Past this point the message may be recorded even when the call fails.
+started="L'envoi a peut-être commencé : vérifiez avec SELECT sent_at FROM public.announcements WHERE slug = '$slug'; (une date = déjà dans Nouveautés, ne peut plus repartir)."
+answer=$(call send) || die "$started"
+if [[ "$(jq -r '.error // ""' <<<"$answer")" == server_error ]]; then die "$started"; fi
+check "$answer"
 echo "Envoyés : $(jq -r .sent <<<"$answer") · échecs : $(jq -r .failed <<<"$answer") · jetons périmés retirés : $(jq -r .stale_removed <<<"$answer")"

@@ -28,6 +28,8 @@ async function allRecipients(): Promise<Recipient[]> {
       .select("fcm_token, language")
       .eq("announcements_push", true)
       .not("fcm_token", "is", null)
+      // Newest first: a token on two profiles keeps the latest one's language.
+      .order("updated_at", { ascending: false })
       .order("id")
       .range(from, from + PAGE - 1);
     if (error) fail("reading the recipients", error);

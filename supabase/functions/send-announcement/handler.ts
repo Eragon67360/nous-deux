@@ -116,14 +116,23 @@ async function pushAll(
       }
       failed++;
       if (isStaleToken(result.detail)) {
-        await deps.clearToken(token);
-        stale++;
+        // A token that can't be cleared now stays for the next send.
+        const cleared = await deps.clearToken(token).then(() => true, () => false);
+        if (cleared) stale++;
       }
     }));
   }
   // FCM's answers can name the tokens; log only the counts.
   if (failed) console.error(`send-announcement: ${failed} pushes refused, ${stale} stale tokens cleared`);
   return { sent, failed, stale };
+}
+
+/// One entry per push token: a phone signed into two accounts keeps its
+/// token on both profiles, and gets the message once, in the first one's
+/// language (index.ts lists the most recently updated profile first).
+function uniqueTokens(people: Recipient[]): Recipient[] {
+  const seen = new Set<string>();
+  return people.filter(({ token }) => !seen.has(token) && !!seen.add(token));
 }
 
 /** Why a tested draft can't go to everyone yet, or null when it can. */
@@ -164,7 +173,7 @@ export async function handleAnnouncement(req: Request, deps: Deps): Promise<Resp
 
   if (action === "test") {
     if (stored?.sent_at) return json({ ok: false, error: "already_sent" });
-    const testers = await deps.testers();
+    const testers = uniqueTokens(await deps.testers());
     if (!testers.length) return json({ ok: false, error: "no_testers" });
     await deps.saveTested(slug, message);
     const { sent, failed } = await pushAll(deps, testers, message, {
@@ -179,12 +188,14 @@ export async function handleAnnouncement(req: Request, deps: Deps): Promise<Resp
 
   if (action === "preview") {
     const [recipients, optedOut] = await Promise.all([deps.recipients(), deps.optedOutCount()]);
-    return json({ ok: true, recipients: recipients.length, opted_out: optedOut });
+    return json({ ok: true, recipients: uniqueTokens(recipients).length, opted_out: optedOut });
   }
 
+  // Read who gets it first: once marked sent, the message can't be sent again.
+  const recipients = uniqueTokens(await deps.recipients());
   const id = await deps.markSent(slug);
   if (!id) return json({ ok: false, error: "already_sent" });
-  const { sent, failed, stale } = await pushAll(deps, await deps.recipients(), message, {
+  const { sent, failed, stale } = await pushAll(deps, recipients, message, {
     type: "announcement",
     id,
   });
