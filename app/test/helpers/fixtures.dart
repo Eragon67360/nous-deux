@@ -25,6 +25,8 @@ ProfileEntity profile({
   bool shareCheckins = true,
   String? calendarSyncDevice,
   DateTime? calendarSyncedAt,
+  bool announcementsPush = true,
+  DateTime? announcementsSeenAt,
 }) {
   return ProfileEntity(
     id: id,
@@ -38,6 +40,8 @@ ProfileEntity profile({
     shareCheckins: shareCheckins,
     calendarSyncDevice: calendarSyncDevice,
     calendarSyncedAt: calendarSyncedAt,
+    announcementsPush: announcementsPush,
+    announcementsSeenAt: announcementsSeenAt,
   );
 }
 

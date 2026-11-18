@@ -3,6 +3,8 @@ import 'package:nousdeux/data/calendar_sync/phone_calendar.dart';
 import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'dart:async';
 
+import 'package:nousdeux/domain/entities/announcement_entity.dart';
+import 'package:nousdeux/domain/repositories/announcements_repository.dart';
 import 'package:nousdeux/domain/repositories/lists_repository.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/domain/repositories/ping_repository.dart';
@@ -156,6 +158,8 @@ class FakeProfileRepository implements ProfileRepository {
     bool? tracksCycle,
     bool? shareCycle,
     bool? shareCheckins,
+    bool? announcementsPush,
+    DateTime? announcementsSeenAt,
   }) {
     return ProfileEntity(
       id: p.id,
@@ -169,6 +173,8 @@ class FakeProfileRepository implements ProfileRepository {
       shareCheckins: shareCheckins ?? p.shareCheckins,
       calendarSyncDevice: p.calendarSyncDevice,
       calendarSyncedAt: p.calendarSyncedAt,
+      announcementsPush: announcementsPush ?? p.announcementsPush,
+      announcementsSeenAt: announcementsSeenAt ?? p.announcementsSeenAt,
       createdAt: p.createdAt,
       updatedAt: p.updatedAt,
     );
@@ -267,6 +273,30 @@ class FakeProfileRepository implements ProfileRepository {
 
   int markSyncedCalls = 0;
 
+  /// The values [setAnnouncementsPush] was called with.
+  final pushCalls = <bool>[];
+
+  /// The times [markAnnouncementsSeen] was called with.
+  final seenCalls = <DateTime>[];
+
+  @override
+  Future<ProfileResult> setAnnouncementsPush(bool on) async {
+    pushCalls.add(on);
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _copy(mine!, announcementsPush: on);
+    return (profile: mine, failure: null);
+  }
+
+  @override
+  Future<ProfileResult> markAnnouncementsSeen(DateTime upTo) async {
+    seenCalls.add(upTo);
+    final failure = _takeFailure();
+    if (failure != null) return (profile: null, failure: failure);
+    mine = _copy(mine!, announcementsSeenAt: upTo);
+    return (profile: mine, failure: null);
+  }
+
   @override
   Future<ProfileResult> markCalendarSynced() async {
     markSyncedCalls++;
@@ -296,6 +326,8 @@ class FakeProfileRepository implements ProfileRepository {
     shareCheckins: p.shareCheckins,
     calendarSyncDevice: device,
     calendarSyncedAt: syncedAt,
+    announcementsPush: p.announcementsPush,
+    announcementsSeenAt: p.announcementsSeenAt,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
   );
@@ -1055,5 +1087,23 @@ class FakePhoneCalendar implements PhoneCalendar {
     final per = perCalendar;
     if (!allowed || per == null) return null;
     return [for (final id in calendarIds) ...?per[id]];
+  }
+}
+
+/// The team's sent messages, in memory. Set [error] to make the next reads fail.
+class FakeAnnouncementsRepository implements AnnouncementsRepository {
+  FakeAnnouncementsRepository([List<AnnouncementEntity>? items])
+    : items = [...?items];
+
+  final List<AnnouncementEntity> items;
+  Object? error;
+  int reads = 0;
+
+  @override
+  Future<List<AnnouncementEntity>> sentAnnouncements() async {
+    reads++;
+    final e = error;
+    if (e != null) throw e;
+    return [...items];
   }
 }

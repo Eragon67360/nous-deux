@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/lists_strings.dart';
+import 'package:nousdeux/core/constants/news_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/core/utils/date_only.dart';
 import 'package:nousdeux/domain/nous/note_words.dart';
 import 'package:nousdeux/domain/nous/nous_dates.dart';
+import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/own_words_provider.dart';
@@ -35,6 +37,7 @@ class NousScreen extends ConsumerWidget {
     final lang = profile?.language ?? 'fr';
     final since = ref.watch(togetherSinceProvider);
     final paired = profile?.hasPartner ?? false;
+    final unread = ref.watch(unreadAnnouncementsCountProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -52,7 +55,10 @@ class NousScreen extends ConsumerWidget {
                 Expanded(child: NotebookLabel(nousTitle(lang))),
                 _AvatarButton(
                   initial: _initial(profile?.username),
-                  tooltip: nousSettingsTooltip(lang),
+                  tooltip: unread > 0
+                      ? newsAvatarUnread(lang, unread)
+                      : nousSettingsTooltip(lang),
+                  unread: unread > 0,
                   onPressed: () => context.push(AppRoutes.settings),
                 ),
               ],
@@ -106,11 +112,15 @@ class _AvatarButton extends StatelessWidget {
   const _AvatarButton({
     required this.initial,
     required this.tooltip,
+    required this.unread,
     required this.onPressed,
   });
 
   final String initial;
   final String tooltip;
+
+  /// A message from the team is unread: a gold dot at the top right.
+  final bool unread;
   final VoidCallback onPressed;
 
   @override
@@ -127,15 +137,36 @@ class _AvatarButton extends StatelessWidget {
           child: SizedBox(
             width: 48,
             height: 48,
-            child: Center(
-              child: Text(
-                initial,
-                semanticsLabel: tooltip,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: scheme.onSurface,
-                  fontWeight: FontWeight.w500,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Center(
+                  child: Text(
+                    initial,
+                    semanticsLabel: tooltip,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: scheme.onSurface,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                 ),
-              ),
+                if (unread)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: Container(
+                      key: const ValueKey('avatar-unread-dot'),
+                      width: 13,
+                      height: 13,
+                      decoration: BoxDecoration(
+                        color: scheme.primary,
+                        shape: BoxShape.circle,
+                        // The page's colour around it, so it reads as a dot.
+                        border: Border.all(color: scheme.surface, width: 2),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),

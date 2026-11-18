@@ -10,7 +10,9 @@ import 'package:nousdeux/core/constants/onboarding_strings.dart';
 import 'package:nousdeux/core/constants/period_education.dart'
     show periodScreenTitle;
 import 'package:nousdeux/core/constants/cycle_strings.dart';
+import 'package:nousdeux/core/constants/news_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
+import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/own_words_provider.dart';
@@ -95,6 +97,7 @@ class SettingsScreen extends ConsumerWidget {
                     title: settingsAboutApp(lang),
                     onTap: () => context.push(AppRoutes.settingsInfo),
                   ),
+                  const _NewsTile(),
                   _SettingsTile(
                     icon: Icons.settings_applications_outlined,
                     title: settingsOpenAppSettings(lang),
@@ -1044,7 +1047,90 @@ class _NotificationSwitchesBody extends ConsumerWidget {
           loading: () => const SizedBox.shrink(),
           error: (_, _) => const SizedBox.shrink(),
         ),
+        Divider(height: 1, indent: 16, color: theme.colorScheme.surface),
+        const _NewsPushSwitch(),
       ],
+    );
+  }
+}
+
+/// Paramètres › Nouveautés, with a gold dot and the count while messages
+/// are unread.
+class _NewsTile extends ConsumerWidget {
+  const _NewsTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final lang = ref.watch(myProfileProvider).valueOrNull?.language ?? 'fr';
+    final unread = ref.watch(unreadAnnouncementsCountProvider);
+    final theme = Theme.of(context);
+    return _SettingsTile(
+      icon: Icons.campaign_outlined,
+      title: newsTitle(lang),
+      trailing: unread == 0
+          ? null
+          : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  key: const ValueKey('news-unread-dot'),
+                  width: 7,
+                  height: 7,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  newsUnread(lang, unread),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+      onTap: () => context.push(AppRoutes.settingsNews),
+    );
+  }
+}
+
+/// The push for each new message from the team. Off stops the push only;
+/// the list stays readable.
+class _NewsPushSwitch extends ConsumerWidget {
+  const _NewsPushSwitch();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(myProfileProvider).valueOrNull;
+    final lang = profile?.language ?? 'fr';
+    final theme = Theme.of(context);
+    return SwitchListTile.adaptive(
+      title: Text(settingsNewsPush(lang), softWrap: true),
+      subtitle: Text(
+        settingsNewsPushSubtitle(lang),
+        softWrap: true,
+        style: theme.textTheme.bodySmall,
+      ),
+      value: profile?.announcementsPush ?? true,
+      activeThumbColor: theme.colorScheme.primary,
+      onChanged: profile == null
+          ? null
+          : (on) async {
+              final messenger = ScaffoldMessenger.of(context);
+              final result = await ref
+                  .read(profileRepositoryProvider)
+                  .setAnnouncementsPush(on);
+              if (result.failure != null) {
+                messenger
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(
+                    SnackBar(content: Text(cycleSaveFailed(lang))),
+                  );
+                return;
+              }
+              ref.invalidate(myProfileProvider);
+            },
     );
   }
 }

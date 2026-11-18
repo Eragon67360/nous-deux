@@ -5,9 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/core/constants/lists_strings.dart';
+import 'package:nousdeux/core/constants/news_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
+import 'package:nousdeux/domain/entities/announcement_entity.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/presentation/screens/nous/my_words_screen.dart';
@@ -124,6 +126,38 @@ void main() {
     await tester.tap(find.byTooltip(nousSettingsTooltip('fr')));
     await tester.pumpAndSettle();
     expect(find.text('stub:${AppRoutes.settings}'), findsOneWidget);
+  });
+
+  testWidgets('a gold dot on the avatar while a message is unread', (
+    tester,
+  ) async {
+    final deps = TestDeps(
+      now: _now,
+      myProfile: profile(
+        partner: partnerId,
+        announcementsSeenAt: DateTime.utc(2026, 11, 1),
+      ),
+      partner: partnerProfile(),
+      couple: couple(pairingCode: null, togetherSince: DateTime(2025, 9, 24)),
+      announcements: [
+        AnnouncementEntity(
+          id: 'a1',
+          sentAt: DateTime.utc(2026, 11, 9, 18),
+          texts: {'fr': (title: 'Les listes', body: 'Courses.')},
+        ),
+      ],
+    );
+    await _pump(tester, deps);
+
+    expect(find.byKey(const ValueKey('avatar-unread-dot')), findsOneWidget);
+    expect(find.byTooltip(newsAvatarUnread('fr', 1)), findsOneWidget);
+  });
+
+  testWidgets('no dot when everything is read', (tester) async {
+    await _pump(tester, _paired());
+
+    expect(find.byKey(const ValueKey('avatar-unread-dot')), findsNothing);
+    expect(find.byTooltip(nousSettingsTooltip('fr')), findsOneWidget);
   });
 
   testWidgets('editing the start date saves the picked day', (tester) async {

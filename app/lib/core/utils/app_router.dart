@@ -24,6 +24,7 @@ import 'package:nousdeux/presentation/screens/pairing/pairing_scan_screen.dart';
 import 'package:nousdeux/presentation/screens/pairing/pairing_screen.dart';
 import 'package:nousdeux/presentation/screens/period/period_screen.dart';
 import 'package:nousdeux/presentation/screens/position/position_screen.dart';
+import 'package:nousdeux/presentation/screens/settings/announcements_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
 import 'package:nousdeux/presentation/screens/splash/profile_unavailable_screen.dart';
@@ -288,6 +289,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'info',
             pageBuilder: (_, state) => _fadePage(state, const AppInfoScreen()),
+          ),
+          GoRoute(
+            path: 'news',
+            pageBuilder: (_, state) =>
+                _fadePage(state, const AnnouncementsScreen()),
           ),
         ],
       ),

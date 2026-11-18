@@ -21,25 +21,59 @@ OpenedNote? openedNoteFrom(Map<String, dynamic> data) {
   return (kind: kind, sentAt: sentAt.toLocal());
 }
 
-/// Notes opened from their notification: the one that launched the app,
-/// then each one tapped while the app runs in the background. Ends at once
-/// when Firebase isn't set up.
-Stream<OpenedNote> openedNotes() async* {
+/// What a tapped notification opens.
+sealed class OpenedPush {
+  const OpenedPush();
+}
+
+/// A little note from the partner: the Nous tab shows it full screen.
+final class OpenedNotePush extends OpenedPush {
+  const OpenedNotePush(this.note);
+
+  final OpenedNote note;
+}
+
+/// A message from the team (send-announcement): Paramètres › Nouveautés.
+/// Not const, so two taps are two events.
+final class OpenedAnnouncementPush extends OpenedPush {
+  OpenedAnnouncementPush(this.id);
+
+  /// The message's id, or "test" for a test send.
+  final String id;
+}
+
+/// What the push with [data] opens, or null when it opens nothing in
+/// particular.
+OpenedPush? openedPushFrom(Map<String, dynamic> data) {
+  if (data['type'] == 'announcement') {
+    return OpenedAnnouncementPush(data['id'] as String? ?? '');
+  }
+  final note = openedNoteFrom(data);
+  return note == null ? null : OpenedNotePush(note);
+}
+
+/// Pushes opened from their notification: the one that launched the app,
+/// then each one tapped while the app runs in the background. One stream for
+/// every kind, because Firebase hands out the launch notification only once.
+/// Ends at once when Firebase isn't set up.
+Stream<OpenedPush> openedPushes() async* {
   try {
     final launch = await FirebaseMessaging.instance.getInitialMessage();
-    final first = launch == null ? null : openedNoteFrom(launch.data);
+    final first = launch == null ? null : openedPushFrom(launch.data);
     if (first != null) yield first;
     await for (final message in FirebaseMessaging.onMessageOpenedApp) {
-      final note = openedNoteFrom(message.data);
-      if (note != null) yield note;
+      final push = openedPushFrom(message.data);
+      if (push != null) yield push;
     }
   } catch (_) {
     // Firebase not configured; there are no notifications to open.
   }
 }
 
-/// [openedNotes], injectable so tests can tap a notification.
-final openedNotesProvider = StreamProvider<OpenedNote>((ref) => openedNotes());
+/// [openedPushes], injectable so tests can tap a notification.
+final openedPushesProvider = StreamProvider<OpenedPush>(
+  (ref) => openedPushes(),
+);
 
 /// Registers FCM token with the profile when the user is signed in.
 /// Call once when the app has ref (e.g. from a ConsumerStatefulWidget).

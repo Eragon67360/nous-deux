@@ -147,6 +147,14 @@ class ProfileRepositoryImpl implements ProfileRepository {
     'calendar_synced_at': DateTime.now().toUtc().toIso8601String(),
   });
 
+  @override
+  Future<ProfileResult> setAnnouncementsPush(bool on) =>
+      _updateMine({'announcements_push': on});
+
+  @override
+  Future<ProfileResult> markAnnouncementsSeen(DateTime upTo) =>
+      _updateMine({'announcements_seen_at': upTo.toUtc().toIso8601String()});
+
   Future<ProfileResult> _updateMine(Map<String, dynamic> data) async {
     final uid = _userId;
     if (uid == null) {

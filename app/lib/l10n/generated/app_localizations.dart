@@ -2473,6 +2473,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Try again'**
   String get profileUnavailableRetry;
+
+  /// The team's messages to everyone (Settings › What's new), and the screen's title.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s new'**
+  String get newsTitle;
+
+  /// No description provided for @newsSignature.
+  ///
+  /// In en, this message translates to:
+  /// **'The Nous Deux team'**
+  String get newsSignature;
+
+  /// No description provided for @newsUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{{count} unread} other{{count} unread}}'**
+  String newsUnread(int count);
+
+  /// No description provided for @newsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing new yet.'**
+  String get newsEmpty;
+
+  /// No description provided for @newsLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The news couldn\'t load. Check your connection and try again.'**
+  String get newsLoadFailed;
+
+  /// No description provided for @settingsNewsPush.
+  ///
+  /// In en, this message translates to:
+  /// **'App news'**
+  String get settingsNewsPush;
+
+  /// No description provided for @settingsNewsPushSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New features and messages from the Nous Deux team.'**
+  String get settingsNewsPushSubtitle;
+
+  /// No description provided for @newsAvatarUnread.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, one{Settings, {count} new message} other{Settings, {count} new messages}}'**
+  String newsAvatarUnread(int count);
 }
 
 class _AppLocalizationsDelegate
