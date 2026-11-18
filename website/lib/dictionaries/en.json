@@ -172,7 +172,8 @@
     "sections": {
       "editor": {
         "title": "Publisher and contact",
-        "body": "Nous Deux is a free, ad-free app for couples: a shared calendar, period tracking, location sharing if you turn it on, lists and little notes. For any question about this policy or your data, contact us through the project repository:"
+        "body": "Nous Deux is a free, ad-free app for couples: a shared calendar, period tracking, location sharing if you turn it on, lists and little notes. For any question about this policy or your data, contact us through the project repository:",
+        "feedback": "In the app, Settings › Send feedback opens your mail app: the message is sent from your own email address, with the app version and the kind of phone (iPhone or Android) in the subject. Nothing is sent without you."
       },
       "dataCollected": {
         "title": "Data we collect",

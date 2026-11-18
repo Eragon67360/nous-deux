@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -9,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
+import 'package:nousdeux/core/services/feedback_mail.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
@@ -90,6 +92,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
   bool? tracksCycle,
   List<AnnouncementEntity> announcements = const [],
   DateTime? announcementsSeenAt,
+  List<Override> overrides = const [],
 }) async {
   useTallSurface(tester);
   final deps = TestDeps(
@@ -110,6 +113,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
     deps: deps,
     overrides: [
       permissionsProvider.overrideWith((ref) => Stream.value(_statuses)),
+      ...overrides,
     ],
     initialLocation: '/settings',
     routes: [
@@ -154,6 +158,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text(newsTitle(lang)), findsOneWidget);
+      expect(find.text(settingsFeedback(lang)), findsOneWidget);
       expect(find.text(settingsNewsPush(lang)), findsOneWidget);
       expect(find.text(settingsNewsPushSubtitle(lang)), findsOneWidget);
     });
@@ -177,6 +182,50 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/settings/info');
+  });
+
+  group('Envoyer un retour', () {
+    testWidgets('opens the mail app with the build and the phone', (
+      tester,
+    ) async {
+      final opened = <Uri>[];
+      await _pumpSettings(
+        tester,
+        overrides: [
+          appBuildProvider.overrideWith((ref) async => '30'),
+          openMailProvider.overrideWithValue((uri) async {
+            opened.add(uri);
+            return true;
+          }),
+        ],
+      );
+
+      await tester.tap(find.text(settingsFeedback('fr')));
+      await tester.pumpAndSettle();
+
+      // Tests run as Android.
+      expect(opened, [feedbackMailUri(lang: 'fr', build: '30', isIos: false)]);
+    });
+
+    testWidgets('without a mail app, the address is shown instead', (
+      tester,
+    ) async {
+      await _pumpSettings(
+        tester,
+        overrides: [
+          appBuildProvider.overrideWith((ref) async => '30'),
+          openMailProvider.overrideWithValue((uri) async => false),
+        ],
+      );
+
+      await tester.tap(find.text(settingsFeedback('fr')));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(settingsFeedbackNoMail('fr', feedbackEmail)),
+        findsOneWidget,
+      );
+    });
   });
 
   group('Nouveautés', () {

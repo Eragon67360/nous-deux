@@ -1561,4 +1561,17 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsFeedback => 'Send feedback';
+
+  @override
+  String feedbackSubject(String build, String device) {
+    return 'Nous Deux · build $build · $device';
+  }
+
+  @override
+  String settingsFeedbackNoMail(String email) {
+    return 'No mail app found. Write to $email.';
+  }
 }

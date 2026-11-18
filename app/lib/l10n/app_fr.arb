@@ -403,5 +403,8 @@
   "newsLoadFailed": "Impossible de charger les nouveautés. Vérifiez votre connexion, puis réessayez.",
   "settingsNewsPush": "Nouveautés de l'app",
   "settingsNewsPushSubtitle": "Les nouvelles fonctions et les messages de l'équipe Nous Deux.",
-  "newsAvatarUnread": "{count, plural, one{Réglages, {count} nouveauté} other{Réglages, {count} nouveautés}}"
+  "newsAvatarUnread": "{count, plural, one{Réglages, {count} nouveauté} other{Réglages, {count} nouveautés}}",
+  "settingsFeedback": "Envoyer un retour",
+  "feedbackSubject": "Nous Deux · build {build} · {device}",
+  "settingsFeedbackNoMail": "Aucune app de mail trouvée. Écrivez à {email}."
 }

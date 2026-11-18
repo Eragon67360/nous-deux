@@ -100,6 +100,7 @@ export default async function PolitiqueDeConfidentialitePage({
               </a>
               .
             </p>
+            <p className="mt-3">{p.sections.editor.feedback}</p>
           </section>
 
           <section>
