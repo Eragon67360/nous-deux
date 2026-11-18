@@ -1519,4 +1519,14 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get appInfoFriendsName => 'Les amis';
+
+  @override
+  String get profileUnavailableTitle => 'Connexion impossible';
+
+  @override
+  String get profileUnavailableBody =>
+      'Nous Deux n\'arrive pas à joindre son serveur. Vérifiez votre connexion, puis réessayez.';
+
+  @override
+  String get profileUnavailableRetry => 'Réessayer';
 }

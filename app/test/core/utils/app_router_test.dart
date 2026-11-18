@@ -12,6 +12,7 @@ import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/splash_provider.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
+import 'package:nousdeux/core/utils/app_routes.dart';
 
 import '../../helpers/fixtures.dart';
 import '../../helpers/test_app.dart';
@@ -48,7 +49,12 @@ Future<ProviderContainer> _session(
   container.listen(myProfileProvider, (_, _) {});
   if (!authLoading) {
     await container.read(currentUserProvider.future);
-    if (!profileLoading) await container.read(myProfileProvider.future);
+    if (!profileLoading) {
+      // A profile that can't load is an error the router reads; let it settle.
+      try {
+        await container.read(myProfileProvider.future);
+      } catch (_) {}
+    }
   }
   return container;
 }
@@ -155,6 +161,50 @@ void main() {
       tester.binding.scheduleFrame();
       await tester.pump();
       expect(deps.auth.signOutCalls, 1);
+    });
+
+    redirectTest('signed in, profile can\'t load (no network): keeps the '
+        'session and offers to retry', (tester) async {
+      final deps = TestDeps()..profiles.loadFailure = const NetworkFailure();
+      final c = await _session(deps);
+      expect(await _redirectFrom(tester, c, '/main'), AppRoutes.unavailable);
+      expect(await _redirectFrom(tester, c, '/'), AppRoutes.unavailable);
+      expect(await _redirectFrom(tester, c, AppRoutes.unavailable), isNull);
+      tester.binding.scheduleFrame();
+      await tester.pump();
+      expect(deps.auth.signOutCalls, 0);
+    });
+
+    redirectTest('once the profile loads, the retry screen leaves for /main', (
+      tester,
+    ) async {
+      final deps = TestDeps()
+        ..profiles.loadFailure = const ServerFailure('504');
+      final c = await _session(deps);
+      expect(await _redirectFrom(tester, c, AppRoutes.unavailable), isNull);
+
+      deps.profiles.loadFailure = null;
+      c.invalidate(myProfileProvider);
+      await c.read(myProfileProvider.future);
+
+      expect(await _redirectFrom(tester, c, AppRoutes.unavailable), '/main');
+    });
+
+    redirectTest('a refresh that fails after the profile loaded moves no one', (
+      tester,
+    ) async {
+      final deps = TestDeps();
+      final c = await _session(deps);
+      deps.profiles.loadFailure = const NetworkFailure();
+      c.invalidate(myProfileProvider);
+      try {
+        await c.read(myProfileProvider.future);
+      } catch (_) {}
+
+      expect(await _redirectFrom(tester, c, '/main'), isNull);
+      tester.binding.scheduleFrame();
+      await tester.pump();
+      expect(deps.auth.signOutCalls, 0);
     });
 
     group('signed in, onboarding not done', () {

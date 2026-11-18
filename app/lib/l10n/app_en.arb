@@ -950,5 +950,11 @@
   "positionMe": "Me",
   "positionSeeAll": "See all",
   "positionPartnerFallback": "Partner",
-  "appInfoFriendsName": "Friends"
+  "appInfoFriendsName": "Friends",
+  "profileUnavailableTitle": "Can't connect",
+  "profileUnavailableBody": "Nous Deux can't reach its server. Check your connection, then try again.",
+  "profileUnavailableRetry": "Try again",
+  "@profileUnavailableTitle": {
+    "description": "Signed in, but the profile could not load (no network or server error)."
+  }
 }

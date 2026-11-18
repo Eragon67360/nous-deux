@@ -39,13 +39,16 @@ void main() {
       expect(deps.profiles.getOrCreateCalls, 0);
     });
 
-    test('turns a repository failure into null', () async {
+    test('a server failure is an error, not a missing account', () async {
       final deps = TestDeps()
-        ..profiles.loadFailure = const ServerFailure('gone');
+        ..profiles.loadFailure = const ServerFailure('504');
       final c = containerFor(deps);
       c.listen(myProfileProvider, (_, _) {});
       await c.read(currentUserProvider.future);
-      expect(await c.read(myProfileProvider.future), isNull);
+      await expectLater(
+        c.read(myProfileProvider.future),
+        throwsA(isA<ProfileUnavailableException>()),
+      );
     });
   });
 

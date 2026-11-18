@@ -26,6 +26,7 @@ import 'package:nousdeux/presentation/screens/period/period_screen.dart';
 import 'package:nousdeux/presentation/screens/position/position_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/app_info_screen.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
+import 'package:nousdeux/presentation/screens/splash/profile_unavailable_screen.dart';
 import 'package:nousdeux/presentation/screens/splash/splash_screen.dart';
 import 'package:nousdeux/presentation/theme/app_motion.dart';
 
@@ -148,12 +149,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         return null;
       }
 
-      // Signed in but profile missing or failed (e.g. user deleted from DB) → sign out and go to auth
-      if (isSignedIn && !profileAsync.isLoading && profile == null) {
+      // Signed in, but the profile couldn't load (no network, a server
+      // error) and none loaded before: keep the session and offer to retry.
+      // Signing out here sent people offline at launch back to the SMS code
+      // (GlitchTip APP-5).
+      if (isSignedIn && profileHasError && profile == null) {
         appLog(
           'ROUTER',
           message:
-              '  → /auth (signed in but no profile${profileHasError ? " or profile error" : ""}, signing out)',
+              '  → /unavailable (profile could not load, keeping the session)',
+          color: '\x1B[33m',
+        );
+        return loc == AppRoutes.unavailable ? null : AppRoutes.unavailable;
+      }
+
+      // Signed in, but the account is gone (deleted elsewhere: the profile
+      // loaded as none) → sign out and go to auth.
+      if (isSignedIn && !profileAsync.isLoading && profile == null) {
+        appLog(
+          'ROUTER',
+          message: '  → /auth (signed in but the account is gone, signing out)',
           color: '\x1B[32m',
         );
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -195,6 +210,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Onboarding done: go to main (never auto-redirect to pairing)
       if (hasCompletedOnboarding &&
           (loc == '/' ||
+              loc == AppRoutes.unavailable ||
               loc.startsWith('/auth') ||
               loc.startsWith('/onboarding'))) {
         appLog(
@@ -230,6 +246,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.authEmail,
         pageBuilder: (_, state) => _fadePage(state, const EmailSignInScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.unavailable,
+        pageBuilder: (_, state) =>
+            _fadePage(state, const ProfileUnavailableScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboarding,

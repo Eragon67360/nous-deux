@@ -2455,6 +2455,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Friends'**
   String get appInfoFriendsName;
+
+  /// Signed in, but the profile could not load (no network or server error).
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t connect'**
+  String get profileUnavailableTitle;
+
+  /// No description provided for @profileUnavailableBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Nous Deux can\'t reach its server. Check your connection, then try again.'**
+  String get profileUnavailableBody;
+
+  /// No description provided for @profileUnavailableRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get profileUnavailableRetry;
 }
 
 class _AppLocalizationsDelegate

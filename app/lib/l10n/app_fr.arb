@@ -392,5 +392,8 @@
   "positionMe": "Moi",
   "positionSeeAll": "Voir tout",
   "positionPartnerFallback": "Partenaire",
-  "appInfoFriendsName": "Les amis"
+  "appInfoFriendsName": "Les amis",
+  "profileUnavailableTitle": "Connexion impossible",
+  "profileUnavailableBody": "Nous Deux n'arrive pas à joindre son serveur. Vérifiez votre connexion, puis réessayez.",
+  "profileUnavailableRetry": "Réessayer"
 }
