@@ -1219,7 +1219,7 @@
       }
     }
   },
-  "pillPackTypeNote": "{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones included.} other{One pill every day, with no break.}}",
+  "pillPackTypeNote": "{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones too if your pack has them.} other{One pill every day, with no break.}}",
   "@pillPackTypeNote": {
     "description": "One line under the pack type choice, for the selected type.",
     "placeholders": {

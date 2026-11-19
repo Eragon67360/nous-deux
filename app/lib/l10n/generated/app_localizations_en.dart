@@ -1837,7 +1837,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String pillPackTypeNote(String type) {
     String _temp0 = intl.Intl.selectLogic(type, {
       'p21x7': '21 pills, then 7 days off with no reminder.',
-      'p28': '28 pills with no break, hormone-free ones included.',
+      'p28':
+          '28 pills with no break, hormone-free ones too if your pack has them.',
       'other': 'One pill every day, with no break.',
     });
     return '$_temp0';

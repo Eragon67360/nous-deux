@@ -134,6 +134,23 @@ void main() {
     expect(after.at.toUtc(), DateTime.utc(2026, 10, 26, 20));
   });
 
+  test('no discreet reminder names the pill, its number or the pack', () {
+    for (final lang in ['fr', 'en']) {
+      for (final r in plan(lang: lang)) {
+        final text = '${r.title} ${r.body}'.toLowerCase();
+        for (final word in [
+          'pilule',
+          'pill',
+          'comprimé',
+          'plaquette',
+          'pack',
+        ]) {
+          expect(text, isNot(contains(word)), reason: '$lang ${r.at}: $text');
+        }
+      }
+    }
+  });
+
   test('the discreet text never names the pill or its number', () {
     for (final lang in ['fr', 'en']) {
       for (final r in plan(lang: lang).take(2)) {
@@ -231,6 +248,57 @@ void main() {
       final reminders = plan(s: s);
       expect(reminders.where((r) => r.at.hour == 9), isEmpty);
       expect(reminders.where((r) => r.body.contains('plaquette')), isEmpty);
+    });
+
+    test('no buttons on iOS for the heads-up and the last reminder', () {
+      final reminders = plan(s: settings(text: ReminderText.clear));
+      final headsUp = reminders.where((r) => onDay(r, 12, 5) && r.at.hour == 9);
+      expect(headsUp.single.iosCategory, isNull);
+      expect(reminders.last.id, pillKeepAliveId);
+      expect(reminders.last.iosCategory, isNull);
+    });
+
+    test('no heads-up once day 1 is ticked', () {
+      final day1 = plan(
+        now: DateTime(2026, 12, 5, 8),
+        intakes: [
+          PillIntake.taken(DateTime(2026, 12, 5), DateTime(2026, 12, 5, 7, 50)),
+        ],
+      ).where((r) => onDay(r, 12, 5));
+      expect(day1, isEmpty);
+    });
+
+    test('on day 1 after 9:00, the evening reminders stay', () {
+      final day1 = plan(
+        now: DateTime(2026, 12, 5, 10),
+      ).where((r) => onDay(r, 12, 5)).map((r) => '${r.at.hour}:${r.at.minute}');
+      expect(day1, ['21:0', '21:30']);
+    });
+
+    test('a 10:30 reminder still gets the heads-up', () {
+      final s = PillSettings(
+        packType: PackType.p21x7,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderTime: (hour: 10, minute: 30),
+        timeZone: 'Europe/Paris',
+      );
+      final day1 = plan(
+        s: s,
+      ).where((r) => onDay(r, 12, 5)).map((r) => r.at.hour);
+      expect(day1, [9, 10, 11]);
+    });
+
+    test('no more days than the ids leave room for', () {
+      expect(
+        () => planPillReminders(
+          settings: settings(),
+          intakes: const [],
+          now: DateTime(2026, 11, 18, 12),
+          lang: 'fr',
+          days: pillPlanDays + 1,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
     });
 
     test('every plan stays within iOS\'s 64 pending notifications', () {

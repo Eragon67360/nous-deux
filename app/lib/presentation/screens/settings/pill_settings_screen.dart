@@ -203,9 +203,9 @@ class PillSettingsScreen extends ConsumerWidget {
   }
 }
 
-/// « Comprimé d'aujourd'hui »: moves the pack so today is that pill.
-/// What the next pill day's first reminder will show on the lock screen,
-/// so « Pilule » and « Petit rappel » need no explaining (Evah).
+/// The next reminder that will ring, as the lock screen will show it, so
+/// « Pilule » and « Petit rappel » need no explaining (Evah). It comes from
+/// the planner itself; nothing shows while the reminders are off.
 class _LockScreenPreview extends ConsumerWidget {
   const _LockScreenPreview({required this.lang, required this.settings});
 
@@ -214,22 +214,28 @@ class _LockScreenPreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final now = ref.watch(clockProvider)();
-    var day = DateTime(now.year, now.month, now.day);
-    for (var i = 0; i < 7 && !settings.schedule.isPillDay(day); i++) {
-      day = DateTime(day.year, day.month, day.day + 1);
-    }
-    final shown = pillFirstReminder(settings, day, lang);
+    final next = planPillReminders(
+      settings: settings,
+      intakes: ref.watch(pillWeekProvider).valueOrNull ?? const [],
+      now: ref.watch(clockProvider)(),
+      lang: lang,
+    ).where(_isFirstOfDay).firstOrNull;
+    if (next == null) return const SizedBox.shrink();
     final theme = Theme.of(context);
     return Text(
-      pillLockScreenPreview(lang, shown.title, shown.body),
+      pillLockScreenPreview(lang, next.title, next.body),
       style: theme.textTheme.bodySmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
       ),
     );
   }
+
+  /// A day's first reminder: not its +30 min one, the heads-up or the last.
+  static bool _isFirstOfDay(PlannedReminder r) =>
+      r.id >= pillReminderFirstId && r.id < pillNewPackFirstId && r.id.isEven;
 }
 
+/// « Comprimé d'aujourd'hui »: moves the pack so today is that pill.
 class _TodayPill extends ConsumerWidget {
   const _TodayPill({
     required this.lang,

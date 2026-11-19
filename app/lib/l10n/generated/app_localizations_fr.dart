@@ -1849,7 +1849,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String pillPackTypeNote(String type) {
     String _temp0 = intl.Intl.selectLogic(type, {
       'p21x7': '21 comprimés, puis 7 jours d\'arrêt sans rappel.',
-      'p28': '28 comprimés sans arrêt, y compris ceux sans hormone.',
+      'p28':
+          '28 comprimés sans arrêt, y compris ceux sans hormone s\'il y en a.',
       'other': 'Un comprimé chaque jour, sans arrêt.',
     });
     return '$_temp0';

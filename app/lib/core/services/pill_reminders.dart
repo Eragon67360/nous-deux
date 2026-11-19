@@ -56,7 +56,10 @@ class PlannedReminder {
   /// What the tap and the buttons need: the day, and the texts and buttons
   /// to show again for « Dans 30 min ».
   final String payload;
-  final String iosCategory;
+
+  /// The iOS category, which holds the buttons; null for a reminder without
+  /// any (the heads-up, the last one), or iOS would show « Prise » on it.
+  final String? iosCategory;
   final List<LocalAction> actions;
 }
 
@@ -110,27 +113,17 @@ String _clock(TimeOfDayValue t, String lang) => DateFormat.jm(
   AppLanguages.dateLocale(lang),
 ).format(DateTime(2000, 1, 1, t.hour, t.minute));
 
-/// A pill day's first reminder as it shows (the settings preview it): the
-/// clear text names the pill and its number, or the new pack on day 1 of a
-/// 21 + 7 or 28 pack; the discreet one only the time.
-({String title, String body}) pillFirstReminder(
-  PillSettings settings,
-  DateTime day,
-  String lang,
-) {
+/// A pill day's first reminder text: the clear one names the pill and its
+/// [number], or the new pack on day 1 of a 21 + 7 or 28 pack; the discreet
+/// one only the time.
+String _firstBody(PillSettings settings, int number, String lang) {
   final l = l10nFor(lang);
-  final style = settings.reminderText;
-  final schedule = settings.schedule;
-  final number = schedule.pillNumber(day) ?? 1;
-  final newPack = number == 1 && schedule.type != PackType.continuous;
-  return (
-    title: l.pillReminderTitle(style.wire),
-    body: style == ReminderText.clear
-        ? newPack
-              ? l.pillReminderBodyNewPack
-              : l.pillReminderBodyClear(number)
-        : l.pillReminderBodyDiscreet(_clock(settings.reminderTime, lang)),
-  );
+  final newPack = number == 1 && settings.packType != PackType.continuous;
+  return settings.reminderText == ReminderText.clear
+      ? newPack
+            ? l.pillReminderBodyNewPack
+            : l.pillReminderBodyClear(number)
+      : l.pillReminderBodyDiscreet(_clock(settings.reminderTime, lang));
 }
 
 /// When a 21 + 7 pack starts again after its break, a heads-up at 9:00
@@ -150,6 +143,8 @@ List<PlannedReminder> planPillReminders({
   required String lang,
   int days = pillPlanDays,
 }) {
+  // Past it, the heads-up ids (from 1060) would reach the last one's.
+  assert(days <= pillPlanDays);
   if (!settings.reminderOn) return const [];
   final l = l10nFor(lang);
   final style = settings.reminderText;
@@ -191,7 +186,7 @@ List<PlannedReminder> planPillReminders({
             title,
             body,
             day,
-            category,
+            null,
             const [],
           ),
         );
@@ -209,7 +204,7 @@ List<PlannedReminder> planPillReminders({
       (
         id: pillReminderFirstId + 2 * i,
         at: first,
-        body: pillFirstReminder(settings, day, lang).body,
+        body: _firstBody(settings, number, lang),
       ),
       (
         id: pillReminderFirstId + 2 * i + 1,
@@ -241,7 +236,7 @@ List<PlannedReminder> planPillReminders({
       title,
       l.pillReminderKeepAlive,
       end,
-      category,
+      null,
       const [],
     ),
   );
@@ -254,7 +249,7 @@ PlannedReminder _planned(
   String title,
   String body,
   DateTime day,
-  String category,
+  String? category,
   List<LocalAction> actions,
 ) => PlannedReminder(
   id: id,
@@ -266,7 +261,7 @@ PlannedReminder _planned(
     'day': _date(day),
     'title': title,
     'body': body,
-    'category': category,
+    'category': category ?? '',
     'taken': actions.isEmpty ? '' : actions.first.label,
     'snooze': actions.isEmpty ? '' : actions.last.label,
   }),
@@ -305,7 +300,10 @@ Future<void> snoozePillReminder(
     title: p['title'] as String? ?? '',
     body: p['body'] as String? ?? '',
     payload: payload,
-    iosCategory: p['category'] as String?,
+    iosCategory: switch (p['category']) {
+      final String c when c.isNotEmpty => c,
+      _ => null,
+    },
     actions: [
       LocalAction(pillTakenAction, p['taken'] as String? ?? '', opensApp: true),
       LocalAction(

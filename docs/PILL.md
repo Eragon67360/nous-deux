@@ -311,7 +311,7 @@ Changed before build 30:
 
 - **Pack types:** one line under the choice, in the setup and the settings, for the selected type:
   - 21 + 7: « 21 comprimés, puis 7 jours d'arrêt sans rappel. »
-  - 28: « 28 comprimés sans arrêt, y compris ceux sans hormone. »
+  - 28: « 28 comprimés sans arrêt, y compris ceux sans hormone s'il y en a. »
   - continuous: « Un comprimé chaque jour, sans arrêt. »
   « 28 » and « En continu » still behave the same (packs of 28 counted); the line says only what each means.
 - **Lock screen:** under « Pilule » / « Petit rappel », the next pill day's first reminder as it will show (`pillFirstReminder()`, the planner's own wording).

@@ -78,7 +78,9 @@ void main() {
       await tester.tap(find.text(pillPackType('fr', PackType.p28)));
       await tester.pumpAndSettle();
       expect(
-        find.text('28 comprimés sans arrêt, y compris ceux sans hormone.'),
+        find.text(
+          "28 comprimés sans arrêt, y compris ceux sans hormone s'il y en a.",
+        ),
         findsOneWidget,
       );
       await tester.tap(find.text(pillPackType('fr', PackType.continuous)));
@@ -241,12 +243,16 @@ void main() {
       expect(find.text("Pas encore cochée aujourd'hui"), findsOneWidget);
     });
 
-    testWidgets('a missed day has its own mark in the pack', (tester) async {
+    testWidgets('missed days have their own grey mark in the pack', (
+      tester,
+    ) async {
       useTallSurface(tester);
       final deps = TestDeps(
         now: DateTime(2026, 11, 18, 20),
         pillSettings: _settings(),
         pillIntakes: [
+          // Two in the same week of the pack: the same row.
+          PillIntake.missed(DateTime(2026, 11, 15)),
           PillIntake.missed(DateTime(2026, 11, 16)),
           PillIntake.taken(
             DateTime(2026, 11, 17),
@@ -256,7 +262,14 @@ void main() {
       );
       await pumpScreen(tester, _inPage(const PillSection()), deps: deps);
 
-      expect(find.byKey(const ValueKey('pill-dot-missed')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      final lines = find.byKey(const ValueKey('pill-dot-missed-line'));
+      expect(lines, findsNWidgets(2));
+      final scheme = Theme.of(tester.element(lines.first)).colorScheme;
+      for (final line in tester.widgetList<Container>(lines)) {
+        expect(line.color, scheme.outline);
+        expect(line.color, isNot(scheme.error));
+      }
     });
 
     testWidgets('after midnight, yesterday\'s pill can still be ticked', (
@@ -405,6 +418,40 @@ void main() {
         ),
         findsOneWidget,
       );
+    });
+
+    testWidgets('the preview shows the next reminder that will ring', (
+      tester,
+    ) async {
+      useTallSurface(tester);
+      Future<void> pumpWith(PillSettings s, List<PillIntake> intakes) =>
+          pumpScreen(
+            tester,
+            const PillSettingsScreen(),
+            deps: TestDeps(
+              now: DateTime(2026, 11, 18, 21, 10),
+              myProfile: profile(partner: partnerId),
+              partner: partnerProfile(),
+              couple: couple(pairingCode: null),
+              pillSettings: s,
+              pillIntakes: intakes,
+            ),
+          );
+
+      // Today's pill 12 ticked: the next one is tomorrow's, pill 13.
+      await pumpWith(_settings(text: ReminderText.clear), [
+        PillIntake.taken(_today, DateTime(2026, 11, 18, 21, 5)),
+      ]);
+      expect(
+        find.text(
+          "Vous verrez\u00a0: «\u00a0Pilule · C'est l'heure de votre pilule. Comprimé 13.\u00a0»",
+        ),
+        findsOneWidget,
+      );
+
+      // Reminders off: nothing will show, so no preview.
+      await pumpWith(_settings(reminderOn: false), const []);
+      expect(find.textContaining('Vous verrez'), findsNothing);
     });
 
     testWidgets('stopping asks first, then deletes everything', (tester) async {

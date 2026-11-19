@@ -297,7 +297,6 @@ class _PackGrid extends ConsumerWidget {
       final isToday = d == today;
       if (missed) {
         return Container(
-          key: const ValueKey('pill-dot-missed'),
           width: 14,
           height: 14,
           alignment: Alignment.center,
@@ -308,7 +307,12 @@ class _PackGrid extends ConsumerWidget {
               width: isToday ? 2 : 1,
             ),
           ),
-          child: Container(width: 6, height: 1.5, color: scheme.outline),
+          child: Container(
+            key: const ValueKey('pill-dot-missed-line'),
+            width: 6,
+            height: 1.5,
+            color: scheme.outline,
+          ),
         );
       }
       return Container(

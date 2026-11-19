@@ -2939,7 +2939,7 @@ abstract class AppLocalizations {
   /// One line under the pack type choice, for the selected type.
   ///
   /// In en, this message translates to:
-  /// **'{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones included.} other{One pill every day, with no break.}}'**
+  /// **'{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones too if your pack has them.} other{One pill every day, with no break.}}'**
   String pillPackTypeNote(String type);
 
   /// Under the lock-screen choice: the reminder as it will show.

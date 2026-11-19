@@ -473,7 +473,7 @@
   "pillReminderBodyNewPack": "C'est l'heure de votre pilule : premier comprimé d'une nouvelle plaquette.",
   "pillNewPackMorningClear": "Nouvelle plaquette aujourd'hui : emportez-la si vous sortez.",
   "pillNewPackMorningDiscreet": "Votre rappel de {time} reprend aujourd'hui.",
-  "pillPackTypeNote": "{type, select, p21x7{21 comprimés, puis 7 jours d'arrêt sans rappel.} p28{28 comprimés sans arrêt, y compris ceux sans hormone.} other{Un comprimé chaque jour, sans arrêt.}}",
+  "pillPackTypeNote": "{type, select, p21x7{21 comprimés, puis 7 jours d'arrêt sans rappel.} p28{28 comprimés sans arrêt, y compris ceux sans hormone s'il y en a.} other{Un comprimé chaque jour, sans arrêt.}}",
   "pillLockScreenPreview": "Vous verrez : « {title} · {body} »",
   "pillReminderKeepAlive": "Ouvrez Nous Deux pour garder vos rappels.",
   "updateLabel": "Mise à jour",
