@@ -44,18 +44,13 @@ jobs:
       - name: Check links
         run: dart run scripts/check_period_links.dart
 
+      # Always name+build: the release notes step stops on a pubspec without +N.
       - name: Get version
         id: version
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | tr -d '\r')
-          BUILD="${GITHUB_RUN_NUMBER:-0}"
-          if echo "$VERSION" | grep -q '+'; then
-            FULL="${VERSION}"
-          else
-            FULL="${VERSION}+${BUILD}"
-          fi
-          echo "version=$FULL" >> $GITHUB_OUTPUT
-          echo "Version: $FULL"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
 
       - name: Setup Java
         uses: actions/setup-java@v4

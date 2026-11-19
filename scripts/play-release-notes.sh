@@ -28,7 +28,8 @@ for lang in fr en; do
   line=$(jq -r --arg l "$lang" '.[$l]' <<<"$file")
   [[ -n "${line//[[:space:]]/}" ]] ||
     { echo "::error::app/release_note.json : la ligne $lang est vide." >&2; exit 1; }
-  length=$(jq -r --arg l "$lang" '.[$l] | length' <<<"$file")
+  # In UTF-16 units, as Play's Java strings count: an emoji counts twice.
+  length=$(jq -r --arg l "$lang" '[.[$l] | explode[] | if . > 65535 then 2 else 1 end] | add' <<<"$file")
   ((length <= 500)) ||
     { echo "::error::app/release_note.json : la ligne $lang fait $length caractères, Play en accepte 500." >&2; exit 1; }
 done
