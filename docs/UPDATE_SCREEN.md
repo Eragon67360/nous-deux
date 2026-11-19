@@ -11,7 +11,7 @@
   - The iPhone compares its build with the iOS row.
   - Android asks Google Play (in-app updates API), because the Play upload is a draft until Thomas promotes it. The note is shown only when Play's build is the one the row describes.
   - The minimum comes from the row on both platforms.
-- **App:** a gate above the router shows the screen over anything, sign-in included. It checks at start and on each resume. « Mettre à jour » opens TestFlight or Google Play; nothing installs by itself. « Plus tard » hides it until the next day; the obligatory screen has no « Plus tard ».
+- **App:** a gate above the router shows the screen over the app once someone is signed in (signed-out callers read nothing in public, `98_hardening`). It checks at start, on sign-in and on each resume. « Mettre à jour » opens TestFlight or Google Play; nothing installs by itself. « Plus tard » hides it until the next day; the obligatory screen has no « Plus tard ».
 
 **Tech Stack:** Postgres (RLS, definer function, built-in `sha256`), GitHub Actions + curl, Flutter (Riverpod, in_app_update 4.2.5, url_launcher, shared_preferences, gen-l10n).
 
@@ -65,7 +65,7 @@
 ### Task 1: The table, the recording function and the scripts
 
 **Interfaces — produces:**
-- `public.app_builds(platform text pk in ('android','ios'), latest_build int ≥ 0, min_build int ≥ 0, note jsonb object, updated_at)`, seeded with both rows. Readable by `anon` and `authenticated` (SELECT of those four columns), writable by nobody but `postgres`/`service_role`.
+- `public.app_builds(platform text pk in ('android','ios'), latest_build int ≥ 0, min_build int ≥ 0, note jsonb object, updated_at)`, seeded with both rows. Readable by `authenticated` (SELECT of those four columns), writable by nobody but `postgres`/`service_role`.
 - `private.release_token(only boolean pk, token_sha256 bytea)`: no grants.
 - `public.record_app_build(p_platform text, p_build int, p_note jsonb, p_token text) returns void`, definer, `search_path = ''`, EXECUTE to `anon` only:
   - It raises 42501 unless `sha256(convert_to(p_token,'UTF8'))` matches.
@@ -73,8 +73,7 @@
   - It sets `latest_build = greatest(...)`, and `note` only when `p_build >= latest_build`.
 
 - [ ] Scenario `87_app_builds_scenario.sql`, run before the migration exists (fails):
-  - anon reads both rows;
-  - anon UPDATE and INSERT are refused;
+  - anon reads nothing, and its UPDATE and INSERT are refused;
   - a wrong token is refused;
   - the right token records ios 30 with its note;
   - recording ios 29 afterwards keeps 30 and its note;
@@ -159,5 +158,5 @@
   - « Plus tard » hides it, and a relaunch keeps it hidden;
   - after changing the saved day, it comes back;
   - « Mettre à jour » opens the TestFlight fallback in Safari (TestFlight isn't on the simulator).
-- [ ] With `min_build` = 30, the obligatory screen shows on the sign-in screen too.
+- [ ] With `min_build` = 30, the obligatory screen shows and nothing else can be reached.
 - [ ] Reset the rehearsal rows to 0. Fresh review on the most capable model, then one fix pass. PR into `dev`, merge.
