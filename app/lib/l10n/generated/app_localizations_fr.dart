@@ -1724,7 +1724,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String pillNextPack(String date) {
-    return 'Nouvelle plaquette le $date.';
+    return 'Nouvelle plaquette le $date';
   }
 
   @override

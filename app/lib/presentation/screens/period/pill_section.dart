@@ -271,36 +271,49 @@ class _PackGrid extends ConsumerWidget {
       today.month,
       today.day - schedule.dayInPack(today) + 1,
     );
-    return Wrap(
+    Widget dot(DateTime d) {
+      final off = !schedule.isPillDay(d);
+      final taken = days[d]?.taken ?? false;
+      final isToday = d == today;
+      return Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: taken
+              ? scheme.primary
+              : off
+              ? scheme.surfaceContainerHighest
+              : null,
+          border: taken || off
+              ? null
+              : Border.all(
+                  color: isToday ? scheme.onSurface : scheme.outline,
+                  width: isToday ? 2 : 1,
+                ),
+        ),
+      );
+    }
+
+    // A row per week of the pack.
+    return Column(
       key: const ValueKey('pill-grid'),
-      spacing: 10,
-      runSpacing: 10,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (var k = 0; k < 28; k++)
-          () {
-            final d = DateTime(first.year, first.month, first.day + k);
-            final off = !schedule.isPillDay(d);
-            final taken = days[d]?.taken ?? false;
-            final isToday = d == today;
-            return Container(
-              width: 14,
-              height: 14,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: taken
-                    ? scheme.primary
-                    : off
-                    ? scheme.surfaceContainerHighest
-                    : null,
-                border: taken || off
-                    ? null
-                    : Border.all(
-                        color: isToday ? scheme.onSurface : scheme.outline,
-                        width: isToday ? 2 : 1,
-                      ),
-              ),
-            );
-          }(),
+        for (var week = 0; week < 4; week++)
+          Padding(
+            padding: EdgeInsets.only(bottom: week < 3 ? 10 : 0),
+            child: Row(
+              children: [
+                for (var k = 0; k < 7; k++) ...[
+                  if (k > 0) const SizedBox(width: 12),
+                  dot(
+                    DateTime(first.year, first.month, first.day + week * 7 + k),
+                  ),
+                ],
+              ],
+            ),
+          ),
       ],
     );
   }

@@ -1713,7 +1713,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pillNextPack(String date) {
-    return 'New pack on $date.';
+    return 'New pack on $date';
   }
 
   @override

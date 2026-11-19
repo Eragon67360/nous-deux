@@ -1129,7 +1129,7 @@
       }
     }
   },
-  "pillNextPack": "New pack on {date}.",
+  "pillNextPack": "New pack on {date}",
   "@pillNextPack": {
     "placeholders": {
       "date": {

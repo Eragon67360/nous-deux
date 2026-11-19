@@ -2735,7 +2735,7 @@ abstract class AppLocalizations {
   /// No description provided for @pillNextPack.
   ///
   /// In en, this message translates to:
-  /// **'New pack on {date}.'**
+  /// **'New pack on {date}'**
   String pillNextPack(String date);
 
   /// No description provided for @pillThisWeek.

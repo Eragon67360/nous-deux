@@ -131,6 +131,16 @@ void main() {
       expect(find.text(pillOfPack('fr', 21)), findsOneWidget);
       expect(find.text(pillNotTickedToday('fr')), findsOneWidget);
       expect(find.byKey(const ValueKey('pill-grid')), findsOneWidget);
+      // A row per week of the pack, as on the board.
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('pill-grid')),
+          matching: find.byType(Row),
+        ),
+        findsNWidgets(4),
+      );
+      // A short French month ends with a dot: never two at the end.
+      expect(find.textContaining('..'), findsNothing);
       expect(
         find.text(pillPackLine('fr', _settings().schedule, _today)),
         findsOneWidget,

@@ -439,7 +439,7 @@
   "pillDayOff": "Pas de pilule aujourd'hui",
   "pillPackLine21": "Jour {day} sur 21 · arrêt du {from} au {to}",
   "pillPackLine": "Jour {day} sur 28",
-  "pillNextPack": "Nouvelle plaquette le {date}.",
+  "pillNextPack": "Nouvelle plaquette le {date}",
   "pillThisWeek": "Cette semaine",
   "pillWeekMissed": "oubli",
   "pillWeekOff": "arrêt",
