@@ -1,0 +1,10 @@
+{
+  "fr": {
+    "title": "Build 30 : le suivi de la pilule",
+    "body": "Mettez à jour l'app : si vous prenez la pilule, suivez-la dans Règles, avec un rappel chaque jour. Votre partenaire voit seulement « prise » ou « pas encore », et vous pouvez le couper. Un bug, une idée ? Paramètres › Envoyer un retour."
+  },
+  "en": {
+    "title": "Build 30: pill tracking",
+    "body": "Update the app: if you take the pill, track it in Period, with a daily reminder. Your partner only sees “taken” or “not yet”, and you can turn that off. A bug or an idea? Settings › Send feedback."
+  }
+}
