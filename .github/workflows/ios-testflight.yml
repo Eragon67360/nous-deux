@@ -122,3 +122,15 @@ jobs:
           else
             bundle exec fastlane ios send
           fi
+
+      # Older builds offer this one on their update screen
+      # (docs/UPDATE_SCREEN.md). A refusal only warns: the build is out
+      # either way.
+      - name: Tell older builds about this one
+        if: env.BUILD == 'true'
+        continue-on-error: true
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: ../scripts/record-build.sh ios

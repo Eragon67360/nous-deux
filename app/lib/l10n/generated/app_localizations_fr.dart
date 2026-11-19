@@ -1838,4 +1838,50 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get pillReminderKeepAlive =>
       'Ouvrez Nous Deux pour garder vos rappels.';
+
+  @override
+  String get updateLabel => 'Mise à jour';
+
+  @override
+  String get updateTitle => 'Une nouvelle version est là';
+
+  @override
+  String get updateBodyDefault =>
+      'Elle apporte les dernières nouveautés et corrections.';
+
+  @override
+  String get updateYourVersion => 'Votre version';
+
+  @override
+  String get updateLatestVersion => 'La dernière';
+
+  @override
+  String updateBuild(int build) {
+    return 'build $build';
+  }
+
+  @override
+  String get updateButton => 'Mettre à jour';
+
+  @override
+  String updateOpens(String store) {
+    String _temp0 = intl.Intl.selectLogic(store, {
+      'testflight': 'Ouvre TestFlight',
+      'other': 'Ouvre Google Play',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get updateLater => 'Plus tard';
+
+  @override
+  String get updateRequiredLabel => 'Mise à jour nécessaire';
+
+  @override
+  String get updateRequiredTitle => 'Cette version ne marche plus';
+
+  @override
+  String get updateRequiredBody =>
+      'Pour continuer avec Nous Deux, installez la dernière version. Vos données et votre couple restent là.';
 }

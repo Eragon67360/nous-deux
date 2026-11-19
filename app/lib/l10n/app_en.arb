@@ -1210,5 +1210,63 @@
         "type": "String"
       }
     }
+  },
+  "updateLabel": "Update",
+  "@updateLabel": {
+    "description": "Update screen, a newer build is out: the small gold label above the title (shown in capitals)."
+  },
+  "updateTitle": "A new version is here",
+  "@updateTitle": {
+    "description": "Update screen: title."
+  },
+  "updateBodyDefault": "It brings the latest features and fixes.",
+  "@updateBodyDefault": {
+    "description": "Update screen: the text when the release has no line of its own."
+  },
+  "updateYourVersion": "Your version",
+  "@updateYourVersion": {
+    "description": "Update screen: row label, the build this phone runs."
+  },
+  "updateLatestVersion": "The latest",
+  "@updateLatestVersion": {
+    "description": "Update screen: row label, the newest build out."
+  },
+  "updateBuild": "build {build}",
+  "@updateBuild": {
+    "description": "Update screen: a build number in a row.",
+    "placeholders": {
+      "build": {
+        "type": "int"
+      }
+    }
+  },
+  "updateButton": "Update",
+  "@updateButton": {
+    "description": "Update screen: the button that opens TestFlight or Google Play."
+  },
+  "updateOpens": "{store, select, testflight{Opens TestFlight} other{Opens Google Play}}",
+  "@updateOpens": {
+    "description": "Update screen: under the button, the app it opens.",
+    "placeholders": {
+      "store": {
+        "type": "String"
+      }
+    }
+  },
+  "updateLater": "Later",
+  "@updateLater": {
+    "description": "Update screen: hides it until the next day."
+  },
+  "updateRequiredLabel": "Update needed",
+  "@updateRequiredLabel": {
+    "description": "Update screen, this build no longer works: the small gold label (shown in capitals)."
+  },
+  "updateRequiredTitle": "This version no longer works",
+  "@updateRequiredTitle": {
+    "description": "Update screen, this build no longer works: title."
+  },
+  "updateRequiredBody": "To keep using Nous Deux, install the latest version. Your data and your couple stay as they are.",
+  "@updateRequiredBody": {
+    "description": "Update screen, this build no longer works: text."
   }
 }
