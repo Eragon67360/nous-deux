@@ -11,6 +11,8 @@ import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
 import 'package:nousdeux/presentation/providers/announcements_provider.dart';
@@ -20,6 +22,7 @@ import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
+import 'package:nousdeux/presentation/providers/pill_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/realtime_provider.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
@@ -39,6 +42,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     with WidgetsBindingObserver {
   /// The calendar's tab in [AppRoutes.tabs].
   static const _calendarTab = 1;
+  static const _periodTab = 2;
+
+  /// Taps on local notifications (the pill reminder and its buttons).
+  StreamSubscription<NotificationTap>? _notificationTaps;
 
   RealtimeChannel? _profileChannel;
   String? _subscribedUserId;
@@ -64,6 +71,10 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     );
     // Not fired immediately: a note opened before this shell was built (a
     // shell rebuilt after signing in again) was already shown.
+    _notificationTaps = ref
+        .read(localNotificationsProvider)
+        .taps
+        .listen(_onNotificationTap);
     ref.listenManual<AsyncValue<OpenedPush>>(openedPushesProvider, (_, next) {
       switch (next.valueOrNull) {
         case OpenedNotePush(:final note):
@@ -74,6 +85,26 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
           break;
       }
     });
+  }
+
+  /// A pill reminder: « Prise » ticks its day, « Dans 30 min » brings it
+  /// back half an hour later, and a tap opens Règles.
+  Future<void> _onNotificationTap(NotificationTap tap) async {
+    final day = pillDayFromPayload(tap.payload);
+    if (day == null || !mounted) return;
+    final now = ref.read(clockProvider)();
+    switch (tap.actionId) {
+      case pillSnoozeAction:
+        await snoozePillReminder(
+          ref.read(localNotificationsProvider),
+          tap.payload,
+          now: now,
+        );
+        return;
+      case pillTakenAction:
+        await ref.read(markPillTakenProvider)(day, now);
+    }
+    if (mounted) widget.navigationShell.goBranch(_periodTab);
   }
 
   /// A tapped message from the team opens Paramètres › Nouveautés, which
@@ -178,6 +209,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     _syncCalendars();
     // A message from the team may have come while the app was away.
     ref.invalidate(announcementsProvider);
+    // Days ticked elsewhere, and reminders planned from today.
+    ref.invalidate(pillWeekProvider);
+    ref.invalidate(partnerPillTodayProvider);
     if (widget.navigationShell.currentIndex == _calendarTab) {
       _wakePartnerCalendar();
     }
@@ -201,6 +235,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _profileChannel?.unsubscribe();
+    _notificationTaps?.cancel();
     super.dispose();
   }
 
@@ -210,6 +245,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     // wherever the app is open.
     ref.watch(partnerCycleSettingsLiveProvider);
     ref.watch(partnerReminderSyncProvider);
+    ref.watch(pillReminderSyncProvider);
     final userId = ref.watch(currentUserProvider).valueOrNull?.id;
     if (userId != null) {
       _subscribeToPartnerJoined(userId);

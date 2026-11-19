@@ -2539,6 +2539,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No mail app found. Write to {email}.'**
   String settingsFeedbackNoMail(String email);
+
+  /// Lock-screen title of the daily pill reminder; style is clear or discreet (discreet never names the pill).
+  ///
+  /// In en, this message translates to:
+  /// **'{style, select, clear{Pill} other{Little reminder}}'**
+  String pillReminderTitle(String style);
+
+  /// No description provided for @pillReminderBodyClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your pill. Pill {number}.'**
+  String pillReminderBodyClear(int number);
+
+  /// No description provided for @pillReminderBodyDiscreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {time} reminder.'**
+  String pillReminderBodyDiscreet(String time);
+
+  /// No description provided for @pillReminderLaterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ticked yet: time for your pill.'**
+  String get pillReminderLaterClear;
+
+  /// No description provided for @pillReminderLaterDiscreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Still here: your {time} reminder.'**
+  String pillReminderLaterDiscreet(String time);
+
+  /// No description provided for @pillActionTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{style, select, clear{Taken} other{Done}}'**
+  String pillActionTaken(String style);
+
+  /// No description provided for @pillActionSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'In 30 min'**
+  String get pillActionSnooze;
 }
 
 class _AppLocalizationsDelegate

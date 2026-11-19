@@ -1005,5 +1005,48 @@
         "type": "String"
       }
     }
-  }
+  },
+  "pillReminderTitle": "{style, select, clear{Pill} other{Little reminder}}",
+  "@pillReminderTitle": {
+    "description": "Lock-screen title of the daily pill reminder; style is clear or discreet (discreet never names the pill).",
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "pillReminderBodyClear": "Time for your pill. Pill {number}.",
+  "@pillReminderBodyClear": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pillReminderBodyDiscreet": "Your {time} reminder.",
+  "@pillReminderBodyDiscreet": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillReminderLaterClear": "Not ticked yet: time for your pill.",
+  "pillReminderLaterDiscreet": "Still here: your {time} reminder.",
+  "@pillReminderLaterDiscreet": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillActionTaken": "{style, select, clear{Taken} other{Done}}",
+  "@pillActionTaken": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "pillActionSnooze": "In 30 min"
 }

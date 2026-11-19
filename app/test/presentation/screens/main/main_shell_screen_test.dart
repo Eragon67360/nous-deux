@@ -8,6 +8,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/presentation/providers/announcements_provider.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
+import 'package:nousdeux/domain/entities/pill_entities.dart';
+import 'package:nousdeux/domain/pill/pill_schedule.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/domain/calendar/phone_event.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
@@ -360,6 +363,66 @@ void main() {
       await tester.pumpAndSettle();
       expect(deps.pings.sent, [PingKind.thinkingOfYou]);
       expect(find.byType(PingReceived), findsNothing);
+    });
+  });
+
+  group('a pill reminder', () {
+    PillSettings pill() => PillSettings(
+      packType: PackType.p21x7,
+      packStartedOn: DateTime(2026, 11, 7),
+    );
+    String payloadFor(DateTime now) => planPillReminders(
+      settings: pill(),
+      intakes: const [],
+      now: now,
+      lang: 'fr',
+    ).first.payload;
+
+    testWidgets('its « Prise » button ticks the day and opens Règles', (
+      tester,
+    ) async {
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 10, 18),
+        pillSettings: pill(),
+      );
+      final router = await _pumpShell(tester, deps);
+
+      deps.notifications.tap(
+        payload: payloadFor(DateTime(2026, 11, 10, 12)),
+        actionId: pillTakenAction,
+      );
+      await tester.pumpAndSettle();
+
+      expect(deps.pill.takenCalls, [DateTime(2026, 11, 10)]);
+      expect(router.state.uri.path, AppRoutes.tabs[2]);
+    });
+
+    testWidgets('a tap on it opens Règles without ticking', (tester) async {
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 10, 18),
+        pillSettings: pill(),
+      );
+      final router = await _pumpShell(tester, deps);
+
+      deps.notifications.tap(payload: payloadFor(DateTime(2026, 11, 10, 12)));
+      await tester.pumpAndSettle();
+
+      expect(deps.pill.takenCalls, isEmpty);
+      expect(router.state.uri.path, AppRoutes.tabs[2]);
+    });
+
+    testWidgets('the reminders are planned while the app runs', (tester) async {
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 10, 18),
+        pillSettings: pill(),
+      );
+      await _pumpShell(tester, deps);
+      expect(
+        deps.notifications.scheduled.keys.where(
+          (id) => id >= pillReminderFirstId,
+        ),
+        isNotEmpty,
+      );
     });
   });
 

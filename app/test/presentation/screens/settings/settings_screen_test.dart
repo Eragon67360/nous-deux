@@ -7,10 +7,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
 import 'package:nousdeux/core/services/feedback_mail.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
@@ -364,11 +367,20 @@ void main() {
         'unrelated': 'kept',
       });
       final (deps, _) = await _pumpSettings(tester, lang: 'en');
+      // A pill reminder planned on this phone.
+      await deps.notifications.schedule(
+        id: pillReminderFirstId,
+        at: tz.TZDateTime(tz.local, 2030),
+        channel: LocalChannel.pillReminder,
+        title: 'Petit rappel',
+        body: 'Votre rappel de 21:00.',
+      );
 
       await openConfirmation(tester, 'en');
       await tester.tap(confirmButton('en'));
       await tester.pumpAndSettle();
 
+      expect(deps.notifications.scheduled, isEmpty);
       expect(deps.auth.deleteAccountCalls, 1);
       expect(deps.auth.currentUser, isNull);
       expect(find.text(settingsDeleteAccountDone('en')), findsOneWidget);

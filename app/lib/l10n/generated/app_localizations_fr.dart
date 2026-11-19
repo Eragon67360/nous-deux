@@ -1584,4 +1584,44 @@ class AppLocalizationsFr extends AppLocalizations {
   String settingsFeedbackNoMail(String email) {
     return 'Aucune app de mail trouvée. Écrivez à $email.';
   }
+
+  @override
+  String pillReminderTitle(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Pilule',
+      'other': 'Petit rappel',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillReminderBodyClear(int number) {
+    return 'C\'est l\'heure de votre pilule. Comprimé $number.';
+  }
+
+  @override
+  String pillReminderBodyDiscreet(String time) {
+    return 'Votre rappel de $time.';
+  }
+
+  @override
+  String get pillReminderLaterClear =>
+      'Pas encore cochée : c\'est l\'heure de votre pilule.';
+
+  @override
+  String pillReminderLaterDiscreet(String time) {
+    return 'Toujours là : votre rappel de $time.';
+  }
+
+  @override
+  String pillActionTaken(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Prise',
+      'other': 'C\'est fait',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get pillActionSnooze => 'Dans 30 min';
 }

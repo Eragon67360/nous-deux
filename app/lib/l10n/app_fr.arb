@@ -406,5 +406,12 @@
   "newsAvatarUnread": "{count, plural, one{Réglages, {count} nouveauté} other{Réglages, {count} nouveautés}}",
   "settingsFeedback": "Envoyer un retour",
   "feedbackSubject": "Nous Deux · build {build} · {device}",
-  "settingsFeedbackNoMail": "Aucune app de mail trouvée. Écrivez à {email}."
+  "settingsFeedbackNoMail": "Aucune app de mail trouvée. Écrivez à {email}.",
+  "pillReminderTitle": "{style, select, clear{Pilule} other{Petit rappel}}",
+  "pillReminderBodyClear": "C'est l'heure de votre pilule. Comprimé {number}.",
+  "pillReminderBodyDiscreet": "Votre rappel de {time}.",
+  "pillReminderLaterClear": "Pas encore cochée : c'est l'heure de votre pilule.",
+  "pillReminderLaterDiscreet": "Toujours là : votre rappel de {time}.",
+  "pillActionTaken": "{style, select, clear{Prise} other{C'est fait}}",
+  "pillActionSnooze": "Dans 30 min"
 }

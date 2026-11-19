@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show PostgresChangeEvent, PostgresChangeFilter, PostgresChangeFilterType;
 
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
 import 'package:nousdeux/data/repositories/cycle_repository_impl.dart';
 import 'package:nousdeux/domain/cycle/cycle_stats.dart';
@@ -133,7 +134,9 @@ Future<void> setPartnerReminderEnabled(
 }) async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setBool(periodPartnerReminderEnabledKey, enabled);
-  if (!enabled) await cancelPartnerPeriodReminder();
+  if (!enabled) {
+    await cancelPartnerPeriodReminder(ref.read(localNotificationsProvider));
+  }
   ref.invalidate(partnerReminderEnabledProvider);
 }
 
@@ -146,10 +149,16 @@ final partnerReminderSyncProvider = FutureProvider<void>((ref) async {
   final lang = ref.watch(
     myProfileProvider.select((p) => p.valueOrNull?.language ?? 'fr'),
   );
+  final notifications = ref.watch(localNotificationsProvider);
   if (day == null) {
-    await cancelPartnerPeriodReminder();
+    await cancelPartnerPeriodReminder(notifications);
   } else {
-    await schedulePartnerPeriodReminder(day, lang);
+    await schedulePartnerPeriodReminder(
+      notifications,
+      day,
+      lang,
+      now: ref.read(clockProvider)(),
+    );
   }
 });
 
