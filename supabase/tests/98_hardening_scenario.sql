@@ -66,7 +66,8 @@ SELECT pg_temp.expect('Xia edits it, Yan stays the author',
 RESET ROLE;
 
 -- F6: no definer function without a search_path; signed-out callers get
--- nothing in public; nobody can TRUNCATE.
+-- nothing in public, but record_app_build, which the release jobs call with
+-- their token (87_app_builds); nobody can TRUNCATE.
 SELECT pg_temp.expect('every SECURITY DEFINER function fixes its search_path', NOT EXISTS (
   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid = p.pronamespace
   WHERE n.nspname IN ('public', 'private') AND p.prosecdef
@@ -75,9 +76,10 @@ SELECT pg_temp.expect('anon has no table in public', NOT EXISTS (
   SELECT 1 FROM pg_class c WHERE c.relnamespace = 'public'::regnamespace AND c.relkind = 'r'
     AND (has_table_privilege('anon', c.oid, 'SELECT') OR has_table_privilege('anon', c.oid, 'INSERT')
       OR has_table_privilege('anon', c.oid, 'UPDATE') OR has_table_privilege('anon', c.oid, 'DELETE'))));
-SELECT pg_temp.expect('anon can call no function in public', NOT EXISTS (
+SELECT pg_temp.expect('anon can call no function in public but the release jobs''', NOT EXISTS (
   SELECT 1 FROM pg_proc p WHERE p.pronamespace = 'public'::regnamespace
-    AND p.prorettype <> 'trigger'::regtype AND has_function_privilege('anon', p.oid, 'EXECUTE')));
+    AND p.prorettype <> 'trigger'::regtype AND has_function_privilege('anon', p.oid, 'EXECUTE')
+    AND p.oid <> 'public.record_app_build(text, integer, jsonb, text)'::regprocedure));
 SELECT pg_temp.expect('signed-in callers can TRUNCATE no table in public', NOT EXISTS (
   SELECT 1 FROM pg_class c WHERE c.relnamespace = 'public'::regnamespace AND c.relkind = 'r'
     AND has_table_privilege('authenticated', c.oid, 'TRUNCATE')));
