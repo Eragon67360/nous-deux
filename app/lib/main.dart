@@ -18,6 +18,7 @@ import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
+import 'package:nousdeux/presentation/screens/update/update_gate.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 void main() => runWithCrashReporting(_start);
@@ -116,7 +117,9 @@ class MainApp extends ConsumerWidget {
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
       routerConfig: router,
-      builder: (context, child) => _FcmRegistration(child: child),
+      // The update screen sits over every page (docs/UPDATE_SCREEN.md).
+      builder: (context, child) =>
+          _FcmRegistration(child: UpdateGate(child: child)),
     );
   }
 }

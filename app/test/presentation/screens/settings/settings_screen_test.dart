@@ -254,7 +254,6 @@ void main() {
       await _pumpSettings(
         tester,
         overrides: [
-          appBuildProvider.overrideWith((ref) async => '30'),
           openMailProvider.overrideWithValue((uri) async {
             opened.add(uri);
             return true;
@@ -265,8 +264,8 @@ void main() {
       await tester.tap(find.text(settingsFeedback('fr')));
       await tester.pumpAndSettle();
 
-      // Tests run as Android.
-      expect(opened, [feedbackMailUri(lang: 'fr', build: '30', isIos: false)]);
+      // Tests run as Android, on build 29 (TestDeps).
+      expect(opened, [feedbackMailUri(lang: 'fr', build: '29', isIos: false)]);
     });
 
     testWidgets('without a mail app, the address is shown instead', (
@@ -274,10 +273,7 @@ void main() {
     ) async {
       await _pumpSettings(
         tester,
-        overrides: [
-          appBuildProvider.overrideWith((ref) async => '30'),
-          openMailProvider.overrideWithValue((uri) async => false),
-        ],
+        overrides: [openMailProvider.overrideWithValue((uri) async => false)],
       );
 
       await tester.tap(find.text(settingsFeedback('fr')));

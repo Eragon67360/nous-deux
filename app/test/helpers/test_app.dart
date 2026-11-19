@@ -25,6 +25,9 @@ import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/domain/entities/user_entity.dart';
+import 'package:nousdeux/core/services/feedback_mail.dart';
+import 'package:nousdeux/core/services/store_links.dart';
+import 'package:nousdeux/presentation/providers/app_update_provider.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
@@ -70,7 +73,11 @@ class TestDeps {
     DateTime? now,
     this.deviceLanguage = 'fr',
     FakePhoneCalendar? phoneCalendar,
+    FakeAppBuildsRepository? appBuilds,
+    this.installedBuild = '29',
+    this.playBuild,
   }) : now = now ?? DateTime(2026, 11, 10, 18),
+       appBuilds = appBuilds ?? FakeAppBuildsRepository(),
        phoneCalendar = phoneCalendar ?? FakePhoneCalendar(),
        pings = FakePingRepository(pings),
        lists = FakeListsRepository(lists: lists, items: listItems),
@@ -109,6 +116,21 @@ class TestDeps {
   final FakeLocalNotifications notifications = FakeLocalNotifications();
   final FakePhoneCalendar phoneCalendar;
 
+  /// The update screen's rows; none published by default.
+  final FakeAppBuildsRepository appBuilds;
+
+  /// This phone's build number, as PackageInfo gives it.
+  final String installedBuild;
+
+  /// The build Google Play offers, on Android.
+  final int? playBuild;
+
+  /// The links the app tried to open, in order.
+  final openedLinks = <Uri>[];
+
+  /// The links that open; null: all of them.
+  Set<Uri>? linksThatOpen;
+
   /// Add a push to it to tap that notification: [OpenedNotePush] for a
   /// little note, [OpenedAnnouncementPush] for a message from the team.
   final StreamController<OpenedPush> openedPushes =
@@ -136,6 +158,13 @@ class TestDeps {
     pillRepositoryProvider.overrideWithValue(pill),
     phoneCalendarProvider.overrideWithValue(phoneCalendar),
     clockProvider.overrideWithValue(() => now),
+    appBuildsRepositoryProvider.overrideWithValue(appBuilds),
+    appBuildProvider.overrideWith((ref) async => installedBuild),
+    playUpdateCheckProvider.overrideWithValue(() async => playBuild),
+    openExternalLinkProvider.overrideWithValue((uri) async {
+      openedLinks.add(uri);
+      return linksThatOpen?.contains(uri) ?? true;
+    }),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),
     openedPushesProvider.overrideWith((ref) => openedPushes.stream),
   ];

@@ -2929,6 +2929,78 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open Nous Deux to keep your reminders.'**
   String get pillReminderKeepAlive;
+
+  /// Update screen, a newer build is out: the small gold label above the title (shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateLabel;
+
+  /// Update screen: title.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is here'**
+  String get updateTitle;
+
+  /// Update screen: the text when the release has no line of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'It brings the latest features and fixes.'**
+  String get updateBodyDefault;
+
+  /// Update screen: row label, the build this phone runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Your version'**
+  String get updateYourVersion;
+
+  /// Update screen: row label, the newest build out.
+  ///
+  /// In en, this message translates to:
+  /// **'The latest'**
+  String get updateLatestVersion;
+
+  /// Update screen: a build number in a row.
+  ///
+  /// In en, this message translates to:
+  /// **'build {build}'**
+  String updateBuild(int build);
+
+  /// Update screen: the button that opens TestFlight or Google Play.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateButton;
+
+  /// Update screen: under the button, the app it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'{store, select, testflight{Opens TestFlight} other{Opens Google Play}}'**
+  String updateOpens(String store);
+
+  /// Update screen: hides it until the next day.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// Update screen, this build no longer works: the small gold label (shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Update needed'**
+  String get updateRequiredLabel;
+
+  /// Update screen, this build no longer works: title.
+  ///
+  /// In en, this message translates to:
+  /// **'This version no longer works'**
+  String get updateRequiredTitle;
+
+  /// Update screen, this build no longer works: text.
+  ///
+  /// In en, this message translates to:
+  /// **'To keep using Nous Deux, install the latest version. Your data and your couple stay as they are.'**
+  String get updateRequiredBody;
 }
 
 class _AppLocalizationsDelegate

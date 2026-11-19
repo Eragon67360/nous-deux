@@ -22,6 +22,8 @@ import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/domain/entities/user_entity.dart';
+import 'package:nousdeux/domain/app_update.dart';
+import 'package:nousdeux/domain/repositories/app_builds_repository.dart';
 import 'package:nousdeux/domain/repositories/auth_repository.dart';
 import 'package:nousdeux/domain/repositories/calendar_repository.dart';
 import 'package:nousdeux/domain/repositories/cycle_repository.dart';
@@ -1302,5 +1304,30 @@ class FakePillRepository implements PillRepository {
   Future<PartnerPillToday> partnerToday(DateTime day) async {
     partnerDays.add(day);
     return partner;
+  }
+}
+
+/// The update screen's rows (`app_builds`), one per platform.
+class FakeAppBuildsRepository implements AppBuildsRepository {
+  FakeAppBuildsRepository({this.ios, this.android});
+
+  PublishedBuild? ios;
+  PublishedBuild? android;
+
+  /// The platforms asked, in order.
+  final asked = <String>[];
+
+  /// Set it to answer the next question later (a slow network).
+  Completer<PublishedBuild?>? next;
+
+  @override
+  Future<PublishedBuild?> published(String platform) async {
+    asked.add(platform);
+    final pending = next;
+    if (pending != null) {
+      next = null;
+      return pending.future;
+    }
+    return platform == 'ios' ? ios : android;
   }
 }
