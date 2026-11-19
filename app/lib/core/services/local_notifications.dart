@@ -68,15 +68,19 @@ abstract class LocalNotifications {
   NotificationTap? takeLaunchTap();
 }
 
-/// Loads the time zone database and sets `tz.local` to the phone's zone.
+/// Loads the time zone database once and sets `tz.local` to the phone's zone.
 /// Without it `tz.local` is UTC.
+///
+/// Called again on resume: `tz.local` keeps its value until the phone has
+/// answered, since reminders may be planned meanwhile (loading the database
+/// again would reset it to UTC).
 Future<void> initLocalTimeZone() async {
-  tz_data.initializeTimeZones();
+  if (!tz.timeZoneDatabase.isInitialized) tz_data.initializeTimeZones();
   try {
     final zone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(zone.identifier));
   } catch (_) {
-    // An unknown zone name: keep UTC rather than failing the start.
+    // An unknown zone name: keep the current zone rather than failing.
   }
 }
 
