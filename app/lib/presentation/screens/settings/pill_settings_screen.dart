@@ -111,6 +111,8 @@ class PillSettingsScreen extends ConsumerWidget {
                   onSelectionChanged: (s) =>
                       save(settings.copyWith(reminderText: s.first)),
                 ),
+                const SizedBox(height: 8),
+                _LockScreenPreview(lang: lang, settings: settings),
                 const NotebookRule(),
                 NotebookLabel(pillPackLabel(lang)),
                 const SizedBox(height: 10),
@@ -126,6 +128,11 @@ class PillSettingsScreen extends ConsumerWidget {
                   selected: {settings.packType},
                   onSelectionChanged: (s) =>
                       save(settings.copyWith(packType: s.first)),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  pillPackTypeNote(lang, settings.packType),
+                  style: theme.textTheme.bodySmall?.copyWith(color: muted),
                 ),
                 _TodayPill(lang: lang, settings: settings, onSave: save),
                 const NotebookRule(),
@@ -197,6 +204,32 @@ class PillSettingsScreen extends ConsumerWidget {
 }
 
 /// « Comprimé d'aujourd'hui »: moves the pack so today is that pill.
+/// What the next pill day's first reminder will show on the lock screen,
+/// so « Pilule » and « Petit rappel » need no explaining (Evah).
+class _LockScreenPreview extends ConsumerWidget {
+  const _LockScreenPreview({required this.lang, required this.settings});
+
+  final String lang;
+  final PillSettings settings;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final now = ref.watch(clockProvider)();
+    var day = DateTime(now.year, now.month, now.day);
+    for (var i = 0; i < 7 && !settings.schedule.isPillDay(day); i++) {
+      day = DateTime(day.year, day.month, day.day + 1);
+    }
+    final shown = pillFirstReminder(settings, day, lang);
+    final theme = Theme.of(context);
+    return Text(
+      pillLockScreenPreview(lang, shown.title, shown.body),
+      style: theme.textTheme.bodySmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
 class _TodayPill extends ConsumerWidget {
   const _TodayPill({
     required this.lang,

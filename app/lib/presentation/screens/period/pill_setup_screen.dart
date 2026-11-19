@@ -240,6 +240,11 @@ class _PillSetupScreenState extends ConsumerState<PillSetupScreen> {
                 if (_pill > _maxPill) _pill = _maxPill;
               }),
             ),
+            const SizedBox(height: 8),
+            Text(
+              pillPackTypeNote(lang, _type),
+              style: theme.textTheme.bodySmall?.copyWith(color: muted),
+            ),
             const SizedBox(height: 16),
             Text(
               pillHealthNote(lang),

@@ -167,8 +167,9 @@ class _Tracking extends ConsumerWidget {
               pillNotedMissed(lang),
               style: theme.textTheme.bodyLarge,
             ),
+            // Whatever the reminder time: never « ce soir » (Evah).
             PillTodayState.late => Text(
-              pillLateTitle(lang),
+              pillNotTickedToday(lang),
               style: theme.textTheme.bodyLarge,
             ),
             _ => Text(
@@ -267,7 +268,9 @@ class _Check extends StatelessWidget {
   );
 }
 
-/// The pack as dots: taken in gold, today as a ring, days off dark.
+/// The pack as dots: taken in gold, today as a ring, days off dark, and a
+/// missed day with a short line, in grey rather than red: noted, not judged
+/// (Evah and Thomas, 2026-11-19).
 class _PackGrid extends ConsumerWidget {
   const _PackGrid({required this.today, required this.settings});
 
@@ -290,7 +293,24 @@ class _PackGrid extends ConsumerWidget {
     Widget dot(DateTime d) {
       final off = !schedule.isPillDay(d);
       final taken = days[d]?.taken ?? false;
+      final missed = days[d] != null && !taken;
       final isToday = d == today;
+      if (missed) {
+        return Container(
+          key: const ValueKey('pill-dot-missed'),
+          width: 14,
+          height: 14,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: isToday ? scheme.onSurface : scheme.outline,
+              width: isToday ? 2 : 1,
+            ),
+          ),
+          child: Container(width: 6, height: 1.5, color: scheme.outline),
+        );
+      }
       return Container(
         width: 14,
         height: 14,

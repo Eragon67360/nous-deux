@@ -1726,9 +1726,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pillWeekOff => 'off';
 
   @override
-  String get pillLateTitle => 'Not ticked yet tonight';
-
-  @override
   String get pillTookItAt => 'I took it at';
 
   @override
@@ -1821,6 +1818,34 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String pillBreakUntil(String date) {
     return 'Break until $date';
+  }
+
+  @override
+  String get pillReminderBodyNewPack =>
+      'Time for your pill: the first of a new pack.';
+
+  @override
+  String get pillNewPackMorningClear =>
+      'New pack today: take it with you if you go out.';
+
+  @override
+  String pillNewPackMorningDiscreet(String time) {
+    return 'Your $time reminder starts again today.';
+  }
+
+  @override
+  String pillPackTypeNote(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 pills, then 7 days off with no reminder.',
+      'p28': '28 pills with no break, hormone-free ones included.',
+      'other': 'One pill every day, with no break.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillLockScreenPreview(String title, String body) {
+    return 'You\'ll see: “$title · $body”';
   }
 
   @override
