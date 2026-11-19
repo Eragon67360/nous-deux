@@ -35,6 +35,9 @@ enum VerifiedSourceTopic {
   partnerSupport,
   whenToSeekHelp,
   general,
+
+  /// What to do when a pill is missed: official sheets only (docs/PILL.md).
+  missedPill,
 }
 
 class VerifiedSource {
@@ -318,6 +321,66 @@ List<VerifiedSource> get periodVerifiedSources => [
       'fr': 'Vue médicale du SPM et quand consulter.',
     },
   ),
+  // --- MISSED PILL (official sheets; the leaflet in the pack comes first) ---
+  VerifiedSource(
+    platform: VerifiedSourcePlatform.web,
+    names: {
+      'en': 'ANSM – The pill, and a missed pill',
+      'fr': 'ANSM – La pilule et l\'oubli de pilule',
+    },
+    url:
+        'https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive',
+    topic: VerifiedSourceTopic.missedPill,
+    locales: ['fr'],
+    credentials: {
+      'en': 'French medicines agency (ANSM)',
+      'fr': 'Agence nationale de sécurité du médicament',
+    },
+    summaries: {
+      'en':
+          'What to do depending on how late the pill is, and when to ask a health professional.',
+      'fr':
+          'Que faire selon le retard, et quand demander conseil à un ou une professionnelle de santé.',
+    },
+  ),
+  VerifiedSource(
+    platform: VerifiedSourcePlatform.web,
+    names: {
+      'en': 'NHS – Missed combined pill',
+      'fr': 'NHS – Oubli de pilule combinée',
+    },
+    url: 'https://www.nhs.uk/conditions/contraception/miss-combined-pill/',
+    topic: VerifiedSourceTopic.missedPill,
+    locales: ['en'],
+    credentials: {
+      'en': 'UK National Health Service',
+      'fr': 'Service de santé britannique',
+    },
+    summaries: {
+      'en': 'What to do if you miss a combined pill, by how many and when.',
+      'fr': 'Que faire en cas d\'oubli d\'une pilule combinée.',
+    },
+  ),
+  VerifiedSource(
+    platform: VerifiedSourcePlatform.web,
+    names: {
+      'en': 'NHS – Missed progestogen-only pill',
+      'fr': 'NHS – Oubli de pilule progestative',
+    },
+    url:
+        'https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/',
+    topic: VerifiedSourceTopic.missedPill,
+    locales: ['en'],
+    credentials: {
+      'en': 'UK National Health Service',
+      'fr': 'Service de santé britannique',
+    },
+    summaries: {
+      'en':
+          'What to do if you miss a progestogen-only pill, by type and how late.',
+      'fr': 'Que faire en cas d\'oubli d\'une pilule progestative.',
+    },
+  ),
 ];
 
 /// Sources whose content is in [lang]. Empty [locales] = show in all languages.
@@ -355,4 +418,13 @@ List<VerifiedSource> sourcesPartnerSupport(String lang) {
             s.topic == VerifiedSourceTopic.general,
       )
       .toList();
+}
+
+/// The official missed-pill sheets in [lang], or the English ones for a
+/// language that has none of its own.
+List<VerifiedSource> sourcesMissedPill(String lang) {
+  final own = sourcesForTopic(VerifiedSourceTopic.missedPill, lang);
+  return own.isNotEmpty
+      ? own
+      : sourcesForTopic(VerifiedSourceTopic.missedPill, AppLanguages.fallback);
 }
