@@ -114,6 +114,13 @@ class _PillSetupScreenState extends ConsumerState<PillSetupScreen> {
       if (navigator.canPop()) navigator.pop();
       return;
     }
+    // Already tracking (opened twice, or from a stale screen): never
+    // overwrite the settings, sharing included.
+    final existing = await ref.read(pillSettingsProvider.future);
+    if (existing != null) {
+      if (navigator.canPop()) navigator.pop();
+      return;
+    }
     if (!await _consent(lang)) return;
     setState(() => _saving = true);
     final failure = await ref

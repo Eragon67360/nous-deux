@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/domain/entities/pill_entities.dart';
@@ -46,7 +47,7 @@ class PillRepositoryImpl implements PillRepository {
     final row = await _client
         .from('pill_tracking')
         .select(
-          'pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner',
+          'pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner, time_zone',
         )
         .eq('user_id', uid)
         .maybeSingle();
@@ -60,6 +61,7 @@ class PillRepositoryImpl implements PillRepository {
       reminderTime: _parseTime(row['reminder_time'] as String? ?? '21:00'),
       reminderText: ReminderText.fromWire(row['reminder_text'] as String?),
       shareWithPartner: row['share_with_partner'] as bool? ?? true,
+      timeZone: row['time_zone'] as String? ?? 'UTC',
     );
   }
 
@@ -73,6 +75,8 @@ class PillRepositoryImpl implements PillRepository {
       'reminder_time': _time(s.reminderTime),
       'reminder_text': s.reminderText.wire,
       'share_with_partner': s.shareWithPartner,
+      // Always the phone's zone now: "today" for the partner's line.
+      'time_zone': tz.local.name,
     }),
   );
 
@@ -132,10 +136,8 @@ class PillRepositoryImpl implements PillRepository {
 
   @override
   Future<PartnerPillToday> partnerToday(DateTime day) async {
-    final rows = await _client.rpc(
-      'partner_pill_today',
-      params: {'p_day': _date(day)},
-    );
+    // The server answers for my partner's own today, whatever [day] is here.
+    final rows = await _client.rpc('partner_pill_today');
     final list = rows is List ? rows : const [];
     if (list.isEmpty) return PartnerPillToday.nothing;
     final r = list.first as Map<String, dynamic>;

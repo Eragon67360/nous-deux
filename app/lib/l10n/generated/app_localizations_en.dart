@@ -1622,7 +1622,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pillSetupWhy =>
-      'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day and, if you like, your partner will see it\'s taken. It\'s optional, and you can change it.';
+      'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today\'s is taken, and when; you can turn that off at any time.';
 
   @override
   String get pillSetupYes => 'Yes, remind me';
@@ -1669,7 +1669,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pillConsent =>
-      'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany and only used for your reminders and for what you choose to share. You can stop and delete it all in Settings › Period › Pill tracking.';
+      'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today\'s pill is ticked, and at what time, as long as you share it: it\'s on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.';
 
   @override
   String get pillTrackLink => 'Track my pill';
@@ -1811,4 +1811,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pillStopConfirm => 'Stop';
+
+  @override
+  String get pillYesterdayPending => 'Yesterday: not ticked yet';
+
+  @override
+  String get pillTookItYesterday => 'I took it yesterday';
+
+  @override
+  String pillBreakUntil(String date) {
+    return 'Break until $date';
+  }
+
+  @override
+  String get pillReminderKeepAlive => 'Open Nous Deux to keep your reminders.';
 }

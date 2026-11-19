@@ -197,7 +197,7 @@
           },
           {
             "label": "Pill tracking",
-            "text": "if you choose to track your pill: the pack type and the day a pack started, your reminder's time and text, and for each day whether you took it (with the time) or noted it as missed. This is health data. Reminders are scheduled on your phone: their text doesn't go through our servers. Your partner only sees whether today's pill is taken, for as long as you share it (on by default, in the pill settings): never a missed day, your history, your pack or the time."
+            "text": "if you choose to track your pill: the pack type and the day a pack started, your reminder's time and text, your phone's time zone (to know which day is “today”), and for each day whether you took it (with the time) or noted it as missed. This is health data. Reminders are scheduled on your phone: their text doesn't go through our servers. Your partner only sees whether today's pill is ticked, and at what time, for as long as you share it (on to start with, changeable in the pill settings): never a missed day, your history or your settings."
           },
           {
             "label": "Location (optional)",

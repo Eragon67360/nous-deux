@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/constants/app_spacing.dart';
 import 'package:nousdeux/core/constants/app_strings.dart';
@@ -71,10 +72,13 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     );
     // Not fired immediately: a note opened before this shell was built (a
     // shell rebuilt after signing in again) was already shown.
-    _notificationTaps = ref
-        .read(localNotificationsProvider)
-        .taps
-        .listen(_onNotificationTap);
+    final notifications = ref.read(localNotificationsProvider);
+    _notificationTaps = notifications.taps.listen(_onNotificationTap);
+    // A reminder tapped while the app wasn't running launched it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final launch = notifications.takeLaunchTap();
+      if (launch != null) _onNotificationTap(launch);
+    });
     ref.listenManual<AsyncValue<OpenedPush>>(openedPushesProvider, (_, next) {
       switch (next.valueOrNull) {
         case OpenedNotePush(:final note):
@@ -209,9 +213,16 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     _syncCalendars();
     // A message from the team may have come while the app was away.
     ref.invalidate(announcementsProvider);
-    // Days ticked elsewhere, and reminders planned from today.
+    // Days ticked elsewhere, and reminders planned from today, in the zone
+    // the phone is in now.
     ref.invalidate(pillWeekProvider);
     ref.invalidate(partnerPillTodayProvider);
+    initLocalTimeZone().then((_) {
+      if (!mounted) return;
+      try {
+        ref.read(localZoneProvider.notifier).state = tz.local.name;
+      } catch (_) {}
+    });
     if (widget.navigationShell.currentIndex == _calendarTab) {
       _wakePartnerCalendar();
     }

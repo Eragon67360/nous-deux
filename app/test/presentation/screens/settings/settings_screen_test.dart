@@ -22,6 +22,8 @@ import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/domain/entities/announcement_entity.dart';
+import 'package:nousdeux/domain/entities/pill_entities.dart';
+import 'package:nousdeux/domain/pill/pill_schedule.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
@@ -97,6 +99,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
   List<AnnouncementEntity> announcements = const [],
   DateTime? announcementsSeenAt,
   List<Override> overrides = const [],
+  PillSettings? pillSettings,
 }) async {
   useTallSurface(tester);
   final deps = TestDeps(
@@ -108,6 +111,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
       announcementsSeenAt: announcementsSeenAt,
     ),
     announcements: announcements,
+    pillSettings: pillSettings,
     partner: paired ? partnerProfile() : null,
     couple: inCouple ? couple(user2Id: paired ? partnerId : null) : null,
     myLocation: location(isSharing: sharing, lat: 48.85, lng: 2.35),
@@ -204,6 +208,41 @@ void main() {
     testWidgets('without cycle tracking it isn\'t offered', (tester) async {
       await _pumpSettings(tester, tracksCycle: false);
       expect(find.text(pillSettingsTitle('fr')), findsNothing);
+    });
+
+    testWidgets(
+      'stopping the cycle and deleting everything stops the pill too',
+      (tester) async {
+        final (deps, _) = await _pumpSettings(
+          tester,
+          tracksCycle: true,
+          pillSettings: PillSettings(
+            packType: PackType.p28,
+            packStartedOn: DateTime(2026, 11, 1),
+          ),
+        );
+
+        await tester.tap(
+          find.widgetWithText(SwitchListTile, settingsTracksCycle('fr')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(cycleStopDelete('fr')));
+        await tester.pumpAndSettle();
+
+        expect(deps.pill.stopCalls, 1);
+      },
+    );
+
+    testWidgets('but a pill already tracked stays reachable', (tester) async {
+      await _pumpSettings(
+        tester,
+        tracksCycle: false,
+        pillSettings: PillSettings(
+          packType: PackType.p28,
+          packStartedOn: DateTime(2026, 11, 1),
+        ),
+      );
+      expect(find.text(pillSettingsTitle('fr')), findsOneWidget);
     });
   });
 

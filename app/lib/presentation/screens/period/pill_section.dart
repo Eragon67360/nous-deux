@@ -89,11 +89,27 @@ class _Tracking extends ConsumerWidget {
 
     final number = today.pillNumber;
     final state = today.state;
+    final yesterday = DateTime(day.year, day.month, day.day - 1);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const NotebookRule(),
+        if (today.yesterdayPending) ...[
+          // After midnight, a pill taken late last night goes on its day.
+          Text(pillYesterdayPending(lang), style: theme.textTheme.bodyLarge),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: () => write(
+              () => ref.read(markPillTakenProvider)(
+                yesterday,
+                ref.read(clockProvider)(),
+              ),
+            ),
+            child: Text(pillTookItYesterday(lang)),
+          ),
+          const SizedBox(height: 18),
+        ],
         Row(
           children: [
             Expanded(child: NotebookLabel(pillLabel(lang))),

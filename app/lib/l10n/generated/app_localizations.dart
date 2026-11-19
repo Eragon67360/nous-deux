@@ -2597,7 +2597,7 @@ abstract class AppLocalizations {
   /// No description provided for @pillSetupWhy.
   ///
   /// In en, this message translates to:
-  /// **'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day and, if you like, your partner will see it\'s taken. It\'s optional, and you can change it.'**
+  /// **'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today\'s is taken, and when; you can turn that off at any time.'**
   String get pillSetupWhy;
 
   /// No description provided for @pillSetupYes.
@@ -2669,7 +2669,7 @@ abstract class AppLocalizations {
   /// No description provided for @pillConsent.
   ///
   /// In en, this message translates to:
-  /// **'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany and only used for your reminders and for what you choose to share. You can stop and delete it all in Settings › Period › Pill tracking.'**
+  /// **'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today\'s pill is ticked, and at what time, as long as you share it: it\'s on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.'**
   String get pillConsent;
 
   /// No description provided for @pillTrackLink.
@@ -2905,6 +2905,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop'**
   String get pillStopConfirm;
+
+  /// No description provided for @pillYesterdayPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday: not ticked yet'**
+  String get pillYesterdayPending;
+
+  /// No description provided for @pillTookItYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'I took it yesterday'**
+  String get pillTookItYesterday;
+
+  /// No description provided for @pillBreakUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Break until {date}'**
+  String pillBreakUntil(String date);
+
+  /// No description provided for @pillReminderKeepAlive.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Nous Deux to keep your reminders.'**
+  String get pillReminderKeepAlive;
 }
 
 class _AppLocalizationsDelegate

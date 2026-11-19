@@ -1633,7 +1633,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pillSetupWhy =>
-      'Contraception, cycle, peau : peu importe la raison. Nous Deux peut vous la rappeler chaque jour et, si vous le voulez, votre partenaire verra qu\'elle est prise. C\'est facultatif et modifiable.';
+      'Contraception, cycle, peau : peu importe la raison. Nous Deux peut vous la rappeler chaque jour. Votre partenaire voit si celle du jour est prise, et à quelle heure ; vous pouvez couper ce partage à tout moment.';
 
   @override
   String get pillSetupYes => 'Oui, me la rappeler';
@@ -1680,7 +1680,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pillConsent =>
-      'Le suivi de la pilule garde des données de santé : votre plaquette, votre rappel et les jours où vous la prenez. Elles sont stockées sur nos serveurs en Allemagne et ne servent qu\'à vos rappels et à ce que vous choisissez de partager. Vous pouvez tout arrêter et tout supprimer dans Paramètres › Règles › Suivi de la pilule.';
+      'Le suivi de la pilule garde des données de santé : votre plaquette, votre rappel et les jours où vous la prenez. Elles sont stockées sur nos serveurs en Allemagne. Votre partenaire voit si la pilule du jour est cochée, et à quelle heure, tant que vous le partagez : c\'est activé au départ. Dans Paramètres › Règles › Suivi de la pilule, vous pouvez couper ce partage, ou tout arrêter et tout supprimer.';
 
   @override
   String get pillTrackLink => 'Suivre ma pilule';
@@ -1823,4 +1823,19 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get pillStopConfirm => 'Arrêter';
+
+  @override
+  String get pillYesterdayPending => 'Hier : pas encore cochée';
+
+  @override
+  String get pillTookItYesterday => 'Je l\'ai prise hier';
+
+  @override
+  String pillBreakUntil(String date) {
+    return 'Arrêt jusqu\'au $date';
+  }
+
+  @override
+  String get pillReminderKeepAlive =>
+      'Ouvrez Nous Deux pour garder vos rappels.';
 }

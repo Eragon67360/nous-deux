@@ -1129,6 +1129,17 @@ typedef ScheduledNotification = ({
 class FakeLocalNotifications implements LocalNotifications {
   final scheduled = <int, ScheduledNotification>{};
   final cancelled = <int>[];
+
+  /// The tap that launched the app, handed out once.
+  NotificationTap? launchTap;
+
+  @override
+  NotificationTap? takeLaunchTap() {
+    final t = launchTap;
+    launchTap = null;
+    return t;
+  }
+
   final _taps = StreamController<NotificationTap>.broadcast();
 
   void tap({String? payload, String? actionId}) =>

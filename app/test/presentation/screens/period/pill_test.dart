@@ -76,6 +76,23 @@ void main() {
       expect(deps.pill.savedSettings, isEmpty);
     });
 
+    testWidgets('already tracking: the setup changes nothing', (tester) async {
+      useTallSurface(tester);
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 18, 10),
+        pillSettings: _settings(share: false, text: ReminderText.clear),
+      );
+      await pumpScreen(tester, const PillSetupScreen(), deps: deps);
+
+      await tester.tap(find.text(pillContinue('fr')));
+      await tester.pumpAndSettle();
+      if (find.text(cycleConsentAccept('fr')).evaluate().isNotEmpty) {
+        await tester.tap(find.text(cycleConsentAccept('fr')));
+        await tester.pumpAndSettle();
+      }
+      expect(deps.pill.savedSettings, isEmpty);
+    });
+
     testWidgets('« Non » is remembered and saves nothing', (tester) async {
       useTallSurface(tester);
       final deps = TestDeps(now: DateTime(2026, 11, 18, 10));
@@ -181,6 +198,22 @@ void main() {
       expect(find.text(pillNotedMissed('fr')), findsOneWidget);
     });
 
+    testWidgets('after midnight, yesterday\'s pill can still be ticked', (
+      tester,
+    ) async {
+      useTallSurface(tester);
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 19, 1, 51),
+        pillSettings: _settings(),
+      );
+      await pumpScreen(tester, _inPage(const PillSection()), deps: deps);
+
+      expect(find.text(pillYesterdayPending('fr')), findsOneWidget);
+      await tester.tap(find.text(pillTookItYesterday('fr')));
+      await tester.pumpAndSettle();
+      expect(deps.pill.takenCalls, [DateTime(2026, 11, 18)]);
+    });
+
     testWidgets('a day off says so', (tester) async {
       await pumpScreen(
         tester,
@@ -192,6 +225,12 @@ void main() {
       );
       expect(find.text(pillDayOff('fr')), findsOneWidget);
       expect(find.text(pillTakeButton('fr')), findsNothing);
+      // Not « Jour 24 sur 21 »: the break and when it ends.
+      expect(find.textContaining('sur 21'), findsNothing);
+      expect(
+        find.text(pillBreakUntil('fr', DateTime(2026, 12, 4))),
+        findsOneWidget,
+      );
     });
   });
 

@@ -56,10 +56,10 @@ END $$;
 
 INSERT INTO public.pill_intakes (user_id, day, status, taken_at) VALUES
  (auth.uid(), current_date, 'taken', now() - interval '5 minutes'),
- (auth.uid(), current_date - 5, 'taken', now() - interval '5 days');
-INSERT INTO public.pill_intakes (user_id, day, status) VALUES (auth.uid(), current_date - 1, 'missed');
+ (auth.uid(), current_date - 1, 'taken', now() - interval '1 day');
+INSERT INTO public.pill_intakes (user_id, day, status) VALUES (auth.uid(), current_date - 2, 'missed');
 DO $$ BEGIN
-  INSERT INTO public.pill_intakes (user_id, day, status) VALUES (auth.uid(), current_date - 2, 'taken');
+  INSERT INTO public.pill_intakes (user_id, day, status) VALUES (auth.uid(), current_date - 3, 'taken');
   RAISE EXCEPTION 'expected a refusal';
 EXCEPTION WHEN check_violation THEN RAISE NOTICE 'a taken pill has its time';
 END $$;
@@ -73,14 +73,12 @@ SELECT pg_temp.expect('Pia reads her whole history',
 
 -- Paul, her partner.
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088b';
-SELECT pg_temp.expect('the partner reads only today''s ticked pill',
+SELECT pg_temp.expect('the partner reads only today''s ticked pill, not yesterday''s',
   (SELECT count(*) = 1 AND bool_and(status = 'taken' AND day = current_date) FROM public.pill_intakes));
 SELECT pg_temp.expect('never her settings',
   (SELECT count(*) = 0 FROM public.pill_tracking));
-SELECT pg_temp.expect('today: tracking, a pill day, ticked',
-  (SELECT tracking AND expected AND taken_at IS NOT NULL FROM public.partner_pill_today(current_date)));
-SELECT pg_temp.expect('a day far away tells nothing',
-  (SELECT NOT tracking AND taken_at IS NULL FROM public.partner_pill_today(current_date - 5)));
+SELECT pg_temp.expect('today, in her time zone: tracking, a pill day, ticked',
+  (SELECT tracking AND expected AND taken_at IS NOT NULL FROM public.partner_pill_today()));
 DO $$ BEGIN
   INSERT INTO public.pill_intakes (user_id, day, status, taken_at)
   VALUES ('00000000-0000-0000-0000-00000000088a', current_date + 1, 'taken', now());
@@ -97,13 +95,13 @@ SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088a';
 UPDATE public.pill_tracking SET pack_started_on = current_date - 22 WHERE user_id = auth.uid();
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088b';
 SELECT pg_temp.expect('in the pause week, no pill is expected',
-  (SELECT tracking AND NOT expected FROM public.partner_pill_today(current_date)));
+  (SELECT tracking AND NOT expected FROM public.partner_pill_today()));
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088a';
 UPDATE public.pill_tracking SET share_with_partner = false WHERE user_id = auth.uid();
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088b';
 SELECT pg_temp.expect('not shared: the partner reads nothing',
   (SELECT count(*) = 0 FROM public.pill_intakes)
-  AND (SELECT NOT tracking AND NOT expected AND taken_at IS NULL FROM public.partner_pill_today(current_date)));
+  AND (SELECT NOT tracking AND NOT expected AND taken_at IS NULL FROM public.partner_pill_today()));
 
 -- Sam, a stranger, and a signed-out caller.
 SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088a';
@@ -112,7 +110,7 @@ SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088c';
 SELECT pg_temp.expect('a stranger reads nothing',
   (SELECT count(*) = 0 FROM public.pill_intakes)
   AND (SELECT count(*) = 0 FROM public.pill_tracking)
-  AND (SELECT NOT tracking FROM public.partner_pill_today(current_date)));
+  AND (SELECT NOT tracking FROM public.partner_pill_today()));
 RESET ROLE;
 SET ROLE anon; RESET request.jwt.claim.sub;
 DO $$ BEGIN
@@ -121,7 +119,7 @@ DO $$ BEGIN
 EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'signed out, no history';
 END $$;
 DO $$ BEGIN
-  PERFORM public.partner_pill_today(current_date);
+  PERFORM public.partner_pill_today();
   RAISE EXCEPTION 'expected a refusal';
 EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'nor the partner''s view';
 END $$;
@@ -130,6 +128,18 @@ DO $$ BEGIN
   RAISE EXCEPTION 'expected a refusal';
 EXCEPTION WHEN insufficient_privilege THEN RAISE NOTICE 'nor stopping anyone''s tracking';
 END $$;
+
+-- Her day follows her time zone; an unknown zone counts as UTC.
+SET ROLE authenticated;
+SET request.jwt.claim.sub = '00000000-0000-0000-0000-00000000088a';
+UPDATE public.pill_tracking SET time_zone = 'Pacific/Kiritimati' WHERE user_id = auth.uid();
+SELECT pg_temp.expect('her today is Kiritimati''s',
+  public.pill_today_for(auth.uid()) = (now() AT TIME ZONE 'Pacific/Kiritimati')::date);
+UPDATE public.pill_tracking SET time_zone = 'Mars/Base' WHERE user_id = auth.uid();
+SELECT pg_temp.expect('an unknown zone counts as UTC',
+  public.pill_today_for(auth.uid()) = (now() AT TIME ZONE 'UTC')::date);
+UPDATE public.pill_tracking SET time_zone = 'UTC' WHERE user_id = auth.uid();
+RESET ROLE;
 
 -- Leaving the couple keeps her own history; stopping deletes it.
 RESET ROLE;
@@ -143,6 +153,13 @@ SELECT public.stop_pill_tracking();
 SELECT pg_temp.expect('stopping deletes her settings and history',
   (SELECT count(*) = 0 FROM public.pill_intakes)
   AND (SELECT count(*) = 0 FROM public.pill_tracking));
+
+-- Deleting the settings any other way takes the history with them.
+INSERT INTO public.pill_tracking (user_id, pack_type, pack_started_on) VALUES (auth.uid(), '28', current_date);
+INSERT INTO public.pill_intakes (user_id, day, status, taken_at) VALUES (auth.uid(), current_date, 'taken', now());
+DELETE FROM public.pill_tracking WHERE user_id = auth.uid();
+SELECT pg_temp.expect('no history without settings',
+  (SELECT count(*) = 0 FROM public.pill_intakes));
 
 -- She starts again, then deletes her account: everything goes.
 INSERT INTO public.pill_tracking (user_id, pack_type, pack_started_on) VALUES (auth.uid(), '28', current_date);

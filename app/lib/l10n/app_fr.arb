@@ -416,7 +416,7 @@
   "pillActionSnooze": "Dans 30 min",
   "pillLabel": "Pilule",
   "pillSetupQuestion": "Prenez-vous une pilule hormonale ?",
-  "pillSetupWhy": "Contraception, cycle, peau : peu importe la raison. Nous Deux peut vous la rappeler chaque jour et, si vous le voulez, votre partenaire verra qu'elle est prise. C'est facultatif et modifiable.",
+  "pillSetupWhy": "Contraception, cycle, peau : peu importe la raison. Nous Deux peut vous la rappeler chaque jour. Votre partenaire voit si celle du jour est prise, et à quelle heure ; vous pouvez couper ce partage à tout moment.",
   "pillSetupYes": "Oui, me la rappeler",
   "pillSetupNo": "Non",
   "pillSetupLater": "Plus tard",
@@ -428,7 +428,7 @@
   "pillHealthNote": "Ce sont des données de santé, comme votre cycle : elles restent à vous, et vous pouvez tout supprimer à tout moment.",
   "pillContinue": "Continuer",
   "pillConsentTitle": "Avant de commencer",
-  "pillConsent": "Le suivi de la pilule garde des données de santé : votre plaquette, votre rappel et les jours où vous la prenez. Elles sont stockées sur nos serveurs en Allemagne et ne servent qu'à vos rappels et à ce que vous choisissez de partager. Vous pouvez tout arrêter et tout supprimer dans Paramètres › Règles › Suivi de la pilule.",
+  "pillConsent": "Le suivi de la pilule garde des données de santé : votre plaquette, votre rappel et les jours où vous la prenez. Elles sont stockées sur nos serveurs en Allemagne. Votre partenaire voit si la pilule du jour est cochée, et à quelle heure, tant que vous le partagez : c'est activé au départ. Dans Paramètres › Règles › Suivi de la pilule, vous pouvez couper ce partage, ou tout arrêter et tout supprimer.",
   "pillTrackLink": "Suivre ma pilule",
   "pillReminderAt": "Rappel à {time}",
   "pillOfPack": "comprimé sur {total}",
@@ -467,5 +467,9 @@
   "pillStopNote": "Supprime l'historique des prises de nos serveurs. Rien n'est envoyé à {name}.",
   "pillStopConfirmTitle": "Arrêter le suivi de la pilule ?",
   "pillStopConfirmBody": "Vos réglages et votre historique sont supprimés, et les rappels s'arrêtent.",
-  "pillStopConfirm": "Arrêter"
+  "pillStopConfirm": "Arrêter",
+  "pillYesterdayPending": "Hier : pas encore cochée",
+  "pillTookItYesterday": "Je l'ai prise hier",
+  "pillBreakUntil": "Arrêt jusqu'au {date}",
+  "pillReminderKeepAlive": "Ouvrez Nous Deux pour garder vos rappels."
 }

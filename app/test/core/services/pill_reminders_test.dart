@@ -72,11 +72,24 @@ void main() {
     },
   );
 
+  test('a month planned, then one last reminder to open the app', () {
+    final reminders = plan(s: settings(startedOn: DateTime(2026, 11, 18)));
+    final keepAlive = reminders.last;
+    expect(keepAlive.id, pillKeepAliveId);
+    expect(
+      DateTime(keepAlive.at.year, keepAlive.at.month, keepAlive.at.day),
+      DateTime(2026, 12, 18),
+    );
+    expect(keepAlive.body, isNot(contains('pilule')));
+    // Under iOS's 64 pending notifications, with the period reminder and a snooze.
+    expect(reminders.length + 2, lessThanOrEqualTo(64));
+  });
+
   test('ids stay in the pill range and never repeat', () {
     final ids = plan().map((r) => r.id).toList();
     expect(ids.toSet().length, ids.length);
     expect(
-      ids.every((id) => id >= pillReminderFirstId && id < pillSnoozeId),
+      ids.every((id) => id >= pillReminderFirstId && id <= pillKeepAliveId),
       isTrue,
     );
   });
@@ -173,6 +186,19 @@ void main() {
         isEmpty,
       );
       expect(deps.notifications.scheduled, isNotEmpty);
+    });
+
+    test('a new time zone is saved, and the plan follows it', () async {
+      final (deps, c) = await start(
+        TestDeps(now: DateTime(2026, 11, 18, 12), pillSettings: settings()),
+      );
+      // The settings came with the default UTC; the phone is in Paris.
+      await c.read(pillReminderSyncProvider.future);
+      expect(deps.pill.savedSettings, hasLength(1));
+      final before = deps.notifications.cancelled.length;
+      c.read(localZoneProvider.notifier).state = 'America/New_York';
+      await c.read(pillReminderSyncProvider.future);
+      expect(deps.notifications.cancelled.length, greaterThan(before));
     });
 
     test('reminders off, or no tracking: nothing scheduled', () async {

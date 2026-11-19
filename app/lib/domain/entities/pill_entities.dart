@@ -26,6 +26,7 @@ class PillSettings extends Equatable {
     this.reminderTime = (hour: 21, minute: 0),
     this.reminderText = ReminderText.discreet,
     this.shareWithPartner = true,
+    this.timeZone = 'UTC',
   });
 
   final PackType packType;
@@ -36,6 +37,9 @@ class PillSettings extends Equatable {
   final TimeOfDayValue reminderTime;
   final ReminderText reminderText;
   final bool shareWithPartner;
+
+  /// The phone's zone when last saved (IANA name): the partner's "today".
+  final String timeZone;
 
   PillSchedule get schedule => PillSchedule(packType, packStartedOn);
 
@@ -53,6 +57,7 @@ class PillSettings extends Equatable {
     reminderTime: reminderTime ?? this.reminderTime,
     reminderText: reminderText ?? this.reminderText,
     shareWithPartner: shareWithPartner ?? this.shareWithPartner,
+    timeZone: timeZone,
   );
 
   @override
@@ -63,6 +68,7 @@ class PillSettings extends Equatable {
     reminderTime,
     reminderText,
     shareWithPartner,
+    timeZone,
   ];
 }
 

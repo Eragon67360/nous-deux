@@ -1051,7 +1051,7 @@
   "pillActionSnooze": "In 30 min",
   "pillLabel": "Pill",
   "pillSetupQuestion": "Do you take a hormonal pill?",
-  "pillSetupWhy": "Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day and, if you like, your partner will see it's taken. It's optional, and you can change it.",
+  "pillSetupWhy": "Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today's is taken, and when; you can turn that off at any time.",
   "pillSetupYes": "Yes, remind me",
   "pillSetupNo": "No",
   "pillSetupLater": "Later",
@@ -1077,7 +1077,7 @@
   "pillHealthNote": "This is health data, like your cycle: it stays yours, and you can delete it all at any time.",
   "pillContinue": "Continue",
   "pillConsentTitle": "Before you start",
-  "pillConsent": "Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany and only used for your reminders and for what you choose to share. You can stop and delete it all in Settings › Period › Pill tracking.",
+  "pillConsent": "Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today's pill is ticked, and at what time, as long as you share it: it's on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.",
   "pillTrackLink": "Track my pill",
   "pillReminderAt": "Reminder at {time}",
   "@pillReminderAt": {
@@ -1199,5 +1199,16 @@
   },
   "pillStopConfirmTitle": "Stop pill tracking?",
   "pillStopConfirmBody": "Your settings and history are deleted, and the reminders stop.",
-  "pillStopConfirm": "Stop"
+  "pillStopConfirm": "Stop",
+  "pillYesterdayPending": "Yesterday: not ticked yet",
+  "pillTookItYesterday": "I took it yesterday",
+  "pillBreakUntil": "Break until {date}",
+  "pillReminderKeepAlive": "Open Nous Deux to keep your reminders.",
+  "@pillBreakUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  }
 }

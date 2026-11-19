@@ -62,7 +62,13 @@ enum PillTodayState {
 
 /// Today's pill, as the Règles tab shows it.
 class PillToday {
-  const PillToday(this.state, {this.settings, this.pillNumber, this.takenAt});
+  const PillToday(
+    this.state, {
+    this.settings,
+    this.pillNumber,
+    this.takenAt,
+    this.yesterdayPending = false,
+  });
 
   final PillTodayState state;
   final PillSettings? settings;
@@ -70,6 +76,10 @@ class PillToday {
   /// Today's pill in its pack; null on a day off.
   final int? pillNumber;
   final DateTime? takenAt;
+
+  /// Before noon, yesterday was a pill day and nothing was noted for it: a
+  /// pill taken late at night can still go on the right day.
+  final bool yesterdayPending;
 }
 
 /// Today's pill state, or null while my settings or days load.
@@ -84,17 +94,28 @@ final pillTodayProvider = Provider<PillToday?>((ref) {
   final now = ref.watch(clockProvider)();
   final today = _day(now);
   final number = settings.schedule.pillNumber(today);
-  final intake = week.requireValue.where((i) => i.day == today).firstOrNull;
+  final days = week.requireValue;
+  final intake = days.where((i) => i.day == today).firstOrNull;
+  final yesterday = DateTime(today.year, today.month, today.day - 1);
+  final yesterdayPending =
+      now.hour < 12 &&
+      settings.schedule.isPillDay(yesterday) &&
+      !days.any((i) => i.day == yesterday);
   if (intake != null) {
     return PillToday(
       intake.taken ? PillTodayState.taken : PillTodayState.missed,
       settings: settings,
       pillNumber: number,
       takenAt: intake.takenAt,
+      yesterdayPending: yesterdayPending,
     );
   }
   if (number == null) {
-    return PillToday(PillTodayState.pauseDay, settings: settings);
+    return PillToday(
+      PillTodayState.pauseDay,
+      settings: settings,
+      yesterdayPending: yesterdayPending,
+    );
   }
   final t = settings.reminderTime;
   final lateFrom = DateTime(
@@ -108,6 +129,7 @@ final pillTodayProvider = Provider<PillToday?>((ref) {
     now.isBefore(lateFrom) ? PillTodayState.due : PillTodayState.late,
     settings: settings,
     pillNumber: number,
+    yesterdayPending: yesterdayPending,
   );
 });
 

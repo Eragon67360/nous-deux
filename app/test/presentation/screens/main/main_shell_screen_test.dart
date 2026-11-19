@@ -397,6 +397,31 @@ void main() {
       expect(router.state.uri.path, AppRoutes.tabs[2]);
     });
 
+    testWidgets('« Prise » tapped while the app was killed: ticked at start', (
+      tester,
+    ) async {
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 10, 21, 5),
+        pillSettings: pill(),
+      );
+      // The tap that launched the app, before anything listens.
+      deps.notifications.launchTap = (
+        payload: payloadFor(DateTime(2026, 11, 10, 12)),
+        actionId: pillTakenAction,
+      );
+      final router = await _pumpShell(tester, deps);
+
+      expect(deps.pill.takenCalls, [DateTime(2026, 11, 10)]);
+      expect(router.state.uri.path, AppRoutes.tabs[2]);
+      // And today's second reminder is gone.
+      expect(
+        deps.notifications.scheduled.keys.where(
+          (id) => id == pillReminderFirstId || id == pillReminderFirstId + 1,
+        ),
+        isEmpty,
+      );
+    });
+
     testWidgets('a tap on it opens Règles without ticking', (tester) async {
       final deps = TestDeps(
         now: DateTime(2026, 11, 10, 18),

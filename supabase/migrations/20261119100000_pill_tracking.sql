@@ -19,6 +19,9 @@ CREATE TABLE public.pill_tracking (
   -- What the lock screen shows: 'clear' names the pill, 'discreet' doesn't.
   reminder_text TEXT NOT NULL DEFAULT 'discreet' CHECK (reminder_text IN ('clear', 'discreet')),
   share_with_partner BOOLEAN NOT NULL DEFAULT TRUE,
+  -- The phone's zone (IANA name): "today" for the partner's line is today
+  -- where this person is.
+  time_zone TEXT NOT NULL DEFAULT 'UTC',
   consent_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -35,8 +38,8 @@ REVOKE ALL ON TABLE public.pill_tracking FROM PUBLIC, anon, authenticated;
 -- consent_at and the timestamps are the database's. user_id stays writable
 -- for the app's upsert; RLS pins it to the caller.
 GRANT SELECT, DELETE ON TABLE public.pill_tracking TO authenticated;
-GRANT INSERT (user_id, pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner),
-      UPDATE (user_id, pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner)
+GRANT INSERT (user_id, pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner, time_zone),
+      UPDATE (user_id, pack_type, pack_started_on, reminder_on, reminder_time, reminder_text, share_with_partner, time_zone)
   ON TABLE public.pill_tracking TO authenticated;
 GRANT ALL ON TABLE public.pill_tracking TO service_role;
 
@@ -46,14 +49,38 @@ TO authenticated
 USING (user_id = auth.uid())
 WITH CHECK (user_id = auth.uid());
 
+-- Today where [owner] is (their pill_tracking zone), for the partner's
+-- line; an unknown zone counts as UTC.
+CREATE FUNCTION public.pill_today_for(owner UUID)
+RETURNS DATE
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  _zone TEXT;
+BEGIN
+  SELECT time_zone INTO _zone FROM public.pill_tracking WHERE user_id = owner;
+  BEGIN
+    RETURN (now() AT TIME ZONE COALESCE(_zone, 'UTC'))::date;
+  EXCEPTION WHEN invalid_parameter_value THEN
+    RETURN (now() AT TIME ZONE 'UTC')::date;
+  END;
+END;
+$$;
+REVOKE ALL ON FUNCTION public.pill_today_for(UUID) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.pill_today_for(UUID) TO authenticated;
+
 -- ---------------------------------------------------------------------------
--- 2. One row per day: taken (with its time) or missed. Only while tracking.
---    The partner reads a ticked pill of the last two days (so the app's
---    Realtime hears the tick), and only while it is shared.
+-- 2. One row per day: taken (with its time) or missed. Only while tracking:
+--    the rows go with the settings. The partner reads today's ticked pill
+--    (so the app's Realtime hears the tick), today being the owner's, and
+--    only while it is shared.
 -- ---------------------------------------------------------------------------
 CREATE TABLE public.pill_intakes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES public.pill_tracking(user_id) ON DELETE CASCADE,
   day DATE NOT NULL,
   status TEXT NOT NULL CHECK (status IN ('taken', 'missed')),
   taken_at TIMESTAMPTZ,
@@ -96,13 +123,13 @@ WITH CHECK (
   AND EXISTS (SELECT 1 FROM public.pill_tracking WHERE user_id = auth.uid())
 );
 
-CREATE POLICY "Partner sees a ticked pill of the last days"
+CREATE POLICY "Partner sees today's ticked pill"
 ON public.pill_intakes FOR SELECT
 TO authenticated
 USING (
   user_id = public.my_partner_id()
   AND status = 'taken'
-  AND day >= current_date - 2
+  AND day = public.pill_today_for(user_id)
   AND public.shares_pill(user_id)
 );
 
@@ -128,11 +155,11 @@ REVOKE ALL ON FUNCTION public.pill_is_pill_day(TEXT, DATE, DATE) FROM PUBLIC, an
 GRANT EXECUTE ON FUNCTION public.pill_is_pill_day(TEXT, DATE, DATE) TO authenticated;
 
 -- ---------------------------------------------------------------------------
--- 4. The partner's one line, for a day near today (two days either way, for
---    time zones): whether my partner tracks and shares, whether a pill is
---    expected that day, and when it was ticked. Further days tell nothing.
+-- 4. The partner's one line, for today where my partner is: whether they
+--    track and share, whether a pill is expected today, and when it was
+--    ticked. No other day can be asked about.
 -- ---------------------------------------------------------------------------
-CREATE FUNCTION public.partner_pill_today(p_day DATE)
+CREATE FUNCTION public.partner_pill_today()
 RETURNS TABLE (tracking BOOLEAN, expected BOOLEAN, taken_at TIMESTAMPTZ)
 LANGUAGE sql
 STABLE
@@ -140,25 +167,25 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
   WITH shared AS (
-    SELECT t.user_id, t.pack_type, t.pack_started_on
+    SELECT t.user_id, t.pack_type, t.pack_started_on,
+           public.pill_today_for(t.user_id) AS today
     FROM public.pill_tracking t
     WHERE t.user_id = public.my_partner_id()
       AND t.share_with_partner
-      AND p_day BETWEEN current_date - 2 AND current_date + 2
   )
   SELECT
     shared.user_id IS NOT NULL,
     -- Only for someone who tracks and shares: with no pack, the rule's
     -- "every day" would answer yes.
     shared.user_id IS NOT NULL
-      AND public.pill_is_pill_day(shared.pack_type, shared.pack_started_on, p_day),
+      AND public.pill_is_pill_day(shared.pack_type, shared.pack_started_on, shared.today),
     (SELECT i.taken_at FROM public.pill_intakes i
-     WHERE i.user_id = shared.user_id AND i.day = p_day AND i.status = 'taken')
+     WHERE i.user_id = shared.user_id AND i.day = shared.today AND i.status = 'taken')
   FROM (SELECT 1) AS one
   LEFT JOIN shared ON TRUE
 $$;
-REVOKE ALL ON FUNCTION public.partner_pill_today(DATE) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.partner_pill_today(DATE) TO authenticated;
+REVOKE ALL ON FUNCTION public.partner_pill_today() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.partner_pill_today() TO authenticated;
 
 -- ---------------------------------------------------------------------------
 -- 5. « Arrêter le suivi »: the caller's history and settings, both at once.

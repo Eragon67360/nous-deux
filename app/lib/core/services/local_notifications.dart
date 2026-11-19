@@ -60,9 +60,12 @@ abstract class LocalNotifications {
   /// Cancels every id from [from] to [to], both included.
   Future<void> cancelRange(int from, int to);
 
-  /// Taps on a notification or its buttons while the app runs, and the one
-  /// that opened it.
+  /// Taps on a notification or its buttons while the app runs.
   Stream<NotificationTap> get taps;
+
+  /// The tap that launched the app, once: it came before anyone listened to
+  /// [taps].
+  NotificationTap? takeLaunchTap();
 }
 
 /// Loads the time zone database and sets `tz.local` to the phone's zone.
@@ -83,6 +86,14 @@ class PluginLocalNotifications implements LocalNotifications {
 
   final FlutterLocalNotificationsPlugin _plugin;
   final _taps = StreamController<NotificationTap>.broadcast();
+  NotificationTap? _launchTap;
+
+  @override
+  NotificationTap? takeLaunchTap() {
+    final t = _launchTap;
+    _launchTap = null;
+    return t;
+  }
 
   /// Starts the plugin once: the phone's zone, the Android channels, the iOS
   /// [categories] (their buttons), and the handlers. A button that doesn't
@@ -129,13 +140,8 @@ class PluginLocalNotifications implements LocalNotifications {
     final launch = await self._plugin.getNotificationAppLaunchDetails();
     final opened = launch?.notificationResponse;
     if (launch?.didNotificationLaunchApp == true && opened != null) {
-      // Delivered once someone listens: the shell subscribes after start.
-      scheduleMicrotask(
-        () => self._taps.add((
-          payload: opened.payload,
-          actionId: opened.actionId,
-        )),
-      );
+      // Kept for the shell, which asks once it is up.
+      self._launchTap = (payload: opened.payload, actionId: opened.actionId);
     }
     return self;
   }
@@ -240,6 +246,9 @@ class NoLocalNotifications implements LocalNotifications {
 
   @override
   Stream<NotificationTap> get taps => const Stream.empty();
+
+  @override
+  NotificationTap? takeLaunchTap() => null;
 }
 
 /// The phone's scheduler. main.dart overrides it with the started plugin;
@@ -247,3 +256,13 @@ class NoLocalNotifications implements LocalNotifications {
 final localNotificationsProvider = Provider<LocalNotifications>(
   (ref) => const NoLocalNotifications(),
 );
+
+/// The phone's zone (IANA name), read again when the app comes back: a
+/// phone that travelled plans its reminders in its new zone.
+final localZoneProvider = StateProvider<String>((ref) {
+  try {
+    return tz.local.name;
+  } catch (_) {
+    return 'UTC';
+  }
+});

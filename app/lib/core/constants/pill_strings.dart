@@ -47,6 +47,10 @@ String pillOfficialSheet(String lang, String name) =>
 String pillNoteMissed(String lang) => l10nFor(lang).pillNoteMissed;
 String pillNotedMissed(String lang) => l10nFor(lang).pillNotedMissed;
 String pillNoScore(String lang) => l10nFor(lang).pillNoScore;
+String pillYesterdayPending(String lang) => l10nFor(lang).pillYesterdayPending;
+String pillTookItYesterday(String lang) => l10nFor(lang).pillTookItYesterday;
+String pillBreakUntil(String lang, DateTime last) =>
+    l10nFor(lang).pillBreakUntil(pillShortDate(lang, last));
 String pillPartnerTaken(String lang, DateTime at) =>
     l10nFor(lang).pillPartnerTaken(pillTime(lang, at));
 String pillPartnerNotYet(String lang) => l10nFor(lang).pillPartnerNotYet;
@@ -76,6 +80,8 @@ String pillLockScreenChoice(String lang, ReminderText style) =>
 String pillPackLine(String lang, PillSchedule s, DateTime day) {
   final pause = s.pauseAround(day);
   if (pause == null) return l10nFor(lang).pillPackLine(s.dayInPack(day));
+  // In the break, when it ends rather than « Jour 24 sur 21 ».
+  if (!s.isPillDay(day)) return pillBreakUntil(lang, pause.to);
   return l10nFor(lang).pillPackLine21(
     s.dayInPack(day),
     pillShortDate(lang, pause.from),

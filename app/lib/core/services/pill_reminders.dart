@@ -18,18 +18,20 @@ import 'package:nousdeux/presentation/providers/profile_provider.dart';
 // second reminder. They are planned again whenever the app starts or comes
 // back, the settings change, or a pill is ticked.
 
-/// Notification ids 1000 to 1099 are the pill's: two per day ahead, then
-/// the one « Dans 30 min » adds.
+/// Notification ids 1000 to 1099 are the pill's: two per day ahead, the
+/// last one asking to open the app, then the one « Dans 30 min » adds.
 const pillReminderFirstId = 1000;
+const pillKeepAliveId = 1098;
 const pillSnoozeId = 1099;
 
 /// The buttons: « Prise » (opens the app to save it) and « Dans 30 min ».
 const pillTakenAction = 'pill_taken';
 const pillSnoozeAction = 'pill_snooze';
 
-/// Days planned ahead. Two a day stays under iOS's 64 pending notifications,
-/// with room for the others.
-const pillPlanDays = 21;
+/// Days planned ahead. Two a day, plus the last one, the period reminder and
+/// a snooze, stays under iOS's 64 pending notifications. Past them, the
+/// last one asks to open the app, which plans the next ones.
+const pillPlanDays = 30;
 
 /// One reminder to schedule.
 class PlannedReminder {
@@ -156,29 +158,58 @@ List<PlannedReminder> planPillReminders({
     ];
     for (final r in texts) {
       if (!r.at.isAfter(nowTz)) continue;
-      out.add(
-        PlannedReminder(
-          id: r.id,
-          at: r.at,
-          title: title,
-          body: r.body,
-          payload: jsonEncode({
-            'kind': 'pill',
-            'day': _date(day),
-            'title': title,
-            'body': r.body,
-            'category': category,
-            'taken': actions.first.label,
-            'snooze': actions.last.label,
-          }),
-          iosCategory: category,
-          actions: actions,
-        ),
-      );
+      out.add(_planned(r.id, r.at, title, r.body, day, category, actions));
     }
   }
+  // The day after the plan: open the app, or the reminders stop here.
+  final end = DateTime(now.year, now.month, now.day + days);
+  final last = tz.TZDateTime(
+    tz.local,
+    end.year,
+    end.month,
+    end.day,
+    t.hour,
+    t.minute,
+  );
+  out.add(
+    _planned(
+      pillKeepAliveId,
+      last,
+      title,
+      l.pillReminderKeepAlive,
+      end,
+      category,
+      const [],
+    ),
+  );
   return out;
 }
+
+PlannedReminder _planned(
+  int id,
+  tz.TZDateTime at,
+  String title,
+  String body,
+  DateTime day,
+  String category,
+  List<LocalAction> actions,
+) => PlannedReminder(
+  id: id,
+  at: at,
+  title: title,
+  body: body,
+  payload: jsonEncode({
+    'kind': 'pill',
+    'day': _date(day),
+    'title': title,
+    'body': body,
+    'category': category,
+    'taken': actions.isEmpty ? '' : actions.first.label,
+    'snooze': actions.isEmpty ? '' : actions.last.label,
+  }),
+  iosCategory: category,
+  actions: actions,
+);
 
 Map<String, dynamic>? _pillPayload(String? payload) {
   if (payload == null) return null;
@@ -238,7 +269,12 @@ Future<void> pillNotificationBackgroundHandler(NotificationResponse r) async {
 /// by the main shell, so it runs at start, when the settings change and
 /// after a tick (which reloads the days).
 final pillReminderSyncProvider = FutureProvider<void>((ref) async {
+  // A newer run replaces this one: it stops scheduling as soon as it is
+  // stale, so reminders turned off don't come back from an older run.
+  var live = true;
+  ref.onDispose(() => live = false);
   final notifications = ref.watch(localNotificationsProvider);
+  final zone = ref.watch(localZoneProvider);
   final settings = await ref.watch(pillSettingsProvider.future);
   final days = await ref.watch(pillWeekProvider.future);
   final lang = ref.watch(
@@ -246,13 +282,18 @@ final pillReminderSyncProvider = FutureProvider<void>((ref) async {
   );
   try {
     await notifications.cancelRange(pillReminderFirstId, pillSnoozeId);
-    if (settings == null) return;
+    if (settings == null || !live) return;
+    // The partner's "today" follows the phone: save a new zone once.
+    if (settings.timeZone != zone) {
+      await ref.read(pillRepositoryProvider).saveSettings(settings);
+    }
     for (final r in planPillReminders(
       settings: settings,
       intakes: days,
       now: ref.read(clockProvider)(),
       lang: lang,
     )) {
+      if (!live) return;
       await notifications.schedule(
         id: r.id,
         at: r.at,

@@ -87,6 +87,27 @@ void main() {
     expect(today.state, PillTodayState.missed);
   });
 
+  test('after midnight, yesterday\'s unticked pill is still pending', () async {
+    final today = await _today(
+      TestDeps(now: DateTime(2026, 11, 19, 1, 51), pillSettings: settings()),
+    );
+    expect(today.yesterdayPending, isTrue);
+    final noon = await _today(
+      TestDeps(now: DateTime(2026, 11, 19, 12, 1), pillSettings: settings()),
+    );
+    expect(noon.yesterdayPending, isFalse);
+    final ticked = await _today(
+      TestDeps(
+        now: DateTime(2026, 11, 19, 1, 51),
+        pillSettings: settings(),
+        pillIntakes: [
+          PillIntake.taken(DateTime(2026, 11, 18), DateTime(2026, 11, 18, 21)),
+        ],
+      ),
+    );
+    expect(ticked.yesterdayPending, isFalse);
+  });
+
   test('in the pause week: a day off', () async {
     final today = await _today(
       TestDeps(now: DateTime(2026, 11, 30, 22), pillSettings: settings()),
