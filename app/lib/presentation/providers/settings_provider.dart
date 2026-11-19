@@ -10,7 +10,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:nousdeux/core/constants/app_constants.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/errors/failures.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
+import 'package:nousdeux/presentation/screens/period/pill_setup_screen.dart'
+    show pillSetupDeclinedKey, pillSetupLaterUntilKey;
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/own_words_provider.dart';
@@ -125,14 +129,18 @@ final calendarPrefsProvider =
       CalendarPrefsController.new,
     );
 
-/// Deletes my account, then forgets it on this phone: the reminder about my
-/// partner's period and the local Règles and calendar preferences go too, so
+/// Deletes my account, then forgets it on this phone: the reminders (my
+/// partner's period, my pill) and the local Règles and calendar preferences go too, so
 /// a next account here starts clean, and so do the notes and states of
 /// one's own saved here. Null on success.
 Future<Failure?> deleteMyAccount(WidgetRef ref) async {
   final failure = await ref.read(authRepositoryProvider).deleteAccount();
   if (failure != null) return failure;
-  await cancelPartnerPeriodReminder();
+  final notifications = ref.read(localNotificationsProvider);
+  await cancelPartnerPeriodReminder(notifications);
+  try {
+    await notifications.cancelRange(pillReminderFirstId, pillSnoozeId);
+  } catch (_) {}
   final prefs = await SharedPreferences.getInstance();
   for (final key in const [
     periodPartnerReminderEnabledKey,
@@ -142,6 +150,8 @@ Future<Failure?> deleteMyAccount(WidgetRef ref) async {
     ownStatesKey,
     calendarFollowedKey,
     calendarInstallIdKey,
+    pillSetupDeclinedKey,
+    pillSetupLaterUntilKey,
   ]) {
     await prefs.remove(key);
   }

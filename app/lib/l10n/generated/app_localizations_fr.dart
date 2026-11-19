@@ -1571,4 +1571,343 @@ class AppLocalizationsFr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsFeedback => 'Envoyer un retour';
+
+  @override
+  String feedbackSubject(String build, String device) {
+    return 'Nous Deux · build $build · $device';
+  }
+
+  @override
+  String settingsFeedbackNoMail(String email) {
+    return 'Aucune app de mail trouvée. Écrivez à $email.';
+  }
+
+  @override
+  String pillReminderTitle(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Pilule',
+      'other': 'Petit rappel',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillReminderBodyClear(int number) {
+    return 'C\'est l\'heure de votre pilule. Comprimé $number.';
+  }
+
+  @override
+  String pillReminderBodyDiscreet(String time) {
+    return 'Votre rappel de $time.';
+  }
+
+  @override
+  String get pillReminderLaterClear =>
+      'Pas encore cochée : c\'est l\'heure de votre pilule.';
+
+  @override
+  String pillReminderLaterDiscreet(String time) {
+    return 'Toujours là : votre rappel de $time.';
+  }
+
+  @override
+  String pillActionTaken(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Prise',
+      'other': 'C\'est fait',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get pillActionSnooze => 'Dans 30 min';
+
+  @override
+  String get pillLabel => 'Pilule';
+
+  @override
+  String get pillSetupQuestion => 'Prenez-vous une pilule hormonale ?';
+
+  @override
+  String get pillSetupWhy =>
+      'Contraception, cycle, peau : peu importe la raison. Nous Deux peut vous la rappeler chaque jour. Votre partenaire voit si celle du jour est prise, et à quelle heure ; vous pouvez couper ce partage à tout moment.';
+
+  @override
+  String get pillSetupYes => 'Oui, me la rappeler';
+
+  @override
+  String get pillSetupNo => 'Non';
+
+  @override
+  String get pillSetupLater => 'Plus tard';
+
+  @override
+  String get pillReminderLabel => 'Rappel';
+
+  @override
+  String get pillTodayLabel => 'Aujourd\'hui';
+
+  @override
+  String pillNumberToday(int number) {
+    return 'Comprimé $number';
+  }
+
+  @override
+  String get pillPackLabel => 'Plaquette';
+
+  @override
+  String pillPackType(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 + 7 d\'arrêt',
+      'p28': '28 jours',
+      'other': 'En continu',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get pillHealthNote =>
+      'Ce sont des données de santé, comme votre cycle : elles restent à vous, et vous pouvez tout supprimer à tout moment.';
+
+  @override
+  String get pillContinue => 'Continuer';
+
+  @override
+  String get pillConsentTitle => 'Avant de commencer';
+
+  @override
+  String get pillConsent =>
+      'Le suivi de la pilule garde des données de santé : votre plaquette, votre rappel et les jours où vous la prenez. Elles sont stockées sur nos serveurs en Allemagne. Votre partenaire voit si la pilule du jour est cochée, et à quelle heure, tant que vous le partagez : c\'est activé au départ. Dans Paramètres › Règles › Suivi de la pilule, vous pouvez couper ce partage, ou tout arrêter et tout supprimer.';
+
+  @override
+  String get pillTrackLink => 'Suivre ma pilule';
+
+  @override
+  String pillReminderAt(String time) {
+    return 'Rappel à $time';
+  }
+
+  @override
+  String pillOfPack(int total) {
+    return 'comprimé sur $total';
+  }
+
+  @override
+  String get pillNotTickedToday => 'Pas encore cochée aujourd\'hui';
+
+  @override
+  String pillTakenAt(String time) {
+    return 'Prise à $time';
+  }
+
+  @override
+  String get pillTakeButton => 'Je l\'ai prise';
+
+  @override
+  String get pillUntick => 'Décocher';
+
+  @override
+  String get pillDayOff => 'Pas de pilule aujourd\'hui';
+
+  @override
+  String pillPackLine21(int day, String from, String to) {
+    return 'Jour $day sur 21 · arrêt du $from au $to';
+  }
+
+  @override
+  String pillPackLine(int day) {
+    return 'Jour $day sur 28';
+  }
+
+  @override
+  String pillNextPack(String date) {
+    return 'Nouvelle plaquette le $date';
+  }
+
+  @override
+  String get pillThisWeek => 'Cette semaine';
+
+  @override
+  String get pillWeekMissed => 'oubli';
+
+  @override
+  String get pillWeekOff => 'arrêt';
+
+  @override
+  String get pillTookItAt => 'Je l\'ai prise à';
+
+  @override
+  String get pillTakingNow => 'Je la prends maintenant';
+
+  @override
+  String get pillIfMissed => 'En cas d\'oubli';
+
+  @override
+  String get pillIfMissedBody =>
+      'Suivez la notice de votre pilule : ce qu\'il faut faire dépend de la pilule et du retard. En cas de doute, demandez conseil en pharmacie ou à votre médecin.';
+
+  @override
+  String pillOfficialSheet(String name) {
+    return 'Fiche officielle : $name';
+  }
+
+  @override
+  String get pillNoteMissed => 'Noter un oubli';
+
+  @override
+  String get pillNotedMissed => 'Oubli noté';
+
+  @override
+  String get pillNoScore => 'Pas de série, pas de score.';
+
+  @override
+  String pillPartnerTaken(String time) {
+    return 'Pilule prise à $time';
+  }
+
+  @override
+  String get pillPartnerNotYet => 'Pilule pas encore cochée';
+
+  @override
+  String get pillSettingsTitle => 'Suivi de la pilule';
+
+  @override
+  String get pillReminderDaily => 'Rappel chaque jour';
+
+  @override
+  String get pillReminderTime => 'Heure';
+
+  @override
+  String get pillLockScreen => 'Sur l\'écran verrouillé';
+
+  @override
+  String get pillPackTypeLabel => 'Type';
+
+  @override
+  String get pillTodayPill => 'Comprimé d\'aujourd\'hui';
+
+  @override
+  String pillWithPartner(String name) {
+    return 'Avec $name';
+  }
+
+  @override
+  String pillShareWith(String name) {
+    return '$name voit si elle est prise';
+  }
+
+  @override
+  String get pillShareWithNote =>
+      'Seulement « prise » ou « pas encore », pour aujourd\'hui.';
+
+  @override
+  String get pillStop => 'Arrêter le suivi';
+
+  @override
+  String pillStopNote(String name) {
+    return 'Supprime l\'historique des prises de nos serveurs. Rien n\'est envoyé à $name.';
+  }
+
+  @override
+  String get pillStopConfirmTitle => 'Arrêter le suivi de la pilule ?';
+
+  @override
+  String get pillStopConfirmBody =>
+      'Vos réglages et votre historique sont supprimés, et les rappels s\'arrêtent.';
+
+  @override
+  String get pillStopConfirm => 'Arrêter';
+
+  @override
+  String get pillYesterdayPending => 'Hier : pas encore cochée';
+
+  @override
+  String get pillTookItYesterday => 'Je l\'ai prise hier';
+
+  @override
+  String pillBreakUntil(String date) {
+    return 'Arrêt jusqu\'au $date';
+  }
+
+  @override
+  String get pillReminderBodyNewPack =>
+      'C\'est l\'heure de votre pilule : premier comprimé d\'une nouvelle plaquette.';
+
+  @override
+  String get pillNewPackMorningClear =>
+      'Nouvelle plaquette aujourd\'hui : emportez-la si vous sortez.';
+
+  @override
+  String pillNewPackMorningDiscreet(String time) {
+    return 'Votre rappel de $time reprend aujourd\'hui.';
+  }
+
+  @override
+  String pillPackTypeNote(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 comprimés, puis 7 jours d\'arrêt sans rappel.',
+      'p28':
+          '28 comprimés sans arrêt, y compris ceux sans hormone s\'il y en a.',
+      'other': 'Un comprimé chaque jour, sans arrêt.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillLockScreenPreview(String title, String body) {
+    return 'Vous verrez : « $title · $body »';
+  }
+
+  @override
+  String get pillReminderKeepAlive =>
+      'Ouvrez Nous Deux pour garder vos rappels.';
+
+  @override
+  String get updateLabel => 'Mise à jour';
+
+  @override
+  String get updateTitle => 'Une nouvelle version est là';
+
+  @override
+  String get updateBodyDefault =>
+      'Elle apporte les dernières nouveautés et corrections.';
+
+  @override
+  String get updateYourVersion => 'Votre version';
+
+  @override
+  String get updateLatestVersion => 'La dernière';
+
+  @override
+  String updateBuild(int build) {
+    return 'build $build';
+  }
+
+  @override
+  String get updateButton => 'Mettre à jour';
+
+  @override
+  String updateOpens(String store) {
+    String _temp0 = intl.Intl.selectLogic(store, {
+      'testflight': 'Ouvre TestFlight',
+      'other': 'Ouvre Google Play',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get updateLater => 'Plus tard';
+
+  @override
+  String get updateRequiredLabel => 'Mise à jour nécessaire';
+
+  @override
+  String get updateRequiredTitle => 'Cette version ne marche plus';
+
+  @override
+  String get updateRequiredBody =>
+      'Pour continuer avec Nous Deux, installez la dernière version. Vos données et votre couple restent là.';
 }

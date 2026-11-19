@@ -2521,6 +2521,510 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, one{Settings, {count} new message} other{Settings, {count} new messages}}'**
   String newsAvatarUnread(int count);
+
+  /// Settings row that opens the phone's mail app to write to the team.
+  ///
+  /// In en, this message translates to:
+  /// **'Send feedback'**
+  String get settingsFeedback;
+
+  /// Subject of the feedback mail. device is iPhone or Android.
+  ///
+  /// In en, this message translates to:
+  /// **'Nous Deux · build {build} · {device}'**
+  String feedbackSubject(String build, String device);
+
+  /// No description provided for @settingsFeedbackNoMail.
+  ///
+  /// In en, this message translates to:
+  /// **'No mail app found. Write to {email}.'**
+  String settingsFeedbackNoMail(String email);
+
+  /// Lock-screen title of the daily pill reminder; style is clear or discreet (discreet never names the pill).
+  ///
+  /// In en, this message translates to:
+  /// **'{style, select, clear{Pill} other{Little reminder}}'**
+  String pillReminderTitle(String style);
+
+  /// No description provided for @pillReminderBodyClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your pill. Pill {number}.'**
+  String pillReminderBodyClear(int number);
+
+  /// No description provided for @pillReminderBodyDiscreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {time} reminder.'**
+  String pillReminderBodyDiscreet(String time);
+
+  /// No description provided for @pillReminderLaterClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ticked yet: time for your pill.'**
+  String get pillReminderLaterClear;
+
+  /// No description provided for @pillReminderLaterDiscreet.
+  ///
+  /// In en, this message translates to:
+  /// **'Still here: your {time} reminder.'**
+  String pillReminderLaterDiscreet(String time);
+
+  /// No description provided for @pillActionTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{style, select, clear{Taken} other{Done}}'**
+  String pillActionTaken(String style);
+
+  /// No description provided for @pillActionSnooze.
+  ///
+  /// In en, this message translates to:
+  /// **'In 30 min'**
+  String get pillActionSnooze;
+
+  /// No description provided for @pillLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill'**
+  String get pillLabel;
+
+  /// No description provided for @pillSetupQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you take a hormonal pill?'**
+  String get pillSetupQuestion;
+
+  /// No description provided for @pillSetupWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today\'s is taken, and when; you can turn that off at any time.'**
+  String get pillSetupWhy;
+
+  /// No description provided for @pillSetupYes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, remind me'**
+  String get pillSetupYes;
+
+  /// No description provided for @pillSetupNo.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get pillSetupNo;
+
+  /// No description provided for @pillSetupLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get pillSetupLater;
+
+  /// No description provided for @pillReminderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder'**
+  String get pillReminderLabel;
+
+  /// No description provided for @pillTodayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get pillTodayLabel;
+
+  /// No description provided for @pillNumberToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill {number}'**
+  String pillNumberToday(int number);
+
+  /// No description provided for @pillPackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack'**
+  String get pillPackLabel;
+
+  /// No description provided for @pillPackType.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, p21x7{21 + 7 off} p28{28 days} other{Continuous}}'**
+  String pillPackType(String type);
+
+  /// No description provided for @pillHealthNote.
+  ///
+  /// In en, this message translates to:
+  /// **'This is health data, like your cycle: it stays yours, and you can delete it all at any time.'**
+  String get pillHealthNote;
+
+  /// No description provided for @pillContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get pillContinue;
+
+  /// No description provided for @pillConsentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Before you start'**
+  String get pillConsentTitle;
+
+  /// No description provided for @pillConsent.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today\'s pill is ticked, and at what time, as long as you share it: it\'s on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.'**
+  String get pillConsent;
+
+  /// No description provided for @pillTrackLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Track my pill'**
+  String get pillTrackLink;
+
+  /// No description provided for @pillReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder at {time}'**
+  String pillReminderAt(String time);
+
+  /// No description provided for @pillOfPack.
+  ///
+  /// In en, this message translates to:
+  /// **'of {total}'**
+  String pillOfPack(int total);
+
+  /// No description provided for @pillNotTickedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Not ticked yet today'**
+  String get pillNotTickedToday;
+
+  /// No description provided for @pillTakenAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken at {time}'**
+  String pillTakenAt(String time);
+
+  /// No description provided for @pillTakeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'I took it'**
+  String get pillTakeButton;
+
+  /// No description provided for @pillUntick.
+  ///
+  /// In en, this message translates to:
+  /// **'Untick'**
+  String get pillUntick;
+
+  /// No description provided for @pillDayOff.
+  ///
+  /// In en, this message translates to:
+  /// **'No pill today'**
+  String get pillDayOff;
+
+  /// No description provided for @pillPackLine21.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of 21 · break from {from} to {to}'**
+  String pillPackLine21(int day, String from, String to);
+
+  /// No description provided for @pillPackLine.
+  ///
+  /// In en, this message translates to:
+  /// **'Day {day} of 28'**
+  String pillPackLine(int day);
+
+  /// No description provided for @pillNextPack.
+  ///
+  /// In en, this message translates to:
+  /// **'New pack on {date}'**
+  String pillNextPack(String date);
+
+  /// No description provided for @pillThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get pillThisWeek;
+
+  /// No description provided for @pillWeekMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'missed'**
+  String get pillWeekMissed;
+
+  /// No description provided for @pillWeekOff.
+  ///
+  /// In en, this message translates to:
+  /// **'off'**
+  String get pillWeekOff;
+
+  /// No description provided for @pillTookItAt.
+  ///
+  /// In en, this message translates to:
+  /// **'I took it at'**
+  String get pillTookItAt;
+
+  /// No description provided for @pillTakingNow.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'m taking it now'**
+  String get pillTakingNow;
+
+  /// No description provided for @pillIfMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'If you missed it'**
+  String get pillIfMissed;
+
+  /// No description provided for @pillIfMissedBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow your pill\'s leaflet: what to do depends on the pill and how late it is. If in doubt, ask a pharmacy or your doctor.'**
+  String get pillIfMissedBody;
+
+  /// No description provided for @pillOfficialSheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Official sheet: {name}'**
+  String pillOfficialSheet(String name);
+
+  /// No description provided for @pillNoteMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Note a missed pill'**
+  String get pillNoteMissed;
+
+  /// No description provided for @pillNotedMissed.
+  ///
+  /// In en, this message translates to:
+  /// **'Noted as missed'**
+  String get pillNotedMissed;
+
+  /// No description provided for @pillNoScore.
+  ///
+  /// In en, this message translates to:
+  /// **'No streaks, no score.'**
+  String get pillNoScore;
+
+  /// No description provided for @pillPartnerTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill taken at {time}'**
+  String pillPartnerTaken(String time);
+
+  /// No description provided for @pillPartnerNotYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill not ticked yet'**
+  String get pillPartnerNotYet;
+
+  /// No description provided for @pillSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pill tracking'**
+  String get pillSettingsTitle;
+
+  /// No description provided for @pillReminderDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily reminder'**
+  String get pillReminderDaily;
+
+  /// No description provided for @pillReminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get pillReminderTime;
+
+  /// No description provided for @pillLockScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'On the lock screen'**
+  String get pillLockScreen;
+
+  /// No description provided for @pillPackTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get pillPackTypeLabel;
+
+  /// No description provided for @pillTodayPill.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s pill'**
+  String get pillTodayPill;
+
+  /// No description provided for @pillWithPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'With {name}'**
+  String pillWithPartner(String name);
+
+  /// No description provided for @pillShareWith.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} sees whether it\'s taken'**
+  String pillShareWith(String name);
+
+  /// No description provided for @pillShareWithNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Only “taken” or “not yet”, for today.'**
+  String get pillShareWithNote;
+
+  /// No description provided for @pillStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop tracking'**
+  String get pillStop;
+
+  /// No description provided for @pillStopNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Deletes your pill history from our servers. Nothing is sent to {name}.'**
+  String pillStopNote(String name);
+
+  /// No description provided for @pillStopConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop pill tracking?'**
+  String get pillStopConfirmTitle;
+
+  /// No description provided for @pillStopConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your settings and history are deleted, and the reminders stop.'**
+  String get pillStopConfirmBody;
+
+  /// No description provided for @pillStopConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get pillStopConfirm;
+
+  /// No description provided for @pillYesterdayPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday: not ticked yet'**
+  String get pillYesterdayPending;
+
+  /// No description provided for @pillTookItYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'I took it yesterday'**
+  String get pillTookItYesterday;
+
+  /// No description provided for @pillBreakUntil.
+  ///
+  /// In en, this message translates to:
+  /// **'Break until {date}'**
+  String pillBreakUntil(String date);
+
+  /// Clear-style reminder on day 1 of a new pack (21 + 7 and 28 packs).
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your pill: the first of a new pack.'**
+  String get pillReminderBodyNewPack;
+
+  /// Clear-style heads-up at 9:00 on day 1 after a 21 + 7 pack's break.
+  ///
+  /// In en, this message translates to:
+  /// **'New pack today: take it with you if you go out.'**
+  String get pillNewPackMorningClear;
+
+  /// Discreet heads-up at 9:00 on day 1 after a 21 + 7 pack's break; names neither the pill nor the pack.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {time} reminder starts again today.'**
+  String pillNewPackMorningDiscreet(String time);
+
+  /// One line under the pack type choice, for the selected type.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones too if your pack has them.} other{One pill every day, with no break.}}'**
+  String pillPackTypeNote(String type);
+
+  /// Under the lock-screen choice: the reminder as it will show.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see: “{title} · {body}”'**
+  String pillLockScreenPreview(String title, String body);
+
+  /// No description provided for @pillReminderKeepAlive.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Nous Deux to keep your reminders.'**
+  String get pillReminderKeepAlive;
+
+  /// Update screen, a newer build is out: the small gold label above the title (shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateLabel;
+
+  /// Update screen: title.
+  ///
+  /// In en, this message translates to:
+  /// **'A new version is here'**
+  String get updateTitle;
+
+  /// Update screen: the text when the release has no line of its own.
+  ///
+  /// In en, this message translates to:
+  /// **'It brings the latest features and fixes.'**
+  String get updateBodyDefault;
+
+  /// Update screen: row label, the build this phone runs.
+  ///
+  /// In en, this message translates to:
+  /// **'Your version'**
+  String get updateYourVersion;
+
+  /// Update screen: row label, the newest build out.
+  ///
+  /// In en, this message translates to:
+  /// **'The latest'**
+  String get updateLatestVersion;
+
+  /// Update screen: a build number in a row.
+  ///
+  /// In en, this message translates to:
+  /// **'build {build}'**
+  String updateBuild(int build);
+
+  /// Update screen: the button that opens TestFlight or Google Play.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get updateButton;
+
+  /// Update screen: under the button, the app it opens.
+  ///
+  /// In en, this message translates to:
+  /// **'{store, select, testflight{Opens TestFlight} other{Opens Google Play}}'**
+  String updateOpens(String store);
+
+  /// Update screen: hides it until the next day.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get updateLater;
+
+  /// Update screen, this build no longer works: the small gold label (shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Update needed'**
+  String get updateRequiredLabel;
+
+  /// Update screen, this build no longer works: title.
+  ///
+  /// In en, this message translates to:
+  /// **'This version no longer works'**
+  String get updateRequiredTitle;
+
+  /// Update screen, this build no longer works: text.
+  ///
+  /// In en, this message translates to:
+  /// **'To keep using Nous Deux, install the latest version. Your data and your couple stay as they are.'**
+  String get updateRequiredBody;
 }
 
 class _AppLocalizationsDelegate

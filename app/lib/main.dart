@@ -12,10 +12,13 @@ import 'package:nousdeux/core/constants/app_strings.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/crash_reporting.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
-import 'package:nousdeux/core/services/period_reminder_service.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/local_time_zone.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/locale_provider.dart';
+import 'package:nousdeux/presentation/screens/update/update_gate.dart';
 import 'package:nousdeux/presentation/theme/app_theme.dart';
 
 void main() => runWithCrashReporting(_start);
@@ -48,12 +51,25 @@ Future<void> _start() async {
   }
 
   try {
-    await initPeriodReminderNotifications();
+    // Reminders are planned in the phone's zone, even without the plugin.
+    await initLocalTimeZone();
+  } catch (_) {}
+  LocalNotifications notifications = const NoLocalNotifications();
+  try {
+    notifications = await PluginLocalNotifications.start(
+      categories: pillDarwinCategories(),
+      backgroundHandler: pillNotificationBackgroundHandler,
+    );
   } catch (_) {
     // Local notifications may not be available.
   }
 
-  runApp(const ProviderScope(child: MainApp()));
+  runApp(
+    ProviderScope(
+      overrides: [localNotificationsProvider.overrideWithValue(notifications)],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends ConsumerWidget {
@@ -101,7 +117,9 @@ class MainApp extends ConsumerWidget {
       supportedLocales: supportedLocales,
       localizationsDelegates: localizationsDelegates,
       routerConfig: router,
-      builder: (context, child) => _FcmRegistration(child: child),
+      // The update screen sits over every page (docs/UPDATE_SCREEN.md).
+      builder: (context, child) =>
+          _FcmRegistration(child: UpdateGate(child: child)),
     );
   }
 }

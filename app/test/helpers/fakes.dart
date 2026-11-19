@@ -3,8 +3,13 @@ import 'package:nousdeux/data/calendar_sync/phone_calendar.dart';
 import 'package:device_calendar/device_calendar.dart' show Calendar;
 import 'dart:async';
 
+import 'package:timezone/timezone.dart' as tz;
+import 'package:nousdeux/core/services/local_notifications.dart';
+
 import 'package:nousdeux/domain/entities/announcement_entity.dart';
 import 'package:nousdeux/domain/repositories/announcements_repository.dart';
+import 'package:nousdeux/domain/entities/pill_entities.dart';
+import 'package:nousdeux/domain/repositories/pill_repository.dart';
 import 'package:nousdeux/domain/repositories/lists_repository.dart';
 import 'package:nousdeux/domain/entities/shared_list_entity.dart';
 import 'package:nousdeux/domain/repositories/ping_repository.dart';
@@ -17,6 +22,8 @@ import 'package:nousdeux/domain/entities/location_sharing_entity.dart';
 import 'package:nousdeux/domain/entities/period_log_entity.dart';
 import 'package:nousdeux/domain/entities/profile_entity.dart';
 import 'package:nousdeux/domain/entities/user_entity.dart';
+import 'package:nousdeux/domain/app_update.dart';
+import 'package:nousdeux/domain/repositories/app_builds_repository.dart';
 import 'package:nousdeux/domain/repositories/auth_repository.dart';
 import 'package:nousdeux/domain/repositories/calendar_repository.dart';
 import 'package:nousdeux/domain/repositories/cycle_repository.dart';
@@ -1105,5 +1112,222 @@ class FakeAnnouncementsRepository implements AnnouncementsRepository {
     final e = error;
     if (e != null) throw e;
     return [...items];
+  }
+}
+
+/// One notification handed to [FakeLocalNotifications.schedule].
+typedef ScheduledNotification = ({
+  tz.TZDateTime at,
+  LocalChannel channel,
+  String title,
+  String body,
+  String? payload,
+  String? iosCategory,
+  List<LocalAction> actions,
+});
+
+/// The phone's notification scheduler, in memory: what is scheduled by id,
+/// what was cancelled, and [tap] to simulate a tap or a button.
+class FakeLocalNotifications implements LocalNotifications {
+  final scheduled = <int, ScheduledNotification>{};
+  final cancelled = <int>[];
+
+  /// The tap that launched the app, handed out once.
+  NotificationTap? launchTap;
+
+  @override
+  NotificationTap? takeLaunchTap() {
+    final t = launchTap;
+    launchTap = null;
+    return t;
+  }
+
+  final _taps = StreamController<NotificationTap>.broadcast();
+
+  void tap({String? payload, String? actionId}) =>
+      _taps.add((payload: payload, actionId: actionId));
+
+  @override
+  Stream<NotificationTap> get taps => _taps.stream;
+
+  @override
+  Future<void> schedule({
+    required int id,
+    required tz.TZDateTime at,
+    required LocalChannel channel,
+    required String title,
+    required String body,
+    String? payload,
+    String? iosCategory,
+    List<LocalAction> actions = const [],
+  }) async {
+    scheduled[id] = (
+      at: at,
+      channel: channel,
+      title: title,
+      body: body,
+      payload: payload,
+      iosCategory: iosCategory,
+      actions: actions,
+    );
+  }
+
+  @override
+  Future<void> cancel(int id) async {
+    cancelled.add(id);
+    scheduled.remove(id);
+  }
+
+  @override
+  Future<void> cancelRange(int from, int to) async {
+    for (var id = from; id <= to; id++) {
+      if (scheduled.remove(id) != null) cancelled.add(id);
+    }
+  }
+}
+
+/// Pill tracking in memory: my settings and days, and what my partner
+/// shares. Set [nextFailure] to make the next write fail.
+class FakePillRepository implements PillRepository {
+  FakePillRepository({
+    this.settings,
+    List<PillIntake>? intakes,
+    PartnerPillToday? partner,
+  }) : intakes = {
+         for (final i in [...?intakes]) i.day: i,
+       },
+       partner = partner ?? PartnerPillToday.nothing;
+
+  PillSettings? settings;
+  final Map<DateTime, PillIntake> intakes;
+  PartnerPillToday partner;
+  Failure? nextFailure;
+
+  final savedSettings = <PillSettings>[];
+  final savedZones = <String>[];
+
+  /// The row doesn't take the zone (an update that changes nothing).
+  bool dropZoneWrites = false;
+  final takenCalls = <DateTime>[];
+  final missedCalls = <DateTime>[];
+  final unmarkCalls = <DateTime>[];
+  int stopCalls = 0;
+  final partnerDays = <DateTime>[];
+
+  Failure? _take() {
+    final f = nextFailure;
+    nextFailure = null;
+    return f;
+  }
+
+  @override
+  Future<PillSettings?> mySettings() async {
+    if (failSettingsReads > 0) {
+      failSettingsReads--;
+      throw Exception('no network');
+    }
+    return settings;
+  }
+
+  /// How many of the next settings reads fail (no network).
+  int failSettingsReads = 0;
+
+  /// What the row holds once the zone is saved, when it is newer than what
+  /// the app had read (another phone changed it).
+  PillSettings? rowAfterZoneSave;
+
+  @override
+  Future<Failure?> saveSettings(PillSettings s) async {
+    final f = _take();
+    if (f != null) return f;
+    savedSettings.add(s);
+    settings = s;
+    return null;
+  }
+
+  @override
+  Future<Failure?> saveTimeZone(String zone) async {
+    final f = _take();
+    if (f != null) return f;
+    savedZones.add(zone);
+    if (!dropZoneWrites) {
+      settings = (rowAfterZoneSave ?? settings)?.copyWith(timeZone: zone);
+    }
+    return null;
+  }
+
+  @override
+  Future<List<PillIntake>> myIntakes({required DateTime from}) async =>
+      (intakes.values.where((i) => !i.day.isBefore(from)).toList()
+        ..sort((a, b) => a.day.compareTo(b.day)));
+
+  @override
+  Future<Failure?> markTaken(DateTime day, DateTime at) async {
+    final f = _take();
+    if (f != null) return f;
+    takenCalls.add(day);
+    final i = PillIntake.taken(day, at);
+    intakes[i.day] = i;
+    return null;
+  }
+
+  @override
+  Future<Failure?> markMissed(DateTime day) async {
+    final f = _take();
+    if (f != null) return f;
+    missedCalls.add(day);
+    final i = PillIntake.missed(day);
+    intakes[i.day] = i;
+    return null;
+  }
+
+  @override
+  Future<Failure?> unmark(DateTime day) async {
+    final f = _take();
+    if (f != null) return f;
+    unmarkCalls.add(day);
+    intakes.remove(DateTime(day.year, day.month, day.day));
+    return null;
+  }
+
+  @override
+  Future<Failure?> stopTracking() async {
+    final f = _take();
+    if (f != null) return f;
+    stopCalls++;
+    settings = null;
+    intakes.clear();
+    return null;
+  }
+
+  @override
+  Future<PartnerPillToday> partnerToday(DateTime day) async {
+    partnerDays.add(day);
+    return partner;
+  }
+}
+
+/// The update screen's rows (`app_builds`), one per platform.
+class FakeAppBuildsRepository implements AppBuildsRepository {
+  FakeAppBuildsRepository({this.ios, this.android});
+
+  PublishedBuild? ios;
+  PublishedBuild? android;
+
+  /// The platforms asked, in order.
+  final asked = <String>[];
+
+  /// Set it to answer the next question later (a slow network).
+  Completer<PublishedBuild?>? next;
+
+  @override
+  Future<PublishedBuild?> published(String platform) async {
+    asked.add(platform);
+    final pending = next;
+    if (pending != null) {
+      next = null;
+      return pending.future;
+    }
+    return platform == 'ios' ? ios : android;
   }
 }

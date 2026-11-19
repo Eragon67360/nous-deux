@@ -5,9 +5,10 @@ This guide explains what you need to add and configure so the **Android Build an
 ## What the workflow does
 
 - Triggers on push to `main` when relevant paths change (`lib/`, `android/`, `pubspec.yaml`, etc.). Skips if the commit message contains `[skip ci]`.
-- Resolves version from `pubspec.yaml` (and appends a build number for the release tag).
+- Writes Play's release notes from `app/release_note.json` (`scripts/play-release-notes.sh`), and stops there when the note names another build than `pubspec.yaml`.
+- Reads the version from `pubspec.yaml`, build number included (`0.3.6+30`).
 - Builds a signed release App Bundle (AAB) with Supabase config injected via `--dart-define`.
-- Uploads the AAB to Google Play (internal track, draft).
+- Publishes the AAB to Google Play's internal testers, with those release notes.
 - Generates a universal APK from the AAB (via bundletool).
 - Creates a GitHub Release with the AAB and APK attached.
 
@@ -49,7 +50,7 @@ Use the same alias and passwords you set in the secret (`ANDROID_KEY_ALIAS`, `AN
 2. Grant the service account at least **Release to production, exclude devices, and use Play App Signing** (or the permissions needed for your internal track).
 3. Create a JSON key for that service account and paste the **entire JSON** into the `ANDROID_SERVICE_ACCOUNT_JSON` secret.
 
-The workflow uploads to the **internal** track as a **draft**; you can change `track` and `status` in `.github/workflows/android-build-release.yml` if you want (e.g. `track: internal` / `status: completed`).
+The workflow publishes to the **internal** track (`tracks: internal`, `status: completed`, notes from `whatsNewDirectory: whatsnew`). Promoting a build to the closed test and sending it for review stay in the Console.
 
 ## 3. What’s already implemented in the repo
 
@@ -63,7 +64,7 @@ If you only want builds and GitHub Releases (no Play upload), remove or comment 
 
 ## 5. Version and release tags
 
-- **Version** is read from `version` in `pubspec.yaml` (e.g. `0.1.0`). The workflow appends `+<run_number>` for the release tag if there’s no `+` in the version (e.g. `0.1.0+1`, `0.1.0+2`).
+- **Version** is `version` in `pubspec.yaml`, with the build number after `+` (e.g. `0.3.6+30`). Play takes each build number once, so raise it for every release; the first step stops when it is missing.
 - **Release tag** format: `android/v<version>` (e.g. `android/v0.1.0+1`).
 - To bump the version users see, update `version` in `pubspec.yaml` and push to `main`.
 

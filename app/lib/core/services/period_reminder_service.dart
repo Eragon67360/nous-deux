@@ -1,79 +1,41 @@
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/constants/period_education.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
 
-/// Id used for the single PMS reminder notification (so we can cancel it).
+/// Id used for the single reminder about the partner's period (so it can be
+/// moved or cancelled).
 const int periodReminderNotificationId = 1;
 
-bool _initialized = false;
-bool _tzInitialized = false;
-
-final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
-
-/// Initializes local notifications for period reminders. Safe to call multiple times.
-Future<void> initPeriodReminderNotifications() async {
-  if (_initialized) return;
+/// Schedules the reminder for 19:00 on [day] (the evening before the
+/// partner's period is expected), in the phone's time zone, with the text in
+/// [lang]. Nothing when that evening has passed ([now], the clock).
+Future<void> schedulePartnerPeriodReminder(
+  LocalNotifications notifications,
+  DateTime day,
+  String lang, {
+  DateTime? now,
+}) async {
+  final at = tz.TZDateTime(tz.local, day.year, day.month, day.day, 19);
+  if (!at.isAfter(now ?? DateTime.now())) return;
   try {
-    if (!_tzInitialized) {
-      tz_data.initializeTimeZones();
-      _tzInitialized = true;
-    }
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-    // Don't prompt at launch, before the person has seen the app. iOS shares
-    // one notification permission per app: registerFcmToken asks for it right
-    // after sign-in, which also covers these local reminders.
-    const darwin = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
+    await notifications.schedule(
+      id: periodReminderNotificationId,
+      at: at,
+      channel: LocalChannel.periodReminder,
+      title: periodReminderNotificationTitle(lang),
+      body: periodReminderNotificationBody(lang),
     );
-    await _plugin.initialize(
-      const InitializationSettings(android: android, iOS: darwin),
-    );
-    _initialized = true;
   } catch (_) {
-    // Notifications may not be available (e.g. missing config).
+    // Scheduling may fail on some phones; the reminder is best effort.
   }
 }
 
-/// Schedules a single notification for the given date at 09:00 local time.
-/// [lang] is used for title/body (fr/en).
-/// Schedules the reminder for the evening (19:00) of [day], the day before
-/// the partner's period is expected.
-Future<void> schedulePartnerPeriodReminder(DateTime day, String lang) async {
-  await initPeriodReminderNotifications();
-  if (!_initialized) return;
+/// Cancels the reminder about the partner's period.
+Future<void> cancelPartnerPeriodReminder(
+  LocalNotifications notifications,
+) async {
   try {
-    final local = DateTime(day.year, day.month, day.day, 19, 0);
-    if (local.isBefore(DateTime.now())) return;
-    final tzDate = tz.TZDateTime.from(local, tz.local);
-    await _plugin.zonedSchedule(
-      periodReminderNotificationId,
-      periodReminderNotificationTitle(lang),
-      periodReminderNotificationBody(lang),
-      tzDate,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'period_reminder',
-          'Period reminder',
-          channelDescription: "The evening before the partner's period",
-        ),
-        iOS: const DarwinNotificationDetails(),
-      ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-    );
-  } catch (_) {
-    // Timezone or schedule may fail on some environments.
-  }
-}
-
-/// Cancels the partner reminder notification.
-Future<void> cancelPartnerPeriodReminder() async {
-  try {
-    await _plugin.cancel(periodReminderNotificationId);
+    await notifications.cancel(periodReminderNotificationId);
   } catch (_) {}
 }

@@ -459,13 +459,50 @@
           "name": "Cleveland Clinic – SPM",
           "credential": "Cleveland Clinic",
           "summary": "Vue médicale du SPM et quand consulter."
+        },
+        {
+          "url": "https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "missedPill",
+          "locales": [
+            "fr"
+          ],
+          "name": "ANSM – La pilule et l'oubli de pilule",
+          "credential": "Agence nationale de sécurité du médicament",
+          "summary": "Que faire selon le retard, et quand demander conseil à un ou une professionnelle de santé."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-combined-pill/",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Oubli de pilule combinée",
+          "credential": "Service de santé britannique",
+          "summary": "Que faire en cas d'oubli d'une pilule combinée."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/",
+          "platform": "web",
+          "platformLabel": "Site web",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Oubli de pilule progestative",
+          "credential": "Service de santé britannique",
+          "summary": "Que faire en cas d'oubli d'une pilule progestative."
         }
       ],
       "forLanguage": [
         "https://www.lumni.fr/video/les-regles-comment-ca-marche",
         "https://sante.gouv.fr/prevention-en-sante/preserver-sa-sante/sante-sexuelle-et-reproductive/article/sante-reproductive",
         "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
-        "https://www.youtube.com/watch?v=obbIteVnxUw"
+        "https://www.youtube.com/watch?v=obbIteVnxUw",
+        "https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive"
       ],
       "byTopic": {
         "cycleBasics": [
@@ -478,6 +515,9 @@
         "general": [
           "https://www.unfpa.org/fr/menstruations-questions-frequemment-posees",
           "https://www.youtube.com/watch?v=obbIteVnxUw"
+        ],
+        "missedPill": [
+          "https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive"
         ]
       },
       "whenToSeekHelp": [
@@ -952,6 +992,42 @@
           "name": "Cleveland Clinic – PMS",
           "credential": "Cleveland Clinic",
           "summary": "Medical overview of PMS and when to see a doctor."
+        },
+        {
+          "url": "https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "fr"
+          ],
+          "name": "ANSM – The pill, and a missed pill",
+          "credential": "French medicines agency (ANSM)",
+          "summary": "What to do depending on how late the pill is, and when to ask a health professional."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-combined-pill/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Missed combined pill",
+          "credential": "UK National Health Service",
+          "summary": "What to do if you miss a combined pill, by how many and when."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Missed progestogen-only pill",
+          "credential": "UK National Health Service",
+          "summary": "What to do if you miss a progestogen-only pill, by type and how late."
         }
       ],
       "forLanguage": [
@@ -965,7 +1041,9 @@
         "https://www.lil-lets.com/za/en/hub/a-guys-guide-to-periods/",
         "https://help.flo.health/hc/en-us/articles/19871961988116-What-is-Flo-for-Partners",
         "https://www.plannedparenthood.org/learn/health-and-wellness/menstruation",
-        "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome"
+        "https://my.clevelandclinic.org/health/diseases/24288-pms-premenstrual-syndrome",
+        "https://www.nhs.uk/conditions/contraception/miss-combined-pill/",
+        "https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/"
       ],
       "byTopic": {
         "cycleBasics": [
@@ -987,6 +1065,10 @@
           "https://www.who.int/europe/news-room/15-08-2024-menstrual-health-is-a-fundamental-human-right",
           "https://www.unicef.org/wash/menstrual-hygiene",
           "https://www.instagram.com/gynaegeek/"
+        ],
+        "missedPill": [
+          "https://www.nhs.uk/conditions/contraception/miss-combined-pill/",
+          "https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/"
         ]
       },
       "whenToSeekHelp": [
@@ -1460,6 +1542,42 @@
           "name": "Cleveland Clinic – PMS",
           "credential": "Cleveland Clinic",
           "summary": "Medical overview of PMS and when to see a doctor."
+        },
+        {
+          "url": "https://ansm.sante.fr/dossiers-thematiques/contraception-hormonale/pilule-contraceptive",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "fr"
+          ],
+          "name": "ANSM – The pill, and a missed pill",
+          "credential": "French medicines agency (ANSM)",
+          "summary": "What to do depending on how late the pill is, and when to ask a health professional."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-combined-pill/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Missed combined pill",
+          "credential": "UK National Health Service",
+          "summary": "What to do if you miss a combined pill, by how many and when."
+        },
+        {
+          "url": "https://www.nhs.uk/conditions/contraception/miss-progestogen-only-pill/",
+          "platform": "web",
+          "platformLabel": "Website",
+          "topic": "missedPill",
+          "locales": [
+            "en"
+          ],
+          "name": "NHS – Missed progestogen-only pill",
+          "credential": "UK National Health Service",
+          "summary": "What to do if you miss a progestogen-only pill, by type and how late."
         }
       ],
       "forLanguage": [],
@@ -1468,7 +1586,8 @@
         "pms": [],
         "partnerSupport": [],
         "whenToSeekHelp": [],
-        "general": []
+        "general": [],
+        "missedPill": []
       },
       "whenToSeekHelp": [],
       "partnerSupport": []

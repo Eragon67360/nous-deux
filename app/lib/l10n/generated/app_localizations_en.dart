@@ -1561,4 +1561,339 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get settingsFeedback => 'Send feedback';
+
+  @override
+  String feedbackSubject(String build, String device) {
+    return 'Nous Deux · build $build · $device';
+  }
+
+  @override
+  String settingsFeedbackNoMail(String email) {
+    return 'No mail app found. Write to $email.';
+  }
+
+  @override
+  String pillReminderTitle(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Pill',
+      'other': 'Little reminder',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillReminderBodyClear(int number) {
+    return 'Time for your pill. Pill $number.';
+  }
+
+  @override
+  String pillReminderBodyDiscreet(String time) {
+    return 'Your $time reminder.';
+  }
+
+  @override
+  String get pillReminderLaterClear => 'Not ticked yet: time for your pill.';
+
+  @override
+  String pillReminderLaterDiscreet(String time) {
+    return 'Still here: your $time reminder.';
+  }
+
+  @override
+  String pillActionTaken(String style) {
+    String _temp0 = intl.Intl.selectLogic(style, {
+      'clear': 'Taken',
+      'other': 'Done',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get pillActionSnooze => 'In 30 min';
+
+  @override
+  String get pillLabel => 'Pill';
+
+  @override
+  String get pillSetupQuestion => 'Do you take a hormonal pill?';
+
+  @override
+  String get pillSetupWhy =>
+      'Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today\'s is taken, and when; you can turn that off at any time.';
+
+  @override
+  String get pillSetupYes => 'Yes, remind me';
+
+  @override
+  String get pillSetupNo => 'No';
+
+  @override
+  String get pillSetupLater => 'Later';
+
+  @override
+  String get pillReminderLabel => 'Reminder';
+
+  @override
+  String get pillTodayLabel => 'Today';
+
+  @override
+  String pillNumberToday(int number) {
+    return 'Pill $number';
+  }
+
+  @override
+  String get pillPackLabel => 'Pack';
+
+  @override
+  String pillPackType(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 + 7 off',
+      'p28': '28 days',
+      'other': 'Continuous',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get pillHealthNote =>
+      'This is health data, like your cycle: it stays yours, and you can delete it all at any time.';
+
+  @override
+  String get pillContinue => 'Continue';
+
+  @override
+  String get pillConsentTitle => 'Before you start';
+
+  @override
+  String get pillConsent =>
+      'Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today\'s pill is ticked, and at what time, as long as you share it: it\'s on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.';
+
+  @override
+  String get pillTrackLink => 'Track my pill';
+
+  @override
+  String pillReminderAt(String time) {
+    return 'Reminder at $time';
+  }
+
+  @override
+  String pillOfPack(int total) {
+    return 'of $total';
+  }
+
+  @override
+  String get pillNotTickedToday => 'Not ticked yet today';
+
+  @override
+  String pillTakenAt(String time) {
+    return 'Taken at $time';
+  }
+
+  @override
+  String get pillTakeButton => 'I took it';
+
+  @override
+  String get pillUntick => 'Untick';
+
+  @override
+  String get pillDayOff => 'No pill today';
+
+  @override
+  String pillPackLine21(int day, String from, String to) {
+    return 'Day $day of 21 · break from $from to $to';
+  }
+
+  @override
+  String pillPackLine(int day) {
+    return 'Day $day of 28';
+  }
+
+  @override
+  String pillNextPack(String date) {
+    return 'New pack on $date';
+  }
+
+  @override
+  String get pillThisWeek => 'This week';
+
+  @override
+  String get pillWeekMissed => 'missed';
+
+  @override
+  String get pillWeekOff => 'off';
+
+  @override
+  String get pillTookItAt => 'I took it at';
+
+  @override
+  String get pillTakingNow => 'I\'m taking it now';
+
+  @override
+  String get pillIfMissed => 'If you missed it';
+
+  @override
+  String get pillIfMissedBody =>
+      'Follow your pill\'s leaflet: what to do depends on the pill and how late it is. If in doubt, ask a pharmacy or your doctor.';
+
+  @override
+  String pillOfficialSheet(String name) {
+    return 'Official sheet: $name';
+  }
+
+  @override
+  String get pillNoteMissed => 'Note a missed pill';
+
+  @override
+  String get pillNotedMissed => 'Noted as missed';
+
+  @override
+  String get pillNoScore => 'No streaks, no score.';
+
+  @override
+  String pillPartnerTaken(String time) {
+    return 'Pill taken at $time';
+  }
+
+  @override
+  String get pillPartnerNotYet => 'Pill not ticked yet';
+
+  @override
+  String get pillSettingsTitle => 'Pill tracking';
+
+  @override
+  String get pillReminderDaily => 'Daily reminder';
+
+  @override
+  String get pillReminderTime => 'Time';
+
+  @override
+  String get pillLockScreen => 'On the lock screen';
+
+  @override
+  String get pillPackTypeLabel => 'Type';
+
+  @override
+  String get pillTodayPill => 'Today\'s pill';
+
+  @override
+  String pillWithPartner(String name) {
+    return 'With $name';
+  }
+
+  @override
+  String pillShareWith(String name) {
+    return '$name sees whether it\'s taken';
+  }
+
+  @override
+  String get pillShareWithNote => 'Only “taken” or “not yet”, for today.';
+
+  @override
+  String get pillStop => 'Stop tracking';
+
+  @override
+  String pillStopNote(String name) {
+    return 'Deletes your pill history from our servers. Nothing is sent to $name.';
+  }
+
+  @override
+  String get pillStopConfirmTitle => 'Stop pill tracking?';
+
+  @override
+  String get pillStopConfirmBody =>
+      'Your settings and history are deleted, and the reminders stop.';
+
+  @override
+  String get pillStopConfirm => 'Stop';
+
+  @override
+  String get pillYesterdayPending => 'Yesterday: not ticked yet';
+
+  @override
+  String get pillTookItYesterday => 'I took it yesterday';
+
+  @override
+  String pillBreakUntil(String date) {
+    return 'Break until $date';
+  }
+
+  @override
+  String get pillReminderBodyNewPack =>
+      'Time for your pill: the first of a new pack.';
+
+  @override
+  String get pillNewPackMorningClear =>
+      'New pack today: take it with you if you go out.';
+
+  @override
+  String pillNewPackMorningDiscreet(String time) {
+    return 'Your $time reminder starts again today.';
+  }
+
+  @override
+  String pillPackTypeNote(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 pills, then 7 days off with no reminder.',
+      'p28':
+          '28 pills with no break, hormone-free ones too if your pack has them.',
+      'other': 'One pill every day, with no break.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillLockScreenPreview(String title, String body) {
+    return 'You\'ll see: “$title · $body”';
+  }
+
+  @override
+  String get pillReminderKeepAlive => 'Open Nous Deux to keep your reminders.';
+
+  @override
+  String get updateLabel => 'Update';
+
+  @override
+  String get updateTitle => 'A new version is here';
+
+  @override
+  String get updateBodyDefault => 'It brings the latest features and fixes.';
+
+  @override
+  String get updateYourVersion => 'Your version';
+
+  @override
+  String get updateLatestVersion => 'The latest';
+
+  @override
+  String updateBuild(int build) {
+    return 'build $build';
+  }
+
+  @override
+  String get updateButton => 'Update';
+
+  @override
+  String updateOpens(String store) {
+    String _temp0 = intl.Intl.selectLogic(store, {
+      'testflight': 'Opens TestFlight',
+      'other': 'Opens Google Play',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get updateLater => 'Later';
+
+  @override
+  String get updateRequiredLabel => 'Update needed';
+
+  @override
+  String get updateRequiredTitle => 'This version no longer works';
+
+  @override
+  String get updateRequiredBody =>
+      'To keep using Nous Deux, install the latest version. Your data and your couple stay as they are.';
 }
