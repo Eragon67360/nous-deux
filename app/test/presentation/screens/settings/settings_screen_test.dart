@@ -11,6 +11,7 @@ import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
+import 'package:nousdeux/core/constants/pill_strings.dart';
 import 'package:nousdeux/core/services/feedback_mail.dart';
 import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/core/services/pill_reminders.dart';
@@ -185,6 +186,25 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/settings/info');
+  });
+
+  group('Suivi de la pilule', () {
+    testWidgets('someone who tracks a cycle finds it, and starts there', (
+      tester,
+    ) async {
+      await _pumpSettings(tester, tracksCycle: true);
+
+      await tester.ensureVisible(find.text(pillSettingsTitle('fr')));
+      await tester.tap(find.text(pillSettingsTitle('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(pillSetupQuestion('fr')), findsOneWidget);
+    });
+
+    testWidgets('without cycle tracking it isn\'t offered', (tester) async {
+      await _pumpSettings(tester, tracksCycle: false);
+      expect(find.text(pillSettingsTitle('fr')), findsNothing);
+    });
   });
 
   group('Envoyer un retour', () {

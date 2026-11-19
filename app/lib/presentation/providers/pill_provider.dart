@@ -23,14 +23,23 @@ final pillSettingsProvider = FutureProvider<PillSettings?>((ref) async {
   return ref.watch(pillRepositoryProvider).mySettings();
 });
 
-/// My last seven days, today included.
+/// My days of the current pack and of the last seven days, today included
+/// (the pack grid and « Cette semaine »).
 final pillWeekProvider = FutureProvider<List<PillIntake>>((ref) async {
   final user = ref.watch(currentUserProvider).valueOrNull;
   if (user == null) return const [];
+  final settings = await ref.watch(pillSettingsProvider.future);
   final today = _day(ref.watch(clockProvider)());
-  return ref
-      .watch(pillRepositoryProvider)
-      .myIntakes(from: DateTime(today.year, today.month, today.day - 6));
+  var from = DateTime(today.year, today.month, today.day - 6);
+  if (settings != null) {
+    final packStart = DateTime(
+      today.year,
+      today.month,
+      today.day - settings.schedule.dayInPack(today) + 1,
+    );
+    if (packStart.isBefore(from)) from = packStart;
+  }
+  return ref.watch(pillRepositoryProvider).myIntakes(from: from);
 });
 
 enum PillTodayState {

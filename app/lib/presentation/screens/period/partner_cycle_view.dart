@@ -10,6 +10,7 @@ import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/nous_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/widgets/note_composer.dart';
+import 'package:nousdeux/presentation/screens/period/pill_section.dart';
 import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// R3: my partner's cycle, seen from my side, with what tends to help now.
@@ -120,6 +121,7 @@ class PartnerCycleView extends ConsumerWidget {
               style: theme.textTheme.bodyLarge,
             ),
           ],
+          PartnerPillLine(lang: lang),
           const NotebookRule(),
           NotebookLabel(cycleLittleNote(lang)),
           const SizedBox(height: 4),

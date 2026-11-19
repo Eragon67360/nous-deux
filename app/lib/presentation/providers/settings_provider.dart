@@ -13,6 +13,8 @@ import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/core/services/period_reminder_service.dart';
 import 'package:nousdeux/core/services/pill_reminders.dart';
+import 'package:nousdeux/presentation/screens/period/pill_setup_screen.dart'
+    show pillSetupDeclinedKey, pillSetupLaterUntilKey;
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
 import 'package:nousdeux/presentation/providers/own_words_provider.dart';
@@ -148,6 +150,8 @@ Future<Failure?> deleteMyAccount(WidgetRef ref) async {
     ownStatesKey,
     calendarFollowedKey,
     calendarInstallIdKey,
+    pillSetupDeclinedKey,
+    pillSetupLaterUntilKey,
   ]) {
     await prefs.remove(key);
   }
