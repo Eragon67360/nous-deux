@@ -6,6 +6,10 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <!-- Reminders set again after the phone restarts (flutter_local_notifications). -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- sensorPortrait below implies a portrait screen is required, which hides
+         the app from devices without one and makes Play's checks hold every
+         closed-test release. Portrait stays the layout; the screen is optional. -->
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
     <application
         android:label="Nous Deux"
         android:name="${applicationName}"
