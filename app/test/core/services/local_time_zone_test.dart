@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/local_time_zone.dart';
 import 'package:timezone/timezone.dart' as tz;
 
 void main() {

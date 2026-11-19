@@ -13,6 +13,7 @@ import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/crash_reporting.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/local_time_zone.dart';
 import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/utils/app_router.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';

@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
+
+import 'package:nousdeux/core/services/local_time_zone.dart';
 
 /// A tapped local notification: its payload, and the button's id when a
 /// button was tapped rather than the notification itself.
@@ -66,22 +66,6 @@ abstract class LocalNotifications {
   /// The tap that launched the app, once: it came before anyone listened to
   /// [taps].
   NotificationTap? takeLaunchTap();
-}
-
-/// Loads the time zone database once and sets `tz.local` to the phone's zone.
-/// Without it `tz.local` is UTC.
-///
-/// Called again on resume: `tz.local` keeps its value until the phone has
-/// answered, since reminders may be planned meanwhile (loading the database
-/// again would reset it to UTC).
-Future<void> initLocalTimeZone() async {
-  if (!tz.timeZoneDatabase.isInitialized) tz_data.initializeTimeZones();
-  try {
-    final zone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(zone.identifier));
-  } catch (_) {
-    // An unknown zone name: keep the current zone rather than failing.
-  }
 }
 
 /// [LocalNotifications] on flutter_local_notifications.

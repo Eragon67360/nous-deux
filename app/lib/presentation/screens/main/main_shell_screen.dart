@@ -13,6 +13,7 @@ import 'package:nousdeux/core/constants/nous_strings.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
 import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/local_time_zone.dart';
 import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/utils/app_routes.dart';
 import 'package:nousdeux/domain/entities/ping_entity.dart';
