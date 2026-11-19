@@ -1005,5 +1005,210 @@
         "type": "String"
       }
     }
+  },
+  "pillReminderTitle": "{style, select, clear{Pill} other{Little reminder}}",
+  "@pillReminderTitle": {
+    "description": "Lock-screen title of the daily pill reminder; style is clear or discreet (discreet never names the pill).",
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "pillReminderBodyClear": "Time for your pill. Pill {number}.",
+  "@pillReminderBodyClear": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pillReminderBodyDiscreet": "Your {time} reminder.",
+  "@pillReminderBodyDiscreet": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillReminderLaterClear": "Not ticked yet: time for your pill.",
+  "pillReminderLaterDiscreet": "Still here: your {time} reminder.",
+  "@pillReminderLaterDiscreet": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillActionTaken": "{style, select, clear{Taken} other{Done}}",
+  "@pillActionTaken": {
+    "placeholders": {
+      "style": {
+        "type": "String"
+      }
+    }
+  },
+  "pillActionSnooze": "In 30 min",
+  "pillLabel": "Pill",
+  "pillSetupQuestion": "Do you take a hormonal pill?",
+  "pillSetupWhy": "Birth control, cycle, skin: whatever the reason. Nous Deux can remind you every day. Your partner sees whether today's is taken, and when; you can turn that off at any time.",
+  "pillSetupYes": "Yes, remind me",
+  "pillSetupNo": "No",
+  "pillSetupLater": "Later",
+  "pillReminderLabel": "Reminder",
+  "pillTodayLabel": "Today",
+  "pillNumberToday": "Pill {number}",
+  "@pillNumberToday": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "pillPackLabel": "Pack",
+  "pillPackType": "{type, select, p21x7{21 + 7 off} p28{28 days} other{Continuous}}",
+  "@pillPackType": {
+    "placeholders": {
+      "type": {
+        "type": "String"
+      }
+    }
+  },
+  "pillHealthNote": "This is health data, like your cycle: it stays yours, and you can delete it all at any time.",
+  "pillContinue": "Continue",
+  "pillConsentTitle": "Before you start",
+  "pillConsent": "Pill tracking keeps health data: your pack, your reminder and the days you take it. It is stored on our servers in Germany. Your partner sees whether today's pill is ticked, and at what time, as long as you share it: it's on to start with. In Settings › Period › Pill tracking you can turn sharing off, or stop and delete it all.",
+  "pillTrackLink": "Track my pill",
+  "pillReminderAt": "Reminder at {time}",
+  "@pillReminderAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillOfPack": "of {total}",
+  "@pillOfPack": {
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "pillNotTickedToday": "Not ticked yet today",
+  "pillTakenAt": "Taken at {time}",
+  "@pillTakenAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillTakeButton": "I took it",
+  "pillUntick": "Untick",
+  "pillDayOff": "No pill today",
+  "pillPackLine21": "Day {day} of 21 · break from {from} to {to}",
+  "@pillPackLine21": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      },
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "pillPackLine": "Day {day} of 28",
+  "@pillPackLine": {
+    "placeholders": {
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "pillNextPack": "New pack on {date}",
+  "@pillNextPack": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "pillThisWeek": "This week",
+  "pillWeekMissed": "missed",
+  "pillWeekOff": "off",
+  "pillLateTitle": "Not ticked yet tonight",
+  "pillTookItAt": "I took it at",
+  "pillTakingNow": "I'm taking it now",
+  "pillIfMissed": "If you missed it",
+  "pillIfMissedBody": "Follow your pill's leaflet: what to do depends on the pill and how late it is. If in doubt, ask a pharmacy or your doctor.",
+  "pillOfficialSheet": "Official sheet: {name}",
+  "@pillOfficialSheet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pillNoteMissed": "Note a missed pill",
+  "pillNotedMissed": "Noted as missed",
+  "pillNoScore": "No streaks, no score.",
+  "pillPartnerTaken": "Pill taken at {time}",
+  "@pillPartnerTaken": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "pillPartnerNotYet": "Pill not ticked yet",
+  "pillSettingsTitle": "Pill tracking",
+  "pillReminderDaily": "Daily reminder",
+  "pillReminderTime": "Time",
+  "pillLockScreen": "On the lock screen",
+  "pillPackTypeLabel": "Type",
+  "pillTodayPill": "Today's pill",
+  "pillWithPartner": "With {name}",
+  "@pillWithPartner": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pillShareWith": "{name} sees whether it's taken",
+  "@pillShareWith": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pillShareWithNote": "Only “taken” or “not yet”, for today.",
+  "pillStop": "Stop tracking",
+  "pillStopNote": "Deletes your pill history from our servers. Nothing is sent to {name}.",
+  "@pillStopNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "pillStopConfirmTitle": "Stop pill tracking?",
+  "pillStopConfirmBody": "Your settings and history are deleted, and the reminders stop.",
+  "pillStopConfirm": "Stop",
+  "pillYesterdayPending": "Yesterday: not ticked yet",
+  "pillTookItYesterday": "I took it yesterday",
+  "pillBreakUntil": "Break until {date}",
+  "pillReminderKeepAlive": "Open Nous Deux to keep your reminders.",
+  "@pillBreakUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   }
 }

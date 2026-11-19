@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_calendar/device_calendar.dart';
 
+import 'package:nousdeux/core/services/local_time_zone.dart';
 import 'package:nousdeux/domain/calendar/phone_event.dart';
 
 /// The phone's calendars, as the sync reads them.
@@ -24,7 +25,15 @@ abstract class PhoneCalendar {
 
 class DevicePhoneCalendar implements PhoneCalendar {
   DevicePhoneCalendar([DeviceCalendarPlugin? plugin])
-    : _plugin = plugin ?? DeviceCalendarPlugin();
+    : _plugin = plugin ?? _devicePlugin();
+
+  /// The plugin without its own load of the zone database, which would set
+  /// `tz.local` back to UTC (reminders an hour late in France). Events read
+  /// their zone from the database loaded here once.
+  static DeviceCalendarPlugin _devicePlugin() {
+    ensureTimeZoneDatabase();
+    return DeviceCalendarPlugin(shouldInitTimezone: false);
+  }
 
   final DeviceCalendarPlugin _plugin;
 

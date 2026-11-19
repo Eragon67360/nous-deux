@@ -7,10 +7,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
+import 'package:nousdeux/core/constants/pill_strings.dart';
 import 'package:nousdeux/core/services/feedback_mail.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/core/constants/period_education.dart';
 import 'package:nousdeux/core/constants/period_reminder_prefs.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
@@ -18,6 +22,8 @@ import 'package:nousdeux/core/errors/failures.dart';
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/data/calendar_sync/calendar_follow_prefs.dart';
 import 'package:nousdeux/domain/entities/announcement_entity.dart';
+import 'package:nousdeux/domain/entities/pill_entities.dart';
+import 'package:nousdeux/domain/pill/pill_schedule.dart';
 import 'package:nousdeux/presentation/providers/location_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/settings/settings_screen.dart';
@@ -93,6 +99,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
   List<AnnouncementEntity> announcements = const [],
   DateTime? announcementsSeenAt,
   List<Override> overrides = const [],
+  PillSettings? pillSettings,
 }) async {
   useTallSurface(tester);
   final deps = TestDeps(
@@ -104,6 +111,7 @@ Future<(TestDeps, GoRouter)> _pumpSettings(
       announcementsSeenAt: announcementsSeenAt,
     ),
     announcements: announcements,
+    pillSettings: pillSettings,
     partner: paired ? partnerProfile() : null,
     couple: inCouple ? couple(user2Id: paired ? partnerId : null) : null,
     myLocation: location(isSharing: sharing, lat: 48.85, lng: 2.35),
@@ -182,6 +190,60 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(router.state.uri.path, '/settings/info');
+  });
+
+  group('Suivi de la pilule', () {
+    testWidgets('someone who tracks a cycle finds it, and starts there', (
+      tester,
+    ) async {
+      await _pumpSettings(tester, tracksCycle: true);
+
+      await tester.ensureVisible(find.text(pillSettingsTitle('fr')));
+      await tester.tap(find.text(pillSettingsTitle('fr')));
+      await tester.pumpAndSettle();
+
+      expect(find.text(pillSetupQuestion('fr')), findsOneWidget);
+    });
+
+    testWidgets('without cycle tracking it isn\'t offered', (tester) async {
+      await _pumpSettings(tester, tracksCycle: false);
+      expect(find.text(pillSettingsTitle('fr')), findsNothing);
+    });
+
+    testWidgets(
+      'stopping the cycle and deleting everything stops the pill too',
+      (tester) async {
+        final (deps, _) = await _pumpSettings(
+          tester,
+          tracksCycle: true,
+          pillSettings: PillSettings(
+            packType: PackType.p28,
+            packStartedOn: DateTime(2026, 11, 1),
+          ),
+        );
+
+        await tester.tap(
+          find.widgetWithText(SwitchListTile, settingsTracksCycle('fr')),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(cycleStopDelete('fr')));
+        await tester.pumpAndSettle();
+
+        expect(deps.pill.stopCalls, 1);
+      },
+    );
+
+    testWidgets('but a pill already tracked stays reachable', (tester) async {
+      await _pumpSettings(
+        tester,
+        tracksCycle: false,
+        pillSettings: PillSettings(
+          packType: PackType.p28,
+          packStartedOn: DateTime(2026, 11, 1),
+        ),
+      );
+      expect(find.text(pillSettingsTitle('fr')), findsOneWidget);
+    });
   });
 
   group('Envoyer un retour', () {
@@ -364,11 +426,20 @@ void main() {
         'unrelated': 'kept',
       });
       final (deps, _) = await _pumpSettings(tester, lang: 'en');
+      // A pill reminder planned on this phone.
+      await deps.notifications.schedule(
+        id: pillReminderFirstId,
+        at: tz.TZDateTime(tz.local, 2030),
+        channel: LocalChannel.pillReminder,
+        title: 'Petit rappel',
+        body: 'Votre rappel de 21:00.',
+      );
 
       await openConfirmation(tester, 'en');
       await tester.tap(confirmButton('en'));
       await tester.pumpAndSettle();
 
+      expect(deps.notifications.scheduled, isEmpty);
       expect(deps.auth.deleteAccountCalls, 1);
       expect(deps.auth.currentUser, isNull);
       expect(find.text(settingsDeleteAccountDone('en')), findsOneWidget);

@@ -8,7 +8,10 @@ import 'package:go_router/go_router.dart';
 
 import 'package:nousdeux/core/l10n/app_languages.dart';
 import 'package:nousdeux/core/services/fcm_service.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/domain/entities/announcement_entity.dart';
+import 'package:nousdeux/domain/entities/pill_entities.dart';
+import 'package:nousdeux/presentation/providers/pill_provider.dart';
 import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/calendar_sync_provider.dart';
 import 'package:nousdeux/presentation/providers/lists_provider.dart';
@@ -61,6 +64,9 @@ class TestDeps {
     List<SharedListEntity>? lists,
     List<ListItemEntity>? listItems,
     List<AnnouncementEntity>? announcements,
+    PillSettings? pillSettings,
+    List<PillIntake>? pillIntakes,
+    PartnerPillToday? partnerPill,
     DateTime? now,
     this.deviceLanguage = 'fr',
     FakePhoneCalendar? phoneCalendar,
@@ -69,6 +75,11 @@ class TestDeps {
        pings = FakePingRepository(pings),
        lists = FakeListsRepository(lists: lists, items: listItems),
        announcements = FakeAnnouncementsRepository(announcements),
+       pill = FakePillRepository(
+         settings: pillSettings,
+         intakes: pillIntakes,
+         partner: partnerPill,
+       ),
        auth = FakeAuthRepository(user: user),
        profiles = FakeProfileRepository(
          mine: myProfile ?? profile(partner: partner?.id),
@@ -94,6 +105,8 @@ class TestDeps {
   final FakePingRepository pings;
   final FakeListsRepository lists;
   final FakeAnnouncementsRepository announcements;
+  final FakePillRepository pill;
+  final FakeLocalNotifications notifications = FakeLocalNotifications();
   final FakePhoneCalendar phoneCalendar;
 
   /// Add a push to it to tap that notification: [OpenedNotePush] for a
@@ -119,6 +132,8 @@ class TestDeps {
     pingRepositoryProvider.overrideWithValue(pings),
     listsRepositoryProvider.overrideWithValue(lists),
     announcementsRepositoryProvider.overrideWithValue(announcements),
+    localNotificationsProvider.overrideWithValue(notifications),
+    pillRepositoryProvider.overrideWithValue(pill),
     phoneCalendarProvider.overrideWithValue(phoneCalendar),
     clockProvider.overrideWithValue(() => now),
     minuteTickProvider.overrideWith((ref) => Stream.value(0)),

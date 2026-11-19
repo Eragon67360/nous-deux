@@ -21,6 +21,7 @@ import 'package:nousdeux/presentation/screens/period/cycle_sharing_screen.dart';
 import 'package:nousdeux/presentation/screens/period/guide/guide_screen.dart';
 import 'package:nousdeux/presentation/screens/period/partner_cycle_view.dart';
 import 'package:nousdeux/presentation/widgets/cycle_ring.dart';
+import 'package:nousdeux/presentation/screens/period/pill_section.dart';
 import 'package:nousdeux/presentation/widgets/notebook.dart';
 
 /// R1: my cycle today. Where I am, when the next period should come, one
@@ -92,6 +93,8 @@ class CycleTodayView extends ConsumerWidget {
           ),
           _NoteRow(day: stats.today, lang: lang),
         ],
+        // The pill, whether or not a partner is there (docs/PILL.md).
+        const PillSection(),
         if (phase != null) ...[
           const NotebookRule(),
           NotebookLabel(cycleThisWeek(lang)),

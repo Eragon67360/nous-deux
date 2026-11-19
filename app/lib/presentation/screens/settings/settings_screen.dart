@@ -12,7 +12,10 @@ import 'package:nousdeux/core/constants/period_education.dart'
     show periodScreenTitle;
 import 'package:nousdeux/core/constants/cycle_strings.dart';
 import 'package:nousdeux/core/constants/news_strings.dart';
+import 'package:nousdeux/core/constants/pill_strings.dart';
 import 'package:nousdeux/core/services/feedback_mail.dart';
+import 'package:nousdeux/core/services/pill_reminders.dart';
+import 'package:nousdeux/core/services/local_notifications.dart';
 import 'package:nousdeux/core/constants/settings_strings.dart';
 import 'package:nousdeux/presentation/providers/announcements_provider.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
@@ -21,9 +24,12 @@ import 'package:nousdeux/presentation/providers/own_words_provider.dart';
 import 'package:nousdeux/presentation/providers/pairing_provider.dart';
 import 'package:nousdeux/presentation/providers/cycle_provider.dart';
 import 'package:nousdeux/presentation/providers/period_provider.dart';
+import 'package:nousdeux/presentation/providers/pill_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 import 'package:nousdeux/presentation/providers/settings_provider.dart';
 import 'package:nousdeux/presentation/screens/period/cycle_consent.dart';
+import 'package:nousdeux/presentation/screens/period/pill_setup_screen.dart';
+import 'package:nousdeux/presentation/screens/settings/pill_settings_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -129,7 +135,7 @@ class SettingsScreen extends ConsumerWidget {
               // Règles: whether the tab is my tracker or my partner's cycle.
               _SettingsGroup(
                 title: periodScreenTitle(lang),
-                children: const [_TracksCycleSwitch()],
+                children: const [_TracksCycleSwitch(), _PillTile()],
               ),
               const SizedBox(height: AppSpacing.lg),
 
@@ -696,6 +702,21 @@ class _TracksCycleSwitch extends ConsumerWidget {
             .read(cycleRepositoryProvider)
             .deleteAllMyData();
         if (failure != null) return say(cycleSaveFailed(lang));
+        // « Tout supprimer » includes the pill, health data too.
+        if (ref.read(pillSettingsProvider).valueOrNull != null) {
+          final pillFailure = await ref
+              .read(pillRepositoryProvider)
+              .stopTracking();
+          if (pillFailure != null) return say(cycleSaveFailed(lang));
+          try {
+            await ref
+                .read(localNotificationsProvider)
+                .cancelRange(pillReminderFirstId, pillSnoozeId);
+          } catch (_) {}
+          ref
+            ..invalidate(pillSettingsProvider)
+            ..invalidate(pillWeekProvider);
+        }
         deleted = true;
         // The states of one's own saved on this phone are cycle data too.
         await ref.read(ownStatesProvider.notifier).clear();
@@ -1094,6 +1115,37 @@ class _NewsTile extends ConsumerWidget {
               ],
             ),
       onTap: () => context.push(AppRoutes.settingsNews),
+    );
+  }
+}
+
+/// « Suivi de la pilule », for someone who tracks their cycle: its settings,
+/// or the setup when it isn't on yet.
+class _PillTile extends ConsumerWidget {
+  const _PillTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(myProfileProvider).valueOrNull;
+    final pill = ref.watch(pillSettingsProvider);
+    final tracking = pill.valueOrNull != null;
+    // Offered to cycle trackers; once on, reachable whatever the cycle.
+    if (profile == null || (profile.tracksCycle != true && !tracking)) {
+      return const SizedBox.shrink();
+    }
+    final lang = profile.language;
+    return _SettingsTile(
+      title: pillSettingsTitle(lang),
+      // Not before the settings are known: setup must not stand in for them.
+      onTap: !pill.hasValue
+          ? null
+          : () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => tracking
+                    ? const PillSettingsScreen()
+                    : const PillSetupScreen(),
+              ),
+            ),
     );
   }
 }
