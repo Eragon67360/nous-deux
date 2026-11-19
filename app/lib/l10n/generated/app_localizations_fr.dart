@@ -1737,9 +1737,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get pillWeekOff => 'arrêt';
 
   @override
-  String get pillLateTitle => 'Pas encore cochée ce soir';
-
-  @override
   String get pillTookItAt => 'Je l\'ai prise à';
 
   @override
@@ -1833,6 +1830,35 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String pillBreakUntil(String date) {
     return 'Arrêt jusqu\'au $date';
+  }
+
+  @override
+  String get pillReminderBodyNewPack =>
+      'C\'est l\'heure de votre pilule : premier comprimé d\'une nouvelle plaquette.';
+
+  @override
+  String get pillNewPackMorningClear =>
+      'Nouvelle plaquette aujourd\'hui : emportez-la si vous sortez.';
+
+  @override
+  String pillNewPackMorningDiscreet(String time) {
+    return 'Votre rappel de $time reprend aujourd\'hui.';
+  }
+
+  @override
+  String pillPackTypeNote(String type) {
+    String _temp0 = intl.Intl.selectLogic(type, {
+      'p21x7': '21 comprimés, puis 7 jours d\'arrêt sans rappel.',
+      'p28':
+          '28 comprimés sans arrêt, y compris ceux sans hormone s\'il y en a.',
+      'other': 'Un comprimé chaque jour, sans arrêt.',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String pillLockScreenPreview(String title, String body) {
+    return 'Vous verrez : « $title · $body »';
   }
 
   @override

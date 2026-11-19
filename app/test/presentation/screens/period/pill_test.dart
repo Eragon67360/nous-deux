@@ -63,6 +63,32 @@ void main() {
       expect(saved.reminderText, ReminderText.discreet);
     });
 
+    testWidgets('each pack type says what it means', (tester) async {
+      useTallSurface(tester);
+      await pumpScreen(
+        tester,
+        const PillSetupScreen(),
+        deps: TestDeps(now: DateTime(2026, 11, 18, 10)),
+      );
+
+      expect(
+        find.text("21 comprimés, puis 7 jours d'arrêt sans rappel."),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(pillPackType('fr', PackType.p28)));
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          "28 comprimés sans arrêt, y compris ceux sans hormone s'il y en a.",
+        ),
+        findsOneWidget,
+      );
+      await tester.tap(find.text(pillPackType('fr', PackType.continuous)));
+      await tester.pumpAndSettle();
+      expect(find.text('Un comprimé chaque jour, sans arrêt.'), findsOneWidget);
+      expect(find.textContaining('21 comprimés'), findsNothing);
+    });
+
     testWidgets('no consent: nothing saved', (tester) async {
       useTallSurface(tester);
       final deps = TestDeps(now: DateTime(2026, 11, 18, 10));
@@ -183,7 +209,7 @@ void main() {
       );
       await pumpScreen(tester, _inPage(const PillSection()), deps: deps);
 
-      expect(find.text(pillLateTitle('fr')), findsOneWidget);
+      expect(find.text(pillNotTickedToday('fr')), findsOneWidget);
       expect(find.text(pillIfMissedBody('fr')), findsOneWidget);
       final sheet = sourcesMissedPill('fr').first;
       expect(
@@ -196,6 +222,54 @@ void main() {
       await tester.pumpAndSettle();
       expect(deps.pill.missedCalls, [_today]);
       expect(find.text(pillNotedMissed('fr')), findsOneWidget);
+    });
+
+    testWidgets('late after a morning reminder: never « ce soir »', (
+      tester,
+    ) async {
+      useTallSurface(tester);
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 18, 10, 30),
+        pillSettings: PillSettings(
+          packType: PackType.p21x7,
+          packStartedOn: DateTime(2026, 11, 7),
+          reminderTime: (hour: 9, minute: 0),
+        ),
+      );
+      await pumpScreen(tester, _inPage(const PillSection()), deps: deps);
+
+      expect(find.text(pillIfMissedBody('fr')), findsOneWidget);
+      expect(find.textContaining('ce soir'), findsNothing);
+      expect(find.text("Pas encore cochée aujourd'hui"), findsOneWidget);
+    });
+
+    testWidgets('missed days have their own grey mark in the pack', (
+      tester,
+    ) async {
+      useTallSurface(tester);
+      final deps = TestDeps(
+        now: DateTime(2026, 11, 18, 20),
+        pillSettings: _settings(),
+        pillIntakes: [
+          // Two in the same week of the pack: the same row.
+          PillIntake.missed(DateTime(2026, 11, 15)),
+          PillIntake.missed(DateTime(2026, 11, 16)),
+          PillIntake.taken(
+            DateTime(2026, 11, 17),
+            DateTime(2026, 11, 17, 21, 3),
+          ),
+        ],
+      );
+      await pumpScreen(tester, _inPage(const PillSection()), deps: deps);
+
+      expect(tester.takeException(), isNull);
+      final lines = find.byKey(const ValueKey('pill-dot-missed-line'));
+      expect(lines, findsNWidgets(2));
+      final scheme = Theme.of(tester.element(lines.first)).colorScheme;
+      for (final line in tester.widgetList<Container>(lines)) {
+        expect(line.color, scheme.outline);
+        expect(line.color, isNot(scheme.error));
+      }
     });
 
     testWidgets('after midnight, yesterday\'s pill can still be ticked', (
@@ -316,6 +390,68 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(deps.pill.savedSettings.last.shareWithPartner, isFalse);
+    });
+
+    testWidgets('the lock-screen choice shows what will appear', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      expect(
+        find.text(
+          'Vous verrez\u00a0: «\u00a0Petit rappel · Votre rappel de 21:00.\u00a0»',
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.text("21 comprimés, puis 7 jours d'arrêt sans rappel."),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.text(pillLockScreenChoice('fr', ReminderText.clear)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text(
+          "Vous verrez\u00a0: «\u00a0Pilule · C'est l'heure de votre pilule. Comprimé 12.\u00a0»",
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the preview shows the next reminder that will ring', (
+      tester,
+    ) async {
+      useTallSurface(tester);
+      Future<void> pumpWith(PillSettings s, List<PillIntake> intakes) =>
+          pumpScreen(
+            tester,
+            const PillSettingsScreen(),
+            deps: TestDeps(
+              now: DateTime(2026, 11, 18, 21, 10),
+              myProfile: profile(partner: partnerId),
+              partner: partnerProfile(),
+              couple: couple(pairingCode: null),
+              pillSettings: s,
+              pillIntakes: intakes,
+            ),
+          );
+
+      // Today's pill 12 ticked: the next one is tomorrow's, pill 13.
+      await pumpWith(_settings(text: ReminderText.clear), [
+        PillIntake.taken(_today, DateTime(2026, 11, 18, 21, 5)),
+      ]);
+      expect(
+        find.text(
+          "Vous verrez\u00a0: «\u00a0Pilule · C'est l'heure de votre pilule. Comprimé 13.\u00a0»",
+        ),
+        findsOneWidget,
+      );
+
+      // Reminders off: nothing will show, so no preview.
+      await pumpWith(_settings(reminderOn: false), const []);
+      expect(find.textContaining('Vous verrez'), findsNothing);
     });
 
     testWidgets('stopping asks first, then deletes everything', (tester) async {

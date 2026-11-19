@@ -304,3 +304,31 @@ Also from the board:
 1. Final whole-branch review.
 2. Open the PR into `dev` marked "do not merge before build 29 is fully out".
 3. Then, on Thomas's word: merge, apply the migration, release build 30 with the update screen and the first Nouveautés message.
+
+## After a first read by a tester (Evah, 2026-11-19)
+
+Changed before build 30:
+
+- **Pack types:** one line under the choice, in the setup and the settings, for the selected type:
+  - 21 + 7: « 21 comprimés, puis 7 jours d'arrêt sans rappel. »
+  - 28: « 28 comprimés sans arrêt, y compris ceux sans hormone s'il y en a. »
+  - continuous: « Un comprimé chaque jour, sans arrêt. »
+  « 28 » and « En continu » still behave the same (packs of 28 counted); the line says only what each means.
+- **Lock screen:** under « Pilule » / « Petit rappel », the next pill day's first reminder as it will show (`pillFirstReminder()`, the planner's own wording).
+- **Late:** « Pas encore cochée aujourd'hui », whatever the reminder time; « ce soir » is gone.
+- **A missed day** has a short grey line in its dot in the pack grid: noted, not judged, never red.
+- **A new pack:** on day 1 of a 21 + 7 or 28 pack, the clear reminder says « premier comprimé d'une nouvelle plaquette ». After a 21 + 7 break, a heads-up comes at 9:00 that morning (ids from 1060), unless the reminder itself rings by 10:00:
+  - clear: « Nouvelle plaquette aujourd'hui : emportez-la si vous sortez. »
+  - discreet: « Votre rappel de 21:00 reprend aujourd'hui. »
+
+For a later build, with a board first:
+
+- a **critical delay** chosen from the leaflet (3 h, 12 h, 24 h…) instead of the brand, so a pill ticked after it, or not ticked by then, counts as missed; a notification at the limit (« Prise mais pas notée ? » with the time);
+- a **history** of the missed days by date, to show a doctor;
+- other daily treatments (skin, iron), without the pack wording.
+
+Known limits seen on the Galaxy S25:
+
+- « Dans 30 min » on the first reminder rings twice around +30 min, and opening the app drops the snooze (minor M2).
+- Android may deliver a reminder up to an hour late (`window=+1h` for a daily one). Opening the app between the reminder time and that delivery drops the first reminder; the second one still rings.
+- After a button, the notification stays in the shade.

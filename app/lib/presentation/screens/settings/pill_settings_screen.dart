@@ -111,6 +111,8 @@ class PillSettingsScreen extends ConsumerWidget {
                   onSelectionChanged: (s) =>
                       save(settings.copyWith(reminderText: s.first)),
                 ),
+                const SizedBox(height: 8),
+                _LockScreenPreview(lang: lang, settings: settings),
                 const NotebookRule(),
                 NotebookLabel(pillPackLabel(lang)),
                 const SizedBox(height: 10),
@@ -126,6 +128,11 @@ class PillSettingsScreen extends ConsumerWidget {
                   selected: {settings.packType},
                   onSelectionChanged: (s) =>
                       save(settings.copyWith(packType: s.first)),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  pillPackTypeNote(lang, settings.packType),
+                  style: theme.textTheme.bodySmall?.copyWith(color: muted),
                 ),
                 _TodayPill(lang: lang, settings: settings, onSave: save),
                 const NotebookRule(),
@@ -194,6 +201,38 @@ class PillSettingsScreen extends ConsumerWidget {
       ..invalidate(pillWeekProvider);
     if (navigator.canPop()) navigator.pop();
   }
+}
+
+/// The next reminder that will ring, as the lock screen will show it, so
+/// « Pilule » and « Petit rappel » need no explaining (Evah). It comes from
+/// the planner itself; nothing shows while the reminders are off.
+class _LockScreenPreview extends ConsumerWidget {
+  const _LockScreenPreview({required this.lang, required this.settings});
+
+  final String lang;
+  final PillSettings settings;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final next = planPillReminders(
+      settings: settings,
+      intakes: ref.watch(pillWeekProvider).valueOrNull ?? const [],
+      now: ref.watch(clockProvider)(),
+      lang: lang,
+    ).where(_isFirstOfDay).firstOrNull;
+    if (next == null) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+    return Text(
+      pillLockScreenPreview(lang, next.title, next.body),
+      style: theme.textTheme.bodySmall?.copyWith(
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+
+  /// A day's first reminder: not its +30 min one, the heads-up or the last.
+  static bool _isFirstOfDay(PlannedReminder r) =>
+      r.id >= pillReminderFirstId && r.id < pillNewPackFirstId && r.id.isEven;
 }
 
 /// « Comprimé d'aujourd'hui »: moves the pack so today is that pill.

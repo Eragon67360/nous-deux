@@ -134,6 +134,23 @@ void main() {
     expect(after.at.toUtc(), DateTime.utc(2026, 10, 26, 20));
   });
 
+  test('no discreet reminder names the pill, its number or the pack', () {
+    for (final lang in ['fr', 'en']) {
+      for (final r in plan(lang: lang)) {
+        final text = '${r.title} ${r.body}'.toLowerCase();
+        for (final word in [
+          'pilule',
+          'pill',
+          'comprimé',
+          'plaquette',
+          'pack',
+        ]) {
+          expect(text, isNot(contains(word)), reason: '$lang ${r.at}: $text');
+        }
+      }
+    }
+  });
+
   test('the discreet text never names the pill or its number', () {
     for (final lang in ['fr', 'en']) {
       for (final r in plan(lang: lang).take(2)) {
@@ -160,6 +177,141 @@ void main() {
     expect(pillDayFromPayload(first.payload), DateTime(2026, 11, 18));
     expect(pillDayFromPayload('{"kind":"other"}'), isNull);
     expect(pillDayFromPayload(null), isNull);
+  });
+
+  group('a new pack (Evah, 2026-11-19)', () {
+    // Day 1 after the pause: Saturday 5 December.
+    bool onDay(PlannedReminder r, int month, int day) =>
+        r.at.month == month && r.at.day == day;
+
+    test('its first reminder says a new pack starts', () {
+      final first = plan(
+        s: settings(text: ReminderText.clear),
+      ).firstWhere((r) => onDay(r, 12, 5) && r.at.hour == 21);
+      expect(
+        first.body,
+        "C'est l'heure de votre pilule\u00a0: premier comprimé d'une nouvelle plaquette.",
+      );
+    });
+
+    test('a heads-up at 9:00 that morning, in the chosen style', () {
+      final clear = plan(
+        s: settings(text: ReminderText.clear),
+      ).where((r) => onDay(r, 12, 5) && r.at.hour == 9).single;
+      expect(clear.title, 'Pilule');
+      expect(
+        clear.body,
+        "Nouvelle plaquette aujourd'hui\u00a0: emportez-la si vous sortez.",
+      );
+      expect(clear.actions, isEmpty);
+      expect(pillDayFromPayload(clear.payload), DateTime(2026, 12, 5));
+
+      final discreet = plan().where((r) => onDay(r, 12, 5) && r.at.hour == 9);
+      expect(discreet.single.title, 'Petit rappel');
+      expect(
+        discreet.single.body,
+        "Votre rappel de 21:00 reprend aujourd'hui.",
+      );
+    });
+
+    test('no heads-up when the reminder is itself in the morning', () {
+      final s = PillSettings(
+        packType: PackType.p21x7,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderTime: (hour: 10, minute: 0),
+        reminderText: ReminderText.clear,
+        timeZone: 'Europe/Paris',
+      );
+      final day1 = plan(s: s).where((r) => onDay(r, 12, 5)).toList();
+      expect(day1.map((r) => '${r.at.hour}:${r.at.minute}'), ['10:0', '10:30']);
+    });
+
+    test('a 28 pack: no heads-up, but its first pill says new pack', () {
+      final s = PillSettings(
+        packType: PackType.p28,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderText: ReminderText.clear,
+        timeZone: 'Europe/Paris',
+      );
+      final day1 = plan(s: s).where((r) => onDay(r, 12, 5)).toList();
+      expect(day1.map((r) => r.at.hour), [21, 21]);
+      expect(day1.first.body, contains('nouvelle plaquette'));
+    });
+
+    test('continuous: never a new pack', () {
+      final s = PillSettings(
+        packType: PackType.continuous,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderText: ReminderText.clear,
+        timeZone: 'Europe/Paris',
+      );
+      final reminders = plan(s: s);
+      expect(reminders.where((r) => r.at.hour == 9), isEmpty);
+      expect(reminders.where((r) => r.body.contains('plaquette')), isEmpty);
+    });
+
+    test('no buttons on iOS for the heads-up and the last reminder', () {
+      final reminders = plan(s: settings(text: ReminderText.clear));
+      final headsUp = reminders.where((r) => onDay(r, 12, 5) && r.at.hour == 9);
+      expect(headsUp.single.iosCategory, isNull);
+      expect(reminders.last.id, pillKeepAliveId);
+      expect(reminders.last.iosCategory, isNull);
+    });
+
+    test('no heads-up once day 1 is ticked', () {
+      final day1 = plan(
+        now: DateTime(2026, 12, 5, 8),
+        intakes: [
+          PillIntake.taken(DateTime(2026, 12, 5), DateTime(2026, 12, 5, 7, 50)),
+        ],
+      ).where((r) => onDay(r, 12, 5));
+      expect(day1, isEmpty);
+    });
+
+    test('on day 1 after 9:00, the evening reminders stay', () {
+      final day1 = plan(
+        now: DateTime(2026, 12, 5, 10),
+      ).where((r) => onDay(r, 12, 5)).map((r) => '${r.at.hour}:${r.at.minute}');
+      expect(day1, ['21:0', '21:30']);
+    });
+
+    test('a 10:30 reminder still gets the heads-up', () {
+      final s = PillSettings(
+        packType: PackType.p21x7,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderTime: (hour: 10, minute: 30),
+        timeZone: 'Europe/Paris',
+      );
+      final day1 = plan(
+        s: s,
+      ).where((r) => onDay(r, 12, 5)).map((r) => r.at.hour);
+      expect(day1, [9, 10, 11]);
+    });
+
+    test('no more days than the ids leave room for', () {
+      expect(
+        () => planPillReminders(
+          settings: settings(),
+          intakes: const [],
+          now: DateTime(2026, 11, 18, 12),
+          lang: 'fr',
+          days: pillPlanDays + 1,
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('every plan stays within iOS\'s 64 pending notifications', () {
+      for (final type in PackType.values) {
+        final s = PillSettings(
+          packType: type,
+          packStartedOn: DateTime(2026, 11, 7),
+          timeZone: 'Europe/Paris',
+        );
+        // Plus the period reminder and a snooze.
+        expect(plan(s: s).length + 2, lessThanOrEqualTo(64), reason: '$type');
+      }
+    });
   });
 
   group('kept up to date on the phone', () {

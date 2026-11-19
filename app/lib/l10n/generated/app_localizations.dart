@@ -2756,12 +2756,6 @@ abstract class AppLocalizations {
   /// **'off'**
   String get pillWeekOff;
 
-  /// No description provided for @pillLateTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Not ticked yet tonight'**
-  String get pillLateTitle;
-
   /// No description provided for @pillTookItAt.
   ///
   /// In en, this message translates to:
@@ -2923,6 +2917,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Break until {date}'**
   String pillBreakUntil(String date);
+
+  /// Clear-style reminder on day 1 of a new pack (21 + 7 and 28 packs).
+  ///
+  /// In en, this message translates to:
+  /// **'Time for your pill: the first of a new pack.'**
+  String get pillReminderBodyNewPack;
+
+  /// Clear-style heads-up at 9:00 on day 1 after a 21 + 7 pack's break.
+  ///
+  /// In en, this message translates to:
+  /// **'New pack today: take it with you if you go out.'**
+  String get pillNewPackMorningClear;
+
+  /// Discreet heads-up at 9:00 on day 1 after a 21 + 7 pack's break; names neither the pill nor the pack.
+  ///
+  /// In en, this message translates to:
+  /// **'Your {time} reminder starts again today.'**
+  String pillNewPackMorningDiscreet(String time);
+
+  /// One line under the pack type choice, for the selected type.
+  ///
+  /// In en, this message translates to:
+  /// **'{type, select, p21x7{21 pills, then 7 days off with no reminder.} p28{28 pills with no break, hormone-free ones too if your pack has them.} other{One pill every day, with no break.}}'**
+  String pillPackTypeNote(String type);
+
+  /// Under the lock-screen choice: the reminder as it will show.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll see: “{title} · {body}”'**
+  String pillLockScreenPreview(String title, String body);
 
   /// No description provided for @pillReminderKeepAlive.
   ///

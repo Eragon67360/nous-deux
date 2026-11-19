@@ -20,6 +20,10 @@ String pillNumberToday(String lang, int number) =>
 String pillPackLabel(String lang) => l10nFor(lang).pillPackLabel;
 String pillPackType(String lang, PackType type) =>
     l10nFor(lang).pillPackType(type.name);
+
+/// One line on what the pack type means, under its choice.
+String pillPackTypeNote(String lang, PackType type) =>
+    l10nFor(lang).pillPackTypeNote(type.name);
 String pillHealthNote(String lang) => l10nFor(lang).pillHealthNote;
 String pillContinue(String lang) => l10nFor(lang).pillContinue;
 String pillConsentTitle(String lang) => l10nFor(lang).pillConsentTitle;
@@ -37,7 +41,6 @@ String pillDayOff(String lang) => l10nFor(lang).pillDayOff;
 String pillThisWeek(String lang) => l10nFor(lang).pillThisWeek;
 String pillWeekMissed(String lang) => l10nFor(lang).pillWeekMissed;
 String pillWeekOff(String lang) => l10nFor(lang).pillWeekOff;
-String pillLateTitle(String lang) => l10nFor(lang).pillLateTitle;
 String pillTookItAt(String lang) => l10nFor(lang).pillTookItAt;
 String pillTakingNow(String lang) => l10nFor(lang).pillTakingNow;
 String pillIfMissed(String lang) => l10nFor(lang).pillIfMissed;
@@ -107,3 +110,7 @@ String pillShortDate(String lang, DateTime d) =>
 /// « jeu. », "Thu".
 String pillWeekday(String lang, DateTime d) =>
     DateFormat.E(AppLanguages.dateLocale(lang)).format(d);
+
+/// Under the lock-screen choice: the reminder as it will show.
+String pillLockScreenPreview(String lang, String title, String body) =>
+    l10nFor(lang).pillLockScreenPreview(title, body);
