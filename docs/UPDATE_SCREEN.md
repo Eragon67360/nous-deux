@@ -9,7 +9,7 @@
 - **Recording builds:** the release jobs record their build through `record_app_build()`, a definer function that wants a dedicated token (`RELEASE_TOKEN`, a GitHub secret; only its SHA-256 is on the server).
 - **Detection:**
   - The iPhone compares its build with the iOS row.
-  - Android asks Google Play (in-app updates API), because the Play upload is a draft until Thomas promotes it. The note is shown only when Play's build is the one the row describes.
+  - Android asks Google Play (in-app updates API), because the release job publishes only to the internal testers: the closed test gets the build once it is promoted and Google has reviewed it. The note is shown only when Play's build is the one the row describes.
   - The minimum comes from the row on both platforms.
 - **App:** a gate above the router shows the screen over the app once someone is signed in (signed-out callers read nothing in public, `98_hardening`). It checks at start, on sign-in and on each resume. « Mettre à jour » opens TestFlight or Google Play; nothing installs by itself. « Plus tard » hides it until the next day; the obligatory screen has no « Plus tard ».
 

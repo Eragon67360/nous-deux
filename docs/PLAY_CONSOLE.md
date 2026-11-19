@@ -5,7 +5,7 @@ What to enter in the Play Console for `com.nousdeux.android`, written from the a
 ## Before you submit
 
 1. **Closed test before production.** Personal developer accounts created after 13 November 2023 must run a closed test with at least 12 testers who stay opted in for 14 days in a row before they can apply for production. The Console's Dashboard says whether this applies to your account.
-2. **The build.** Releasing `dev` to `main` without `[skip ci]` runs the Android workflow. It uploads the signed bundle to the internal testing track as a draft, and you publish it from the Console. The upload also sends every change waiting in the Console for review: Play refuses `changesNotSentForReview` for this app ("Changes are sent for review automatically"). Before releasing, finish or discard anything pending on the Publishing overview.
+2. **The build.** Releasing `dev` to `main` without `[skip ci]` runs the Android workflow. It publishes the signed bundle to the internal testers, with the line from `app/release_note.json` as release notes; then promote it to « Tests fermés - Alpha » in the Console and send it for review. The upload also sends every change waiting in the Console for review: Play refuses `changesNotSentForReview` for this app ("Changes are sent for review automatically"). Before releasing, finish or discard anything pending on the Publishing overview.
 
 ## Store settings
 
