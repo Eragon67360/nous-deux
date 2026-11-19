@@ -235,6 +235,76 @@ void main() {
       expect(deps.notifications.scheduled, isNotEmpty);
     });
 
+    test('after a new zone, the plan comes from the row read again', () async {
+      final (deps, c) = await start(
+        TestDeps(
+          now: DateTime(2026, 11, 18, 12),
+          pillSettings: settings(timeZone: 'UTC'),
+        ),
+      );
+      // Another phone moved the reminder to 22:00 meanwhile.
+      deps.pill.rowAfterZoneSave = PillSettings(
+        packType: PackType.p21x7,
+        packStartedOn: DateTime(2026, 11, 7),
+        reminderTime: (hour: 22, minute: 0),
+      );
+      final sub = c.listen(pillReminderSyncProvider, (_, _) {});
+      addTearDown(sub.close);
+      await pumpEventQueue();
+      expect(deps.pill.savedZones, ['Europe/Paris']);
+      final first = deps.notifications.scheduled[pillReminderFirstId];
+      expect(first?.at.hour, 22);
+    });
+
+    test('a failed read after saving the zone keeps the reminders', () async {
+      final (deps, c) = await start(
+        TestDeps(
+          now: DateTime(2026, 11, 18, 12),
+          pillSettings: settings(timeZone: 'UTC'),
+        ),
+      );
+      // Planned on an earlier run.
+      for (final r in plan(now: DateTime(2026, 11, 18, 12))) {
+        await deps.notifications.schedule(
+          id: r.id,
+          at: r.at,
+          channel: LocalChannel.pillReminder,
+          title: r.title,
+          body: r.body,
+        );
+      }
+      final before = deps.notifications.scheduled.length;
+      await c.read(pillSettingsProvider.future);
+      deps.pill.failSettingsReads = 1;
+      // The save succeeds, the read that follows doesn't (weak roaming).
+      final sub = c.listen(pillReminderSyncProvider, (_, _) {});
+      addTearDown(sub.close);
+      await pumpEventQueue();
+      expect(deps.pill.savedZones, ['Europe/Paris']);
+      expect(deps.notifications.scheduled.length, before);
+    });
+
+    test('a trip and back saves each new zone', () async {
+      final (deps, c) = await start(
+        TestDeps(
+          now: DateTime(2026, 11, 18, 12),
+          pillSettings: settings(timeZone: 'UTC'),
+        ),
+      );
+      final sub = c.listen(pillReminderSyncProvider, (_, _) {});
+      addTearDown(sub.close);
+      await pumpEventQueue();
+      c.read(localZoneProvider.notifier).state = 'America/New_York';
+      await pumpEventQueue();
+      c.read(localZoneProvider.notifier).state = 'Europe/Paris';
+      await pumpEventQueue();
+      expect(deps.pill.savedZones, [
+        'Europe/Paris',
+        'America/New_York',
+        'Europe/Paris',
+      ]);
+    });
+
     test('reminders off, or no tracking: nothing scheduled', () async {
       final (offDeps, off) = await start(
         TestDeps(

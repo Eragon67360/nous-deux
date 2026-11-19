@@ -1219,7 +1219,20 @@ class FakePillRepository implements PillRepository {
   }
 
   @override
-  Future<PillSettings?> mySettings() async => settings;
+  Future<PillSettings?> mySettings() async {
+    if (failSettingsReads > 0) {
+      failSettingsReads--;
+      throw Exception('no network');
+    }
+    return settings;
+  }
+
+  /// How many of the next settings reads fail (no network).
+  int failSettingsReads = 0;
+
+  /// What the row holds once the zone is saved, when it is newer than what
+  /// the app had read (another phone changed it).
+  PillSettings? rowAfterZoneSave;
 
   @override
   Future<Failure?> saveSettings(PillSettings s) async {
@@ -1235,7 +1248,9 @@ class FakePillRepository implements PillRepository {
     final f = _take();
     if (f != null) return f;
     savedZones.add(zone);
-    if (!dropZoneWrites) settings = settings?.copyWith(timeZone: zone);
+    if (!dropZoneWrites) {
+      settings = (rowAfterZoneSave ?? settings)?.copyWith(timeZone: zone);
+    }
     return null;
   }
 

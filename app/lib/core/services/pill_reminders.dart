@@ -265,8 +265,12 @@ Future<void> pillNotificationBackgroundHandler(NotificationResponse r) async {
   );
 }
 
-/// The zones the sync saved while the app runs.
-final _pillZonesSavedProvider = Provider<Set<String>>((ref) => <String>{});
+/// The last zone the sync tried to save while the app runs.
+class _ZoneTried {
+  String? zone;
+}
+
+final _pillZoneTriedProvider = Provider<_ZoneTried>((ref) => _ZoneTried());
 
 /// Keeps the phone's pill reminders matching my settings and days: watched
 /// by the main shell, so it runs at start, when the settings change and
@@ -284,21 +288,26 @@ final pillReminderSyncProvider = FutureProvider<void>((ref) async {
     myProfileProvider.select((p) => p.valueOrNull?.language ?? 'fr'),
   );
   try {
-    await notifications.cancelRange(pillReminderFirstId, pillSnoozeId);
-    if (settings == null || !live) return;
-    // The partner's "today" follows the phone: save a new zone once, alone
-    // (these settings may be older than the row). The next run reads it
-    // back and plans. Once per zone while the app runs, so a row that
-    // doesn't take it can't loop.
-    final saved = ref.read(_pillZonesSavedProvider);
-    if (settings.timeZone != zone && saved.add(zone)) {
+    // The partner's "today" follows the phone: save a new zone, alone (these
+    // settings may be older than the row), before touching what is
+    // scheduled. The next run reads the row back and plans; if that read
+    // fails, the reminders already scheduled stay. The same zone isn't
+    // tried twice in a row, so a row that doesn't take it can't loop.
+    final tried = ref.read(_pillZoneTriedProvider);
+    if (settings != null &&
+        live &&
+        settings.timeZone != zone &&
+        tried.zone != zone) {
+      tried.zone = zone;
       final failed = await ref.read(pillRepositoryProvider).saveTimeZone(zone);
       if (failed == null) {
         ref.invalidate(pillSettingsProvider);
         return;
       }
-      saved.remove(zone);
+      tried.zone = null;
     }
+    await notifications.cancelRange(pillReminderFirstId, pillSnoozeId);
+    if (settings == null || !live) return;
     for (final r in planPillReminders(
       settings: settings,
       intakes: days,

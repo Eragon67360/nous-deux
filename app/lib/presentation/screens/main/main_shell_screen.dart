@@ -218,6 +218,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen>
     // the phone is in now.
     ref.invalidate(pillWeekProvider);
     ref.invalidate(partnerPillTodayProvider);
+    // Settings that failed to load (no network) are read again, so the
+    // reminders are planned again.
+    if (ref.read(pillSettingsProvider).hasError) {
+      ref.invalidate(pillSettingsProvider);
+    }
     initLocalTimeZone().then((_) {
       if (!mounted) return;
       try {

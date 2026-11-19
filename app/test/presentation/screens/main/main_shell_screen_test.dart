@@ -451,6 +451,29 @@ void main() {
     });
   });
 
+  testWidgets('pill settings that failed to load are read again on return', (
+    tester,
+  ) async {
+    final deps = TestDeps(
+      now: DateTime(2026, 11, 10, 18),
+      pillSettings: PillSettings(
+        packType: PackType.p21x7,
+        packStartedOn: DateTime(2026, 11, 7),
+      ),
+    );
+    deps.pill.failSettingsReads = 1;
+    await _pumpShell(tester, deps);
+    bool planned() => deps.notifications.scheduled.keys.any(
+      (id) => id >= pillReminderFirstId,
+    );
+    expect(planned(), isFalse);
+
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.pumpAndSettle();
+    expect(planned(), isTrue);
+  });
+
   group('a message from the team', () {
     testWidgets('its tapped push opens Nouveautés, read again', (tester) async {
       final deps = TestDeps();
