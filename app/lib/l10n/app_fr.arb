@@ -473,7 +473,7 @@
   "pillBreakUntil": "Arrêt jusqu'au {date}",
   "pillReminderKeepAlive": "Ouvrez Nous Deux pour garder vos rappels.",
   "updateLabel": "Mise à jour",
-  "updateTitle": "Une nouvelle version est là",
+  "updateTitle": "Une nouvelle version est là",
   "updateBodyDefault": "Elle apporte les dernières nouveautés et corrections.",
   "updateYourVersion": "Votre version",
   "updateLatestVersion": "La dernière",
@@ -482,6 +482,6 @@
   "updateOpens": "{store, select, testflight{Ouvre TestFlight} other{Ouvre Google Play}}",
   "updateLater": "Plus tard",
   "updateRequiredLabel": "Mise à jour nécessaire",
-  "updateRequiredTitle": "Cette version ne marche plus",
+  "updateRequiredTitle": "Cette version ne marche plus",
   "updateRequiredBody": "Pour continuer avec Nous Deux, installez la dernière version. Vos données et votre couple restent là."
 }

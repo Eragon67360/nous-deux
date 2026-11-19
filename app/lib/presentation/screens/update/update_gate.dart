@@ -45,6 +45,12 @@ class _UpdateGateState extends ConsumerState<UpdateGate>
 
   @override
   Widget build(BuildContext context) {
+    // The page underneath gives up the keyboard when the screen shows.
+    ref.listen(updateOfferProvider, (previous, next) {
+      if (previous == null && next != null) {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+    });
     final offer = ref.watch(updateOfferProvider);
     return Stack(
       children: [
@@ -82,10 +88,13 @@ class UpdateScreen extends ConsumerWidget {
       color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
     );
 
+    // At the largest text sizes the build goes under its label.
     Widget row(String label, String value, {bool bright = false}) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 14),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        spacing: 16,
+        runSpacing: 4,
         children: [
           Text(label, style: muted),
           Text(

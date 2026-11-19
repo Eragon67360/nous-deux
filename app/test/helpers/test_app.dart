@@ -123,7 +123,13 @@ class TestDeps {
   final String installedBuild;
 
   /// The build Google Play offers, on Android.
-  final int? playBuild;
+  int? playBuild;
+
+  /// Google Play can't answer (an app not installed from Play).
+  bool playFails = false;
+
+  /// How many times the app asked Google Play.
+  int playChecks = 0;
 
   /// The links the app tried to open, in order.
   final openedLinks = <Uri>[];
@@ -160,7 +166,11 @@ class TestDeps {
     clockProvider.overrideWithValue(() => now),
     appBuildsRepositoryProvider.overrideWithValue(appBuilds),
     appBuildProvider.overrideWith((ref) async => installedBuild),
-    playUpdateCheckProvider.overrideWithValue(() async => playBuild),
+    playUpdateCheckProvider.overrideWithValue(() async {
+      playChecks++;
+      if (playFails) throw Exception('Play unavailable');
+      return playBuild;
+    }),
     openExternalLinkProvider.overrideWithValue((uri) async {
       openedLinks.add(uri);
       return linksThatOpen?.contains(uri) ?? true;

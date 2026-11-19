@@ -39,7 +39,7 @@ final updateFactsProvider = FutureProvider<UpdateFacts?>((ref) async {
   final published = await ref
       .watch(appBuildsRepositoryProvider)
       .published(isIos ? 'ios' : 'android');
-  final playBuild = isIos ? null : await ref.read(playUpdateCheckProvider)();
+  final playBuild = isIos ? null : await _askPlay(ref);
   final prefs = await SharedPreferences.getInstance();
   return (
     installed: installed,
@@ -49,6 +49,33 @@ final updateFactsProvider = FutureProvider<UpdateFacts?>((ref) async {
     laterDay: prefs.getString(updateLaterDayKey),
   );
 });
+
+/// Google Play's last answer and when it was asked.
+class _PlayAnswer {
+  int? build;
+  DateTime? at;
+}
+
+final _playAnswerProvider = Provider<_PlayAnswer>((ref) => _PlayAnswer());
+
+/// Asks Google Play at most every 30 minutes; meanwhile, and when Play
+/// can't answer, the last answer stands. The plugin adds a listener on each
+/// question, so asking on every return would pile them up.
+Future<int?> _askPlay(Ref ref) async {
+  final last = ref.read(_playAnswerProvider);
+  final now = ref.read(clockProvider)();
+  final at = last.at;
+  if (at != null && now.difference(at) < const Duration(minutes: 30)) {
+    return last.build;
+  }
+  last.at = now;
+  try {
+    last.build = await ref.read(playUpdateCheckProvider)();
+  } catch (_) {
+    // An app not installed from Play, no Play services, no network.
+  }
+  return last.build;
+}
 
 /// The day « Plus tard » was tapped while the app runs; the stored one is in
 /// [UpdateFacts].

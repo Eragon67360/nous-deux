@@ -75,7 +75,7 @@ jobs:
 
       # Same Flutter as the Android release: newer ones need Gradle 9.
       - name: Setup Flutter
-        if: success()
+        if: env.BUILD == 'true'
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
@@ -86,7 +86,7 @@ jobs:
       # installs the pods; fastlane then archives and signs. Same defines as
       # the Android release: the Google client ids are built in.
       - name: Prepare the Xcode project
-        if: success()
+        if: env.BUILD == 'true'
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -127,7 +127,7 @@ jobs:
       # (docs/UPDATE_SCREEN.md). A refusal only warns: the build is out
       # either way.
       - name: Tell older builds about this one
-        if: success()
+        if: env.BUILD == 'true'
         continue-on-error: true
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

@@ -18,19 +18,16 @@ final playStoreLinks = [
   ),
 ];
 
-/// Asks Google Play which build it offers this phone: null when none, off
-/// Android, or when Play can't answer (an app not installed from Play).
+/// Asks Google Play which build it offers this phone: null when none or off
+/// Android. Throws when Play can't answer (an app not installed from Play,
+/// no Play services, no network).
 final playUpdateCheckProvider = Provider<Future<int?> Function()>(
   (ref) => () async {
     if (defaultTargetPlatform != TargetPlatform.android) return null;
-    try {
-      final info = await InAppUpdate.checkForUpdate();
-      return info.updateAvailability == UpdateAvailability.updateAvailable
-          ? info.availableVersionCode
-          : null;
-    } catch (_) {
-      return null;
-    }
+    final info = await InAppUpdate.checkForUpdate();
+    return info.updateAvailability == UpdateAvailability.updateAvailable
+        ? info.availableVersionCode
+        : null;
   },
 );
 

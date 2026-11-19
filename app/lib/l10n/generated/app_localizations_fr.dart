@@ -1843,7 +1843,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get updateLabel => 'Mise à jour';
 
   @override
-  String get updateTitle => 'Une nouvelle version est là';
+  String get updateTitle => 'Une nouvelle version est là';
 
   @override
   String get updateBodyDefault =>
@@ -1879,7 +1879,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get updateRequiredLabel => 'Mise à jour nécessaire';
 
   @override
-  String get updateRequiredTitle => 'Cette version ne marche plus';
+  String get updateRequiredTitle => 'Cette version ne marche plus';
 
   @override
   String get updateRequiredBody =>

@@ -160,3 +160,15 @@
   - « Mettre à jour » opens the TestFlight fallback in Safari (TestFlight isn't on the simulator).
 - [ ] With `min_build` = 30, the obligatory screen shows and nothing else can be reached.
 - [ ] Reset the rehearsal rows to 0. Fresh review on the most capable model, then one fix pass. PR into `dev`, merge.
+
+## After the review (2026-11-19)
+
+- **A failed check keeps the screen.** A read error throws instead of reading as "none", so the screen keeps its last answer: the obligatory one can't vanish on a weak connection.
+- **Google Play:** it is asked at most every 30 minutes. The plugin adds a listener on each question, and when Play fails the last answer stands.
+- **The line** in `app/release_note.json` names its `build`. A line written for another build is left out.
+- **The iOS record step runs only after an upload** (`BUILD == 'true'`). A « Send the latest build » retry records nothing, and the row is fixed with `--latest`. A wrong row naming a build nobody can get would be worse than a missed one.
+- **`--min`** is refused above the latest recorded build unless `--force`. On Android, use it once the build is released in Play.
+- **Known limits:**
+  - An Android app installed from the GitHub release APK gets no « nouvelle version » screen, because Play refuses to answer for it. Below the minimum it still gets board 2.
+  - Play can take a few hours to offer a new build.
+  - From 1.0.0, a TestFlight build that waits for Apple's beta review is announced before testers can install it.
