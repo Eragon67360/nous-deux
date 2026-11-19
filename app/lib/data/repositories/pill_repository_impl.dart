@@ -81,6 +81,14 @@ class PillRepositoryImpl implements PillRepository {
   );
 
   @override
+  Future<Failure?> saveTimeZone(String zone) => _guard(
+    (uid) => _client
+        .from('pill_tracking')
+        .update({'time_zone': zone})
+        .eq('user_id', uid),
+  );
+
+  @override
   Future<List<PillIntake>> myIntakes({required DateTime from}) async {
     final uid = _userId;
     if (uid == null) return const [];

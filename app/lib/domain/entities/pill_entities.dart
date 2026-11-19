@@ -50,6 +50,7 @@ class PillSettings extends Equatable {
     TimeOfDayValue? reminderTime,
     ReminderText? reminderText,
     bool? shareWithPartner,
+    String? timeZone,
   }) => PillSettings(
     packType: packType ?? this.packType,
     packStartedOn: packStartedOn ?? this.packStartedOn,
@@ -57,7 +58,7 @@ class PillSettings extends Equatable {
     reminderTime: reminderTime ?? this.reminderTime,
     reminderText: reminderText ?? this.reminderText,
     shareWithPartner: shareWithPartner ?? this.shareWithPartner,
-    timeZone: timeZone,
+    timeZone: timeZone ?? this.timeZone,
   );
 
   @override

@@ -8,6 +8,9 @@ abstract class PillRepository {
   /// Starts tracking (the database records the consent) or changes it.
   Future<Failure?> saveSettings(PillSettings settings);
 
+  /// Writes only the phone's zone (IANA name), the partner's "today".
+  Future<Failure?> saveTimeZone(String zone);
+
   /// My days from [from] on.
   Future<List<PillIntake>> myIntakes({required DateTime from});
 

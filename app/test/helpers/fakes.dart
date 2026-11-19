@@ -1202,6 +1202,10 @@ class FakePillRepository implements PillRepository {
   Failure? nextFailure;
 
   final savedSettings = <PillSettings>[];
+  final savedZones = <String>[];
+
+  /// The row doesn't take the zone (an update that changes nothing).
+  bool dropZoneWrites = false;
   final takenCalls = <DateTime>[];
   final missedCalls = <DateTime>[];
   final unmarkCalls = <DateTime>[];
@@ -1223,6 +1227,15 @@ class FakePillRepository implements PillRepository {
     if (f != null) return f;
     savedSettings.add(s);
     settings = s;
+    return null;
+  }
+
+  @override
+  Future<Failure?> saveTimeZone(String zone) async {
+    final f = _take();
+    if (f != null) return f;
+    savedZones.add(zone);
+    if (!dropZoneWrites) settings = settings?.copyWith(timeZone: zone);
     return null;
   }
 

@@ -8,6 +8,7 @@ import 'package:nousdeux/core/services/pill_reminders.dart';
 import 'package:nousdeux/domain/entities/pill_entities.dart';
 import 'package:nousdeux/domain/pill/pill_schedule.dart';
 import 'package:nousdeux/presentation/providers/auth_provider.dart';
+import 'package:nousdeux/presentation/providers/pill_provider.dart';
 import 'package:nousdeux/presentation/providers/profile_provider.dart';
 
 import '../../helpers/test_app.dart';
@@ -18,12 +19,14 @@ PillSettings settings({
   ReminderText text = ReminderText.discreet,
   bool reminderOn = true,
   DateTime? startedOn,
+  String timeZone = 'Europe/Paris',
 }) => PillSettings(
   packType: PackType.p21x7,
   packStartedOn: startedOn ?? DateTime(2026, 11, 7),
   reminderOn: reminderOn,
   reminderTime: (hour: 21, minute: 0),
   reminderText: text,
+  timeZone: timeZone,
 );
 
 List<PlannedReminder> plan({
@@ -188,17 +191,48 @@ void main() {
       expect(deps.notifications.scheduled, isNotEmpty);
     });
 
-    test('a new time zone is saved, and the plan follows it', () async {
+    test(
+      'the phone zone is saved once, alone, and the plan follows it',
+      () async {
+        final (deps, c) = await start(
+          TestDeps(
+            now: DateTime(2026, 11, 18, 12),
+            pillSettings: settings(timeZone: 'UTC'),
+          ),
+        );
+        // The settings came with UTC; the phone is in Paris.
+        await c.read(pillReminderSyncProvider.future);
+        await c.read(pillReminderSyncProvider.future);
+        expect(deps.pill.savedZones, ['Europe/Paris']);
+        // Only the zone: the cached settings may be older than the row.
+        expect(deps.pill.savedSettings, isEmpty);
+        expect(deps.notifications.scheduled, isNotEmpty);
+        // A resume reloads the days; the zone is not saved again.
+        c.invalidate(pillWeekProvider);
+        await c.read(pillReminderSyncProvider.future);
+        expect(deps.pill.savedZones, ['Europe/Paris']);
+        final before = deps.notifications.cancelled.length;
+        c.read(localZoneProvider.notifier).state = 'America/New_York';
+        await c.read(pillReminderSyncProvider.future);
+        await c.read(pillReminderSyncProvider.future);
+        expect(deps.pill.savedZones, ['Europe/Paris', 'America/New_York']);
+        expect(deps.notifications.cancelled.length, greaterThan(before));
+      },
+    );
+
+    test('a row that keeps its old zone is not saved again', () async {
       final (deps, c) = await start(
-        TestDeps(now: DateTime(2026, 11, 18, 12), pillSettings: settings()),
+        TestDeps(
+          now: DateTime(2026, 11, 18, 12),
+          pillSettings: settings(timeZone: 'UTC'),
+        ),
       );
-      // The settings came with the default UTC; the phone is in Paris.
+      deps.pill.dropZoneWrites = true;
       await c.read(pillReminderSyncProvider.future);
-      expect(deps.pill.savedSettings, hasLength(1));
-      final before = deps.notifications.cancelled.length;
-      c.read(localZoneProvider.notifier).state = 'America/New_York';
       await c.read(pillReminderSyncProvider.future);
-      expect(deps.notifications.cancelled.length, greaterThan(before));
+      await c.read(pillReminderSyncProvider.future);
+      expect(deps.pill.savedZones, ['Europe/Paris']);
+      expect(deps.notifications.scheduled, isNotEmpty);
     });
 
     test('reminders off, or no tracking: nothing scheduled', () async {

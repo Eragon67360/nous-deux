@@ -265,6 +265,9 @@ Future<void> pillNotificationBackgroundHandler(NotificationResponse r) async {
   );
 }
 
+/// The zones the sync saved while the app runs.
+final _pillZonesSavedProvider = Provider<Set<String>>((ref) => <String>{});
+
 /// Keeps the phone's pill reminders matching my settings and days: watched
 /// by the main shell, so it runs at start, when the settings change and
 /// after a tick (which reloads the days).
@@ -283,9 +286,18 @@ final pillReminderSyncProvider = FutureProvider<void>((ref) async {
   try {
     await notifications.cancelRange(pillReminderFirstId, pillSnoozeId);
     if (settings == null || !live) return;
-    // The partner's "today" follows the phone: save a new zone once.
-    if (settings.timeZone != zone) {
-      await ref.read(pillRepositoryProvider).saveSettings(settings);
+    // The partner's "today" follows the phone: save a new zone once, alone
+    // (these settings may be older than the row). The next run reads it
+    // back and plans. Once per zone while the app runs, so a row that
+    // doesn't take it can't loop.
+    final saved = ref.read(_pillZonesSavedProvider);
+    if (settings.timeZone != zone && saved.add(zone)) {
+      final failed = await ref.read(pillRepositoryProvider).saveTimeZone(zone);
+      if (failed == null) {
+        ref.invalidate(pillSettingsProvider);
+        return;
+      }
+      saved.remove(zone);
     }
     for (final r in planPillReminders(
       settings: settings,
