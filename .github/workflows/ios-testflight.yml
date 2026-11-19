@@ -41,7 +41,12 @@ jobs:
   testflight:
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     name: ${{ inputs.action || 'Build and upload' }}
-    runs-on: macos-26
+    # Xcode 27, for the iOS 27 SDK: from April 2027 App Store Connect refuses
+    # builds made with an older one (ITMS-90725 on build 29, built on macos-26
+    # with Xcode 26.6 and the iOS 26.5 SDK). `xcode-27` is still a GitHub
+    # preview (macOS 27, Xcode 27.x); if it misbehaves, macos-26 works until
+    # then.
+    runs-on: xcode-27
     timeout-minutes: 90
     environment: app-store
     defaults:
@@ -71,7 +76,18 @@ jobs:
             echo "Missing secrets in the app-store environment:$missing" >&2
             exit 1
           fi
+
+      - name: Check the iOS SDK
+        if: env.BUILD == 'true'
+        run: |
           xcodebuild -version
+          sdk=$(xcrun --sdk iphoneos --show-sdk-version)
+          echo "iOS SDK $sdk"
+          # An empty or odd answer fails too.
+          if ! [ "${sdk%%.*}" -ge 27 ] 2>/dev/null; then
+            echo "::error::iOS SDK $sdk: App Store Connect wants iOS 27 or later from April 2027 (ITMS-90725)." >&2
+            exit 1
+          fi
 
       # Same Flutter as the Android release: newer ones need Gradle 9.
       - name: Setup Flutter
